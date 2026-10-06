@@ -2,6 +2,12 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach [SemVer](https://semver.org/). Der Changelog des Ursprungsprojekts Lattice liegt unverändert in [`docs/lattice-changelog.md`](docs/lattice-changelog.md).
 
+## [0.2.1] – 2026-10-06
+
+### Geändert
+
+- Stellentyp kompatibel mit FlexAnnotate: Gelesen werden `#flexannotate-locator-<typ>` (Annotation) und `#flexannotate-default-locator-<typ>` (Dokument-Standard am Anhang). Wo diese Tags in Gebrauch sind, ändert Annotree sie nach denselben Regeln wie FlexAnnotate (automatisches Tag, keins bei „Seite“ ohne abweichenden Standard) und legt kein eigenes Tag an; ein vorhandenes eigenes Tag wird dabei abgelöst. Ohne FlexAnnotate-Tags bleibt es beim privaten Tag `annotree:locator=<typ>`.
+
 ## [0.2.0] – 2026-10-06
 
 ### Hinzugefügt

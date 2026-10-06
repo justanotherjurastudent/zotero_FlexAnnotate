@@ -326,6 +326,55 @@ describe("Annotree features", function () {
     });
   });
 
+  // ── FlexAnnotate compatibility ────────────────────────────────────────────
+  describe("locator tags shared with FlexAnnotate", function () {
+    let att: Zotero.Item;
+    let a1: Zotero.Item;
+    let a2: Zotero.Item;
+
+    before(async function () {
+      const work = await makeWork("Flex Werk");
+      att = await makePdfAttachment(work);
+      a1 = await makeAnnotation(att, "Flex eins", "1", 0);
+      a2 = await makeAnnotation(att, "Flex zwei", "2", 1);
+    });
+
+    after(cleanup);
+
+    const rowOf = async (id: number, locator: string) =>
+      waitForAsync(async () => {
+        const rows = await api().organizerData.loadAnnotationRows(libraryID());
+        const r = rows.find((x: any) => x.id === id);
+        return r && r.locator === locator ? r : null;
+      });
+    const tagsOf = (i: Zotero.Item) => i.getTags().map((t) => t.tag);
+
+    it("reads FlexAnnotate's annotation tag and edits it without a tag of its own", async function () {
+      a1.addTag("#flexannotate-locator-paragraph", 1);
+      await a1.saveTx();
+      await rowOf(a1.id, "paragraph");
+      await api().organizerData.saveAnnotation(a1.id, { locator: "section" });
+      const tags = tagsOf(a1);
+      assert.include(tags, "#flexannotate-locator-section");
+      assert.notInclude(tags, "#flexannotate-locator-paragraph");
+      assert.isFalse(tags.some((t) => t.startsWith("annotree:locator=")));
+      // it is an automatic tag, like FlexAnnotate sets it
+      const t = a1.getTags().find((x) => x.tag.endsWith("section"))!;
+      assert.equal(t.type, 1);
+    });
+
+    it("respects the document default on the attachment", async function () {
+      att.addTag("#flexannotate-default-locator-chapter", 1);
+      await att.saveTx();
+      await rowOf(a2.id, "chapter");
+      // choosing page against a non-page default needs an explicit tag
+      await api().organizerData.saveAnnotation(a2.id, { locator: "page" });
+      const tags = tagsOf(a2);
+      assert.include(tags, "#flexannotate-locator-page");
+      assert.isFalse(tags.some((t) => t.startsWith("annotree:locator=")));
+    });
+  });
+
   // ── Word dialog ───────────────────────────────────────────────────────────
   describe("citation dialog (as opened from Word)", function () {
     let noteID: number;

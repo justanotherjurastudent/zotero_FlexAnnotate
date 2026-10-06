@@ -12,9 +12,8 @@ import { collectionOptions, scopeCollectionIDs } from "../core/collections";
 import type { ColNode } from "../core/collections";
 import {
   FALLBACK_LOCATORS,
-  isLocatorTag,
   locatorOf,
-  LOCATOR_PREFIX,
+  locatorTagChanges,
 } from "../core/locator";
 
 export type RowKind = "work" | "annotation";
@@ -55,6 +54,15 @@ function bylineOf(item: Zotero.Item): string {
 export async function loadAnnotationRows(libraryID: number): Promise<Row[]> {
   await AnnotationIndex.ensureBuilt(libraryID);
   const out: Row[] = [];
+  // FlexAnnotate keeps a per-document default locator as a tag on the attachment
+  const attachmentTags = new Map<number, string[]>();
+  const tagsOfAttachment = (id: number): string[] => {
+    if (!attachmentTags.has(id)) {
+      const att = Zotero.Items.get(id) as Zotero.Item | false;
+      attachmentTags.set(id, att ? att.getTags().map((t) => t.tag) : []);
+    }
+    return attachmentTags.get(id)!;
+  };
   for (const rec of AnnotationIndex.all()) {
     if (rec.libraryID !== libraryID) continue;
     const paper = Zotero.Items.get(rec.parentItemID) as Zotero.Item | false;
@@ -75,7 +83,7 @@ export async function loadAnnotationRows(libraryID: number): Promise<Row[]> {
       attachmentID: rec.attachmentID,
       attachmentKey: rec.attachmentKey,
       libraryID,
-      locator: locatorOf(rec.tags),
+      locator: locatorOf(rec.tags, tagsOfAttachment(rec.attachmentID)),
       // Zotero 10 item.js:1587-1590 — others' group annotations are read-only
       readOnly: item ? !(item as any).isEditable?.() : false,
     });
@@ -273,10 +281,14 @@ export async function saveAnnotation(
   if (patch.comment !== undefined) a.annotationComment = patch.comment;
   if (patch.pageLabel !== undefined) a.annotationPageLabel = patch.pageLabel;
   if (patch.locator !== undefined) {
-    for (const t of item.getTags())
-      if (isLocatorTag(t.tag)) item.removeTag(t.tag);
-    if (patch.locator && patch.locator !== "page")
-      item.addTag(LOCATOR_PREFIX + patch.locator);
+    const attachment = item.parentItem as Zotero.Item | undefined;
+    const changes = locatorTagChanges(
+      item.getTags().map((t) => t.tag),
+      attachment ? attachment.getTags().map((t) => t.tag) : [],
+      patch.locator,
+    );
+    for (const tag of changes.remove) item.removeTag(tag);
+    for (const { tag, type } of changes.add) item.addTag(tag, type);
   }
   await item.saveTx();
   return true;
