@@ -134,3 +134,110 @@ describe("organizer data and filing", function () {
     await note.eraseTx();
   });
 });
+
+function findOrganizerWindow(): Window | null {
+  const en = Services.wm.getEnumerator(null);
+  while (en.hasMoreElements()) {
+    const w = en.getNext() as Window;
+    if (w.document?.getElementById("annotree-root")) return w;
+  }
+  return null;
+}
+
+async function waitFor<T>(fn: () => T | null | false, ms = 15000): Promise<T> {
+  const end = Date.now() + ms;
+  while (Date.now() < end) {
+    const v = fn();
+    if (v) return v;
+    await Zotero.Promise.delay(100);
+  }
+  throw new Error("waitFor timed out");
+}
+
+describe("organizer window", function () {
+  this.timeout(90000);
+  const mine: Zotero.Item[] = [];
+  let noteID: number;
+  let win: Window | null = null;
+
+  before(async function () {
+    const libraryID = Zotero.Libraries.userLibraryID;
+    const work = await makeWork("Fenster Testwerk");
+    mine.push(work);
+    const att = await makePdfAttachment(work);
+    for (let i = 0; i < 3; i++) {
+      mine.push(await makeAnnotation(att, `Fensterzitat ${i}`, `${i}`, i));
+    }
+    const core = Zotero[config.addonInstance].api.outline;
+    const roots = [core.makeNode("Einleitung"), core.makeNode("Hauptteil")];
+    noteID = await Zotero[
+      config.addonInstance
+    ].api.outlineModel.OutlineModel.save(libraryID, null, roots);
+  });
+
+  after(async function () {
+    win?.close();
+    await (Zotero.Items.get(noteID) as Zotero.Item).eraseTx();
+    for (const item of created.reverse()) {
+      try {
+        await item.eraseTx();
+      } catch {
+        // gone with its parent
+      }
+    }
+  });
+
+  it("opens with three columns and a search bar outside the scroll area", async function () {
+    await Zotero[config.addonInstance].api.OrganizerFactory.open();
+    win = await waitFor(findOrganizerWindow);
+    const doc = win.document;
+    const rows = await waitFor(() => {
+      const r = doc.querySelectorAll("[data-row-id]");
+      return r.length >= 3 ? r : null;
+    });
+    assert.isAtLeast(rows.length, 3);
+    const grid = Array.from(doc.querySelectorAll("div")).find(
+      (d) => (d as HTMLElement).style.gridTemplateColumns,
+    ) as HTMLElement;
+    assert.lengthOf(grid.children, 3);
+    // the search input must not live inside a scrolling container
+    const search = Array.from(doc.querySelectorAll("input")).find(
+      (i) => (i as HTMLInputElement).placeholder.length > 0,
+    ) as HTMLElement;
+    for (let p = search.parentElement; p && p !== grid; p = p.parentElement) {
+      assert.notEqual((p as HTMLElement).style.overflowY, "auto");
+    }
+  });
+
+  it("multi-selects with shift and files all rows by drag and drop", async function () {
+    const doc = win!.document;
+    const ids = mine.slice(1).map((a) => a.id);
+    const rowEl = (id: number) =>
+      doc.querySelector(`[data-row-id="${id}"]`) as HTMLElement;
+    rowEl(ids[0]).dispatchEvent(
+      new win!.MouseEvent("click", { bubbles: true }),
+    );
+    await Zotero.Promise.delay(100);
+    // re-query after the re-render
+    rowEl(ids[2]).dispatchEvent(
+      new win!.MouseEvent("click", { bubbles: true, shiftKey: true }),
+    );
+    await Zotero.Promise.delay(100);
+    assert.include(doc.body.textContent, "3");
+    const target = (await waitFor(() =>
+      Array.from(doc.querySelectorAll("[data-node-id]")).find((n) =>
+        n.textContent?.includes("Einleitung"),
+      ),
+    )) as HTMLElement;
+    const dt = new (win as any).DataTransfer();
+    dt.setData("text/x-annotree-ids", JSON.stringify(ids));
+    target.dispatchEvent(
+      new (win as any).DragEvent("drop", { bubbles: true, dataTransfer: dt }),
+    );
+    await waitFor(() =>
+      mine
+        .slice(1)
+        .every((a) => a.getTags().some((t) => t.tag === "§Einleitung")),
+    );
+  });
+});

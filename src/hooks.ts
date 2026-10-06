@@ -22,6 +22,7 @@ async function onStartup() {
     organizerData,
     outline: outlineCore,
     outlineModel: outlineModelModule,
+    OrganizerFactory,
   };
 
   Zotero.PreferencePanes.register({
