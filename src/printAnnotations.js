@@ -193,7 +193,7 @@ FlexAnnotate.PrintAnnotations = {
 	 * @param {String} locator
 	 * @return {Promise<void>}
 	 */
-	async setDefaultLocator(attachment, locator) {
+	async setDefaultLocator(attachment, locator, excludeAnnotationKey = null) {
 		if (!attachment || !attachment.isAttachment() || !attachment.isEditable()) {
 			return;
 		}
@@ -209,6 +209,9 @@ FlexAnnotate.PrintAnnotations = {
 		// Standard einfrieren, damit "künftig für dieses Dokument" nicht rückwirkend greift.
 		let existingAnns = attachment.getAnnotations();
 		for (let ann of existingAnns) {
+			if (excludeAnnotationKey && (ann.key === excludeAnnotationKey || ann.id === excludeAnnotationKey)) {
+				continue;
+			}
 			if (ann.isEditable?.() !== false && !this.hasExplicitLocator(ann)) {
 				ann.addTag(this.LOCATOR_TAG_PREFIX + previousDefault, 1);
 				await ann.saveTx();

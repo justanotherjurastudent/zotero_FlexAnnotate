@@ -523,29 +523,42 @@ FlexAnnotate.ReaderMenu = {
 		}, 50);
 
 		// Bei Klick auf „Aktualisieren“ oder Enter Locator-Daten anwenden
-		let updateBtn = popup.querySelector('.row.buttons button.primary, .row.buttons button');
 		let applied = false;
 		let onApply = async () => {
 			if (applied) {
 				return;
 			}
-			applied = true;
 			try {
 				let chosenLocator = select.value;
 				let makeDefault = checkbox.checked && !checkbox.disabled;
-
-				if (makeDefault) {
-					await FlexAnnotate.PrintAnnotations.setDefaultLocator(attachment, chosenLocator);
-				}
-
-				let checkedRadio = popup.querySelector('input[name="renumber"]:checked')?.value || 'single';
-				let targetItems = [];
 
 				let key = reader._state?.labelPopup?.currentAnnotation?.id || currentKey;
 				let currentAnn = key
 					? (attachment.getAnnotations().find(a => a.key === key)
 					   || Zotero.Items.getByLibraryAndKey(attachment.libraryID, key))
 					: currentAnnotation;
+
+				let currentLocator = currentAnn ? FlexAnnotate.PrintAnnotations.getLocator(currentAnn) : null;
+				let currentDefault = FlexAnnotate.PrintAnnotations.getDefaultLocator(attachment);
+
+				let locatorChanged = (chosenLocator !== currentLocator);
+				let defaultChanged = makeDefault && (chosenLocator !== currentDefault);
+
+				// Wenn sich weder der Locator noch die Dokumentvorgabe geändert hat,
+				// greift FlexAnnotate nicht ein: Zoteros native Handler aktualisieren die
+				// Seitenzahl völlig konfliktfrei ohne SQLite-Rennbedingungen.
+				if (!locatorChanged && !defaultChanged) {
+					return;
+				}
+
+				applied = true;
+
+				if (defaultChanged) {
+					await FlexAnnotate.PrintAnnotations.setDefaultLocator(attachment, chosenLocator, currentAnn?.key);
+				}
+
+				let checkedRadio = popup.querySelector('input[name="renumber"]:checked')?.value || 'single';
+				let targetItems = [];
 
 				if (checkedRadio === 'single') {
 					if (currentAnn) {
@@ -605,9 +618,51 @@ FlexAnnotate.ReaderMenu = {
 					targetItems = currentAnn ? [currentAnn] : [];
 				}
 
-				for (let ann of targetItems) {
-					FlexAnnotate.PrintAnnotations.applyLocatorTag(ann, chosenLocator);
-					await ann.saveTx();
+				let am = this.getAnnotationManager(reader);
+				let pageInput = popup.querySelector('input.toolbarField, input[type="text"]');
+				let newPageLabel = pageInput?.value?.trim();
+
+				let tagPrefix = FlexAnnotate.PrintAnnotations.LOCATOR_TAG_PREFIX;
+				let docDefault = defaultChanged ? chosenLocator : FlexAnnotate.PrintAnnotations.getDefaultLocator(attachment);
+
+				if (am) {
+					// 1. Primärer Weg: Über Zoteros AnnotationManager im Reader aktualisieren.
+					// Dadurch verwaltet Zotero die Tags im Speicher und speichert sie atomar
+					// zusammen mit der neuen Seitenzahl über onSaveAnnotations (saveFromJSON).
+					let amUpdates = [];
+					for (let targetAnn of targetItems) {
+						let annKey = targetAnn.key || targetAnn.id;
+						let existing = am._getAnnotationByID(annKey);
+						if (existing) {
+							let newTags = (existing.tags || []).filter(t => {
+								let name = typeof t === 'string' ? t : (t?.name || t?.tag || '');
+								return !name.startsWith(tagPrefix);
+							});
+							if (chosenLocator && (chosenLocator !== 'page' || docDefault !== 'page')) {
+								newTags.push({ name: tagPrefix + chosenLocator });
+							}
+							let updateObj = { id: existing.id, tags: newTags };
+							if (newPageLabel && (targetItems.length === 1 || checkedRadio === 'single')) {
+								updateObj.pageLabel = newPageLabel;
+							}
+							amUpdates.push(updateObj);
+						}
+						// Auch das Zotero.Item im Speicher des Hauptprozesses taggen
+						FlexAnnotate.PrintAnnotations.applyLocatorTag(targetAnn, chosenLocator);
+					}
+					if (amUpdates.length) {
+						am.updateAnnotations(amUpdates);
+					}
+				}
+				else {
+					// 2. Fallback: Direktes Speichern auf Zotero.Item
+					for (let ann of targetItems) {
+						FlexAnnotate.PrintAnnotations.applyLocatorTag(ann, chosenLocator);
+						if (newPageLabel && (targetItems.length === 1 || checkedRadio === 'single')) {
+							ann.annotationPageLabel = newPageLabel;
+						}
+						await ann.saveTx();
+					}
 				}
 
 				// Sofortige visuelle Aktualisierung im Reader
@@ -619,19 +674,54 @@ FlexAnnotate.ReaderMenu = {
 			}
 		};
 
-		updateBtn?.addEventListener('click', onApply, true);
-		popup.addEventListener('keydown', (event) => {
-			if (event.key === 'Enter') {
-				event.preventDefault();
-				event.stopPropagation();
-				if (updateBtn && !updateBtn.disabled) {
-					updateBtn.click();
-				}
-				else {
-					onApply();
-				}
+		// Klick auf „Aktualisieren“ abfangen (Event-Delegation auf popup, damit auch nach Re-Renders aktiv)
+		popup.addEventListener('click', (event) => {
+			if (event.target.closest('.row.buttons button')) {
+				onApply();
 			}
 		}, true);
+
+		// Enter-Taste behandeln
+		popup.addEventListener('keydown', (event) => {
+			if (event.key === 'Enter') {
+				let pageInput = popup.querySelector('input.toolbarField, input[type="text"]');
+				onApply();
+
+				// Wenn der Benutzer NICHT im Textfeld steht (z. B. auf Locator-Select oder Checkbox),
+				// Klick auf Aktualisieren-Button auslösen
+				if (event.target !== pageInput) {
+					event.preventDefault();
+					event.stopPropagation();
+					let btn = popup.querySelector('.row.buttons button.primary, .row.buttons button');
+					if (btn && !btn.disabled) {
+						btn.click();
+					}
+				}
+				// Wenn der Benutzer im Textfeld steht:
+				// KEIN preventDefault / stopPropagation!
+				// Zoteros React-Handler onKeyDown={handleInputKeydown} übernimmt das native
+				// Aktualisieren und Schließen des Popups.
+			}
+		}, true);
+	},
+
+	/**
+	 * Liefert den AnnotationManager des Readers (sofern verfügbar).
+	 *
+	 * @param {Object} reader
+	 * @return {Object|null}
+	 */
+	getAnnotationManager(reader) {
+		try {
+			return reader?._internalReader?._annotationManager
+				|| reader?._iframeWindow?.wrappedJSObject?._reader?._annotationManager
+				|| reader?._iframeWindow?._reader?._annotationManager
+				|| reader?._annotationManager
+				|| null;
+		}
+		catch {
+			return null;
+		}
 	},
 
 	/**
@@ -669,21 +759,27 @@ FlexAnnotate.ReaderMenu = {
 			? keyOrAnnotation
 			: (keyOrAnnotation?.id || keyOrAnnotation?.key);
 
-		let item = this.getAnnotationItem(reader, key);
-		if (item) {
-			return FlexAnnotate.PrintAnnotations.getLocator(item);
-		}
+		// Erst im Reader-Speicher (AnnotationManager / reader._state) prüfen,
+		// da dieser bei Änderungen sofort aktuell ist (bevor Zotero asynchron auf die DB schreibt)
+		let am = this.getAnnotationManager(reader);
+		let readerAnn = (am && key ? am._getAnnotationByID(key) : null)
+			|| (typeof keyOrAnnotation === 'object' ? keyOrAnnotation : null)
+			|| (reader?._state?.annotations && key ? reader._state.annotations.find(a => a.id === key) : null);
 
-		// Fallback auf Tags im Reader-Zustand
-		let tags = (typeof keyOrAnnotation === 'object' && keyOrAnnotation?.tags) || [];
+		let tags = readerAnn?.tags || [];
 		for (let t of tags) {
 			let name = typeof t === 'string' ? t : (t?.name || t?.tag || '');
 			if (name.startsWith(FlexAnnotate.PrintAnnotations.LOCATOR_TAG_PREFIX)) {
 				let locator = name.slice(FlexAnnotate.PrintAnnotations.LOCATOR_TAG_PREFIX.length);
-				if (Zotero.Cite?.labels?.includes(locator)) {
+				if (Zotero.Cite?.labels?.includes(locator) || locator === 'margin') {
 					return locator;
 				}
 			}
+		}
+
+		let item = this.getAnnotationItem(reader, key);
+		if (item) {
+			return FlexAnnotate.PrintAnnotations.getLocator(item);
 		}
 
 		let attachment = reader?.itemID ? Zotero.Items.get(reader.itemID) : null;
