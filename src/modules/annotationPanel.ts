@@ -12,8 +12,6 @@
 
 import { AnnotationIndex, AnnRecord } from "./annotationIndex";
 import { copyToClipboard, exportToStandaloneNote } from "./annotationExport";
-import { IdeaLayer } from "./ideaLayer";
-import { IdeaPanelFactory } from "./ideaPanel";
 import { OutlinePanelFactory } from "./outlinePanel";
 import { getTheme, Palette } from "./theme";
 import { getString } from "../utils/locale";
@@ -163,19 +161,10 @@ export class AnnotationPanelFactory {
     const tabs: Tab[] = [
       { label: "📑 Annotations", pane: doc.createElement("div") },
       {
-        label: "🧠 Ideas",
-        pane: doc.createElement("div"),
-        render: (): void => {
-          const tab = tabs[1];
-          tab.pane.textContent = "";
-          IdeaPanelFactory.renderInto(doc, tab.pane);
-        },
-      },
-      {
         label: "🗂 Organizer",
         pane: doc.createElement("div"),
         render: (): void => {
-          const tab = tabs[2];
+          const tab = tabs[1];
           tab.pane.textContent = "";
           OutlinePanelFactory.renderInto(doc, tab.pane);
         },
@@ -402,24 +391,6 @@ export class AnnotationPanelFactory {
         this.toast(`Saved ${recs.length} annotations to a standalone note`);
       }),
     );
-    actions.appendChild(
-      mkBtn("★ Promote all to ideas", async () => {
-        const recs = current();
-        if (!recs.length) return;
-        let n = 0;
-        for (const rec of recs) {
-          try {
-            await IdeaLayer.createFromAnnotation(rec);
-            n++;
-          } catch (e) {
-            ztoolkit.log("promote all: one failed:", e);
-          }
-        }
-        this.toast(
-          `Promoted ${n} annotation${n === 1 ? "" : "s"} to ideas — see the Ideas tab`,
-        );
-      }),
-    );
     root.appendChild(actions);
 
     // List ------------------------------------------------------------------
@@ -514,31 +485,6 @@ export class AnnotationPanelFactory {
     ].filter(Boolean);
     meta.textContent = bits.join("  ·  ");
     body.appendChild(meta);
-
-    // "Promote to idea" — additive: stopPropagation so it doesn't trigger the
-    // row's jump-to-source click handler.
-    const promote = htmlButton(doc);
-    promote.textContent = "★ Promote to idea";
-    promote.style.cssText =
-      `appearance:none;-moz-appearance:none;color:${t.text};margin-top:4px;` +
-      `padding:2px 8px;cursor:pointer;border:1px solid ${t.chipBorder};border-radius:4px;` +
-      `background:${t.chipBg};font-size:11px;`;
-    promote.addEventListener("click", async (e: MouseEvent) => {
-      e.stopPropagation();
-      promote.disabled = true;
-      try {
-        await IdeaLayer.createFromAnnotation(rec);
-        promote.textContent = "★ Promoted to idea";
-        promote.style.color = "#2a7a2a";
-        promote.style.borderColor = "#3a3";
-      } catch (err: any) {
-        promote.disabled = false;
-        promote.textContent = `★ Promote failed: ${err.message}`;
-        promote.style.color = "#c00";
-        ztoolkit.log("promote to idea failed:", err);
-      }
-    });
-    body.appendChild(promote);
 
     return row;
   }

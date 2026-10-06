@@ -1,24 +1,24 @@
 {
-  "name": "zotero-lattice",
+  "name": "zotero-annotree",
   "type": "module",
-  "version": "4.1.0",
-  "description": "Lattice — a cross-paper annotation browser, Citavi-style idea layer, and grounded AI Q&A with page-jump citations for Zotero.",
+  "version": "0.1.0",
+  "description": "Annotree: sort Zotero annotations and works into an outline (Citavi-style knowledge organizer), usable from the Word citation dialog.",
   "config": {
-    "addonName": "Lattice",
-    "addonID": "grounded-qa@zotero.plugin",
-    "addonRef": "groundedqa",
-    "addonInstance": "GroundedQA",
-    "prefsPrefix": "extensions.zotero.groundedqa"
+    "addonName": "Annotree",
+    "addonID": "annotree@justanotherjurastudent.github.io",
+    "addonRef": "annotree",
+    "addonInstance": "Annotree",
+    "prefsPrefix": "extensions.zotero.annotree"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/birugit/zotero-grounded-qa.git"
+    "url": "git+https://github.com/justanotherjurastudent/zotero_Annotree.git"
   },
-  "author": "birugit",
+  "author": "justanotherjurastudent (based on Lattice by birugit)",
   "bugs": {
-    "url": "https://github.com/birugit/zotero-grounded-qa/issues"
+    "url": "https://github.com/justanotherjurastudent/zotero_Annotree/issues"
   },
-  "homepage": "https://github.com/birugit/zotero-grounded-qa#readme",
+  "homepage": "https://github.com/justanotherjurastudent/zotero_Annotree#readme",
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "start": "zotero-plugin serve",

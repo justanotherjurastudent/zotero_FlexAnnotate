@@ -7,11 +7,7 @@
 declare namespace _ZoteroTypes {
   interface Prefs {
     PluginPrefsMap: {
-      "apiKey": string;
-      "model": string;
-      "provider": string;
-      "baseUrl": string;
-      "keepAlive": string;
+      "showWorksInAnnotationView": boolean;
     };
   }
 }

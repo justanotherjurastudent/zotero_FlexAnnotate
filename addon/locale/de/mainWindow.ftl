@@ -1,4 +1,4 @@
 annotations-menu-label =
-    .label = Annotree: All Annotations
+    .label = Annotree: Alle Annotationen
 outline-menu-label =
     .label = Annotree: Organizer

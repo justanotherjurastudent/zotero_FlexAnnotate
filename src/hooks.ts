@@ -1,10 +1,7 @@
 import { getString, initLocale } from "./utils/locale";
-import { registerPrefsScripts } from "./modules/preferenceScript";
 import { createZToolkit } from "./utils/ztoolkit";
-import { QAPanelFactory } from "./modules/qaPanel";
 import { AnnotationIndex } from "./modules/annotationIndex";
 import { AnnotationPanelFactory } from "./modules/annotationPanel";
-import { IdeaPanelFactory } from "./modules/ideaPanel";
 import { OutlinePanelFactory } from "./modules/outlinePanel";
 
 import { unregisterAllPluginMenus } from "./utils/menu";
@@ -25,10 +22,7 @@ async function onStartup() {
     image: `chrome://${addon.data.config.addonRef}/content/icons/favicon.png`,
   });
 
-  QAPanelFactory.registerQASection();
-  QAPanelFactory.registerMultiPaperMenuItem();
   AnnotationPanelFactory.registerMenu();
-  IdeaPanelFactory.registerMenu();
   OutlinePanelFactory.registerMenu();
 
   // Cross-paper annotation layer: register the Notifier observer so the index
@@ -71,7 +65,6 @@ async function onMainWindowUnload(win: Window): Promise<void> {
 
 function onShutdown(): void {
   ztoolkit.unregisterAll();
-  QAPanelFactory.unregisterQASection();
   unregisterAllPluginMenus();
   AnnotationIndex.unload();
   addon.data.dialog?.window?.close();
@@ -89,14 +82,8 @@ async function onNotify(
   ztoolkit.log("notify", event, type, ids, extraData);
 }
 
-async function onPrefsEvent(type: string, data: { [key: string]: any }) {
-  switch (type) {
-    case "load":
-      registerPrefsScripts(data.window);
-      break;
-    default:
-      return;
-  }
+async function onPrefsEvent(_type: string, _data: { [key: string]: any }) {
+  // preferences are bound declaratively in preferences.xhtml
 }
 
 function onShortcuts(_type: string) {

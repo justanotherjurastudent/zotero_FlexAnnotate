@@ -8,7 +8,27 @@
  * All Annotations browser via the Notifier just like a hand-made highlight.
  */
 
-import { findPdfAttachmentID } from "./pdfExtractor";
+/** Resolve the first PDF attachment ID for an item (or the item itself if it is one). */
+export function findPdfAttachmentID(item: Zotero.Item): number | null {
+  if (item.isAttachment()) {
+    return (item as any).attachmentContentType === "application/pdf"
+      ? item.id
+      : null;
+  }
+  if (item.isRegularItem()) {
+    for (const id of item.getAttachments()) {
+      const att = Zotero.Items.get(id) as Zotero.Item;
+      if (
+        att?.isAttachment() &&
+        (att as any).attachmentContentType === "application/pdf"
+      ) {
+        return id;
+      }
+    }
+  }
+  return null;
+}
+
 
 /**
  * Zotero orders annotations in the sidebar by a `pageIndex|offset|y` string.
