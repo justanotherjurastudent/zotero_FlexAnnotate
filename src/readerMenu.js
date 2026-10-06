@@ -622,7 +622,14 @@ FlexAnnotate.ReaderMenu = {
 		updateBtn?.addEventListener('click', onApply, true);
 		popup.addEventListener('keydown', (event) => {
 			if (event.key === 'Enter') {
-				onApply();
+				event.preventDefault();
+				event.stopPropagation();
+				if (updateBtn && !updateBtn.disabled) {
+					updateBtn.click();
+				}
+				else {
+					onApply();
+				}
 			}
 		}, true);
 	},
