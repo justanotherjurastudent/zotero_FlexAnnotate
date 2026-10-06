@@ -369,4 +369,38 @@ describe("citation dialog (as opened from Word)", function () {
       "none",
     );
   });
+
+  it("shows the works behind the annotations only when the setting is on", async function () {
+    const doc = win!.document;
+    const prefKey = `${config.prefsPrefix}.showWorksInAnnotationView`;
+    assert.isFalse(Zotero.Prefs.get(prefKey, true), "default is off");
+    const workID = (mine[0].parentItem as Zotero.Item).parentID as number;
+    await Zotero[config.addonInstance].api.organizerData.fileMany(
+      [workID],
+      "§Hauptteil",
+    );
+    const toggle = doc.getElementById("annotree-toggle") as HTMLInputElement;
+    const headsOf = () =>
+      Array.from(doc.querySelectorAll("#annotree-outline .annotree-heading"))
+        .map((h) => h.textContent)
+        .join("|");
+
+    // setting off: the work's own annotations are not pulled in
+    toggle.click();
+    await waitFor(() => headsOf() === "1  Einleitung");
+    toggle.click();
+    await waitFor(() => !doc.getElementById("annotree-outline"));
+
+    // setting on: the annotations of the work filed under "Hauptteil" appear
+    Zotero.Prefs.set(prefKey, true, true);
+    try {
+      toggle.click();
+      await waitFor(() => headsOf() === "1  Einleitung|2  Hauptteil");
+      const groups = doc.querySelectorAll("#annotree-outline .annotree-group");
+      assert.lengthOf(groups[1].querySelectorAll("annotation-row"), 3);
+      await screenshot(win!, "dialog-works-shown");
+    } finally {
+      Zotero.Prefs.set(prefKey, false, true);
+    }
+  });
 });
