@@ -27,6 +27,8 @@
     "lint:fix": "prettier --write . && eslint . --fix",
     "release": "zotero-plugin release",
     "test": "zotero-plugin test",
+    "test:zotero": "powershell -NoProfile -File scripts/test-zotero.ps1",
+    "verify": "npm run lint:check && npm run build && npm run test:unit && npm run test:zotero",
     "test:unit": "node --test \"test-unit/*.test.ts\"",
     "update-deps": "npm update --save"
   },
