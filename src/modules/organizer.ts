@@ -94,6 +94,8 @@ interface State {
   /** Plugin setting: show the works behind the annotations. */
   showWorks: boolean;
   renaming: string | null;
+  /** Ends the open inline rename (set while a heading is being renamed). */
+  endRename: (() => void) | null;
   editing: number | null;
   focusCol: Col;
   lastTreeClick: { id: string; t: number } | null;
@@ -275,6 +277,7 @@ export class OrganizerFactory {
       sections: false,
       showWorks: readShowWorks(),
       renaming: null,
+      endRename: null,
       editing: null,
       focusCol: "list",
       lastTreeClick: null,
@@ -287,11 +290,29 @@ export class OrganizerFactory {
     doc.addEventListener("keydown", (e) =>
       this.onKey(doc, root, state, e as KeyboardEvent),
     );
-    doc.addEventListener("mousedown", (e: Event) => {
-      const c = (e.target as HTMLElement | null)?.closest?.("[data-col]");
-      const col = c?.getAttribute("data-col");
-      if (col === "tree" || col === "list") state.focusCol = col;
-    });
+    doc.addEventListener(
+      "mousedown",
+      (e: Event) => {
+        const target = e.target as HTMLElement | null;
+        const c = target?.closest?.("[data-col]");
+        const col = c?.getAttribute("data-col");
+        if (col === "tree" || col === "list") state.focusCol = col;
+        // close open drop-down menus when pressing elsewhere
+        doc.querySelectorAll("[data-menu]").forEach((m: Element) => {
+          if (!m.parentElement?.contains(target))
+            (m as HTMLElement).style.display = "none";
+        });
+        // A blur alone is not reliable in this window: end an open rename as
+        // soon as the mouse is pressed anywhere but in the field.
+        if (
+          state.renaming &&
+          state.endRename &&
+          !target?.closest?.("[data-rename]")
+        )
+          state.endRename();
+      },
+      true,
+    );
     this.render(doc, root, state);
   }
 
@@ -438,29 +459,60 @@ export class OrganizerFactory {
         `font-size:12px;color:${t.sub};`,
     );
     scope.appendChild(el(doc, "span", "", tr("scope")));
+    // A plain HTML <select> does not open its popup in this dialog window, so
+    // the collection list is a small custom drop-down.
+    const choices = [
+      { id: 0, name: tr("scopeAll"), depth: 0 },
+      ...collectionChoices(s.libraryID),
+    ];
+    const current =
+      choices.find((c) => c.id === (s.scope.collectionID ?? 0)) ?? choices[0];
+    const wrap = el(doc, "div", "position:relative;");
     const sel = el(
       doc,
-      "select",
-      `max-width:300px;color:${t.text};background:${t.inputBg};` +
-        `border:1px solid ${t.border};border-radius:4px;padding:3px 6px;font-size:12px;`,
+      "button",
+      `appearance:none;-moz-appearance:none;cursor:pointer;max-width:320px;overflow:hidden;` +
+        `text-overflow:ellipsis;white-space:nowrap;color:${t.text};background:${t.inputBg};` +
+        `border:1px solid ${t.border};border-radius:4px;padding:3px 8px;font-size:12px;`,
+      `${current.name}  ▾`,
     );
     sel.id = "annotree-scope";
-    const optAll = el(doc, "option", "", tr("scopeAll"));
-    optAll.value = "0";
-    sel.appendChild(optAll);
-    for (const o of collectionChoices(s.libraryID)) {
-      const opt = el(doc, "option", "", "  ".repeat(o.depth) + o.name);
-      opt.value = String(o.id);
-      sel.appendChild(opt);
+    sel.dataset.value = String(current.id);
+    const menu = el(
+      doc,
+      "div",
+      `position:absolute;right:0;top:100%;margin-top:2px;z-index:30;display:none;min-width:240px;` +
+        `max-height:320px;overflow-y:auto;background:${t.panel};color:${t.text};` +
+        `border:1px solid ${t.border};border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.25);`,
+    );
+    menu.id = "annotree-scope-menu";
+    menu.dataset.menu = "1";
+    for (const c of choices) {
+      const o = el(
+        doc,
+        "div",
+        `padding:5px 10px 5px ${10 + c.depth * 14}px;cursor:pointer;white-space:nowrap;` +
+          (c.id === current.id ? "font-weight:600;" : ""),
+        c.name,
+      );
+      o.dataset.value = String(c.id);
+      o.addEventListener("mouseenter", () => (o.style.background = t.hover));
+      o.addEventListener(
+        "mouseleave",
+        () => (o.style.background = "transparent"),
+      );
+      o.addEventListener("click", () => {
+        s.scope = { ...s.scope, collectionID: c.id || null };
+        this.applyScope(s);
+        s.sel = emptySelection();
+        this.render(doc, root, s);
+      });
+      menu.appendChild(o);
     }
-    sel.value = String(s.scope.collectionID ?? 0);
-    sel.addEventListener("change", () => {
-      const id = Number(sel.value);
-      s.scope = { ...s.scope, collectionID: id || null };
-      this.applyScope(s);
-      s.sel = emptySelection();
-      this.render(doc, root, s);
+    sel.addEventListener("click", () => {
+      menu.style.display = menu.style.display === "none" ? "block" : "none";
     });
+    wrap.append(sel, menu);
     const sub = el(
       doc,
       "label",
@@ -477,7 +529,7 @@ export class OrganizerFactory {
       this.render(doc, root, s);
     });
     sub.append(cb, el(doc, "span", "", tr("scopeSub")));
-    scope.append(sel, sub);
+    scope.append(wrap, sub);
     bar.appendChild(scope);
     return bar;
   }
@@ -824,6 +876,7 @@ export class OrganizerFactory {
     const finish = async (mode: "commit" | "cancel" | "blur") => {
       if (finished) return;
       finished = true;
+      s.endRename = null;
       const next = i.value.trim();
       let changed = mode !== "cancel" && next !== node.title;
       if (changed) {
@@ -852,6 +905,8 @@ export class OrganizerFactory {
       if (e.key === "Escape") void finish("cancel");
     });
     i.addEventListener("blur", () => void finish("blur"));
+    i.dataset.rename = "1";
+    s.endRename = () => void finish("blur");
     d.append(el(doc, "span", `color:${t.sub};`, num), i);
     setTimeout(() => {
       i.focus();

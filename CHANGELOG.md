@@ -2,6 +2,15 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach [SemVer](https://semver.org/). Der Changelog des Ursprungsprojekts Lattice liegt unverändert in [`docs/lattice-changelog.md`](docs/lattice-changelog.md).
 
+## [0.2.2] – 2026-10-06
+
+### Behoben
+
+- Die Sammlungsauswahl im Organizer öffnet jetzt ihre Liste (eigenes Aufklappmenü statt `<select>`, dessen Popup in diesem Fenster nicht erscheint).
+- Eine offene Umbenennung endet jetzt, sobald irgendwo außerhalb des Feldes die Maus gedrückt wird (Speichern bei gültiger Änderung, sonst Zurücksetzen), nicht nur bei einem Blur-Ereignis.
+- Zitierdialog aus Word: Die drei Spalten bleiben innerhalb der Fensterbreite, auch bei sehr langen Zitaten (die Mindestbreite der Zeilen drückte das Layout auseinander).
+- Der grüne Haken für zitierte Annotationen wartet auf die Liste der im Dokument zitierten Werke, die Zotero erst nach dem Öffnen des Dialogs lädt; vorher wurde sie leer gelesen und alle Einträge galten als nicht zitiert.
+
 ## [0.2.1] – 2026-10-06
 
 ### Geändert

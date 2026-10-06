@@ -145,7 +145,7 @@ describe("Annotree features", function () {
         Zotero.getMainWindow() as any
       ).ZoteroPane.getSelectedCollection();
       assert.equal(
-        scopeSel.value,
+        scopeSel.dataset.value,
         String(selected.id),
         "default scope is the collection selected in Zotero",
       );
@@ -167,7 +167,7 @@ describe("Annotree features", function () {
       )) as HTMLInputElement;
       assert.equal(input.value, "Alpha");
       // leave without changes: the row returns to normal, nothing is stuck
-      input.dispatchEvent(new (win as any).FocusEvent("blur"));
+      mousedown(nodeEl("Beta")!);
       await waitFor(() => !doc.querySelector("[data-node-id] input"));
       assert.ok(nodeEl("Alpha"), "row is back");
       // elsewhere clicks still work after a blur
@@ -183,7 +183,7 @@ describe("Annotree features", function () {
         doc.querySelector("[data-node-id] input"),
       )) as HTMLInputElement;
       input.value = "Gamma neu";
-      input.dispatchEvent(new (win as any).FocusEvent("blur"));
+      mousedown(nodeEl("Alpha")!);
       try {
         await waitForAsync(async () =>
           (await outline())[1]?.children[0]?.title === "Gamma neu"
@@ -258,23 +258,29 @@ describe("Annotree features", function () {
     });
 
     it("limits the entries to a collection and its subcollections", async function () {
-      const sel = doc.getElementById("annotree-scope") as HTMLSelectElement;
-      const set = (id: number) => {
-        sel.value = String(id);
-        sel.dispatchEvent(new (win as any).Event("change", { bubbles: true }));
+      const set = async (id: number) => {
+        click(doc.getElementById("annotree-scope")!);
+        const opt = await waitFor(() =>
+          doc.querySelector(`#annotree-scope-menu [data-value="${id}"]`),
+        );
+        click(opt!);
+        await waitFor(
+          () =>
+            doc.getElementById("annotree-scope")?.dataset.value === String(id),
+        );
       };
       const [sub, root] = cols;
       await showAll();
       assert.equal(rowCount(), 2, "current collection to begin with");
-      set(root.id); // includes subcollections by default
+      await set(root.id); // includes subcollections by default
       await waitFor(() => rowCount() === 2);
       const cb = doc.getElementById("annotree-scope-sub") as HTMLInputElement;
       cb.click(); // only the collection itself: work1 lives in the sub
       await waitFor(() => rowCount() === 0);
       cb.click();
-      set(sub.id);
+      await set(sub.id);
       await waitFor(() => rowCount() === 2);
-      set(0);
+      await set(0);
       await waitFor(() => rowCount() === 3);
     });
 
@@ -392,13 +398,14 @@ describe("Annotree features", function () {
       }
     };
 
-    const openDialog = async () => {
+    const openDialog = async (cited: Record<string, unknown> = {}) => {
       await closeDialogs();
       const io: any = new (Zotero.Integration as any).CitationEditInterface(
         { citationItems: [], properties: {}, citationID: "annotree-test" },
         true,
         Promise.resolve(0),
-        Promise.resolve({}),
+        // Zotero loads the document's citations after the dialog opened
+        Zotero.Promise.delay(300).then(() => cited),
         async () => "",
       );
       io.isCitingNotes = false;
@@ -425,7 +432,16 @@ describe("Annotree features", function () {
       workID = work.id;
       const att = await makePdfAttachment(work);
       for (let i = 0; i < 3; i++)
-        anns.push(await makeAnnotation(att, `Dialogzitat ${i}`, `${i}`, i));
+        anns.push(
+          await makeAnnotation(
+            att,
+            i === 1
+              ? "Sehr langes Zitat ".repeat(40) + "Ende"
+              : `Dialogzitat ${i}`,
+            `${i}`,
+            i,
+          ),
+        );
       const core = api().outline;
       const roots = [core.makeNode("Einleitung"), core.makeNode("Hauptteil")];
       noteID = await api().outlineModel.OutlineModel.save(
@@ -483,6 +499,23 @@ describe("Annotree features", function () {
       );
       await screenshot(w, "dialog-three-columns");
 
+      // a long quote must not push the details column out of the window
+      click(doc.querySelector(`[data-ann-id="${anns[1].id}"]`)!);
+      await waitFor(() =>
+        doc
+          .getElementById("annotree-preview")
+          ?.textContent?.includes("Sehr langes Zitat"),
+      );
+      assert.isAtMost(
+        doc.documentElement!.scrollWidth,
+        w.innerWidth + 1,
+        "no horizontal overflow",
+      );
+      const sidebar = doc.getElementById("sidebar")!.getBoundingClientRect();
+      assert.isAtMost(sidebar.right, w.innerWidth + 1, "details inside window");
+      await screenshot(w, "dialog-long-quote");
+      click(doc.querySelector(`[data-ann-id="${anns[0].id}"]`)!);
+
       // inserting goes through Zotero's own handler
       click(doc.querySelector(`[data-ann-id="${anns[0].id}"] .annotree-plus`)!);
       await waitFor(
@@ -505,9 +538,9 @@ describe("Annotree features", function () {
       // the work is still cited in the document: the check is shown
       (Zotero as any).Integration.currentSession = {
         sessionID: "T1",
-        citationsByItemID: { [workID]: [{}] },
+        citationsByItemID: {}, // still empty when the dialog opens
       };
-      let { w, toggle } = await openDialog();
+      let { w, toggle } = await openDialog({ [workID]: [{}] });
       win = w;
       if (!toggle.checked) toggle.click();
       await waitFor(

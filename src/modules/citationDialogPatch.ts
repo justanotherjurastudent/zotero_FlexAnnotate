@@ -57,6 +57,12 @@ const NATIVE_HIDE = [
   "annotations-sidebar-filter-wrapper",
   "annotations-message",
 ];
+/** A min-width chain is what makes long one-line rows push the layout wider. */
+const LAYOUT_CSS =
+  "#library-trees{overflow:hidden !important;min-width:0 !important;}" +
+  "#item-tree-container{flex:1 1 0 !important;min-width:0 !important;overflow:hidden !important;}" +
+  "#annotree-list-pane,#annotree-list-pane *{min-width:0;}" +
+  "#annotree-preview{min-width:0;overflow-x:hidden;overflow-wrap:anywhere;}";
 const GREEN = "#1f9d55";
 const SELECTED = "rgba(60,120,220,0.16)";
 const LINE = "var(--fill-quinary, rgba(128,128,128,0.25))";
@@ -99,15 +105,34 @@ function writePref(v: boolean) {
   }
 }
 
-/** Document id and works cited in it, from data Zotero has already loaded. */
-function currentDocument(): { id: string; citedWorks: Set<number> | null } {
+/** Id of the document the dialog was opened from (stored in the document). */
+function currentSessionId(): string {
   const session = (Zotero as any).Integration?.currentSession;
-  const id = String(session?.sessionID ?? "unknown");
-  const map = session?.citationsByItemID;
-  const citedWorks = map
-    ? new Set<number>(Object.keys(map).map((k) => Number(k)))
-    : null;
-  return { id, citedWorks };
+  return String(session?.sessionID ?? "unknown");
+}
+
+/**
+ * Works cited in the document. Zotero loads this when the dialog opens, so we
+ * wait for the same promise the dialog itself waits for (max. 5 s) instead of
+ * reading a possibly still empty map.
+ */
+async function citedWorksOf(win: Window): Promise<Set<number> | null> {
+  let map: Record<string, unknown> | null = null;
+  try {
+    const loaded = (win as any).io?.allCitedDataLoadedPromise;
+    if (loaded) {
+      const result: any = await Promise.race([
+        loaded,
+        new Promise((resolve) => win.setTimeout(() => resolve(null), 5000)),
+      ]);
+      map = result?.[1] ?? null;
+    }
+  } catch (e) {
+    ztoolkit.log("annotree cited works wait failed:", e);
+  }
+  map ??=
+    (Zotero as any).Integration?.currentSession?.citationsByItemID ?? null;
+  return map ? new Set<number>(Object.keys(map).map((k) => Number(k))) : null;
 }
 
 function readCitedStore() {
@@ -129,7 +154,7 @@ function recordCited(io: any) {
     entries.push({ id: item.id, workID: Number(attachment?.parentID) || 0 });
   }
   if (!entries.length) return;
-  const next = record(readCitedStore(), currentDocument().id, entries);
+  const next = record(readCitedStore(), currentSessionId(), entries);
   Zotero.Prefs.set(prefKey(CITED_PREF), JSON.stringify(next), true);
 }
 
@@ -282,13 +307,13 @@ export class CitationDialogPatch {
         new Map(works.map((w) => [w.id, w.tags])),
         showWorks,
       );
-      const docInfo = currentDocument();
+      const citedWorks = await citedWorksOf(win);
       const view: View = {
         roots,
         sections,
         counts: nodeCounts(roots, sections),
         rows: new Map(rows.map((r) => [r.id, r])),
-        cited: activeIds(readCitedStore(), docInfo.id, docInfo.citedWorks),
+        cited: activeIds(readCitedStore(), currentSessionId(), citedWorks),
         node: "all",
         query: "",
         sel: emptySelection(),
@@ -320,10 +345,11 @@ export class CitationDialogPatch {
     if (!doc.getElementById(STYLE_ID)) {
       const st = doc.createElement("style");
       st.id = STYLE_ID;
-      st.textContent = NATIVE_HIDE.map((id) => `#${id}`)
-        .concat(["#annotations-list collapsible-section"])
-        .join(",")
-        .concat("{display:none !important;}");
+      st.textContent =
+        NATIVE_HIDE.map((id) => `#${id}`)
+          .concat(["#annotations-list collapsible-section"])
+          .join(",")
+          .concat("{display:none !important;}") + LAYOUT_CSS;
       doc.documentElement!.appendChild(st);
     }
     const mk = (parentId: string, id: string, css: string) => {
@@ -500,7 +526,11 @@ export class CitationDialogPatch {
     });
     host.appendChild(filter);
 
-    const list = this.el(doc, "div", "flex:1;overflow-y:auto;min-height:0;");
+    const list = this.el(
+      doc,
+      "div",
+      "flex:1;overflow-y:auto;overflow-x:hidden;min-height:0;",
+    );
     host.appendChild(list);
     const secs = this.visibleSections(v);
     if (!secs.length) {
