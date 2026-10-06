@@ -446,7 +446,7 @@ export class OrganizerFactory {
         doc,
         "div",
         `padding:5px 8px;cursor:pointer;border-radius:4px;margin:1px 0;` +
-          `background:${on ? t.hover : "transparent"};font-weight:${on ? 600 : 400};` +
+          `background:${on ? t.chipBg : "transparent"};font-weight:${on ? 600 : 400};` +
           "display:flex;justify-content:space-between;gap:6px;",
       );
       d.append(
@@ -483,7 +483,7 @@ export class OrganizerFactory {
         doc,
         "div",
         `padding:5px 8px 5px ${8 + depth * 16}px;cursor:pointer;border-radius:4px;` +
-          `margin:1px 0;background:${on ? t.hover : "transparent"};` +
+          `margin:1px 0;background:${on ? t.chipBg : "transparent"};` +
           `font-weight:${on ? 600 : 400};display:flex;justify-content:space-between;gap:6px;` +
           "border:1px solid transparent;",
       );
@@ -875,7 +875,7 @@ export class OrganizerFactory {
       doc,
       "div",
       `display:flex;align-items:center;gap:8px;height:26px;padding:0 8px;cursor:default;` +
-        `background:${on ? t.hover : "transparent"};border-bottom:1px solid ${t.border}33;` +
+        `background:${on ? t.chipBg : "transparent"};border-bottom:1px solid ${t.border}33;` +
         `user-select:none;${r.readOnly ? "opacity:.6;" : ""}`,
     );
     d.draggable = true;

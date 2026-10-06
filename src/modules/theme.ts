@@ -1,7 +1,7 @@
 /**
  * theme — light/dark palette for the plugin's dialog windows.
  *
- * The browser/idea windows build their UI with inline styles, which override any
+ * The plugin windows build their UI with inline styles, which override any
  * injected stylesheet, so theming has to be applied inline. This resolves a
  * palette from the OS/Zotero colour scheme so the windows look native in both
  * light and dark mode instead of forcing light backgrounds.
@@ -19,7 +19,7 @@ export interface Palette {
   accent: string; // links / active
   chipBg: string; // tag chip background
   chipBorder: string;
-  linkChipBg: string; // linked-idea chip background
+  linkChipBg: string; // linked chip background
   linkChipBorder: string;
   colorScheme: "light" | "dark";
 }

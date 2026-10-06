@@ -197,7 +197,7 @@ export class OutlineModel {
   }
 
   private static noteToFiled(item: Zotero.Item): FiledItem {
-    // A note filed under a heading (e.g. a promoted idea). Cite its first
+    // A note filed under a heading (e.g. a manually filed note). Cite its first
     // related regular item, if any, so the draft still points at a source.
     let citation = "";
     for (const key of item.relatedItems || []) {
@@ -301,7 +301,7 @@ export class OutlineModel {
   }
 
   /**
-   * Candidate quotes/notes for the assign picker: annotations and ideas
+   * Candidate quotes/notes for the assign picker: annotations
    * matching a keyword that are NOT already filed under `tag`.
    */
   static async assignCandidates(

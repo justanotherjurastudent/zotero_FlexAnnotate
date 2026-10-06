@@ -207,6 +207,7 @@ describe("Annotree", function () {
         return r.length >= 3 ? r : null;
       });
       assert.isAtLeast(rows.length, 3);
+      await screenshot(win, "organizer-wissen");
       const grid = Array.from(doc.querySelectorAll("div")).find(
         (d) => (d as HTMLElement).style.gridTemplateColumns,
       ) as HTMLElement;
@@ -250,6 +251,35 @@ describe("Annotree", function () {
           .slice(1)
           .every((a) => a.getTags().some((t) => t.tag === "§Einleitung")),
       );
+      await Zotero.Promise.delay(300);
+      await screenshot(win!, "organizer-after-drop");
+    });
+
+    it("Titel tab lists works and files a work under a heading", async function () {
+      const doc = win!.document;
+      const tab = Array.from(doc.querySelectorAll("div")).find(
+        (d) => d.textContent === "Titel" && d.children.length === 0,
+      ) as HTMLElement;
+      tab.click();
+      const workRow = (await waitFor(() =>
+        Array.from(doc.querySelectorAll("[data-row-id]")).find((r) =>
+          r.textContent?.includes("Fenster Testwerk"),
+        ),
+      )) as HTMLElement;
+      workRow.dispatchEvent(new win!.MouseEvent("click", { bubbles: true }));
+      await Zotero.Promise.delay(150);
+      const pick = Array.from(doc.querySelectorAll("input")).find((i) =>
+        (i as HTMLInputElement).placeholder.includes("Zuweisen"),
+      ) as HTMLInputElement;
+      pick.value = "Haupt";
+      pick.dispatchEvent(new win!.Event("input", { bubbles: true }));
+      pick.dispatchEvent(
+        new win!.KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+      );
+      const work = mine[0];
+      await waitFor(() => work.getTags().some((t) => t.tag === "§Hauptteil"));
+      await Zotero.Promise.delay(300);
+      await screenshot(win!, "organizer-titel");
     });
   });
 

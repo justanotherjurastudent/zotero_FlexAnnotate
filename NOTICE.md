@@ -19,7 +19,7 @@ Die vollständige Git-Historie von Lattice ist in diesem Repository enthalten (R
 - der **Annotationsindex** und das Fenster „Alle Annotationen“,
 - Export- und Zitierhilfen für Annotationen.
 
-## Was in Annotree geändert wird (Auszug, Details in `CHANGELOG.md` und der Git-Historie)
+## Was in Annotree geändert wurde (Auszug, Details in `CHANGELOG.md` und der Git-Historie; Version 0.1.0 setzt alles Genannte um)
 
 - Anpassung an Zotero 10.
 - **Entfernt:** die KI-Komponente (Fragen und Antworten über PDFs, LLM-Anbindungen) und die Ideen-Ebene.
