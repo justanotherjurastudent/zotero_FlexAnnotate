@@ -64,6 +64,24 @@ Word-/LibreOffice-Dialog „Anmerkung hinzufügen" auswählbar.
 <img width="1273" height="155" alt="image" src="https://github.com/user-attachments/assets/c7e1dcd2-bd16-4819-b6ab-52d47db0f59f" />
 
 
+#### Native Annotationen (PDF, EPUB, Snapshot)
+
+- **Locator im Reader:**
+  - Im Seitenzahl-Popup des Readers (*Seitenzahl bearbeiten…*) kann der Locator-Typ (Seite, Randnummer, Absatz, Paragraf …) direkt ausgewählt werden.
+  - Das Popup wählt standardmäßig *„Diese Annotation“* vor und sperrt irrelevante lineare Zählmodi (*„Diese Seite und folgende Seiten“*, *„Alle Seiten“*) für Nicht-Seitenzahlen (z. B. Randnummern), um ungewolltes automatisches Weiterschalten zu verhindern.
+  - Zoteros native Checkbox *„Automatisch erkennen“* wird bei Randnummern ausgeblendet, damit die Zählung nicht versehentlich auf physische PDF-Seitenzahlen zurückgesetzt wird.
+  - Mit *„Diesen Locator künftig für dieses Dokument verwenden“* erhalten künftig neu erstellte Annotationen dieses Dokuments automatisch den gewählten Standard. Bereits bestehende Annotationen bleiben unverändert erhalten.
+  - Die Seitenleiste des Readers zeigt den gewählten Locator automatisch an (z. B. *„Randnummer 284“* statt *„Seite 284“*).
+- **Kontextmenü im Reader:**
+  - Rechtsklick auf eine Annotation im Dokument oder in der Seitenleiste → *Locator festlegen…* bzw. *Kommentar hinzufügen… / Kommentar bearbeiten…*.
+- **Tastaturnavigation & kompaktes Bearbeitungsfenster:**
+  - Das Bearbeitungsfenster ist im Locator-Modus schlank und kompakt gestaltet (320 px).
+  - Volle Tastatursteuerung: `Tab` und `Shift+Tab` navigieren durch die Eingabefelder (Locator, Nummer, Checkbox, Buttons); `Enter` speichert und schließt das Fenster sofort aus jedem Feld heraus; `Escape` bricht ab.
+- **Bearbeiten aus der Literaturübersicht:**
+  - Rechtsklick auf eine beliebige Annotation im Item-Baum (oder im Annotations-Bereich rechts) → *Annotation bearbeiten…* öffnet die Maske direkt, ohne dass das Dokument geöffnet werden muss.
+- Der Locator-Typ liegt als automatischer Tag (`#flexannotate-locator-…` an der Annotation, `#flexannotate-default-locator-…` am Anhang) und wird beim Nur-Nachweis-Zitieren verwendet.
+- Kontextmenü-Einträge im Hauptfenster besitzen passende Symbole (*Hinzufügen*, *Bearbeiten*, *Löschen*). Der Reader baut sein Menü selbst und unterstützt dort keine Icons.
+
 #### Nur-Nachweis-Zitieren
 
 Beim Einfügen von Annotationen in Word oder LibreOffice wahlweise **nur die Zitation mit
@@ -229,6 +247,24 @@ annotations tab, can be searched and tagged, and are selectable in the Word/Libr
 "Add note" dialog.
 <img width="619" height="393" alt="image" src="https://github.com/user-attachments/assets/acc79329-b4ab-47b4-a478-ddc07fd89309" />
 <img width="1273" height="155" alt="image" src="https://github.com/user-attachments/assets/c7e1dcd2-bd16-4819-b6ab-52d47db0f59f" />
+
+#### Native annotations (PDF, EPUB, snapshot)
+
+- **Locator in the reader:**
+  - The reader's page-number popup (*Edit Page Number…*) directly includes locator selection (page, margin/randnummer, paragraph, section …).
+  - Defaults to *“This annotation”* and disables linear page-offset options (*“This page and later pages”*, *“All pages”*) for non-page locators to prevent unwanted renumbering.
+  - Hides Zotero's native *“Auto-detect”* checkbox when non-page locators are active so numbers are never accidentally overwritten with physical PDF page numbers.
+  - Ticking *“Use this locator by default for this document”* sets the default for future annotations on that document without retroactively modifying existing ones.
+  - The reader sidebar dynamically displays the active locator label (e.g. *“Margin 284”* instead of *“Page 284”*).
+- **Context menu in the reader:**
+  - Right-click an annotation in the reader → *Set Locator…* or *Add Comment… / Edit Comment…*.
+- **Keyboard navigation & compact dialog:**
+  - Slim dialog layout (optimized to 320 px in locator mode).
+  - Full keyboard accessibility: `Tab` / `Shift+Tab` cycles through controls (locator dropdown, number field, checkbox, buttons); `Enter` saves immediately from any field; `Escape` cancels.
+- **Edit from the library view:**
+  - Right-click an annotation in the library item tree (or in the annotations pane) → *Edit Annotation…* opens the editor directly without opening the reader.
+- The locator type is stored as an automatic tag (`#flexannotate-locator-…` on the annotation, `#flexannotate-default-locator-…` on the attachment) and is used when citing in citation-only mode.
+- Context menu entries in the main window feature matching icons (*Add*, *Edit*, *Delete*). The reader builds its own menu and does not support third-party icons there.
 
 #### Citation-only citing
 

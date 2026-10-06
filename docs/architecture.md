@@ -40,9 +40,10 @@ them per document and also drops the injected `<link href="flexannotate.ftl">`.
 | `bootstrap.js` | Lifecycle contract, preference-pane registration, first script load |
 | `flexannotate.js` | Namespace, module loading, preference and logging helpers, item context menu |
 | `placeholder.js` | Generation, lookup and cleanup of the placeholder attachment |
-| `printAnnotations.js` | Create, update, erase annotations; page label, sort index, locator tag |
-| `dialog.js` | Input mask as a XUL `<panel>` in the main window |
+| `printAnnotations.js` | Create, update, erase annotations; page label, sort index, locator tags, document defaults |
+| `dialog.js` | Input mask as a compact XUL `<panel>` in main and reader windows with full keyboard support |
 | `annotationMenu.js` | Context menu on `annotation-row` elements in the item pane |
+| `readerMenu.js` | Reader context menu, sidebar annotation header localization, LabelPopup injection, live updates |
 | `integrationPatch.js` | Citation-only rewrite in the word-processor integration |
 | `citationDialogPatch.js` | Mode selector injected into the citation dialog |
 | `citaviImport.js` | Second import pass for Citavi quotes Zotero discards |
@@ -98,9 +99,16 @@ digits yields 99999 and therefore sorts last while keeping its relative order.
 
 Zotero has no field for the *kind* of locator. The CSL locator is stored as an automatic tag
 `#flexannotate-locator-<name>` on the annotation: tags are native, synchronize, and survive a round trip
-through other devices. `page` is the default and is not tagged; valid names come from `Zotero.Cite.labels`.
-`PrintAnnotations.applyLocatorTag()` writes it (removing any previous locator tag first),
-`PrintAnnotations.getLocator()` reads it with a fallback to `page`, and
+through other devices. In addition, an attachment item can carry `#flexannotate-default-locator-<name>`
+to establish a default locator for all future annotations created under it. `page` is the global default and
+is not tagged on attachments. Valid locator names come from `Zotero.Cite.labels` plus `'margin'`.
+
+`PrintAnnotations.getLocator()` checks for an explicit tag on the annotation first, then falls back to the
+attachment's default locator via `PrintAnnotations.getDefaultLocator(attachment)`, and finally to `'page'`.
+When `PrintAnnotations.setDefaultLocator(attachment, locator)` sets a new document default, it first freezes
+all existing annotations on the attachment that lack an explicit locator tag to the previous default tag,
+ensuring that changing the document default for the future never retroactively alters existing annotations.
+`PrintAnnotations.applyLocatorTag()` writes the tag (removing any previous locator tag first), and
 `IntegrationPatch.rewriteToCitationOnly()` consumes it as the citation item's `label`.
 
 ## Control flow
@@ -114,14 +122,40 @@ await `Zotero.Styles.init()` through `Dialog.ensureLocatorsReady()`, then build 
 `MozXULElement.parseXULToFragment()` and cache it by ID. `Dialog.buildLocatorMenu()` fills the locator
 menulist from `Zotero.Cite.labels`, labelled through `Zotero.Cite.getLocatorString()` and sorted by label;
 `Dialog.buildColorMenu()` fills the color menulist from `Zotero.Annotations.COLORS` using
-`Zotero.getString()` (see [Pitfall 7](#7-fluent-value-messages-vs-xul-labels)). `Dialog.accept()` requires a
-non-empty page field, then calls `PrintAnnotations.create()` or `.update()`; the type menulist is disabled
-in edit mode.
+`Zotero.getString()` (see [Pitfall 7](#7-fluent-value-messages-vs-xul-labels)).
+
+`Dialog.applyView()` adapts the panel's width to the active view (320 px for locator editing, 380 px for
+comments, 440 px for full editing). Long source titles are truncated with ellipsis to avoid layout overflow.
+A dedicated `keydown` listener provides complete keyboard control: `Tab` and `Shift+Tab` cycle through all
+focusable controls via `Dialog.getFocusableElements()`, `Enter` triggers `Dialog.accept()` immediately (unless
+editing in a multi-line comment textarea or selecting from an open menupopup), and `Escape` cancels.
 
 `AnnotationMenu` registers a single `contextmenu` listener on the document in the capture phase rather than
 on the rows: `annotation-row` elements (`elements/attachmentAnnotationsBox.js:134`) are rebuilt on every
-selection change, so only a delegated listener survives. The handler returns early unless the row's
-annotation has a placeholder parent, leaving PDF and EPUB annotations untouched.
+selection change, so only a delegated listener survives. Native annotations can also be edited directly from
+the main window item tree via `Annotation bearbeiten…`.
+
+### Reader integration (PDF, EPUB, snapshot)
+
+`ReaderMenu.patch()` connects to Zotero's reader framework via three integration hooks:
+
+1. **Annotation context menu:** Registered via `Zotero.Reader.registerEventListener('createAnnotationContextMenu', …)`.
+   Appends *„Kommentar hinzufügen… / bearbeiten…“* and *„Locator festlegen…“* to the context menu of highlighted
+   passages in the reader.
+2. **Sidebar annotation headers:** Registered via `Zotero.Reader.registerEventListener('renderSidebarAnnotationHeader', …)`.
+   Replaces the default *„Seite“* label with the localized locator string (e.g. *„Randnummer“*, *„Absatz“*).
+3. **Label popup enhancement:** Observes reader iframes using a `MutationObserver` watching for `.label-popup`.
+   When the native *„Seitenzahl bearbeiten…“* popup appears, `ReaderMenu.enhanceLabelPopup()`:
+   - Injects a locator `<select>` and a checkbox to set the locator as the document default.
+   - Dispatches a click on the `single` radio button (*„Diese Annotation“*), preventing Zotero's default `from`
+     mode from triggering linear page-offset arithmetic on Randnummern.
+   - Disables linear page-offset radio choices (*„Diese Seite und folgende Seiten“*, *„Alle Seiten“*) when a
+     non-page locator is selected.
+   - Hides Zotero's native `renumber-auto-detect` checkbox column for non-page locators, preventing accidental
+     resets to physical PDF page numbers.
+   - Listens for apply/Enter to assign the locator tag to the targeted annotation and updates all reader views.
+4. **Live reader synchronization:** A `Zotero.Notifier` observer listens for `item` modifications and updates
+   all open readers automatically. On plugin teardown, `ReaderMenu.unpatch()` resets all reader DOM elements cleanly.
 
 ### Citation-only insertion
 

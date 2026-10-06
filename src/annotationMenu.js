@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Kontextmenü an Print-Annotationen im Item-Bereich.
+ * Kontextmenü an Annotationen im Item-Bereich.
  *
  * Zotero zeichnet Annotationen im Anhang-Abschnitt als <annotation-row
  * annotation-id="…"> (elements/attachmentAnnotationsBox.js:134). Ein eigenes
@@ -9,8 +9,8 @@
  *
  * Der Listener sitzt am Dokument statt an den einzelnen Zeilen: die Zeilen werden bei
  * jeder Auswahländerung neu aufgebaut, ein delegierter Listener überlebt das.
- * Er greift ausschließlich bei Annotationen unter einem Platzhalter-Anhang — fremde
- * Annotationen (PDF, EPUB) bleiben unangetastet.
+ * „Bearbeiten" erscheint bei jeder Annotation (auch PDF, EPUB), „Löschen" nur bei
+ * Annotationen unter einem Platzhalter-Anhang.
  */
 FlexAnnotate.AnnotationMenu = {
 	POPUP_ID: 'flexannotate-annotation-popup',
@@ -48,6 +48,10 @@ FlexAnnotate.AnnotationMenu = {
 
 		let popup = doc.getElementById(this.POPUP_ID);
 		FlexAnnotate.storeAddedElement(popup);
+
+		FlexAnnotate.setMenuIcon(doc.getElementById('flexannotate-annotation-edit'), 'menu-edit');
+		FlexAnnotate.setMenuIcon(doc.getElementById('flexannotate-annotation-delete'),
+			'menu-delete');
 
 		doc.getElementById('flexannotate-annotation-edit')
 			.addEventListener('command', () => {
@@ -119,10 +123,13 @@ FlexAnnotate.AnnotationMenu = {
 		if (!annotation || !annotation.isAnnotation()) {
 			return;
 		}
-		// Nur unsere eigenen Print-Annotationen, keine aus PDFs oder EPUBs
-		if (!FlexAnnotate.Placeholder.isPlaceholder(annotation.parentItem)) {
-			return;
-		}
+
+		// Bearbeiten gilt für jede Annotation, Löschen nur für unsere Print-Annotationen
+		// — für die übrigen bringt Zotero das Löschen selbst mit.
+		let isPrint = FlexAnnotate.Placeholder.isPlaceholder(annotation.parentItem);
+		let doc = window.document;
+		doc.getElementById('flexannotate-annotation-delete').hidden = !isPrint;
+		doc.getElementById('flexannotate-annotation-edit').disabled = !annotation.isEditable();
 
 		popup.setAttribute(this.ANNOTATION_ATTR, String(annotation.id));
 		event.preventDefault();

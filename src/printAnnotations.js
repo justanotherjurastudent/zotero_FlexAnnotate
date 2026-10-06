@@ -23,6 +23,8 @@ FlexAnnotate.PrintAnnotations = {
 	 * 'page' ist der Standard und wird nicht getaggt, damit Bibliotheken sauber bleiben.
 	 */
 	LOCATOR_TAG_PREFIX: '#flexannotate-locator-',
+	/** Standard-Locator eines ganzen Dokuments, als automatischer Tag am Anhang */
+	DEFAULT_LOCATOR_TAG_PREFIX: '#flexannotate-default-locator-',
 	DEFAULT_LOCATOR: 'page',
 
 	/**
@@ -106,7 +108,11 @@ FlexAnnotate.PrintAnnotations = {
 		}
 		if (data.pageLabel !== undefined) {
 			annotation.annotationPageLabel = String(data.pageLabel).trim();
-			annotation.annotationSortIndex = this.buildSortIndex(data.pageLabel);
+			// Der sortIndex nativer Annotationen kodiert die Position im Dokument und
+			// darf nicht aus der Seitenzahl überschrieben werden.
+			if (FlexAnnotate.Placeholder.isPlaceholder(annotation.parentItem)) {
+				annotation.annotationSortIndex = this.buildSortIndex(data.pageLabel);
+			}
 		}
 		if (data.locator !== undefined) {
 			this.applyLocatorTag(annotation, data.locator);
@@ -118,7 +124,9 @@ FlexAnnotate.PrintAnnotations = {
 	},
 
 	/**
-	 * Liefert den Locator-Typ einer Annotation.
+	 * Liefert den Locator-Typ einer Annotation: erst der eigene Tag, dann der Standard
+	 * des Dokuments (Anhangs), zuletzt 'page'. Gilt für Print-Annotationen und für
+	 * Annotationen in PDF/EPUB/Snapshot gleichermaßen.
 	 *
 	 * @param {Zotero.Item} annotation
 	 * @return {String} z. B. 'page', 'paragraph', 'section'
@@ -127,8 +135,30 @@ FlexAnnotate.PrintAnnotations = {
 		for (let tag of annotation.getTags()) {
 			if (tag.tag.startsWith(this.LOCATOR_TAG_PREFIX)) {
 				let locator = tag.tag.slice(this.LOCATOR_TAG_PREFIX.length);
-				if (Zotero.Cite.labels.includes(locator)) {
+				if (Zotero.Cite.labels.includes(locator) || locator === 'margin') {
 					return locator;
+				}
+			}
+		}
+		return this.getDefaultLocator(annotation.parentItem);
+	},
+
+	/**
+	 * Standard-Locator eines Dokuments. Er hängt als automatischer Tag am Anhang und
+	 * gilt für alle Annotationen darunter, die keinen eigenen Locator-Tag tragen —
+	 * auch für künftig im Reader angelegte.
+	 *
+	 * @param {Zotero.Item|null} attachment
+	 * @return {String}
+	 */
+	getDefaultLocator(attachment) {
+		if (attachment) {
+			for (let tag of attachment.getTags()) {
+				if (tag.tag.startsWith(this.DEFAULT_LOCATOR_TAG_PREFIX)) {
+					let locator = tag.tag.slice(this.DEFAULT_LOCATOR_TAG_PREFIX.length);
+					if (Zotero.Cite.labels.includes(locator) || locator === 'margin') {
+						return locator;
+					}
 				}
 			}
 		}
@@ -136,7 +166,73 @@ FlexAnnotate.PrintAnnotations = {
 	},
 
 	/**
+	 * Prüft, ob eine Annotation einen ausdrücklichen FlexAnnotate-Locator-Tag besitzt.
+	 *
+	 * @param {Zotero.Item} annotation
+	 * @return {Boolean}
+	 */
+	hasExplicitLocator(annotation) {
+		if (!annotation || typeof annotation.getTags !== 'function') {
+			return false;
+		}
+		for (let tag of annotation.getTags()) {
+			if (tag.tag.startsWith(this.LOCATOR_TAG_PREFIX)) {
+				return true;
+			}
+		}
+		return false;
+	},
+
+	/**
+	 * Setzt den Standard-Locator eines Dokuments und speichert den Anhang. 'page' ist
+	 * der Grundzustand und entfernt den Tag wieder.
+	 * Bestehende Annotationen ohne expliziten Tag werden auf den bisherigen Standard
+	 * eingefroren, damit die künftige Vorgabe nicht rückwirkend bestehende Annotationen ändert.
+	 *
+	 * @param {Zotero.Item} attachment
+	 * @param {String} locator
+	 * @return {Promise<void>}
+	 */
+	async setDefaultLocator(attachment, locator) {
+		if (!attachment || !attachment.isAttachment() || !attachment.isEditable()) {
+			return;
+		}
+		if (!Zotero.Cite.labels.includes(locator) && locator !== 'margin') {
+			throw new Error(`Unknown locator type: ${locator}`);
+		}
+		let previousDefault = this.getDefaultLocator(attachment);
+		if (previousDefault === locator) {
+			return;
+		}
+
+		// Alle bestehenden Annotationen ohne expliziten Locator auf den bisherigen
+		// Standard einfrieren, damit "künftig für dieses Dokument" nicht rückwirkend greift.
+		let existingAnns = attachment.getAnnotations();
+		for (let ann of existingAnns) {
+			if (ann.isEditable?.() !== false && !this.hasExplicitLocator(ann)) {
+				ann.addTag(this.LOCATOR_TAG_PREFIX + previousDefault, 1);
+				await ann.saveTx();
+			}
+		}
+
+		for (let tag of attachment.getTags()) {
+			if (tag.tag.startsWith(this.DEFAULT_LOCATOR_TAG_PREFIX)) {
+				attachment.removeTag(tag.tag);
+			}
+		}
+		if (locator !== this.DEFAULT_LOCATOR) {
+			attachment.addTag(this.DEFAULT_LOCATOR_TAG_PREFIX + locator, 1);
+		}
+		await attachment.saveTx();
+		FlexAnnotate.log(`Default locator of ${attachment.key} is now "${locator}"`);
+	},
+
+	/**
 	 * Setzt den Locator-Tag; speichert nicht selbst.
+	 *
+	 * Ohne eigenen Tag folgt eine Annotation dem Standard ihres Dokuments. Wählt jemand
+	 * 'page', obwohl das Dokument einen anderen Standard hat, muss das deshalb ein
+	 * ausdrücklicher Tag sein; nur im Grundzustand (Standard und Wahl 'page') entfällt er.
 	 *
 	 * @param {Zotero.Item} annotation
 	 * @param {String} [locator]
@@ -147,10 +243,15 @@ FlexAnnotate.PrintAnnotations = {
 				annotation.removeTag(tag.tag);
 			}
 		}
-		if (locator && locator !== this.DEFAULT_LOCATOR && Zotero.Cite.labels.includes(locator)) {
+		if (!locator || (!Zotero.Cite.labels.includes(locator) && locator !== 'margin')) {
+			return;
+		}
+		let documentDefault = this.getDefaultLocator(annotation.parentItem);
+		if (locator !== this.DEFAULT_LOCATOR || documentDefault !== this.DEFAULT_LOCATOR) {
 			annotation.addTag(this.LOCATOR_TAG_PREFIX + locator, 1);
 		}
 	},
+
 
 	/**
 	 * Löscht eine Print-Annotation und räumt ein leer gewordenes Platzhalter-Attachment auf.

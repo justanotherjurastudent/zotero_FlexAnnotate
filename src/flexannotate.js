@@ -36,6 +36,7 @@ var FlexAnnotate = {
 			'integrationPatch.js',
 			'dialog.js',
 			'annotationMenu.js',
+			'readerMenu.js',
 			'citationDialogPatch.js',
 			'citaviImport.js'
 		]) {
@@ -51,7 +52,12 @@ var FlexAnnotate = {
 	 * Modul darf die übrigen nicht aufhalten, sonst bliebe ein Patch stehen.
 	 */
 	uninit() {
-		for (let patch of [this.IntegrationPatch, this.CitationDialogPatch, this.CitaviImport]) {
+		for (let patch of [
+			this.IntegrationPatch,
+			this.CitationDialogPatch,
+			this.CitaviImport,
+			this.ReaderMenu
+		]) {
 			try {
 				patch.unpatch();
 			}
@@ -150,6 +156,12 @@ var FlexAnnotate = {
 		this.IntegrationPatch.patch();
 		this.CitationDialogPatch.patch();
 		this.CitaviImport.patch();
+		try {
+			await this.ReaderMenu.patch();
+		}
+		catch (e) {
+			this.logError(e);
+		}
 	},
 
 	//
@@ -167,10 +179,16 @@ var FlexAnnotate = {
 
 		window.MozXULElement.insertFTLIfNeeded("flexannotate.ftl");
 
-		// Zuerst, weil beides eigene Wiederholungssperren hat und nicht davon abhängen
-		// darf, ob das Item-Kontextmenü in diesem Fenster existiert
+		// Zuerst, weil sie eigene Wiederholungssperren haben und nicht davon abhängen
+		// dürfen, ob das Item-Kontextmenü in diesem Fenster existiert
 		this.AnnotationMenu.addToWindow(window);
 		this.CitaviImport.addToWindow(window);
+		try {
+			this.ReaderMenu.patch();
+		}
+		catch (e) {
+			this.logError(e);
+		}
 
 		let itemMenu = doc.getElementById('zotero-itemmenu');
 		if (!itemMenu) {
@@ -188,23 +206,25 @@ var FlexAnnotate = {
 
 		this.addMenuItem(itemMenu, 'flexannotate-add-print-annotation',
 			'flexannotate-add-print-annotation',
-			() => this.openPrintAnnotationDialog(window));
+			() => this.openPrintAnnotationDialog(window), 'menu-add');
 
-		// Im Item-Baum erscheinen Print-Annotationen als eigene Zeilen unter dem
-		// Platzhalter. Dort greift Zoteros Kontextmenü, nicht das an den
-		// annotation-row-Elementen des rechten Bereichs (AnnotationMenu) — deshalb
-		// stehen Bearbeiten und Löschen an beiden Stellen.
+		// Im Item-Baum erscheinen Annotationen als eigene Zeilen unter dem Anhang
+		// (Print-Annotationen unter dem Platzhalter, die übrigen unter PDF/EPUB/Snapshot).
+		// Dort greift Zoteros Kontextmenü, nicht das an den annotation-row-Elementen des
+		// rechten Bereichs (AnnotationMenu) — deshalb stehen Bearbeiten und Löschen an
+		// beiden Stellen. Bearbeiten gilt für jede Annotation, Löschen nur für
+		// Print-Annotationen: für die übrigen bringt Zotero das Löschen selbst mit.
 		this.addMenuItem(itemMenu, 'flexannotate-itemmenu-edit', 'flexannotate-annotation-edit',
 			() => {
-				let annotation = this.getSelectedPrintAnnotation(window);
+				let annotation = this.getSelectedAnnotation(window);
 				return annotation && this.Dialog.openForEdit(window, annotation);
-			});
+			}, 'menu-edit');
 
 		this.addMenuItem(itemMenu, 'flexannotate-itemmenu-delete', 'flexannotate-annotation-delete',
 			() => {
 				let annotation = this.getSelectedPrintAnnotation(window);
 				return annotation && this.PrintAnnotations.erase(annotation);
-			});
+			}, 'menu-delete');
 
 		// buildItemContextMenu() räumt nur seine eigenen Einträge auf (zoteroPane.js:4170),
 		// angehängte Plugin-Einträge bleiben bestehen. Sichtbarkeit steuern wir selbst.
@@ -220,17 +240,36 @@ var FlexAnnotate = {
 	 * @param {String} id - Element-ID, zugleich Schlüssel für removeFromWindow()
 	 * @param {String} l10nID - Fluent-ID der Beschriftung
 	 * @param {Function} onCommand - darf ein Promise liefern; Fehler landen im Log
+	 * @param {String} [icon] - Dateiname unter icons/ ohne Endung
 	 */
-	addMenuItem(menu, id, l10nID, onCommand) {
+	addMenuItem(menu, id, l10nID, onCommand, icon) {
 		let menuitem = menu.ownerDocument.createXULElement('menuitem');
 		menuitem.id = id;
 		menuitem.classList.add('menuitem-iconic');
 		menuitem.setAttribute('data-l10n-id', l10nID);
+		if (icon) {
+			this.setMenuIcon(menuitem, icon);
+		}
 		menuitem.addEventListener('command', () => {
 			Promise.resolve(onCommand()).catch(e => this.logError(e));
 		});
 		menu.appendChild(menuitem);
 		this.storeAddedElement(menuitem);
+	},
+
+	/**
+	 * Hängt ein Symbol an einen Menüeintrag. Die SVGs füllen mit `context-fill`; erst
+	 * die context-properties holen die Textfarbe des Menüs hinein — sonst wären sie im
+	 * dunklen Design schwarz auf dunkel.
+	 *
+	 * @param {Element} menuitem
+	 * @param {String} icon - Dateiname unter icons/ ohne Endung
+	 */
+	setMenuIcon(menuitem, icon) {
+		menuitem.classList.add('menuitem-iconic');
+		menuitem.setAttribute('image', this.rootURI + 'icons/' + icon + '.svg');
+		menuitem.style.setProperty('-moz-context-properties', 'fill, fill-opacity');
+		menuitem.style.setProperty('fill', 'currentColor');
 	},
 
 	/**
@@ -243,13 +282,14 @@ var FlexAnnotate = {
 		let items = window.ZoteroPane?.getSelectedItems() || [];
 
 		let canAdd = items.length === 1 && items[0].isRegularItem();
-		let annotation = this.getSelectedPrintAnnotation(window);
+		let annotation = this.getSelectedAnnotation(window);
+		let printAnnotation = this.getSelectedPrintAnnotation(window);
 
 		let visibility = {
 			'flexannotate-itemmenu-separator': canAdd || !!annotation,
 			'flexannotate-add-print-annotation': canAdd,
 			'flexannotate-itemmenu-edit': !!annotation,
-			'flexannotate-itemmenu-delete': !!annotation
+			'flexannotate-itemmenu-delete': !!printAnnotation
 		};
 
 		for (let [id, visible] of Object.entries(visibility)) {
@@ -258,6 +298,26 @@ var FlexAnnotate = {
 				element.hidden = !visible;
 			}
 		}
+
+		let edit = doc.getElementById('flexannotate-itemmenu-edit');
+		if (edit) {
+			edit.disabled = !!annotation && !annotation.isEditable();
+		}
+	},
+
+	/**
+	 * Liefert die ausgewählte Annotation — gleich welchen Anhangs —, sofern genau eine
+	 * ausgewählt ist.
+	 *
+	 * @param {Window} window
+	 * @return {Zotero.Item|null}
+	 */
+	getSelectedAnnotation(window) {
+		let items = window.ZoteroPane?.getSelectedItems() || [];
+		if (items.length !== 1 || !items[0].isAnnotation()) {
+			return null;
+		}
+		return items[0];
 	},
 
 	/**
@@ -268,15 +328,8 @@ var FlexAnnotate = {
 	 * @return {Zotero.Item|null}
 	 */
 	getSelectedPrintAnnotation(window) {
-		let items = window.ZoteroPane?.getSelectedItems() || [];
-		if (items.length !== 1) {
-			return null;
-		}
-		let item = items[0];
-		if (!item.isAnnotation() || !this.Placeholder.isPlaceholder(item.parentItem)) {
-			return null;
-		}
-		return item;
+		let item = this.getSelectedAnnotation(window);
+		return item && this.Placeholder.isPlaceholder(item.parentItem) ? item : null;
 	},
 
 	/**

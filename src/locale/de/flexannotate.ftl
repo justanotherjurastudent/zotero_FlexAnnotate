@@ -19,11 +19,25 @@ flexannotate-type-underline =
     .label = Unterstreichung
 flexannotate-type-note =
     .label = Notiz
+flexannotate-type-text =
+    .label = Text
+flexannotate-type-image =
+    .label = Bild
+flexannotate-type-ink =
+    .label = Freihand
+
+# Kontrollkästchen unter dem Locator: merkt den Typ für das ganze Dokument
+flexannotate-field-default-locator =
+    .label = Diesen Locator künftig für dieses Dokument verwenden
 
 flexannotate-annotation-edit =
-    .label = Print-Annotation bearbeiten…
+    .label = Annotation bearbeiten…
 flexannotate-annotation-delete =
     .label = Print-Annotation löschen
+
+# Einträge im Kontextmenü der Annotationen im Reader (reine Werte, keine Attribute)
+flexannotate-reader-add-comment = Kommentar hinzufügen…
+flexannotate-reader-set-locator = Locator festlegen…
 
 flexannotate-button-save =
     .label = Speichern
