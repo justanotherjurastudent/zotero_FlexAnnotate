@@ -23,7 +23,7 @@
 
 import { buildDialogSections, nodeCounts } from "../core/dialogView";
 import type { AnnLike } from "../core/dialogView";
-import { activeIds, parseStore, record } from "../core/cited";
+import { activeIds, parseStore, record, unrecord } from "../core/cited";
 import { formatLocator } from "../core/locator";
 import { applyClick, emptySelection } from "../core/selection";
 import type { SelectionState } from "../core/selection";
@@ -646,13 +646,19 @@ export class CitationDialogPatch {
     const check = this.el(
       doc,
       "span",
-      `flex:none;width:14px;color:${GREEN};font-weight:700;`,
+      `flex:none;width:16px;text-align:center;cursor:pointer;color:${GREEN};font-weight:700;`,
       cited ? "✓" : "",
     );
-    if (cited) {
-      check.title = tr("dialogCited");
-      check.className = "annotree-cited";
-    }
+    check.className = cited
+      ? "annotree-check annotree-cited"
+      : "annotree-check";
+    check.title = cited ? tr("dialogCited") : tr("dialogCheckHint");
+    // manual correction: click toggles the mark of this row (or the selection)
+    check.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
+      this.setCited(win, v, ids, !cited);
+    });
     const dot = this.el(
       doc,
       "span",
@@ -776,6 +782,41 @@ export class CitationDialogPatch {
       () => void this.insert(win, [...v.sel.selected]),
     );
     host.appendChild(btn);
+
+    // manual correction of the green check
+    const allCited = picked.every((r) => v.cited.has(r.id));
+    const mark = doc.createElement("button");
+    mark.id = "annotree-toggle-cited";
+    mark.textContent = allCited ? tr("dialogUncite") : tr("dialogMark");
+    mark.style.cssText = "align-self:flex-start;padding:5px 12px;";
+    mark.addEventListener("click", () =>
+      this.setCited(win, v, [...v.sel.selected], !allCited),
+    );
+    host.appendChild(mark);
+  }
+
+  /** Set or remove the green check of annotations for this document. */
+  private static setCited(win: Window, v: View, ids: number[], on: boolean) {
+    const sessionID = currentSessionId();
+    const store = readCitedStore();
+    const entries = ids.flatMap((id) => {
+      const r = v.rows.get(id);
+      return r ? [{ id, workID: r.workID }] : [];
+    });
+    const next = on
+      ? record(store, sessionID, entries)
+      : unrecord(store, sessionID, ids);
+    try {
+      Zotero.Prefs.set(prefKey(CITED_PREF), JSON.stringify(next), true);
+    } catch (e) {
+      ztoolkit.log("annotree cited store write failed:", e);
+    }
+    for (const id of ids) {
+      if (on) v.cited.add(id);
+      else v.cited.delete(id);
+    }
+    this.renderList(win, v);
+    this.renderPreview(win, v);
   }
 
   // ── inserting via Zotero's own handler ─────────────────────────────────────

@@ -1,7 +1,7 @@
 {
   "name": "zotero-annotree",
   "type": "module",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Annotree: sort Zotero annotations and works into an outline (Citavi-style knowledge organizer), usable from the Word citation dialog.",
   "config": {
     "addonName": "Annotree",

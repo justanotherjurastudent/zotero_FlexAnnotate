@@ -66,6 +66,9 @@ const de = {
   dialogFilter: "Annotationen filtern …",
   dialogInsert: "In die Zitation einfügen",
   dialogCited: "Bereits zitiert",
+  dialogUncite: "Zitiert-Markierung entfernen",
+  dialogMark: "Als zitiert markieren",
+  dialogCheckHint: "Klicken, um die Markierung zu entfernen oder zu setzen",
   dialogHint:
     "Klicke eine Annotation, um das Zitat zu sehen. Doppelklick oder + fügt sie ein.",
 };
@@ -131,6 +134,9 @@ const en: Record<Key, string> = {
   dialogFilter: "Filter annotations …",
   dialogInsert: "Insert into the citation",
   dialogCited: "Already cited",
+  dialogUncite: "Remove cited mark",
+  dialogMark: "Mark as cited",
+  dialogCheckHint: "Click to remove or set the mark",
   dialogHint:
     "Click an annotation to see the quote. Double-click or + inserts it.",
 };

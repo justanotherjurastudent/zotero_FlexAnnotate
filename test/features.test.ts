@@ -590,6 +590,29 @@ describe("Annotree features", function () {
       }
       await screenshot(w, "dialog-cited");
 
+      // the mark can be removed by hand and set again
+      const readStore = () =>
+        Zotero.Prefs.get(`${prefs}.citedAnnotations`, true) as string;
+      click(
+        w.document.querySelector(
+          `[data-ann-id="${anns[0].id}"] .annotree-cited`,
+        )!,
+      );
+      await waitFor(
+        () => w.document.querySelectorAll(".annotree-cited").length === 1,
+      );
+      assert.notInclude(readStore(), `"${anns[0].id}"`);
+      // select it: the preview offers the opposite action
+      click(w.document.querySelector(`[data-ann-id="${anns[0].id}"]`)!);
+      const mark = await waitFor(() =>
+        w.document.getElementById("annotree-toggle-cited"),
+      );
+      click(mark);
+      await waitFor(
+        () => w.document.querySelectorAll(".annotree-cited").length === 2,
+      );
+      assert.include(readStore(), `"${anns[0].id}"`);
+
       // the work is no longer cited: the check is gone (cheap validity test)
       w.close();
       (Zotero as any).Integration.currentSession = {

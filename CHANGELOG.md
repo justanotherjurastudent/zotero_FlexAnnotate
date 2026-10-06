@@ -2,6 +2,12 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach [SemVer](https://semver.org/). Der Changelog des Ursprungsprojekts Lattice liegt unverändert in [`docs/lattice-changelog.md`](docs/lattice-changelog.md).
 
+## [0.2.4] – 2026-10-06
+
+### Hinzugefügt
+
+- Zitierdialog aus Word: Der grüne Haken lässt sich von Hand entfernen oder setzen, per Klick auf den Haken (bei markierten Zeilen für die ganze Markierung) oder mit dem Knopf in der Vorschau. Die Korrektur wird je Dokument gespeichert.
+
 ## [0.2.3] – 2026-10-06
 
 ### Geändert

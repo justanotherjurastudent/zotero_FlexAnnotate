@@ -57,3 +57,14 @@ export function activeIds(
   }
   return out;
 }
+
+/** New store without the given annotations for a document (manual removal). */
+export function unrecord(
+  store: CitedStore,
+  sessionID: string,
+  ids: number[],
+): CitedStore {
+  const mine = { ...(store[sessionID] ?? {}) };
+  for (const id of ids) delete mine[String(id)];
+  return { ...store, [sessionID]: mine };
+}
