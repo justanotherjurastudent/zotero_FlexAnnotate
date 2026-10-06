@@ -6,6 +6,7 @@ import {
   PaperSource,
 } from "./llmClient";
 import { saveNoteAnnotation } from "./annotationWriter";
+import { registerPluginMenu } from "../utils/menu";
 
 // Citation patterns. Kept tolerant of the model's formatting drift: optional
 // whitespace, "Page"/"Pages"/"p."/"pp.", and case-insensitive — so e.g.
@@ -29,19 +30,27 @@ export class QAPanelFactory {
   // ── Multi-paper Q&A ────────────────────────────────────────────────────────
 
   static registerMultiPaperMenuItem() {
-    ztoolkit.Menu.register("item", {
-      tag: "menuitem",
-      id: "zotero-itemmenu-grounded-qa-multi",
-      label: getString("qa-multi-menu-label"),
+    registerPluginMenu({
+      menuID: "zotero-itemmenu-grounded-qa-multi",
+      target: "main/library/item",
+      l10nID: "qa-multi-menu-label",
       icon: `chrome://${addon.data.config.addonRef}/content/icons/favicon@0.5x.png`,
-      getVisibility: () => {
-        const items: Zotero.Item[] = ztoolkit
-          .getGlobal("ZoteroPane")
-          .getSelectedItems();
+      onShowing: (_e: Event, context: any) => {
+        const items: Zotero.Item[] =
+          context?.items ??
+          (Zotero as any).getActiveZoteroPane?.()?.getSelectedItems() ??
+          ztoolkit.getGlobal("ZoteroPane")?.getSelectedItems() ??
+          [];
         // Show only when 2+ selected items have a PDF to reason over
-        return items.filter((i) => findPdfAttachmentID(i) !== null).length >= 2;
+        const visible =
+          items.filter((i: Zotero.Item) => findPdfAttachmentID(i) !== null)
+            .length >= 2;
+        context?.setVisible?.(visible);
+        if (context?.menuElem) {
+          context.menuElem.hidden = !visible;
+        }
       },
-      commandListener: () => {
+      onCommand: () => {
         QAPanelFactory.openMultiPaperDialog();
       },
     });
@@ -395,6 +404,7 @@ export class QAPanelFactory {
       if (!paper) continue;
       try {
         const attachment = Zotero.Items.get(paper.attachmentItemID);
+        if (!attachment) continue;
         await saveNoteAnnotation({
           item: attachment,
           pageNumber: page,
@@ -407,6 +417,14 @@ export class QAPanelFactory {
       }
     }
     return { created, errors, usedFallback };
+  }
+
+  static unregisterQASection() {
+    try {
+      (Zotero as any).ItemPaneManager?.unregisterSection("grounded-qa");
+    } catch (e) {
+      ztoolkit.log("unregisterQASection error:", e);
+    }
   }
 
   static registerQASection() {
@@ -683,8 +701,7 @@ export class QAPanelFactory {
   private static jumpToPage(item: Zotero.Item, pageIndex: number) {
     try {
       const tabID = (ztoolkit.getGlobal("Zotero_Tabs") as any).selectedID as
-        | string
-        | undefined;
+        string | undefined;
       if (tabID) {
         const reader = (Zotero.Reader as any).getByTabID(tabID);
         if (reader) {

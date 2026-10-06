@@ -27,9 +27,10 @@ async function startup({ id, version, resourceURI, rootURI }, reason) {
   const ctx = { rootURI };
   ctx._globalThis = ctx;
 
-  Services.scriptloader.loadSubScript(
+  // ignoreCache: plain loadSubScript() may serve a stale startup-cache copy
+  Services.scriptloader.loadSubScriptWithOptions(
     `${rootURI}/content/scripts/__addonRef__.js`,
-    ctx,
+    { target: ctx, ignoreCache: true },
   );
   await Zotero.__addonInstance__.hooks.onStartup();
 }

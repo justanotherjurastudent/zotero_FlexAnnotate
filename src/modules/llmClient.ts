@@ -271,7 +271,7 @@ async function zoteroLLMRequest(
       successCodes: false,
     });
   } catch (e: any) {
-    throw new Error(e.message ?? "Network error");
+    throw new Error(e.message ?? "Network error", { cause: e });
   }
 
   if (xhr.status === 200) {

@@ -7,6 +7,8 @@ import { AnnotationPanelFactory } from "./modules/annotationPanel";
 import { IdeaPanelFactory } from "./modules/ideaPanel";
 import { OutlinePanelFactory } from "./modules/outlinePanel";
 
+import { unregisterAllPluginMenus } from "./utils/menu";
+
 async function onStartup() {
   await Promise.all([
     Zotero.initializationPromise,
@@ -24,6 +26,10 @@ async function onStartup() {
   });
 
   QAPanelFactory.registerQASection();
+  QAPanelFactory.registerMultiPaperMenuItem();
+  AnnotationPanelFactory.registerMenu();
+  IdeaPanelFactory.registerMenu();
+  OutlinePanelFactory.registerMenu();
 
   // Cross-paper annotation layer: register the Notifier observer so the index
   // stays fresh as annotations are added/edited/removed anywhere in the library.
@@ -42,6 +48,9 @@ async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
   win.MozXULElement.insertFTLIfNeeded(
     `${addon.data.config.addonRef}-mainWindow.ftl`,
   );
+  win.MozXULElement.insertFTLIfNeeded(
+    `${addon.data.config.addonRef}-addon.ftl`,
+  );
 
   new ztoolkit.ProgressWindow(addon.data.config.addonName, {
     closeOnClick: true,
@@ -53,11 +62,6 @@ async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
       progress: 100,
     })
     .show();
-
-  QAPanelFactory.registerMultiPaperMenuItem();
-  AnnotationPanelFactory.registerMenu();
-  IdeaPanelFactory.registerMenu();
-  OutlinePanelFactory.registerMenu();
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {
@@ -67,6 +71,8 @@ async function onMainWindowUnload(win: Window): Promise<void> {
 
 function onShutdown(): void {
   ztoolkit.unregisterAll();
+  QAPanelFactory.unregisterQASection();
+  unregisterAllPluginMenus();
   AnnotationIndex.unload();
   addon.data.dialog?.window?.close();
   addon.data.alive = false;

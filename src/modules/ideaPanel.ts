@@ -10,6 +10,7 @@
 import { IdeaLayer, IdeaRecord } from "./ideaLayer";
 import { getTheme, Palette } from "./theme";
 import { getString } from "../utils/locale";
+import { registerPluginMenu } from "../utils/menu";
 
 const HTML_NS = "http://www.w3.org/1999/xhtml";
 
@@ -36,12 +37,12 @@ interface IdeaPanelState {
 
 export class IdeaPanelFactory {
   static registerMenu() {
-    ztoolkit.Menu.register("menuTools", {
-      tag: "menuitem",
-      id: "zotero-tools-idea-layer",
-      label: getString("idea-menu-label"),
+    registerPluginMenu({
+      menuID: "zotero-tools-idea-layer",
+      target: "main/menubar/tools",
+      l10nID: "idea-menu-label",
       icon: `chrome://${addon.data.config.addonRef}/content/icons/favicon@0.5x.png`,
-      commandListener: () => {
+      onCommand: () => {
         IdeaPanelFactory.open().catch((e) =>
           ztoolkit.log("idea layer open failed:", e),
         );

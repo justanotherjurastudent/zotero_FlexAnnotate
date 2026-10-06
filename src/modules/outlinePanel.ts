@@ -40,6 +40,7 @@ import {
 } from "./outlineExport";
 import { getTheme, Palette } from "./theme";
 import { getString } from "../utils/locale";
+import { registerPluginMenu } from "../utils/menu";
 
 const HTML_NS = "http://www.w3.org/1999/xhtml";
 
@@ -85,12 +86,12 @@ interface OutlineState {
 
 export class OutlinePanelFactory {
   static registerMenu() {
-    ztoolkit.Menu.register("menuTools", {
-      tag: "menuitem",
-      id: "zotero-tools-knowledge-organizer",
-      label: getString("outline-menu-label"),
+    registerPluginMenu({
+      menuID: "zotero-tools-knowledge-organizer",
+      target: "main/menubar/tools",
+      l10nID: "outline-menu-label",
       icon: `chrome://${addon.data.config.addonRef}/content/icons/favicon@0.5x.png`,
-      commandListener: () => {
+      onCommand: () => {
         OutlinePanelFactory.open().catch((e) =>
           ztoolkit.log("knowledge organizer open failed:", e),
         );

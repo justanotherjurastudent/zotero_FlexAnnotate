@@ -477,8 +477,7 @@ export class OutlineModel {
     let citation = "";
     for (const key of item.relatedItems || []) {
       const rel = Zotero.Items.getByLibraryAndKey(item.libraryID, key) as
-        | Zotero.Item
-        | false;
+        Zotero.Item | false;
       if (rel && rel.isRegularItem?.()) {
         citation = citationFor(rel);
         break;

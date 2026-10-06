@@ -17,6 +17,7 @@ import { IdeaPanelFactory } from "./ideaPanel";
 import { OutlinePanelFactory } from "./outlinePanel";
 import { getTheme, Palette } from "./theme";
 import { getString } from "../utils/locale";
+import { registerPluginMenu } from "../utils/menu";
 
 const RENDER_CAP = 200; // rows drawn per "page" before "Show more"
 
@@ -58,12 +59,12 @@ interface PanelState {
 export class AnnotationPanelFactory {
   /** Add a Tools-menu entry that opens the cross-paper browser. */
   static registerMenu() {
-    ztoolkit.Menu.register("menuTools", {
-      tag: "menuitem",
-      id: "zotero-tools-annotation-browser",
-      label: getString("annotations-menu-label"),
+    registerPluginMenu({
+      menuID: "zotero-tools-annotation-browser",
+      target: "main/menubar/tools",
+      l10nID: "annotations-menu-label",
       icon: `chrome://${addon.data.config.addonRef}/content/icons/favicon@0.5x.png`,
-      commandListener: () => {
+      onCommand: () => {
         AnnotationPanelFactory.open().catch((e) =>
           ztoolkit.log("annotation browser open failed:", e),
         );

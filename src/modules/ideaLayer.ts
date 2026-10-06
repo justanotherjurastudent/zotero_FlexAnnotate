@@ -61,8 +61,7 @@ export class IdeaLayer {
   /** Resolve a related item by key within a library. */
   private static resolve(libraryID: number, key: string): Zotero.Item | null {
     const it = Zotero.Items.getByLibraryAndKey(libraryID, key) as
-      | Zotero.Item
-      | false;
+      Zotero.Item | false;
     return it || null;
   }
 
@@ -136,8 +135,7 @@ export class IdeaLayer {
    */
   static async createFromAnnotation(rec: AnnRecord): Promise<Zotero.Item> {
     const source = Zotero.Items.get(rec.parentItemID) as
-      | Zotero.Item
-      | undefined;
+      Zotero.Item | undefined;
     const libraryID = source?.libraryID ?? Zotero.Libraries.userLibraryID;
 
     const parts: string[] = [];
