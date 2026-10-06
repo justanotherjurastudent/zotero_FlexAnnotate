@@ -29,7 +29,6 @@ export function findPdfAttachmentID(item: Zotero.Item): number | null {
   return null;
 }
 
-
 /**
  * Zotero orders annotations in the sidebar by a `pageIndex|offset|y` string.
  * We anchor to the page and pin to the top, which is enough for a note created

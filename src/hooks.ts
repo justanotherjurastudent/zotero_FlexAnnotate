@@ -1,8 +1,7 @@
 import { getString, initLocale } from "./utils/locale";
 import { createZToolkit } from "./utils/ztoolkit";
 import { AnnotationIndex } from "./modules/annotationIndex";
-import { AnnotationPanelFactory } from "./modules/annotationPanel";
-import { OutlinePanelFactory } from "./modules/outlinePanel";
+import { OrganizerFactory } from "./modules/organizer";
 
 import { unregisterAllPluginMenus } from "./utils/menu";
 
@@ -22,8 +21,7 @@ async function onStartup() {
     image: `chrome://${addon.data.config.addonRef}/content/icons/favicon.png`,
   });
 
-  AnnotationPanelFactory.registerMenu();
-  OutlinePanelFactory.registerMenu();
+  OrganizerFactory.registerMenu();
 
   // Cross-paper annotation layer: register the Notifier observer so the index
   // stays fresh as annotations are added/edited/removed anywhere in the library.
