@@ -6,7 +6,7 @@ import {
   emptySelection,
   prune,
   selectAll,
-} from "../../src/core/selection.ts";
+} from "../src/core/selection.ts";
 
 const order = [10, 11, 12, 13, 14];
 

@@ -17,7 +17,7 @@ import {
   titleError,
   unassignedItems,
   type OutlineNode,
-} from "../../src/core/outline.ts";
+} from "../src/core/outline.ts";
 
 function tree(): OutlineNode[] {
   const a = makeNode("Einleitung");

@@ -2,6 +2,9 @@ import { getString, initLocale } from "./utils/locale";
 import { createZToolkit } from "./utils/ztoolkit";
 import { AnnotationIndex } from "./modules/annotationIndex";
 import { OrganizerFactory } from "./modules/organizer";
+import * as organizerData from "./modules/organizerData";
+import * as outlineCore from "./core/outline";
+import * as outlineModelModule from "./modules/outlineModel";
 
 import { unregisterAllPluginMenus } from "./utils/menu";
 
@@ -13,6 +16,13 @@ async function onStartup() {
   ]);
 
   initLocale();
+
+  // Exposed for the integration tests (and later the Word dialog patch).
+  addon.api = {
+    organizerData,
+    outline: outlineCore,
+    outlineModel: outlineModelModule,
+  };
 
   Zotero.PreferencePanes.register({
     pluginID: addon.data.config.addonID,
