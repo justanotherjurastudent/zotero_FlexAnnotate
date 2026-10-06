@@ -2,6 +2,22 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach [SemVer](https://semver.org/). Der Changelog des Ursprungsprojekts Lattice liegt unverändert in [`docs/lattice-changelog.md`](docs/lattice-changelog.md).
 
+## [0.2.3] – 2026-10-06
+
+### Geändert
+
+- Das Feld „Stellentyp“ heißt „Locator“; ein Klick öffnet die Liste der Locator-Typen (wie bei FlexAnnotate nach Bezeichnung sortiert). Geändert wird nur der Locator dieser einen Annotation, Seitenzahlen anderer Annotationen bleiben unberührt (per Test belegt).
+- Mehr Luft über der Sammlungsauswahl.
+- Zitierdialog aus Word: Enter fügt die markierte Annotation zur Zitation hinzu (ein zweites Enter bestätigt den Dialog), die Pfeiltasten bewegen die Markierung.
+
+### Behoben
+
+- Zwei schnell aufeinanderfolgende Änderungen der Gliederung (z. B. Umbenennen, dann Verschieben) konnten sich beim Speichern gegenseitig überschreiben; Speichervorgänge laufen jetzt der Reihe nach.
+
+### Dokumentation
+
+- README: Abschnitt „Zu prüfen“ (Verfolgung zitierter Annotationen; Zusammenlegung mit FlexAnnotate).
+
 ## [0.2.2] – 2026-10-06
 
 ### Behoben

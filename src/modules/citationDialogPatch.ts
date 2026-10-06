@@ -83,6 +83,7 @@ interface Attached {
   observer: MutationObserver | null;
   enabled: boolean;
   view: View | null;
+  keyHandler: ((e: Event) => void) | null;
 }
 
 function prefKey(name: string): string {
@@ -194,7 +195,12 @@ export class CitationDialogPatch {
   private static watch(win: Window) {
     const check = () => {
       if (win.location?.href !== DIALOG_URL || this.attached.has(win)) return;
-      this.attached.set(win, { observer: null, enabled: false, view: null });
+      this.attached.set(win, {
+        observer: null,
+        enabled: false,
+        view: null,
+        keyHandler: null,
+      });
       win.addEventListener("unload", () => this.attached.delete(win), {
         once: true,
       });
@@ -322,6 +328,7 @@ export class CitationDialogPatch {
       info.enabled = true;
       this.applyLayout(win);
       this.renderAll(win, view);
+      this.addKeys(win, info);
       cb.checked = true;
     } catch (e) {
       ztoolkit.log("annotree dialog enable failed:", e);
@@ -337,6 +344,58 @@ export class CitationDialogPatch {
     info.view = null;
     cb.checked = false;
     this.restoreLayout(win);
+  }
+
+  /**
+   * Keyboard in the outline view. Enter adds the selected annotations to the
+   * citation (and clears the selection, so a second Enter confirms the dialog
+   * as usual); the arrow keys move the selection through the list.
+   */
+  private static addKeys(win: Window, info: Attached) {
+    const doc = win.document;
+    if (info.keyHandler) return;
+    const handler = (e: Event) => {
+      const k = e as KeyboardEvent;
+      const v = info.view;
+      if (!v || !info.enabled) return;
+      const target = k.target as HTMLElement | null;
+      if (target?.tagName === "BUTTON") return;
+      if (k.key === "Enter" && v.sel.selected.size) {
+        k.preventDefault();
+        k.stopPropagation();
+        const ids = [...v.sel.selected];
+        v.sel = emptySelection();
+        this.renderList(win, v);
+        this.renderPreview(win, v);
+        void this.insert(win, ids);
+        return;
+      }
+      const inListArea =
+        !target ||
+        target === (doc.body as unknown) ||
+        target === (doc.documentElement as unknown) ||
+        !!target.closest?.(`#${LIST_ID}, #${TREE_ID}, #${PREVIEW_ID}`);
+      if ((k.key === "ArrowDown" || k.key === "ArrowUp") && inListArea) {
+        const order = [
+          ...new Set(
+            this.visibleSections(v).flatMap((sec) =>
+              sec.items.map((i) => i.id),
+            ),
+          ),
+        ];
+        if (!order.length) return;
+        const cur = v.sel.anchor !== null ? order.indexOf(v.sel.anchor) : -1;
+        const step = k.key === "ArrowDown" ? 1 : -1;
+        const next = order[Math.max(0, Math.min(order.length - 1, cur + step))];
+        k.preventDefault();
+        k.stopPropagation();
+        v.sel = applyClick(v.sel, order, next, { shift: k.shiftKey });
+        this.renderList(win, v);
+        this.renderPreview(win, v);
+      }
+    };
+    info.keyHandler = handler;
+    doc.addEventListener("keydown", handler, true);
   }
 
   /** Hide Zotero's native columns and add the containers for ours. */
@@ -382,6 +441,11 @@ export class CitationDialogPatch {
 
   private static restoreLayout(win: Window) {
     const doc = win.document;
+    const attached = this.attached.get(win);
+    if (attached?.keyHandler) {
+      doc.removeEventListener("keydown", attached.keyHandler, true);
+      attached.keyHandler = null;
+    }
     for (const id of [TREE_ID, LIST_ID, PREVIEW_ID, NATIVE_ID, STYLE_ID])
       doc.getElementById(id)?.remove();
     const sidebar = doc.getElementById("sidebar") as HTMLElement | null;

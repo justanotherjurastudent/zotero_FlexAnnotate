@@ -301,14 +301,32 @@ describe("Annotree features", function () {
       ).value = "Mein Kommentar";
       (doc.getElementById("annotree-edit-place") as HTMLInputElement).value =
         "12";
-      const loc = doc.getElementById(
-        "annotree-edit-locator",
-      ) as HTMLSelectElement;
-      loc.value = "section";
+      const loc = doc.getElementById("annotree-edit-locator")!;
+      assert.match(
+        doc.body.textContent || "",
+        /Locator/,
+        "the field is labelled Locator",
+      );
+      click(loc); // the list of locator types opens
+      const option = await waitFor(() =>
+        doc.querySelector('#annotree-edit-locator-menu [data-value="section"]'),
+      );
+      assert.isAbove(
+        doc.querySelectorAll("#annotree-edit-locator-menu [data-value]").length,
+        3,
+        "several locator types are offered",
+      );
+      click(option!);
+      const otherPages = anns.slice(0, 2).map((a) => a.annotationPageLabel);
       click(doc.getElementById("annotree-edit-save")!);
       await waitFor(() => anns[2].annotationText === "Zwei A geändert");
       assert.equal(anns[2].annotationComment, "Mein Kommentar");
       assert.equal(anns[2].annotationPageLabel, "12");
+      assert.deepEqual(
+        anns.slice(0, 2).map((a) => a.annotationPageLabel),
+        otherPages,
+        "page numbers of the other annotations stay as they are",
+      );
       assert.isTrue(
         anns[2].getTags().some((t) => t.tag === "annotree:locator=section"),
       );
@@ -325,7 +343,11 @@ describe("Annotree features", function () {
         (s as any).libraryID = libraryID();
         s.addCondition("itemType", "is", "note");
         const items = await Zotero.Items.getAsync(await s.search());
-        return items.find((i: Zotero.Item) => re.test(i.getNote()));
+        for (const i of items as Zotero.Item[]) {
+          await i.loadAllData();
+          if (re.test(i.getNote())) return i;
+        }
+        return null;
       });
       await (note as Zotero.Item).eraseTx();
       await screenshot(win, "organizer-features");
@@ -522,6 +544,18 @@ describe("Annotree features", function () {
         () => doc.querySelectorAll("#bubble-input .bubble").length === 1,
       );
 
+      // Enter adds the selected annotation to the citation as well
+      click(doc.querySelector(`[data-ann-id="${anns[1].id}"]`)!);
+      await waitFor(() =>
+        doc
+          .getElementById("annotree-preview")
+          ?.textContent?.includes("Sehr langes"),
+      );
+      key(doc, "Enter");
+      await waitFor(
+        () => doc.querySelectorAll("#bubble-input .bubble").length === 2,
+      );
+
       // accepting records the annotation as cited for this document
       await (w as any).accept();
       await waitFor(() => {
@@ -543,9 +577,17 @@ describe("Annotree features", function () {
       let { w, toggle } = await openDialog({ [workID]: [{}] });
       win = w;
       if (!toggle.checked) toggle.click();
-      await waitFor(
-        () => w.document.querySelectorAll(".annotree-cited").length === 1,
-      );
+      try {
+        await waitFor(
+          () => w.document.querySelectorAll(".annotree-cited").length === 2,
+        );
+      } catch (e) {
+        const v = api().CitationDialogPatch.viewOf(w);
+        throw new Error(
+          `no check: store=${Zotero.Prefs.get(`${prefs}.citedAnnotations`, true)} view=${v ? "yes" : "none"} cited=${v ? [...v.cited] : "-"} rows=${w.document.querySelectorAll("[data-ann-id]").length} workID=${workID} ids=${anns.map((a) => a.id)}`,
+          { cause: e },
+        );
+      }
       await screenshot(w, "dialog-cited");
 
       // the work is no longer cited: the check is gone (cheap validity test)

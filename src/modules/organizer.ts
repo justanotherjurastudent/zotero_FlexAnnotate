@@ -94,6 +94,8 @@ interface State {
   /** Plugin setting: show the works behind the annotations. */
   showWorks: boolean;
   renaming: string | null;
+  /** Pending outline saves, in order. */
+  saveChain: Promise<void>;
   /** Ends the open inline rename (set while a heading is being renamed). */
   endRename: (() => void) | null;
   editing: number | null;
@@ -259,6 +261,11 @@ export class OrganizerFactory {
     root.style.background = t.bg;
     root.style.color = t.text;
     root.textContent = tr("loading");
+    try {
+      await Zotero.Styles.init(); // locator labels need the CSL locales
+    } catch (e) {
+      ztoolkit.log("annotree styles init failed:", e);
+    }
     const { libraryID, scope } = defaultScope();
     const loaded = await OutlineModel.load(libraryID);
     const state: State = {
@@ -277,6 +284,7 @@ export class OrganizerFactory {
       sections: false,
       showWorks: readShowWorks(),
       renaming: null,
+      saveChain: Promise.resolve(),
       endRename: null,
       editing: null,
       focusCol: "list",
@@ -335,8 +343,18 @@ export class OrganizerFactory {
     this.render(doc, root, s);
   }
 
-  private static async persist(s: State) {
-    s.noteID = await OutlineModel.save(s.libraryID, s.noteID, s.roots);
+  /**
+   * Save the outline. Saves run one after the other and each one reads the
+   * tree when it actually runs, so two quick changes (e.g. a rename followed
+   * by a move) can never overwrite each other with an older state.
+   */
+  private static persist(s: State): Promise<void> {
+    s.saveChain = s.saveChain
+      .then(async () => {
+        s.noteID = await OutlineModel.save(s.libraryID, s.noteID, s.roots);
+      })
+      .catch((e) => ztoolkit.log("annotree outline save failed:", e));
+    return s.saveChain;
   }
 
   // ── derived view ───────────────────────────────────────────────────────────
@@ -426,7 +444,7 @@ export class OrganizerFactory {
       doc,
       "div",
       `display:flex;gap:4px;align-items:flex-end;border-bottom:2px solid ${t.border};` +
-        "flex:0 0 auto;padding:0 4px;",
+        "flex:0 0 auto;padding:10px 4px 0;",
     );
     const mk = (tab: Tab, label: string) => {
       const on = s.tab === tab;
@@ -1420,7 +1438,7 @@ export class OrganizerFactory {
     r: Row,
   ) {
     const field = (label: string, control: HTMLElement) => {
-      const w = el(doc, "label", "display:flex;flex-direction:column;gap:3px;");
+      const w = el(doc, "div", "display:flex;flex-direction:column;gap:3px;");
       w.append(
         el(doc, "span", `color:${t.sub};font-size:11px;`, label),
         control,
@@ -1450,22 +1468,60 @@ export class OrganizerFactory {
     place.id = "annotree-edit-place";
     place.value = r.pageLabel;
     field(tr("fPlace"), place);
-    const loc = el(
-      doc,
-      "select",
-      `color:${t.text};background:${t.inputBg};border:1px solid ${t.border};` +
-        "border-radius:4px;padding:4px 6px;font-size:12px;",
-    );
-    loc.id = "annotree-edit-locator";
+    // The list of locator types, like in FlexAnnotate sorted by its label. It
+    // only sets this annotation's type; no other annotation is touched.
     const types = [...locatorTypes()];
     if (!types.includes(r.locator)) types.push(r.locator);
+    const labelOf = (ty: string) => locatorLabel(ty, null);
+    types.sort((x, y) => labelOf(x).localeCompare(labelOf(y)));
+    const locWrap = el(doc, "div", "position:relative;");
+    const loc = el(
+      doc,
+      "button",
+      `appearance:none;-moz-appearance:none;cursor:pointer;text-align:left;color:${t.text};` +
+        `background:${t.inputBg};border:1px solid ${t.border};border-radius:4px;` +
+        "padding:5px 8px;font-size:12px;display:flex;justify-content:space-between;",
+    );
+    loc.id = "annotree-edit-locator";
+    loc.dataset.value = r.locator;
+    const locText = el(doc, "span", "", labelOf(r.locator));
+    loc.append(locText, el(doc, "span", "", "▾"));
+    const locMenu = el(
+      doc,
+      "div",
+      `position:absolute;left:0;right:0;top:100%;margin-top:2px;z-index:30;display:none;` +
+        `max-height:240px;overflow-y:auto;background:${t.panel};color:${t.text};` +
+        `border:1px solid ${t.border};border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.25);`,
+    );
+    locMenu.id = "annotree-edit-locator-menu";
+    locMenu.dataset.menu = "1";
     for (const ty of types) {
-      const o = el(doc, "option", "", locatorLabel(ty, null));
-      o.value = ty;
-      loc.appendChild(o);
+      const o = el(
+        doc,
+        "div",
+        "padding:5px 10px;cursor:pointer;" +
+          (ty === r.locator ? "font-weight:600;" : ""),
+        labelOf(ty),
+      );
+      o.dataset.value = ty;
+      o.addEventListener("mouseenter", () => (o.style.background = t.hover));
+      o.addEventListener(
+        "mouseleave",
+        () => (o.style.background = "transparent"),
+      );
+      o.addEventListener("click", () => {
+        loc.dataset.value = ty;
+        locText.textContent = labelOf(ty);
+        locMenu.style.display = "none";
+      });
+      locMenu.appendChild(o);
     }
-    loc.value = r.locator;
-    field(tr("fLocator"), loc);
+    loc.addEventListener("click", () => {
+      locMenu.style.display =
+        locMenu.style.display === "none" ? "block" : "none";
+    });
+    locWrap.append(loc, locMenu);
+    field(tr("fLocator"), locWrap);
 
     const actions = el(doc, "div", "display:flex;gap:6px;margin-top:4px;");
     const saveBtn = button(doc, t, tr("save"), "", () => {
@@ -1474,7 +1530,7 @@ export class OrganizerFactory {
           ...(canEditText ? { text: quote.value } : {}),
           comment: comment.value,
           pageLabel: place.value.trim(),
-          locator: loc.value,
+          locator: loc.dataset.value ?? r.locator,
         };
         const ok = await saveAnnotation(r.id, patch);
         if (!ok) {
