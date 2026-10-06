@@ -1,5 +1,7 @@
 # Lattice for Zotero
 
+> **Hinweis (Annotree):** Dieses Repository ist der Ausgangspunkt von **Annotree**, einem Fork von [Lattice](https://github.com/birugit/zotero-grounded-qa) (Autor: birugit, AGPL-3.0-or-later). Herkunft, Änderungen und Lizenzpflichten: siehe [`NOTICE.md`](NOTICE.md). Der folgende Text ist noch der **Original-README von Lattice** und wird im Zuge des Umbaus ersetzt.
+
 [![Zotero 7](https://img.shields.io/badge/Zotero-7-CC2936?style=flat-square&logo=zotero&logoColor=white)](https://www.zotero.org)
 [![Anthropic · OpenAI · Ollama · DeepSeek · Grok](https://img.shields.io/badge/LLM-Anthropic%20·%20OpenAI%20·%20Ollama%20·%20DeepSeek%20·%20Grok-5436DA?style=flat-square)](#-supported-providers--models)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue?style=flat-square)](LICENSE)
