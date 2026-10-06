@@ -7,13 +7,20 @@ import { config } from "../package.json";
  */
 
 const created: Zotero.Item[] = [];
+let workCounter = 0;
 
 async function makeWork(title: string): Promise<Zotero.Item> {
   const item = new Zotero.Item("book");
   item.libraryID = Zotero.Libraries.userLibraryID;
   item.setField("title", title);
+  // A fresh creator per work: Zotero purges orphaned creators on erase and a
+  // cached creator ID would otherwise be "not found" in the next suite.
   item.setCreators([
-    { firstName: "Erika", lastName: "Muster", creatorType: "author" },
+    {
+      firstName: "Erika",
+      lastName: `Muster${++workCounter}`,
+      creatorType: "author",
+    },
   ]);
   item.setField("date", "2020");
   await item.saveTx();
@@ -238,6 +245,128 @@ describe("organizer window", function () {
       mine
         .slice(1)
         .every((a) => a.getTags().some((t) => t.tag === "§Einleitung")),
+    );
+  });
+});
+
+async function screenshot(win: Window, name: string): Promise<void> {
+  const doc = win.document;
+  const canvas = doc.createElementNS(
+    "http://www.w3.org/1999/xhtml",
+    "canvas",
+  ) as HTMLCanvasElement;
+  canvas.width = win.innerWidth;
+  canvas.height = win.innerHeight;
+  const ctx = canvas.getContext("2d") as any;
+  ctx.drawWindow(win, 0, 0, canvas.width, canvas.height, "white");
+  const blob: Blob = await new Promise((r) => canvas.toBlob((b) => r(b!)));
+  const dir = PathUtils.join(PathUtils.parent(PathUtils.profileDir)!, "shots");
+  await IOUtils.makeDirectory(dir, { ignoreExisting: true });
+  await IOUtils.write(
+    PathUtils.join(dir, `${name}.png`),
+    new Uint8Array(await blob.arrayBuffer()),
+  );
+}
+
+function findWindowByUrl(url: string): Window | null {
+  const en = Services.wm.getEnumerator("");
+  while (en.hasMoreElements()) {
+    const w = en.getNext() as Window;
+    if (w.location?.href === url) return w;
+  }
+  return null;
+}
+
+describe("citation dialog (as opened from Word)", function () {
+  this.timeout(120000);
+  const mine: Zotero.Item[] = [];
+  let noteID: number;
+  let win: Window | null = null;
+  const URL = "chrome://zotero/content/integration/citationDialog.xhtml";
+
+  before(async function () {
+    const libraryID = Zotero.Libraries.userLibraryID;
+    // The dialog needs the CSL locales (Zotero.Styles.locales) for locators.
+    await Zotero.Styles.init();
+    const work = await makeWork("Dialog Testwerk");
+    const att = await makePdfAttachment(work);
+    for (let i = 0; i < 3; i++) {
+      mine.push(await makeAnnotation(att, `Dialogzitat ${i}`, `${i}`, i));
+    }
+    const core = Zotero[config.addonInstance].api.outline;
+    const roots = [core.makeNode("Einleitung"), core.makeNode("Hauptteil")];
+    noteID = await Zotero[
+      config.addonInstance
+    ].api.outlineModel.OutlineModel.save(libraryID, null, roots);
+    await Zotero[config.addonInstance].api.organizerData.fileMany(
+      [mine[0].id, mine[1].id],
+      "§Einleitung",
+    );
+  });
+
+  after(async function () {
+    win?.close();
+    await (Zotero.Items.get(noteID) as Zotero.Item).eraseTx();
+    for (const item of created.reverse()) {
+      try {
+        await item.eraseTx();
+      } catch {
+        // gone with its parent
+      }
+    }
+  });
+
+  it("offers the outline option and groups annotations by heading", async function () {
+    const io: any = new (Zotero.Integration as any).CitationEditInterface(
+      { citationItems: [], properties: {}, citationID: "annotree-test" },
+      true,
+      Promise.resolve(0),
+      Promise.resolve({}),
+      async () => "",
+    );
+    io.isCitingNotes = false;
+    io.isAddingAnnotations = true;
+    io.sort = () => {};
+    io.getItems = () => [];
+    (Services.ww as any).openWindow(
+      null,
+      URL,
+      "",
+      "chrome,centerscreen,resizable=true",
+      io,
+    );
+    win = await waitFor(() => findWindowByUrl(URL));
+    const doc = win.document;
+    const toggle = (await waitFor(() =>
+      doc.getElementById("annotree-toggle"),
+    )) as HTMLInputElement;
+    await screenshot(win, "dialog-native");
+    toggle.click();
+    const view = await waitFor(() => {
+      const v = doc.getElementById("annotree-outline");
+      return v && v.querySelectorAll("annotation-row").length >= 2 ? v : null;
+    });
+    await Zotero.Promise.delay(500);
+    await screenshot(win, "dialog-outline");
+    const heads = Array.from(view.querySelectorAll(".annotree-heading")).map(
+      (h) => h.textContent,
+    );
+    assert.deepEqual(heads, ["1  Einleitung"]);
+    assert.lengthOf(view.querySelectorAll("annotation-row"), 2);
+    // the native "+" still adds the annotation to the citation
+    const plus = view.querySelector(".zotero-clicky-plus") as HTMLElement;
+    assert.ok(plus, "plus button present on our rows");
+    plus.click();
+    await waitFor(
+      () => doc.querySelectorAll("#bubble-input .bubble").length === 1,
+    );
+    await screenshot(win, "dialog-added");
+    // switching the option off restores Zotero's own layout
+    toggle.click();
+    await waitFor(() => !doc.getElementById("annotree-outline"));
+    assert.notEqual(
+      (doc.getElementById("item-tree-container") as HTMLElement).style.display,
+      "none",
     );
   });
 });

@@ -2,6 +2,7 @@ import { getString, initLocale } from "./utils/locale";
 import { createZToolkit } from "./utils/ztoolkit";
 import { AnnotationIndex } from "./modules/annotationIndex";
 import { OrganizerFactory } from "./modules/organizer";
+import { CitationDialogPatch } from "./modules/citationDialogPatch";
 import * as organizerData from "./modules/organizerData";
 import * as outlineCore from "./core/outline";
 import * as outlineModelModule from "./modules/outlineModel";
@@ -23,6 +24,7 @@ async function onStartup() {
     outline: outlineCore,
     outlineModel: outlineModelModule,
     OrganizerFactory,
+    CitationDialogPatch,
   };
 
   Zotero.PreferencePanes.register({
@@ -33,6 +35,7 @@ async function onStartup() {
   });
 
   OrganizerFactory.registerMenu();
+  CitationDialogPatch.start();
 
   // Cross-paper annotation layer: register the Notifier observer so the index
   // stays fresh as annotations are added/edited/removed anywhere in the library.
@@ -74,6 +77,7 @@ async function onMainWindowUnload(win: Window): Promise<void> {
 
 function onShutdown(): void {
   ztoolkit.unregisterAll();
+  CitationDialogPatch.stop();
   unregisterAllPluginMenus();
   AnnotationIndex.unload();
   addon.data.dialog?.window?.close();

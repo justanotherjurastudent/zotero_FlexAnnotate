@@ -45,6 +45,7 @@ import {
   citationOfRow,
   fileMany,
   loadAnnotationRows,
+  readShowWorks,
   loadWorkRows,
   Row,
   unfileMany,
@@ -139,19 +140,6 @@ function toast(text: string, type = "success") {
   })
     .createLine({ text, type, progress: 100 })
     .show();
-}
-
-function readShowWorks(): boolean {
-  try {
-    return (
-      Zotero.Prefs.get(
-        `${addon.data.config.prefsPrefix}.showWorksInAnnotationView`,
-        true,
-      ) === true
-    );
-  } catch {
-    return false;
-  }
 }
 
 export class OrganizerFactory {

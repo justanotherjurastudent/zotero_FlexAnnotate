@@ -148,3 +148,17 @@ export function citationOfRow(row: Row): string {
   const work = Zotero.Items.get(row.workID) as Zotero.Item | false;
   return work ? citationFor(work) : row.workTitle;
 }
+
+/** Plugin setting: show the works behind the annotations. */
+export function readShowWorks(): boolean {
+  try {
+    return (
+      Zotero.Prefs.get(
+        `${addon.data.config.prefsPrefix}.showWorksInAnnotationView`,
+        true,
+      ) === true
+    );
+  } catch {
+    return false;
+  }
+}

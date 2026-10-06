@@ -44,6 +44,8 @@ const de = {
   open: "Öffnen",
   copy: "Zitat kopieren",
   copied: "Kopiert",
+  dialogOutline: "Nach Gliederung anordnen (Annotree)",
+  dialogEmpty: "Annotree: Noch keine Annotationen einer Gliederung zugeordnet.",
 };
 
 type Key = keyof typeof de;
@@ -87,6 +89,8 @@ const en: Record<Key, string> = {
   open: "Open",
   copy: "Copy quote",
   copied: "Copied",
+  dialogOutline: "Arrange by outline (Annotree)",
+  dialogEmpty: "Annotree: No annotations assigned to an outline yet.",
 };
 
 export function tr(key: Key): string {
