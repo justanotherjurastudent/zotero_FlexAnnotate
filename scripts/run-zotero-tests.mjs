@@ -1,3 +1,4 @@
+/* global process, console, setTimeout */
 // Runs the Zotero integration tests and returns as soon as they are done.
 //
 // `zotero-plugin test` prints "Test run completed" but keeps the Zotero test

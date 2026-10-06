@@ -337,7 +337,7 @@ export class CitationDialogPatch {
     mk(
       "collections-tree-container",
       TREE_ID,
-      "flex:1;overflow-y:auto;min-height:0;padding:4px 0;",
+      "flex:1;display:flex;flex-direction:column;overflow-y:auto;min-height:0;padding:4px 0;",
     );
     mk(
       "item-tree-container",

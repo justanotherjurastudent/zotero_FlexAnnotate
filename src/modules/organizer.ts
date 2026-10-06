@@ -150,7 +150,7 @@ function iconButton(
   const b = el(
     doc,
     "button",
-    `appearance:none;-moz-appearance:none;cursor:pointer;width:30px;height:28px;` +
+    `appearance:none;-moz-appearance:none;cursor:pointer;width:29px;height:28px;` +
       `padding:0;display:inline-flex;align-items:center;justify-content:center;` +
       `border:1px solid ${t.border};border-radius:5px;background:${t.btnBg};`,
   );
@@ -361,7 +361,7 @@ export class OrganizerFactory {
     const body = el(
       doc,
       "div",
-      "display:grid;grid-template-columns:280px minmax(300px,1fr) 360px;" +
+      "display:grid;grid-template-columns:300px minmax(300px,1fr) 360px;" +
         "flex:1;min-height:0;gap:0;",
     );
     root.appendChild(body);
@@ -577,7 +577,7 @@ export class OrganizerFactory {
     const bar = el(
       doc,
       "div",
-      `display:flex;gap:4px;flex-wrap:wrap;padding:6px;border-bottom:1px solid ${t.border};`,
+      `display:flex;gap:3px;flex-wrap:wrap;padding:6px;border-bottom:1px solid ${t.border};`,
     );
     const selNode =
       s.node !== "all" && s.node !== "none" ? locate(s.roots, s.node) : null;

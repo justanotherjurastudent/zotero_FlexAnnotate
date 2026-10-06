@@ -2,6 +2,29 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach [SemVer](https://semver.org/). Der Changelog des Ursprungsprojekts Lattice liegt unverändert in [`docs/lattice-changelog.md`](docs/lattice-changelog.md).
 
+## [0.2.0] – 2026-10-06
+
+### Hinzugefügt
+
+- Zitatstelle öffnen springt zur genauen Annotation im Reader (öffnet den Tab oder wechselt in den offenen).
+- Auswahl der Sammlung (und Untersammlungen), aus der die Einträge stammen; Standard ist die im Hauptfenster gewählte Sammlung.
+- Bearbeiten von Zitattext, Kommentar, Zitatstelle und Stellentyp im Organizer.
+- Tastaturbedienung (Entf, F2, Strg+Pfeile, Pfeiltasten, Strg+A).
+- Farbige, kräftigere Symbole in der Gliederungsleiste (Papierkorb als Papierkorb); Plugin-Icon (Baum aus feinen Linien).
+- Zitierdialog aus Word: drei Spalten (Kategorien mit Anzahl · Annotationen · Zitatvorschau), grüner Haken für bereits zitierte Annotationen. Gemerkt wird je Dokument beim Bestätigen des Dialogs; gültig, solange das Werk im Dokument noch zitiert ist (nutzt von Zotero ohnehin geladene Daten, kein zusätzliches Auslesen des Dokuments).
+- Zotero-Testläufer `scripts/run-zotero-tests.mjs`, der sofort endet, sobald das Ergebnis vorliegt (rund 15 Sekunden).
+
+### Geändert
+
+- Doppelklick auf eine Überschrift benennt sofort um; ein Klick auf eine andere Überschrift beendet die Bearbeitung (Speichern bei gültiger Änderung, sonst Zurücksetzen).
+- „Entwurf als Notiz“ heißt jetzt „Als Notiz exportieren“, mit Erklärung; die Notiz wird danach angezeigt.
+- Die Scroll-Position der Spalten bleibt beim Neuzeichnen erhalten.
+
+### Behoben
+
+- Die Gliederungsnotiz wurde als leer gelesen, nachdem Zotero sie beim erneuten Speichern von `<pre><code>` auf `<pre>` umgeschrieben hatte.
+- Untersammlungen fehlten in der Sammlungsauswahl (`Collections.getByLibrary` braucht `recursive = true`).
+
 ## [0.1.0] – 2026-10-06
 
 Erste Fassung von Annotree, abgeleitet von Lattice 4.1.0 (birugit, AGPL-3.0-or-later, siehe `NOTICE.md`).
