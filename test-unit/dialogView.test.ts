@@ -1,7 +1,11 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { makeNode } from "../src/core/outline.ts";
-import { buildDialogSections, effectiveTags } from "../src/core/dialogView.ts";
+import {
+  buildDialogSections,
+  effectiveTags,
+  nodeCounts,
+} from "../src/core/dialogView.ts";
 
 const a = makeNode("Einleitung");
 const b = makeNode("Hauptteil");
@@ -58,5 +62,16 @@ describe("dialog view", () => {
       ),
       ["§Hauptteil"],
     );
+  });
+});
+
+describe("heading counts", () => {
+  it("counts distinct annotations including subheadings", () => {
+    const sections = buildDialogSections(roots, anns, workTags, true);
+    const c = nodeCounts(roots, sections);
+    assert.equal(c.get(a.id), 1);
+    assert.equal(c.get(b1.id), 1);
+    // Hauptteil: annotations 1 and 2 (via work) plus 3 from the subheading
+    assert.equal(c.get(b.id), 3);
   });
 });

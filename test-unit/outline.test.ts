@@ -147,3 +147,16 @@ describe("grouping like the plugin", () => {
     assert.equal(tagIndex(r).size, 4);
   });
 });
+
+describe("Zotero note normalisation", () => {
+  it("reads the outline after Zotero rewrote <pre><code> to <pre>", () => {
+    const r = tree();
+    const original = serializeOutline(r);
+    const normalized =
+      original
+        .replace("<pre><code>", "<pre>")
+        .replace("</code></pre>", "</pre>")
+        .replace(/^/, '<div data-schema-version="9">') + "</div>";
+    assert.deepEqual(parseOutline(normalized), r);
+  });
+});

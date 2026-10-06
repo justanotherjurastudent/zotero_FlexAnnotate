@@ -3,6 +3,8 @@ import { createZToolkit } from "./utils/ztoolkit";
 import { AnnotationIndex } from "./modules/annotationIndex";
 import { OrganizerFactory } from "./modules/organizer";
 import { CitationDialogPatch } from "./modules/citationDialogPatch";
+import * as openTarget from "./modules/openTarget";
+import * as citedCore from "./core/cited";
 import * as organizerData from "./modules/organizerData";
 import * as outlineCore from "./core/outline";
 import * as outlineModelModule from "./modules/outlineModel";
@@ -24,6 +26,8 @@ async function onStartup() {
     outline: outlineCore,
     outlineModel: outlineModelModule,
     OrganizerFactory,
+    openTarget,
+    cited: citedCore,
     CitationDialogPatch,
   };
 

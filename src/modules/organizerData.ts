@@ -8,6 +8,14 @@
 
 import { AnnotationIndex } from "./annotationIndex";
 import { citationFor } from "./annotationExport";
+import { collectionOptions, scopeCollectionIDs } from "../core/collections";
+import type { ColNode } from "../core/collections";
+import {
+  FALLBACK_LOCATORS,
+  isLocatorTag,
+  locatorOf,
+  LOCATOR_PREFIX,
+} from "../core/locator";
 
 export type RowKind = "work" | "annotation";
 
@@ -32,6 +40,8 @@ export interface Row {
   libraryID: number;
   /** Annotation of another user in a group library: cannot be tagged. */
   readOnly: boolean;
+  /** Citation place type (page, section, …). */
+  locator: string;
 }
 
 function bylineOf(item: Zotero.Item): string {
@@ -65,6 +75,7 @@ export async function loadAnnotationRows(libraryID: number): Promise<Row[]> {
       attachmentID: rec.attachmentID,
       attachmentKey: rec.attachmentKey,
       libraryID,
+      locator: locatorOf(rec.tags),
       // Zotero 10 item.js:1587-1590 — others' group annotations are read-only
       readOnly: item ? !(item as any).isEditable?.() : false,
     });
@@ -98,6 +109,7 @@ export async function loadWorkRows(libraryID: number): Promise<Row[]> {
       attachmentID: 0,
       attachmentKey: "",
       libraryID,
+      locator: "page",
       readOnly: !(item as any).isEditable?.(),
     });
   }
@@ -161,4 +173,111 @@ export function readShowWorks(): boolean {
   } catch {
     return false;
   }
+}
+
+// ── collection scope ────────────────────────────────────────────────────────
+
+export interface Scope {
+  /** null = the whole library. */
+  collectionID: number | null;
+  includeSub: boolean;
+}
+
+/** Library and collection currently selected in Zotero's main window. */
+export function defaultScope(): { libraryID: number; scope: Scope } {
+  const pane = (Zotero.getMainWindow() as any)?.ZoteroPane;
+  let libraryID = Zotero.Libraries.userLibraryID;
+  let collectionID: number | null = null;
+  try {
+    libraryID = pane?.getSelectedLibraryID?.() ?? libraryID;
+    const col = pane?.getSelectedCollection?.();
+    if (col && col.libraryID === libraryID) collectionID = col.id;
+  } catch (e) {
+    ztoolkit.log("annotree default scope failed:", e);
+  }
+  return { libraryID, scope: { collectionID, includeSub: true } };
+}
+
+export function listCollections(libraryID: number): ColNode[] {
+  return (
+    Zotero.Collections.getByLibrary(libraryID, true) as Zotero.Collection[]
+  ).map((c) => ({ id: c.id, parentID: c.parentID, name: c.name }));
+}
+
+export function collectionChoices(libraryID: number) {
+  return collectionOptions(listCollections(libraryID));
+}
+
+/**
+ * Top-level item ids that belong to the scope (null = no restriction). An
+ * annotation belongs to the scope when its work does.
+ */
+export function loadScopeWorkIDs(
+  libraryID: number,
+  scope: Scope,
+): Set<number> | null {
+  if (scope.collectionID === null) return null;
+  const ids = scopeCollectionIDs(
+    listCollections(libraryID),
+    scope.collectionID,
+    scope.includeSub,
+  );
+  const out = new Set<number>();
+  for (const cid of ids) {
+    const col = Zotero.Collections.get(cid) as Zotero.Collection | false;
+    if (!col) continue;
+    for (const id of col.getChildItems(true) as number[]) out.add(id);
+  }
+  return out;
+}
+
+// ── editing ──────────────────────────────────────────────────────────────────
+
+export interface AnnotationPatch {
+  text?: string;
+  comment?: string;
+  pageLabel?: string;
+  locator?: string;
+}
+
+/** Citation place types: Zotero's own list, or a fallback. */
+export function locatorTypes(): string[] {
+  const labels = (Zotero as any).Cite?.labels;
+  return Array.isArray(labels) && labels.length ? labels : FALLBACK_LOCATORS;
+}
+
+/** Localised label of a locator type ("page" → "S."). */
+export function locatorLabel(type: string, form: "short" | null = "short") {
+  try {
+    const s = (Zotero as any).Cite.getLocatorString(type, form) as string;
+    if (s) return s;
+  } catch {
+    // styles not initialised: fall through
+  }
+  return type === "page" ? "S." : type;
+}
+
+/**
+ * Save edits of an annotation (quote, comment, place, place type). Returns
+ * false for read-only annotations. The place type lives in a private tag.
+ */
+export async function saveAnnotation(
+  id: number,
+  patch: AnnotationPatch,
+): Promise<boolean> {
+  const item = Zotero.Items.get(id) as Zotero.Item | false;
+  if (!item || !(item as any).isEditable?.()) return false;
+  const a = item as any;
+  if (patch.text !== undefined && a.annotationText !== undefined)
+    a.annotationText = patch.text;
+  if (patch.comment !== undefined) a.annotationComment = patch.comment;
+  if (patch.pageLabel !== undefined) a.annotationPageLabel = patch.pageLabel;
+  if (patch.locator !== undefined) {
+    for (const t of item.getTags())
+      if (isLocatorTag(t.tag)) item.removeTag(t.tag);
+    if (patch.locator && patch.locator !== "page")
+      item.addTag(LOCATOR_PREFIX + patch.locator);
+  }
+  await item.saveTx();
+  return true;
 }

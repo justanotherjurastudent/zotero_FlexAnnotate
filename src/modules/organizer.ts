@@ -3,11 +3,12 @@
  *
  *   column 1: outline tree with "(Alle)" and "(Ohne Kategorie)"
  *   column 2: one-line rows (annotations or works) with a permanent assign bar
- *   column 3: details of the selected row, incl. citation and categories
+ *   column 3: details of the selected row (editable), citation and categories
  *
  * Two tabs like Citavi: "Wissen" (annotations) and "Titel" (works). Rows are
  * filed under a heading by multi-select + assign bar, or by drag and drop onto
  * a tree node. A heading is a Zotero tag; the tree lives in the outline note.
+ * The entries can be restricted to a collection (and its subcollections).
  *
  * Derived from Lattice's outlinePanel (birugit, AGPL-3.0-or-later).
  */
@@ -23,6 +24,7 @@ import {
   makeNode,
   moveDown,
   moveUp,
+  neighborId,
   numbering,
   outdent,
   OutlineNode,
@@ -40,34 +42,50 @@ import {
   selectAll,
   SelectionState,
 } from "../core/selection";
+import { formatLocator } from "../core/locator";
 import { OutlineModel } from "./outlineModel";
 import {
   citationOfRow,
+  collectionChoices,
+  defaultScope,
   fileMany,
   loadAnnotationRows,
-  readShowWorks,
+  loadScopeWorkIDs,
   loadWorkRows,
+  locatorLabel,
+  locatorTypes,
+  readShowWorks,
   Row,
+  saveAnnotation,
+  Scope,
   unfileMany,
 } from "./organizerData";
 import { gatherAll, saveDraftAsNote } from "./outlineExport";
+import { openRow } from "./openTarget";
 import { getTheme, Palette } from "./theme";
 import { getString } from "../utils/locale";
+import { makeIcon, IconName } from "../utils/icons";
 import { registerPluginMenu } from "../utils/menu";
 import { tr } from "../utils/strings";
 
 const HTML_NS = "http://www.w3.org/1999/xhtml";
 const DND_TYPE = "text/x-annotree-ids";
+const DOUBLE_CLICK_MS = 450;
 
 type Tab = "wissen" | "titel";
 type NodeSel = "all" | "none" | string;
+type Col = "tree" | "list";
 
 interface State {
   libraryID: number;
   noteID: number | null;
   roots: OutlineNode[];
   tab: Tab;
+  /** Every row of the tab, and the rows inside the collection scope. */
+  allRows: Row[];
   rows: Row[];
+  scope: Scope;
+  scopeWorks: Set<number> | null;
   sel: SelectionState;
   node: NodeSel;
   query: string;
@@ -76,6 +94,9 @@ interface State {
   /** Plugin setting: show the works behind the annotations. */
   showWorks: boolean;
   renaming: string | null;
+  editing: number | null;
+  focusCol: Col;
+  lastTreeClick: { id: string; t: number } | null;
   /** Re-focus the search box after a re-render. */
   focusSearch: boolean;
 }
@@ -98,19 +119,45 @@ function button(
   label: string,
   title: string,
   onClick: () => void,
-  wide = true,
+  icon?: IconName,
 ): HTMLButtonElement {
   const b = el(
     doc,
     "button",
     `appearance:none;-moz-appearance:none;color:${t.text};cursor:pointer;` +
-      `border:1px solid ${t.border};border-radius:4px;background:${t.btnBg};` +
-      `font-size:12px;line-height:1;padding:${wide ? "5px 9px" : "4px 0"};` +
-      (wide ? "" : "width:24px;"),
-    label,
+      `border:1px solid ${t.border};border-radius:5px;background:${t.btnBg};` +
+      "font-size:12px;line-height:1;padding:5px 9px;" +
+      "display:inline-flex;align-items:center;gap:6px;",
   );
+  if (icon) b.appendChild(makeIcon(doc, icon, 15));
+  if (label) b.appendChild(doc.createTextNode(label));
   b.title = title;
-  b.addEventListener("click", (e) => {
+  b.addEventListener("click", (e: Event) => {
+    e.stopPropagation();
+    onClick();
+  });
+  return b;
+}
+
+/** Square toolbar button that only shows a colored icon. */
+function iconButton(
+  doc: Document,
+  t: Palette,
+  icon: IconName,
+  title: string,
+  onClick: () => void,
+): HTMLButtonElement {
+  const b = el(
+    doc,
+    "button",
+    `appearance:none;-moz-appearance:none;cursor:pointer;width:30px;height:28px;` +
+      `padding:0;display:inline-flex;align-items:center;justify-content:center;` +
+      `border:1px solid ${t.border};border-radius:5px;background:${t.btnBg};`,
+  );
+  b.appendChild(makeIcon(doc, icon, 18));
+  b.title = title;
+  b.setAttribute("aria-label", title);
+  b.addEventListener("click", (e: Event) => {
     e.stopPropagation();
     onClick();
   });
@@ -142,7 +189,22 @@ function toast(text: string, type = "success") {
     .show();
 }
 
+/** "S. 22" style citation place of a row, with its place type. */
+function placeOf(r: Row): string {
+  return formatLocator(locatorLabel(r.locator), r.pageLabel);
+}
+
 export class OrganizerFactory {
+  /** State of the most recently opened window (for tests and debugging). */
+  static lastState: State | null = null;
+
+  /** Yes/no question to the user; replaceable so tests can answer it. */
+  static confirm: (win: unknown, title: string, text: string) => boolean = (
+    win,
+    title,
+    text,
+  ) => (Services as any).prompt.confirm(win, title, text);
+
   static registerMenu() {
     registerPluginMenu({
       menuID: "zotero-tools-annotree-organizer",
@@ -174,7 +236,7 @@ export class OrganizerFactory {
         try {
           const doc = dialog.window.document;
           const root = doc.getElementById("annotree-root") as HTMLElement;
-          if (root) void this.mount(doc, root, Zotero.Libraries.userLibraryID);
+          if (root) void this.mount(doc, root);
         } catch (e) {
           ztoolkit.log("annotree organizer build failed:", e);
         }
@@ -189,23 +251,23 @@ export class OrganizerFactory {
 
   // ── data ───────────────────────────────────────────────────────────────────
 
-  private static async mount(
-    doc: Document,
-    root: HTMLElement,
-    libraryID: number,
-  ) {
+  private static async mount(doc: Document, root: HTMLElement) {
     const t = getTheme(doc);
     (root.style as any).colorScheme = t.colorScheme;
     root.style.background = t.bg;
     root.style.color = t.text;
     root.textContent = tr("loading");
+    const { libraryID, scope } = defaultScope();
     const loaded = await OutlineModel.load(libraryID);
     const state: State = {
       libraryID,
       noteID: loaded.noteID,
       roots: loaded.roots,
       tab: "wissen",
-      rows: await loadAnnotationRows(libraryID),
+      allRows: await loadAnnotationRows(libraryID),
+      rows: [],
+      scope,
+      scopeWorks: null,
       sel: emptySelection(),
       node: "all",
       query: "",
@@ -213,17 +275,41 @@ export class OrganizerFactory {
       sections: false,
       showWorks: readShowWorks(),
       renaming: null,
+      editing: null,
+      focusCol: "list",
+      lastTreeClick: null,
       focusSearch: false,
     };
+    this.applyScope(state);
+    this.lastState = state;
+    // Keyboard and focus tracking live on the document, so they survive the
+    // re-renders that rebuild all columns.
+    doc.addEventListener("keydown", (e) =>
+      this.onKey(doc, root, state, e as KeyboardEvent),
+    );
+    doc.addEventListener("mousedown", (e: Event) => {
+      const c = (e.target as HTMLElement | null)?.closest?.("[data-col]");
+      const col = c?.getAttribute("data-col");
+      if (col === "tree" || col === "list") state.focusCol = col;
+    });
     this.render(doc, root, state);
   }
 
+  private static applyScope(s: State) {
+    s.scopeWorks = loadScopeWorkIDs(s.libraryID, s.scope);
+    s.rows = s.allRows.filter(
+      (r) => !s.scopeWorks || s.scopeWorks.has(r.workID),
+    );
+  }
+
   private static async reload(doc: Document, root: HTMLElement, s: State) {
-    s.rows =
+    s.allRows =
       s.tab === "wissen"
         ? await loadAnnotationRows(s.libraryID)
         : await loadWorkRows(s.libraryID);
+    this.applyScope(s);
     s.sel = emptySelection();
+    s.editing = null;
     s.showWorks = readShowWorks();
     this.render(doc, root, s);
   }
@@ -251,30 +337,47 @@ export class OrganizerFactory {
     );
   }
 
+  private static order(s: State): number[] {
+    return [...new Set(this.visible(s).map((r) => r.id))];
+  }
+
   // ── rendering ──────────────────────────────────────────────────────────────
 
   private static render(doc: Document, root: HTMLElement, s: State) {
     const t = getTheme(doc);
+    // keep scroll positions across re-renders
+    const scroll = new Map<string, number>();
+    root
+      .querySelectorAll("[data-scroll]")
+      .forEach((e: Element) =>
+        scroll.set(
+          e.getAttribute("data-scroll")!,
+          (e as HTMLElement).scrollTop,
+        ),
+      );
     root.textContent = "";
 
     root.appendChild(this.tabBar(doc, root, s, t));
     const body = el(
       doc,
       "div",
-      "display:grid;grid-template-columns:270px minmax(300px,1fr) 340px;" +
+      "display:grid;grid-template-columns:280px minmax(300px,1fr) 360px;" +
         "flex:1;min-height:0;gap:0;",
     );
     root.appendChild(body);
-    const col = (extra = "") =>
-      el(
+    const col = (name: string, extra = "") => {
+      const c = el(
         doc,
         "div",
         `display:flex;flex-direction:column;min-height:0;min-width:0;` +
           `border-right:1px solid ${t.border};${extra}`,
       );
-    const c1 = col();
-    const c2 = col();
-    const c3 = col("border-right:none;");
+      c.dataset.col = name;
+      return c;
+    };
+    const c1 = col("tree");
+    const c2 = col("list");
+    const c3 = col("details", "border-right:none;");
     body.append(c1, c2, c3);
 
     const visible = this.visible(s);
@@ -285,6 +388,11 @@ export class OrganizerFactory {
     this.renderTree(doc, root, c1, s, t);
     this.renderList(doc, root, c2, s, t, visible);
     this.renderDetails(doc, root, c3, s, t, visible);
+
+    root.querySelectorAll("[data-scroll]").forEach((e: Element) => {
+      const y = scroll.get(e.getAttribute("data-scroll")!);
+      if (y) (e as HTMLElement).scrollTop = y;
+    });
   }
 
   private static tabBar(
@@ -321,7 +429,134 @@ export class OrganizerFactory {
     };
     mk("wissen", tr("tabKnowledge"));
     mk("titel", tr("tabTitles"));
+
+    // collection scope: which collection (and subcollections) to take from
+    const scope = el(
+      doc,
+      "div",
+      `margin-left:auto;display:flex;gap:8px;align-items:center;padding:0 8px 6px;` +
+        `font-size:12px;color:${t.sub};`,
+    );
+    scope.appendChild(el(doc, "span", "", tr("scope")));
+    const sel = el(
+      doc,
+      "select",
+      `max-width:300px;color:${t.text};background:${t.inputBg};` +
+        `border:1px solid ${t.border};border-radius:4px;padding:3px 6px;font-size:12px;`,
+    );
+    sel.id = "annotree-scope";
+    const optAll = el(doc, "option", "", tr("scopeAll"));
+    optAll.value = "0";
+    sel.appendChild(optAll);
+    for (const o of collectionChoices(s.libraryID)) {
+      const opt = el(doc, "option", "", "  ".repeat(o.depth) + o.name);
+      opt.value = String(o.id);
+      sel.appendChild(opt);
+    }
+    sel.value = String(s.scope.collectionID ?? 0);
+    sel.addEventListener("change", () => {
+      const id = Number(sel.value);
+      s.scope = { ...s.scope, collectionID: id || null };
+      this.applyScope(s);
+      s.sel = emptySelection();
+      this.render(doc, root, s);
+    });
+    const sub = el(
+      doc,
+      "label",
+      "display:flex;gap:4px;align-items:center;cursor:pointer;",
+    );
+    const cb = el(doc, "input");
+    cb.type = "checkbox";
+    cb.id = "annotree-scope-sub";
+    cb.checked = s.scope.includeSub;
+    cb.disabled = s.scope.collectionID === null;
+    cb.addEventListener("change", () => {
+      s.scope = { ...s.scope, includeSub: cb.checked };
+      this.applyScope(s);
+      this.render(doc, root, s);
+    });
+    sub.append(cb, el(doc, "span", "", tr("scopeSub")));
+    scope.append(sel, sub);
+    bar.appendChild(scope);
     return bar;
+  }
+
+  // keyboard ---------------------------------------------------------------------
+
+  private static onKey(
+    doc: Document,
+    root: HTMLElement,
+    s: State,
+    e: KeyboardEvent,
+  ) {
+    const tag = (e.target as HTMLElement | null)?.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+    if (s.renaming) return;
+    const ctrl = e.ctrlKey || e.metaKey;
+    const rerender = () => this.render(doc, root, s);
+    const saveAndRender = async () => {
+      await this.persist(s);
+      rerender();
+    };
+    const selNode =
+      s.node !== "all" && s.node !== "none" ? locate(s.roots, s.node) : null;
+
+    // Ctrl+A: all entries of the list
+    if (ctrl && e.key.toLowerCase() === "a") {
+      e.preventDefault();
+      s.sel = selectAll(this.order(s));
+      rerender();
+      return;
+    }
+
+    if (s.focusCol === "tree") {
+      if (e.key === "Delete" && selNode) {
+        e.preventDefault();
+        void this.deleteNode(doc, root, s);
+      } else if (e.key === "F2" && selNode) {
+        e.preventDefault();
+        s.renaming = s.node;
+        rerender();
+      } else if (ctrl && selNode && e.key.startsWith("Arrow")) {
+        const ops: Record<string, (r: OutlineNode[], id: string) => boolean> = {
+          ArrowUp: moveUp,
+          ArrowDown: moveDown,
+          ArrowRight: indent,
+          ArrowLeft: outdent,
+        };
+        e.preventDefault();
+        if (ops[e.key]?.(s.roots, s.node)) void saveAndRender();
+      } else if (!ctrl && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+        e.preventDefault();
+        const next = neighborId(
+          s.roots,
+          selNode ? s.node : null,
+          e.key === "ArrowDown" ? 1 : -1,
+        );
+        if (next) {
+          s.node = next;
+          rerender();
+        }
+      }
+      return;
+    }
+
+    // list column
+    if (e.key === "Delete" && selNode && s.sel.selected.size) {
+      e.preventDefault();
+      void this.unassign(doc, root, s, [...s.sel.selected], selNode.node);
+    } else if (!ctrl && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+      e.preventDefault();
+      const order = this.order(s);
+      const cur = s.sel.anchor !== null ? order.indexOf(s.sel.anchor) : -1;
+      const step = e.key === "ArrowDown" ? 1 : -1;
+      const next = order[Math.max(0, Math.min(order.length - 1, cur + step))];
+      if (next !== undefined) {
+        s.sel = applyClick(s.sel, order, next, { shift: e.shiftKey });
+        rerender();
+      }
+    }
   }
 
   // column 1 -------------------------------------------------------------------
@@ -342,7 +577,7 @@ export class OrganizerFactory {
     const bar = el(
       doc,
       "div",
-      `display:flex;gap:3px;flex-wrap:wrap;padding:6px;border-bottom:1px solid ${t.border};`,
+      `display:flex;gap:4px;flex-wrap:wrap;padding:6px;border-bottom:1px solid ${t.border};`,
     );
     const selNode =
       s.node !== "all" && s.node !== "none" ? locate(s.roots, s.node) : null;
@@ -358,40 +593,31 @@ export class OrganizerFactory {
     const act = (fn: (roots: OutlineNode[], id: string) => boolean) => () => {
       if (selNode && fn(s.roots, s.node)) void save();
     };
+    const sep = () =>
+      el(doc, "span", `width:1px;background:${t.border};margin:2px 3px;`);
     bar.append(
-      button(doc, t, "＋", tr("addHeading"), () => add(false), false),
-      button(doc, t, "↳", tr("addSub"), () => add(true), false),
-      button(doc, t, "↑", tr("up"), act(moveUp), false),
-      button(doc, t, "↓", tr("down"), act(moveDown), false),
-      button(doc, t, "→", tr("indent"), act(indent), false),
-      button(doc, t, "←", tr("outdent"), act(outdent), false),
-      button(
-        doc,
-        t,
-        "✎",
-        tr("rename"),
-        () => {
-          if (selNode) {
-            s.renaming = s.node;
-            rerender();
-          }
-        },
-        false,
-      ),
-      button(
-        doc,
-        t,
-        "🗑",
-        tr("delete"),
-        () => {
-          if (selNode) void this.deleteNode(doc, root, s);
-        },
-        false,
-      ),
+      iconButton(doc, t, "add", tr("addHeading"), () => add(false)),
+      iconButton(doc, t, "addSub", tr("addSub"), () => add(true)),
+      sep(),
+      iconButton(doc, t, "up", tr("up"), act(moveUp)),
+      iconButton(doc, t, "down", tr("down"), act(moveDown)),
+      iconButton(doc, t, "outdent", tr("outdent"), act(outdent)),
+      iconButton(doc, t, "indent", tr("indent"), act(indent)),
+      sep(),
+      iconButton(doc, t, "rename", tr("rename"), () => {
+        if (selNode) {
+          s.renaming = s.node;
+          rerender();
+        }
+      }),
+      iconButton(doc, t, "delete", tr("delete"), () => {
+        if (selNode) void this.deleteNode(doc, root, s);
+      }),
     );
     c.appendChild(bar);
 
     const list = el(doc, "div", "flex:1;overflow-y:auto;padding:0 4px 8px;");
+    list.dataset.scroll = "tree";
     const goto = input(doc, t, tr("goto"));
     goto.style.margin = "6px";
     goto.value = s.goto;
@@ -406,20 +632,39 @@ export class OrganizerFactory {
     const foot = el(
       doc,
       "div",
-      `border-top:1px solid ${t.border};padding:6px;display:flex;gap:6px;`,
+      `border-top:1px solid ${t.border};padding:6px;display:flex;flex-direction:column;gap:4px;`,
     );
-    foot.appendChild(
-      button(doc, t, tr("draft"), tr("draftTitle"), () => {
-        void (async () => {
-          const g = await gatherAll(s.libraryID, s.roots);
-          await saveDraftAsNote(s.roots, g, s.libraryID, {
-            title: "Annotree",
-          });
-          toast(tr("draftSaved"));
-        })();
-      }),
+    foot.append(
+      button(
+        doc,
+        t,
+        tr("export"),
+        tr("exportTitle"),
+        () => void this.exportNote(s),
+        "export",
+      ),
+      el(doc, "span", `font-size:11px;color:${t.sub};`, tr("exportHint")),
     );
     c.appendChild(foot);
+  }
+
+  /** Write the outline with its quotes into a new Zotero note and show it. */
+  private static async exportNote(s: State) {
+    const g = await gatherAll(s.libraryID, s.roots);
+    const note = await saveDraftAsNote(s.roots, g, s.libraryID, {
+      title: tr("exportNoteTitle"),
+    });
+    const n = [...g.values()].reduce((a, items) => a + items.length, 0);
+    toast(
+      tr("exportDone")
+        .replace("{h}", String(flatten(s.roots).length))
+        .replace("{n}", String(n)),
+    );
+    try {
+      await (Zotero.getMainWindow() as any)?.ZoteroPane?.selectItem(note.id);
+    } catch {
+      // the note exists even if it cannot be shown
+    }
   }
 
   private static uniqueTitle(roots: OutlineNode[]): string {
@@ -427,6 +672,34 @@ export class OrganizerFactory {
     let title = tr("newHeading");
     while (titleError(roots, title)) title = `${tr("newHeading")} ${++n}`;
     return title;
+  }
+
+  /** Label and count of a normal (not renaming) tree row. */
+  private static fillTreeRow(
+    doc: Document,
+    d: HTMLElement,
+    node: OutlineNode,
+    num: string,
+    count: number,
+    t: Palette,
+  ) {
+    d.textContent = "";
+    const label = el(
+      doc,
+      "span",
+      "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;",
+      `${num}  ${node.title}`,
+    );
+    label.title = node.title;
+    d.append(
+      label,
+      el(
+        doc,
+        "span",
+        `color:${t.sub};font-size:11px;flex:none;`,
+        String(count),
+      ),
+    );
   }
 
   private static renderTreeList(
@@ -488,33 +761,25 @@ export class OrganizerFactory {
           "border:1px solid transparent;",
       );
       d.dataset.nodeId = node.id;
+      const num = nums.get(node.id) ?? "";
+      const count = itemsUnder(node, rows, true).length;
       if (s.renaming === node.id) {
-        this.renameRow(doc, root, d, node, s, t, nums.get(node.id) ?? "");
+        this.renameRow(doc, root, d, node, s, t, num, count);
         list.appendChild(d);
         continue;
       }
-      const label = el(
-        doc,
-        "span",
-        "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;",
-        `${nums.get(node.id)}  ${node.title}`,
-      );
-      label.title = node.title;
-      d.append(
-        label,
-        el(
-          doc,
-          "span",
-          `color:${t.sub};font-size:11px;flex:none;`,
-          String(itemsUnder(node, rows, true).length),
-        ),
-      );
+      this.fillTreeRow(doc, d, node, num, count, t);
+      // Selecting re-renders the tree, so a native dblclick would be lost:
+      // detect the second click on the same heading ourselves.
       d.addEventListener("click", () => {
+        const now = Date.now();
+        const last = s.lastTreeClick;
+        s.lastTreeClick = { id: node.id, t: now };
         s.node = node.id;
-        this.render(doc, root, s);
-      });
-      d.addEventListener("dblclick", () => {
-        s.renaming = node.id;
+        if (last && last.id === node.id && now - last.t < DOUBLE_CLICK_MS) {
+          s.lastTreeClick = null;
+          s.renaming = node.id;
+        }
         this.render(doc, root, s);
       });
       d.addEventListener("dragover", (e: DragEvent) => {
@@ -537,6 +802,11 @@ export class OrganizerFactory {
     }
   }
 
+  /**
+   * Inline rename. Enter saves, Escape cancels, and leaving the field (clicking
+   * elsewhere) saves a valid change or quietly restores the row. A blur only
+   * patches this one row, so the click that caused it still reaches its target.
+   */
   private static renameRow(
     doc: Document,
     root: HTMLElement,
@@ -545,37 +815,43 @@ export class OrganizerFactory {
     s: State,
     t: Palette,
     num: string,
+    count: number,
   ) {
     const i = input(doc, t, "");
     i.style.flex = "1";
     i.value = node.title;
-    const done = async () => {
-      s.renaming = null;
-      await this.persist(s);
-      this.render(doc, root, s);
-    };
-    const commit = async () => {
+    let finished = false;
+    const finish = async (mode: "commit" | "cancel" | "blur") => {
+      if (finished) return;
+      finished = true;
       const next = i.value.trim();
-      const err = titleError(s.roots, next, node.id);
-      if (err) {
-        toast(err, "error");
-        return;
+      let changed = mode !== "cancel" && next !== node.title;
+      if (changed) {
+        const err = titleError(s.roots, next, node.id);
+        if (err) {
+          toast(err, "error");
+          changed = false;
+        }
       }
-      if (next !== node.title) {
+      s.renaming = null;
+      if (changed) {
         const old = headingTag(node.title);
         node.title = next;
-        s.renaming = null;
         await OutlineModel.renameTag(s.libraryID, old, headingTag(next));
         await this.persist(s);
         await this.reload(doc, root, s);
-        return;
+      } else if (mode === "blur") {
+        this.fillTreeRow(doc, d, node, num, count, t);
+      } else {
+        this.render(doc, root, s);
       }
-      await done();
     };
     i.addEventListener("keydown", (e: KeyboardEvent) => {
-      if (e.key === "Enter") void commit();
-      if (e.key === "Escape") void done();
+      e.stopPropagation();
+      if (e.key === "Enter") void finish("commit");
+      if (e.key === "Escape") void finish("cancel");
     });
+    i.addEventListener("blur", () => void finish("blur"));
     d.append(el(doc, "span", `color:${t.sub};`, num), i);
     setTimeout(() => {
       i.focus();
@@ -587,7 +863,7 @@ export class OrganizerFactory {
     const loc = locate(s.roots, s.node);
     if (!loc) return;
     const tags = subtreeTags(loc.node);
-    const ok = (Services as any).prompt.confirm(
+    const ok = OrganizerFactory.confirm(
       doc.defaultView,
       tr("deleteTitle"),
       tr("deleteConfirm")
@@ -613,7 +889,7 @@ export class OrganizerFactory {
   ) {
     const tag = headingTag(node.title);
     const changed = await fileMany(ids, tag);
-    for (const r of s.rows)
+    for (const r of s.allRows)
       if (changed.includes(r.id)) r.tags = [...r.tags, tag];
     const skipped = ids.length - changed.length;
     toast(
@@ -634,7 +910,7 @@ export class OrganizerFactory {
   ) {
     const tag = headingTag(node.title);
     const changed = await unfileMany(ids, tag);
-    for (const r of s.rows)
+    for (const r of s.allRows)
       if (changed.includes(r.id)) r.tags = r.tags.filter((x) => x !== tag);
     this.render(doc, root, s);
   }
@@ -703,6 +979,7 @@ export class OrganizerFactory {
     c.appendChild(top);
 
     const list = el(doc, "div", "flex:1;overflow-y:auto;min-height:0;");
+    list.dataset.scroll = "list";
     c.appendChild(list);
     if (!visible.length) {
       list.appendChild(
@@ -906,7 +1183,7 @@ export class OrganizerFactory {
           : s.tab === "titel"
             ? r.byline
             : "",
-        r.pageLabel ? `S. ${r.pageLabel}` : "",
+        placeOf(r),
       ]
         .filter(Boolean)
         .join(" · "),
@@ -923,9 +1200,10 @@ export class OrganizerFactory {
         ctrl: e.ctrlKey || e.metaKey,
         shift: e.shiftKey,
       });
+      s.editing = null;
       this.render(doc, root, s);
     });
-    d.addEventListener("dblclick", () => void this.openRow(r));
+    d.addEventListener("dblclick", () => void openRow(r));
     d.addEventListener("dragstart", (e: DragEvent) => {
       const ids = dragIds(s.sel, r.id).filter((i) => !byId.get(i)?.readOnly);
       e.dataTransfer?.setData(DND_TYPE, JSON.stringify(ids));
@@ -950,13 +1228,14 @@ export class OrganizerFactory {
       "div",
       "flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;",
     );
+    box.dataset.scroll = "details";
     c.appendChild(box);
     const picked = visible.filter((r) => s.sel.selected.has(r.id));
     if (!picked.length) {
       box.appendChild(el(doc, "div", `color:${t.sub};`, tr("pickHint")));
       if (visible.length) {
         box.appendChild(
-          button(doc, t, tr("selectAll"), "", () => {
+          button(doc, t, tr("selectAll"), "Ctrl+A", () => {
             s.sel = selectAll([...new Set(visible.map((r) => r.id))]);
             this.render(doc, root, s);
           }),
@@ -976,6 +1255,10 @@ export class OrganizerFactory {
       return;
     }
     const r = picked[0];
+    if (s.editing === r.id && r.kind === "annotation") {
+      this.renderEditForm(doc, root, box, s, t, r);
+      return;
+    }
     if (r.kind === "annotation" && r.text) {
       box.appendChild(
         el(
@@ -1002,9 +1285,7 @@ export class OrganizerFactory {
       );
     }
     const cite = citationOfRow(r);
-    const sourceText = [cite, r.pageLabel ? `S. ${r.pageLabel}` : ""]
-      .filter(Boolean)
-      .join(", ");
+    const sourceText = [cite, placeOf(r)].filter(Boolean).join(", ");
     const src = el(
       doc,
       "div",
@@ -1054,7 +1335,7 @@ export class OrganizerFactory {
       "display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;",
     );
     actions.append(
-      button(doc, t, tr("open"), "", () => void this.openRow(r)),
+      button(doc, t, tr("open"), "", () => void openRow(r)),
       button(doc, t, tr("copy"), "", () => {
         const text = [r.text && `„${r.text.trim()}“`, r.comment, sourceText]
           .filter(Boolean)
@@ -1063,29 +1344,108 @@ export class OrganizerFactory {
         toast(tr("copied"));
       }),
     );
+    if (r.kind === "annotation" && !r.readOnly) {
+      actions.appendChild(
+        button(doc, t, tr("edit"), "", () => {
+          s.editing = r.id;
+          this.render(doc, root, s);
+        }),
+      );
+    }
     box.appendChild(actions);
   }
 
-  private static async openRow(r: Row) {
-    try {
-      if (r.kind === "work") {
-        const win = Zotero.getMainWindow();
-        win.focus();
-        await (win as any).ZoteroPane.selectItem(r.id);
-        return;
-      }
-      const readers: any[] = (Zotero.Reader as any)._readers ?? [];
-      for (const rd of readers) {
-        if (rd.itemID === r.attachmentID) {
-          rd.navigate({ annotationKey: r.key });
+  /** Edit quote text, comment, citation place and place type of an annotation. */
+  private static renderEditForm(
+    doc: Document,
+    root: HTMLElement,
+    box: HTMLElement,
+    s: State,
+    t: Palette,
+    r: Row,
+  ) {
+    const field = (label: string, control: HTMLElement) => {
+      const w = el(doc, "label", "display:flex;flex-direction:column;gap:3px;");
+      w.append(
+        el(doc, "span", `color:${t.sub};font-size:11px;`, label),
+        control,
+      );
+      box.appendChild(w);
+    };
+    const area = (value: string, rows: number) => {
+      const a = el(
+        doc,
+        "textarea",
+        `color:${t.text};background:${t.inputBg};border:1px solid ${t.border};` +
+          "border-radius:4px;padding:5px 7px;font-size:12px;resize:vertical;" +
+          "font-family:inherit;",
+      );
+      a.rows = rows;
+      a.value = value;
+      return a;
+    };
+    const canEditText = r.type === "highlight" || r.type === "underline";
+    const quote = area(r.text, 5);
+    quote.id = "annotree-edit-quote";
+    if (canEditText) field(tr("fQuote"), quote);
+    const comment = area(r.comment, 3);
+    comment.id = "annotree-edit-comment";
+    field(tr("fComment"), comment);
+    const place = input(doc, t, "");
+    place.id = "annotree-edit-place";
+    place.value = r.pageLabel;
+    field(tr("fPlace"), place);
+    const loc = el(
+      doc,
+      "select",
+      `color:${t.text};background:${t.inputBg};border:1px solid ${t.border};` +
+        "border-radius:4px;padding:4px 6px;font-size:12px;",
+    );
+    loc.id = "annotree-edit-locator";
+    const types = [...locatorTypes()];
+    if (!types.includes(r.locator)) types.push(r.locator);
+    for (const ty of types) {
+      const o = el(doc, "option", "", locatorLabel(ty, null));
+      o.value = ty;
+      loc.appendChild(o);
+    }
+    loc.value = r.locator;
+    field(tr("fLocator"), loc);
+
+    const actions = el(doc, "div", "display:flex;gap:6px;margin-top:4px;");
+    const saveBtn = button(doc, t, tr("save"), "", () => {
+      void (async () => {
+        const patch = {
+          ...(canEditText ? { text: quote.value } : {}),
+          comment: comment.value,
+          pageLabel: place.value.trim(),
+          locator: loc.value,
+        };
+        const ok = await saveAnnotation(r.id, patch);
+        if (!ok) {
+          toast(tr("saveFailed"), "error");
           return;
         }
-      }
-      await (Zotero.Reader as any).open(r.attachmentID, {
-        annotationKey: r.key,
-      });
-    } catch (e) {
-      ztoolkit.log("annotree open row failed:", e);
-    }
+        for (const row of s.allRows) {
+          if (row.id !== r.id) continue;
+          if (canEditText) row.text = patch.text!;
+          row.comment = patch.comment;
+          row.pageLabel = patch.pageLabel;
+          row.locator = patch.locator;
+        }
+        s.editing = null;
+        toast(tr("saved"));
+        this.render(doc, root, s);
+      })();
+    });
+    saveBtn.id = "annotree-edit-save";
+    actions.append(
+      saveBtn,
+      button(doc, t, tr("cancel"), "", () => {
+        s.editing = null;
+        this.render(doc, root, s);
+      }),
+    );
+    box.appendChild(actions);
   }
 }

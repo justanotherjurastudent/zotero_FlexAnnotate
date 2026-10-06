@@ -50,3 +50,26 @@ export function buildDialogSections(
     .filter((a) => a.tags.some((t) => known.has(t)));
   return groupByOutline(roots, view).filter((s) => s.node !== null);
 }
+
+/** Distinct annotations per heading, counting the heading's subheadings too. */
+export function nodeCounts(
+  roots: OutlineNode[],
+  sections: Section<AnnLike>[],
+): Map<string, number> {
+  const direct = new Map<string, number[]>();
+  for (const s of sections)
+    if (s.node)
+      direct.set(
+        s.node.id,
+        s.items.map((i) => i.id),
+      );
+  const out = new Map<string, number>();
+  const walk = (n: OutlineNode): Set<number> => {
+    const ids = new Set(direct.get(n.id) ?? []);
+    for (const c of n.children) for (const id of walk(c)) ids.add(id);
+    out.set(n.id, ids.size);
+    return ids;
+  };
+  roots.forEach(walk);
+  return out;
+}

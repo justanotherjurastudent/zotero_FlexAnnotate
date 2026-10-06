@@ -244,7 +244,11 @@ function renderReadable(roots: OutlineNode[]): string {
 
 /** Parse the tree back out of a stored outline note's HTML. */
 export function parseOutline(noteHtml: string): OutlineNode[] {
-  const m = noteHtml.match(new RegExp(SENTINEL + "\\s*([\\s\\S]*?)</code>"));
+  // Zotero rewrites <pre><code>…</code></pre> to <pre>…</pre> when a note is
+  // saved again, so accept both closings.
+  const m = noteHtml.match(
+    new RegExp(SENTINEL + "\\s*([\\s\\S]*?)</(?:code|pre)>"),
+  );
   if (!m) return [];
   try {
     const parsed = JSON.parse(unescapeHtml(m[1].trim()));
@@ -362,4 +366,18 @@ export function unassignedItems<T extends { tags: string[] }>(
 ): T[] {
   const known = tagIndex(roots);
   return items.filter((it) => !it.tags.some((t) => known.has(t)));
+}
+
+/** Id of the heading `delta` steps away in outline order (null at the ends). */
+export function neighborId(
+  roots: OutlineNode[],
+  id: string | null,
+  delta: number,
+): string | null {
+  const flat = flatten(roots);
+  if (!flat.length) return null;
+  const i = flat.findIndex((f) => f.node.id === id);
+  if (i < 0) return flat[delta > 0 ? 0 : flat.length - 1].node.id;
+  const j = i + delta;
+  return j < 0 || j >= flat.length ? null : flat[j].node.id;
 }
