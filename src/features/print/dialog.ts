@@ -64,6 +64,16 @@ interface PanelState {
 const states = new WeakMap<Element, PanelState>();
 
 /**
+ * Wird nach jedem Speichern aufgerufen. Das Reader-Menü setzt es, um offene Reader
+ * zu aktualisieren; so entsteht kein Zirkelimport zwischen beiden Modulen.
+ */
+let afterSave: (() => void) | null = null;
+
+export function setAfterSave(fn: (() => void) | null): void {
+  afterSave = fn;
+}
+
+/**
  * Öffnet die Maske zum Anlegen einer neuen Print-Annotation.
  * @param win - Zotero-Hauptfenster
  * @param parentItem - Reguläres Titel-Item
@@ -559,8 +569,7 @@ async function accept(win: MainWin, panel: Panel): Promise<void> {
       }
       await printAnnotations.create(item, data);
     }
-    // TODO: wired in reader menu task - legacy/dialog.js:599 baut danach die Reader-Menüs
-    // neu (ReaderMenu.updateAllReaders); dieses Modul hat noch keinen Gegenpart.
+    afterSave?.();
   } catch (e) {
     defaultLogger("printDialog", "save", e);
     // Der Rohtext der Ausnahme steht bereits im Debug-Log und ist für Lesende nutzlos.

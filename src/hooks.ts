@@ -21,6 +21,7 @@ import {
   updateVisibility as updatePrintMenus,
 } from "./features/print/menus";
 import { annotationRowMenu } from "./features/print/annotationRowMenu";
+import * as readerMenuModule from "./features/reader/readerMenu";
 
 import { unregisterAllPluginMenus } from "./utils/menu";
 import {
@@ -47,6 +48,7 @@ const features: Feature[] = [
     stop: () => CitationDialogPatch.stop(),
   },
   citeOnlyPatch,
+  readerMenuModule.readerMenu,
   {
     // Cross-paper annotation layer: Notifier observer keeps the index fresh as
     // annotations are added/edited/removed anywhere in the library.
@@ -78,6 +80,7 @@ async function onStartup() {
     CitationDialogPatch,
     modeSelector,
     citeOnly: { patch: citeOnlyPatch, isPatched: citeOnlyIsPatched },
+    reader: { readerMenu: readerMenuModule },
     print: {
       placeholder: printPlaceholder,
       printAnnotations,

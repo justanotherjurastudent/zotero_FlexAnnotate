@@ -52,3 +52,17 @@ annotation-edit =
     .label = Edit Annotation…
 annotation-delete =
     .label = Delete Print Annotation
+
+# Kontextmenü an Annotationen im Reader (features/reader/readerMenu.ts)
+reader-comment-add =
+    .label = Add Comment…
+reader-comment-edit =
+    .label = Edit Comment…
+reader-locator-set =
+    .label = Set Locator…
+reader-locator-page =
+    .label = Page
+reader-locator-margin =
+    .label = Margin
+reader-locator-opus =
+    .label = Opus
