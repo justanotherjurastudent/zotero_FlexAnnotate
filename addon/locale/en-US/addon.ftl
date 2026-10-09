@@ -45,3 +45,10 @@ button-cancel =
 save-failed =
     The print annotation could not be saved. Details are in the debug log
     (Help → Debug Output Logging).
+
+add-print-annotation =
+    .label = Add Print Annotation…
+annotation-edit =
+    .label = Edit Annotation…
+annotation-delete =
+    .label = Delete Print Annotation

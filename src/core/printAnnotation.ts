@@ -5,6 +5,11 @@
 
 export const DEFAULT_COLOR = "#ffd400";
 
+/** Zotero erlaubt annotationText nur bei highlight/underline (item.js:4507). */
+export function supportsText(type: string): boolean {
+  return type === "highlight" || type === "underline";
+}
+
 /**
  * Sortierschlüssel nach Druckseite, Format \d{5}|\d{6}|\d{5}. Maßgeblich ist die erste
  * Ziffernfolge im Label: "Rn. 12" sortiert wie 12. Labels ohne Ziffern (z. B. "XIV")

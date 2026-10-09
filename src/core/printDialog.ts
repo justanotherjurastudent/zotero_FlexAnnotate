@@ -11,11 +11,6 @@ export type DialogView = "full" | "comment" | "locator";
 /** Typen, die beim Anlegen wählbar sind; weitere erscheinen nur beim Bearbeiten. */
 export const CREATABLE_TYPES = ["highlight", "underline", "note"];
 
-/** Zotero erlaubt annotationText nur bei highlight/underline (item.js:4507). */
-export function supportsText(type: string): boolean {
-  return type === "highlight" || type === "underline";
-}
-
 /**
  * Ansicht beim Bearbeiten: mehrere Annotationen nur im Locator-Modus, sonst die
  * gewünschte (Standard 'full').

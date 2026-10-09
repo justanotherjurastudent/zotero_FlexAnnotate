@@ -7,7 +7,11 @@
  *  - `annotationColor` muss /#[a-f0-9]{6}/ erfüllen (Kleinbuchstaben)
  *  - `annotationSortIndex` muss bei PDF-Parent /^\d{5}\|\d{6}\|\d{5}$/ erfüllen
  */
-import { buildSortIndex, normalizeColor } from "../../core/printAnnotation";
+import {
+  buildSortIndex,
+  normalizeColor,
+  supportsText,
+} from "../../core/printAnnotation";
 import {
   DEFAULT_LOCATOR,
   DEFAULT_LOCATOR_PREFIX,
@@ -52,7 +56,7 @@ export async function create(
   // Muss zuerst gesetzt werden, sonst wirft item.js:4488
   annotation.annotationType = type;
 
-  if (type === "highlight" || type === "underline") {
+  if (supportsText(type)) {
     annotation.annotationText = data.text || "";
   } else if (data.text) {
     // Bei 'note' kennt Zotero kein Zitatfeld (item.js:4507): der Text wandert in
@@ -95,10 +99,7 @@ export async function update(
     throw new Error("Not an annotation item");
   }
 
-  if (
-    data.text !== undefined &&
-    ["highlight", "underline"].includes(annotation.annotationType)
-  ) {
+  if (data.text !== undefined && supportsText(annotation.annotationType)) {
     annotation.annotationText = data.text;
   }
   if (data.comment !== undefined) {

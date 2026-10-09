@@ -12,6 +12,8 @@ import * as outlineModelModule from "./modules/outlineModel";
 import * as printPlaceholder from "./features/print/placeholder";
 import * as printAnnotations from "./features/print/printAnnotations";
 import * as printDialog from "./features/print/dialog";
+import { printMenus } from "./features/print/menus";
+import { annotationRowMenu } from "./features/print/annotationRowMenu";
 
 import { unregisterAllPluginMenus } from "./utils/menu";
 import {
@@ -44,6 +46,9 @@ const features: Feature[] = [
     start: () => AnnotationIndex.init(),
     stop: () => AnnotationIndex.unload(),
   },
+  // Stoppt vor "organizer": dessen unregisterAllPluginMenus wirkt global.
+  printMenus,
+  annotationRowMenu,
 ];
 
 async function onStartup() {

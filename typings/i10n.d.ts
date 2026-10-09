@@ -3,6 +3,9 @@
 /* eslint-disable */
 // @ts-nocheck
 export type FluentMessageId =
+  | 'add-print-annotation'
+  | 'annotation-delete'
+  | 'annotation-edit'
   | 'annotations-menu-label'
   | 'annotations-window-title'
   | 'button-cancel'

@@ -18,12 +18,12 @@ import {
   initialFocus,
   isTypeHidden,
   nextFocusIndex,
-  supportsText,
   viewLayout,
   wantsDefault,
   type DialogInput,
   type DialogView,
 } from "../../core/printDialog";
+import { supportsText } from "../../core/printAnnotation";
 import { getString } from "../../utils/locale";
 import { defaultLogger } from "../../shared/feature";
 import * as placeholder from "./placeholder";
@@ -559,6 +559,8 @@ async function accept(win: MainWin, panel: Panel): Promise<void> {
       }
       await printAnnotations.create(item, data);
     }
+    // TODO: wired in reader menu task - legacy/dialog.js:599 baut danach die Reader-Menüs
+    // neu (ReaderMenu.updateAllReaders); dieses Modul hat noch keinen Gegenpart.
   } catch (e) {
     defaultLogger("printDialog", "save", e);
     // Der Rohtext der Ausnahme steht bereits im Debug-Log und ist für Lesende nutzlos.
