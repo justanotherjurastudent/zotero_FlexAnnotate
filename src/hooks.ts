@@ -11,6 +11,37 @@ import * as outlineCore from "./core/outline";
 import * as outlineModelModule from "./modules/outlineModel";
 
 import { unregisterAllPluginMenus } from "./utils/menu";
+import {
+  addToWindow,
+  type Feature,
+  removeFromWindow,
+  startAll,
+  stopAll,
+} from "./shared/feature";
+
+/**
+ * Reihenfolge = Startreihenfolge; gestoppt wird in umgekehrter Reihenfolge.
+ * Die Hooks sind voneinander unabhängig.
+ */
+const features: Feature[] = [
+  {
+    name: "organizer",
+    start: () => OrganizerFactory.registerMenu(),
+    stop: () => unregisterAllPluginMenus(),
+  },
+  {
+    name: "citationDialog",
+    start: () => CitationDialogPatch.start(),
+    stop: () => CitationDialogPatch.stop(),
+  },
+  {
+    // Cross-paper annotation layer: Notifier observer keeps the index fresh as
+    // annotations are added/edited/removed anywhere in the library.
+    name: "annotationIndex",
+    start: () => AnnotationIndex.init(),
+    stop: () => AnnotationIndex.unload(),
+  },
+];
 
 async function onStartup() {
   await Promise.all([
@@ -40,12 +71,7 @@ async function onStartup() {
     image: `chrome://${addon.data.config.addonRef}/content/icons/favicon.png`,
   });
 
-  OrganizerFactory.registerMenu();
-  CitationDialogPatch.start();
-
-  // Cross-paper annotation layer: register the Notifier observer so the index
-  // stays fresh as annotations are added/edited/removed anywhere in the library.
-  AnnotationIndex.init();
+  await startAll(features);
 
   await Promise.all(
     Zotero.getMainWindows().map((win) => onMainWindowLoad(win)),
@@ -64,6 +90,8 @@ async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
     `${addon.data.config.addonRef}-addon.ftl`,
   );
 
+  await addToWindow(features, win);
+
   new ztoolkit.ProgressWindow(addon.data.config.addonName, {
     closeOnClick: true,
     closeTime: 3000,
@@ -76,16 +104,15 @@ async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
     .show();
 }
 
-async function onMainWindowUnload(win: Window): Promise<void> {
+async function onMainWindowUnload(win: _ZoteroTypes.MainWindow): Promise<void> {
+  removeFromWindow(features, win);
   ztoolkit.unregisterAll();
   addon.data.dialog?.window?.close();
 }
 
 function onShutdown(): void {
   ztoolkit.unregisterAll();
-  CitationDialogPatch.stop();
-  unregisterAllPluginMenus();
-  AnnotationIndex.unload();
+  stopAll(features);
   addon.data.dialog?.window?.close();
   addon.data.alive = false;
   // @ts-expect-error - Plugin instance is not typed
