@@ -328,7 +328,9 @@ describe("FlexAnnotate features", function () {
         "page numbers of the other annotations stay as they are",
       );
       assert.isTrue(
-        anns[2].getTags().some((t) => t.tag === "annotree:locator=section"),
+        anns[2]
+          .getTags()
+          .some((t) => t.tag === "#flexannotate-locator-section"),
       );
     });
 
