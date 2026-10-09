@@ -33,7 +33,7 @@ import {
   tagIndex,
   titleError,
   unassignedItems,
-} from "../core/outline";
+} from "../../core/outline";
 import {
   applyClick,
   dragIds,
@@ -41,8 +41,8 @@ import {
   prune,
   selectAll,
   SelectionState,
-} from "../core/selection";
-import { formatLocator } from "../core/locator";
+} from "../../core/selection";
+import { formatLocator } from "../../core/locator";
 import { OutlineModel } from "./outlineModel";
 import {
   citationOfRow,
@@ -63,10 +63,10 @@ import {
 import { gatherAll, saveDraftAsNote } from "./outlineExport";
 import { openRow } from "./openTarget";
 import { getTheme, Palette } from "./theme";
-import { getString } from "../utils/locale";
-import { makeIcon, IconName } from "../utils/icons";
-import { registerPluginMenu } from "../utils/menu";
-import { tr } from "../utils/strings";
+import { getString } from "../../utils/locale";
+import { makeIcon, IconName } from "./icons";
+import { registerPluginMenu } from "../../utils/menu";
+import { tr } from "./strings";
 
 const HTML_NS = "http://www.w3.org/1999/xhtml";
 const DND_TYPE = "text/x-annotree-ids";

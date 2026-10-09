@@ -1,6 +1,6 @@
 /**
  * outlineModel — Zotero-facing layer of the outline (tags, outline note).
- * The pure tree logic lives in ../core/outline.ts.
+ * The pure tree logic lives in ../../core/outline.ts.
  */
 
 import {
@@ -16,8 +16,8 @@ import {
   OutlineNode,
   parseOutline,
   serializeOutline,
-} from "../core/outline";
-export * from "../core/outline";
+} from "../../core/outline";
+export * from "../../core/outline";
 
 /** A quote/note/source filed under a heading, flattened for display + export. */
 export interface FiledItem {

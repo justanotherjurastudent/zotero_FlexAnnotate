@@ -8,13 +8,13 @@
 
 import { AnnotationIndex } from "./annotationIndex";
 import { citationFor } from "./annotationExport";
-import { collectionOptions, scopeCollectionIDs } from "../core/collections";
-import type { ColNode } from "../core/collections";
+import { collectionOptions, scopeCollectionIDs } from "../../core/collections";
+import type { ColNode } from "../../core/collections";
 import {
   FALLBACK_LOCATORS,
   locatorOf,
   locatorTagChanges,
-} from "../core/locator";
+} from "../../core/locator";
 
 export type RowKind = "work" | "annotation";
 

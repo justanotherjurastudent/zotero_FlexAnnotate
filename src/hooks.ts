@@ -1,18 +1,19 @@
 import { initLocale } from "./utils/locale";
 import { createZToolkit } from "./utils/ztoolkit";
-import { AnnotationIndex } from "./modules/annotationIndex";
-import { OrganizerFactory } from "./modules/organizer";
-import { CitationDialogPatch } from "./modules/citationDialogPatch";
+import { AnnotationIndex } from "./features/organizer/annotationIndex";
+import { OrganizerFactory } from "./features/organizer/organizer";
+import * as citationDialog from "./shared/citationDialog";
+import { outlineView } from "./features/organizer/dialogOutline";
 import * as modeSelector from "./features/citeOnly/modeSelector";
 import {
   citeOnlyPatch,
   isPatched as citeOnlyIsPatched,
 } from "./features/citeOnly/integrationPatch";
-import * as openTarget from "./modules/openTarget";
+import * as openTarget from "./features/organizer/openTarget";
 import * as citedCore from "./core/cited";
-import * as organizerData from "./modules/organizerData";
+import * as organizerData from "./features/organizer/organizerData";
 import * as outlineCore from "./core/outline";
-import * as outlineModelModule from "./modules/outlineModel";
+import * as outlineModelModule from "./features/organizer/outlineModel";
 import * as printPlaceholder from "./features/print/placeholder";
 import * as printAnnotations from "./features/print/printAnnotations";
 import * as printDialog from "./features/print/dialog";
@@ -36,6 +37,14 @@ import {
   stopAll,
 } from "./shared/feature";
 
+// Injektionsreihenfolge im Zitierdialog: erst die Modus-Auswahl, dann die Gliederung.
+citationDialog.registerDialogInjector({
+  name: "modeSelector",
+  inject: modeSelector.injectModeSelector,
+  detach: modeSelector.removeModeSelector,
+});
+citationDialog.registerDialogInjector(outlineView);
+
 /**
  * Reihenfolge = Startreihenfolge; gestoppt wird in umgekehrter Reihenfolge.
  * Die Hooks sind voneinander unabhängig.
@@ -49,8 +58,8 @@ const features: Feature[] = [
   organizerToolbarButton,
   {
     name: "citationDialog",
-    start: () => CitationDialogPatch.start(),
-    stop: () => CitationDialogPatch.stop(),
+    start: () => citationDialog.start(),
+    stop: () => citationDialog.stop(),
   },
   citeOnlyPatch,
   readerMenuModule.readerMenu,
@@ -84,7 +93,7 @@ async function onStartup() {
     organizerToolbar: organizerToolbarButton,
     openTarget,
     cited: citedCore,
-    CitationDialogPatch,
+    CitationDialogPatch: { viewOf: outlineView.viewOf },
     modeSelector,
     citeOnly: { patch: citeOnlyPatch, isPatched: citeOnlyIsPatched },
     reader: { readerMenu: readerMenuModule },

@@ -6,7 +6,7 @@
 import { config } from "../../../package.json";
 import { getLocaleID } from "../../utils/locale";
 import { defaultLogger, type Feature } from "../../shared/feature";
-import { OrganizerFactory } from "../../modules/organizer";
+import { OrganizerFactory } from "./organizer";
 
 type MainWin = _ZoteroTypes.MainWindow;
 
