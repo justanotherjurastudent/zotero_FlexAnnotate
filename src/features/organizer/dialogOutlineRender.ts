@@ -13,6 +13,7 @@ import { flatten, numbering } from "../../core/outline";
 import type { OutlineNode, Section } from "../../core/outline";
 import { citationOfRow, locatorLabel } from "./organizerData";
 import type { Row } from "./organizerData";
+import { openRow } from "./openTarget";
 import { tr } from "./strings";
 import {
   currentSessionId,
@@ -338,6 +339,16 @@ export function renderPreview(win: Window, v: View) {
   btn.style.cssText = "align-self:flex-start;padding:5px 12px;";
   btn.addEventListener("click", () => void insert(win, [...v.sel.selected]));
   host.appendChild(btn);
+
+  // one annotation only: jump to its place in the reader (the dialog stays open)
+  if (picked.length === 1) {
+    const show = doc.createElement("button");
+    show.id = "flexannotate-show-place";
+    show.textContent = tr("dialogShowPlace");
+    show.style.cssText = "align-self:flex-start;padding:5px 12px;";
+    show.addEventListener("click", () => void openRow(picked[0]));
+    host.appendChild(show);
+  }
 
   // manual correction of the green check
   const allCited = picked.every((r) => v.cited.has(r.id));

@@ -663,5 +663,139 @@ describe("FlexAnnotate features", function () {
         Zotero.Prefs.set(prefKey, false, true);
       }
     });
+
+    it("keeps the right column the same width with and without the outline", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const { w, toggle } = await openDialog();
+      win = w;
+      const doc = w.document;
+      const setOutline = async (on: boolean) => {
+        if (toggle.checked !== on) toggle.click();
+        await waitFor(() =>
+          on
+            ? doc.querySelector("#flexannotate-tree [data-node-id]")
+            : !doc.getElementById("flexannotate-tree"),
+        );
+        await Zotero.Promise.delay(200); // layout settles
+      };
+      const sidebar = () => doc.getElementById("sidebar") as HTMLElement;
+      const widths: number[] = [];
+      for (const on of [false, true, false, true, false]) {
+        await setOutline(on);
+        if (!on) assert.equal(sidebar().style.width, "", "no inline width");
+        widths.push(sidebar().getBoundingClientRect().width);
+      }
+      for (const x of widths)
+        assert.approximately(x, widths[0], 1, "same width in both states");
+    });
+
+    it("mirrors Zotero's search bar into the outline list, not the other way round", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const { w, toggle } = await openDialog();
+      win = w;
+      const doc = w.document;
+      const bar = () =>
+        doc.querySelector("#bubble-input input") as HTMLInputElement;
+      const filter = () =>
+        doc.querySelector(
+          "#flexannotate-list-pane input",
+        ) as HTMLInputElement | null;
+      const rows = () => [
+        ...doc.querySelectorAll("#flexannotate-list-pane [data-ann-id]"),
+      ];
+      const type = (el: HTMLInputElement, text: string) => {
+        el.value = text;
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+      };
+
+      // text typed while the outline is off is taken over when it is switched on
+      if (toggle.checked) {
+        toggle.click();
+        await waitFor(() => !doc.getElementById("flexannotate-tree"));
+      }
+      bar().focus();
+      type(bar(), "Sehr langes");
+      toggle.click();
+      await waitFor(
+        () => filter()?.value === "Sehr langes" && rows().length === 1,
+      );
+      assert.equal(rows()[0].getAttribute("data-ann-id"), String(anns[1].id));
+
+      // the outline's own field only filters the list, the search bar keeps its text
+      type(filter()!, "Dialogzitat");
+      await waitFor(
+        () =>
+          rows().length === 1 &&
+          rows()[0].getAttribute("data-ann-id") === String(anns[0].id),
+      );
+      assert.equal(bar().value, "Sehr langes", "search bar untouched");
+
+      // emptying the search bar shows everything again
+      type(bar(), "");
+      await waitFor(() => rows().length === 2 && filter()?.value === "");
+    });
+
+    it("opens the citation place of one selected annotation in the reader", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const { w, toggle } = await openDialog();
+      win = w;
+      const doc = w.document;
+      if (!toggle.checked) toggle.click();
+      await waitFor(
+        () =>
+          doc.querySelectorAll("#flexannotate-list-pane [data-ann-id]")
+            .length === 2,
+      );
+      const preview = doc.getElementById("flexannotate-preview")!;
+      const buttons = () =>
+        [...preview.querySelectorAll("button")].map((b) => b.id);
+
+      click(doc.querySelector(`[data-ann-id="${anns[0].id}"]`)!);
+      await waitFor(() => buttons().includes("flexannotate-show-place"));
+      assert.deepEqual(buttons(), [
+        "flexannotate-insert",
+        "flexannotate-show-place",
+        "flexannotate-toggle-cited",
+      ]);
+
+      // only for exactly one selected annotation
+      click(doc.querySelector(`[data-ann-id="${anns[1].id}"]`)!, {
+        ctrlKey: true,
+      });
+      await waitFor(() => !doc.getElementById("flexannotate-show-place"));
+      click(doc.querySelector(`[data-ann-id="${anns[0].id}"]`)!);
+      await waitFor(() => doc.getElementById("flexannotate-show-place"));
+
+      // the reader is called once with the attachment and the annotation key
+      const calls: unknown[][] = [];
+      const reader = Zotero.Reader as any;
+      const original = reader.open;
+      reader.open = async (...args: unknown[]) => {
+        calls.push(args);
+      };
+      try {
+        click(doc.getElementById("flexannotate-show-place")!);
+        await waitFor(() => calls.length || null);
+        await Zotero.Promise.delay(200);
+        assert.lengthOf(calls, 1, "exactly one reader call");
+        assert.equal(calls[0][0], (anns[0] as any).parentItemID, "attachment");
+        assert.deepEqual(calls[0][1], { annotationID: anns[0].key });
+      } finally {
+        reader.open = original;
+      }
+      assert.isTrue(
+        !!doc.getElementById("flexannotate-show-place"),
+        "dialog stays open",
+      );
+    });
   });
 });

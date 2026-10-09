@@ -76,6 +76,7 @@ interface Attached {
   enabled: boolean;
   view: View | null;
   keyHandler: ((e: Event) => void) | null;
+  searchHandler: ((e: Event) => void) | null;
 }
 
 const attached = new Map<Window, Attached>();
@@ -109,6 +110,7 @@ function inject(win: Window) {
     enabled: false,
     view: null,
     keyHandler: null,
+    searchHandler: null,
   };
   attached.set(win, info);
 
@@ -189,7 +191,7 @@ async function enable(win: Window, cb: HTMLInputElement) {
       rows: new Map(rows.map((r) => [r.id, r])),
       cited: activeIds(readCitedStore(), currentSessionId(), citedWorks),
       node: "all",
-      query: "",
+      query: bubbleText(win.document),
       sel: emptySelection(),
     };
     info.view = view;
@@ -197,6 +199,7 @@ async function enable(win: Window, cb: HTMLInputElement) {
     applyLayout(win);
     renderAll(win, view);
     addKeys(win, info);
+    addSearchSync(win, info);
     cb.checked = true;
   } catch (e) {
     ztoolkit.log("flexannotate dialog enable failed:", e);
@@ -264,6 +267,32 @@ function addKeys(win: Window, info: Attached) {
   doc.addEventListener("keydown", handler, true);
 }
 
+/** Text in Zotero's own search bar (bubble-input's current input). */
+function bubbleText(doc: Document): string {
+  const bubble = doc.getElementById("bubble-input") as any;
+  return bubble?.getCurrentInput?.()?.value ?? "";
+}
+
+/**
+ * Mirror Zotero's search bar into the outline list: bubble-input dispatches
+ * "handle-input" (detail.query) on every keystroke, see
+ * citationDialog.js:1261 and elements/bubbleInput.js:333. The filter field
+ * is only written to, never the other way round.
+ */
+function addSearchSync(win: Window, info: Attached) {
+  if (info.searchHandler) return;
+  const handler = (e: Event) => {
+    const v = info.view;
+    if (!v || !info.enabled) return;
+    const query = (e as CustomEvent<{ query?: string }>).detail?.query ?? "";
+    if (query === v.query) return;
+    v.query = query;
+    renderList(win, v);
+  };
+  info.searchHandler = handler;
+  win.document.addEventListener("handle-input", handler);
+}
+
 /** Hide Zotero's native columns and add the containers for ours. */
 function applyLayout(win: Window) {
   const doc = win.document;
@@ -300,9 +329,6 @@ function applyLayout(win: Window) {
     PREVIEW_ID,
     "flex:1;overflow-y:auto;min-height:0;padding:10px 12px;display:flex;flex-direction:column;gap:10px;",
   );
-  const sidebar = doc.getElementById("sidebar") as HTMLElement | null;
-  if (sidebar)
-    sidebar.style.cssText += ";flex:0 0 330px;width:330px;max-width:none;";
 }
 
 function restoreLayout(win: Window) {
@@ -312,14 +338,12 @@ function restoreLayout(win: Window) {
     doc.removeEventListener("keydown", info.keyHandler, true);
     info.keyHandler = null;
   }
+  if (info?.searchHandler) {
+    doc.removeEventListener("handle-input", info.searchHandler);
+    info.searchHandler = null;
+  }
   for (const id of [TREE_ID, LIST_ID, PREVIEW_ID, NATIVE_ID, STYLE_ID])
     doc.getElementById(id)?.remove();
-  const sidebar = doc.getElementById("sidebar") as HTMLElement | null;
-  if (sidebar) {
-    sidebar.style.flex = "";
-    sidebar.style.width = "";
-    sidebar.style.maxWidth = "";
-  }
   try {
     const list = doc.getElementById("annotations-list") as any;
     if (list) {

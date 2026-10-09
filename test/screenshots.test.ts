@@ -2,6 +2,7 @@ import { assert } from "chai";
 import { config } from "../package.json";
 import {
   cleanup,
+  click,
   findOrganizerWindow,
   findWindowByUrl,
   makeWork,
@@ -220,6 +221,42 @@ describe("screenshots", function () {
     await step("citation-dialog-native", async () => {
       dialog = await openCitationDialog(false);
       return screenshot(dialog, "citation-dialog-native");
+    });
+    // Suchtext aus der Zoteros-Suchleiste filtert die Gliederungsliste
+    await step("citation-dialog-search", async () => {
+      dialog = await openCitationDialog(true);
+      const doc = dialog.document;
+      const input = doc.querySelector(
+        "#bubble-input input",
+      ) as HTMLInputElement;
+      input.focus();
+      input.value = "Vorstand";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      await waitFor(
+        () =>
+          (
+            doc.querySelector(
+              "#flexannotate-list-pane input",
+            ) as HTMLInputElement | null
+          )?.value === "Vorstand",
+      );
+      await Zotero.Promise.delay(300);
+      return screenshot(dialog, "citation-dialog-search");
+    });
+    // genau eine Annotation markiert: Button "Zitatstelle anzeigen"
+    await step("citation-dialog-place", async () => {
+      dialog = await openCitationDialog(true);
+      const doc = dialog.document;
+      const row = await waitFor(
+        () =>
+          doc.querySelector(
+            "#flexannotate-list-pane [data-ann-id]",
+          ) as HTMLElement | null,
+      );
+      click(row);
+      await waitFor(() => doc.getElementById("flexannotate-show-place"));
+      await Zotero.Promise.delay(300);
+      return screenshot(dialog, "citation-dialog-place");
     });
     await closeDialogs();
     dialog = null;

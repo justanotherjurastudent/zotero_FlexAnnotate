@@ -22,3 +22,6 @@ logs
 .zotero-reference/
 *.exe
 Debug Output.htm
+
+# Entpackte Zotero-Versionen nur fuer Kompatibilitaetstests (nicht installiert)
+.zotero-versions/
