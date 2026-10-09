@@ -1,433 +1,154 @@
 # FlexAnnotate — Architecture
 
-FlexAnnotate is a bootstrapped Zotero plugin (`strict_min_version` 7.0, `strict_max_version` 10.\*, verified
-against Zotero 10.0.1) with three capabilities: annotations on items that have no file attachment ("print
-annotations", carrying a manually maintained locator); citation-only insertion of annotations into Word and
-LibreOffice; and an import pass that turns Citavi quotes without a PDF anchor into print annotations. This
-document covers the load model, the data model, the control flow of each capability, the one destructive
-operation, and the Zotero-internal pitfalls the implementation works around.
+FlexAnnotate is a bootstrapped Zotero plugin written in TypeScript and built with zotero-plugin-scaffold (version 2.0.0-dev.0, `strict_min_version` 7.0, `strict_max_version` 10.\*). It was verified only against Zotero 10.0.5. It combines two former plugins: the vanilla-JS FlexAnnotate (print annotations, citation-only insertion, Citavi import; tag `pre-merge` holds 1.2.0) and Annotree (organizer, a fork of Lattice).
 
-References of the form `xpcom/data/item.js:2246-2259` are paths inside `chrome/content/zotero/` of Zotero's
-`omni.ja`, anchored to Zotero 10.0.1.
+References like `xpcom/integration.js:1678` are paths inside `chrome/content/zotero/` of Zotero's `omni.ja`. Unless marked "(10.0.1, not rechecked)", they were checked against 10.0.5.
 
-## Load model
+## Contents
 
-`bootstrap.js` implements Zotero's bootstrapped-plugin contract: `install()`, `startup()`, `shutdown()`,
-`uninstall()`, `onMainWindowLoad()`, `onMainWindowUnload()`. There is no build step, no bundler and no
-dependency; the layout follows `zotero/make-it-red` (`src-2.0`).
+- [Layers](#layers)
+- [Feature lifecycle](#feature-lifecycle)
+- [Module map](#module-map)
+- [Data model](#data-model)
+- [Control flow](#control-flow)
+- [Pitfalls](#pitfalls)
+- [Teardown](#teardown)
 
-`startup()` registers the preference pane, then loads `flexannotate.js` with
-`Services.scriptloader.loadSubScriptWithOptions(url, { ignoreCache: true })`. `FlexAnnotate.init()` loads
-every remaining module the same way and without a `target`, so all modules share one scope and attach
-themselves to the `FlexAnnotate` namespace object. `ignoreCache` is required at every level
-(see [Pitfall 3](#3-startup-cache)). Two lifecycles run in parallel:
+## Layers
 
-| Lifecycle | Entry | Exit | Scope |
-|---|---|---|---|
-| Global patches | `FlexAnnotate.main()` | `FlexAnnotate.uninit()` | Zotero-wide prototypes, window observers |
-| Per-window UI | `FlexAnnotate.addToWindow()` | `FlexAnnotate.removeFromWindow()` | DOM of one main window |
+```
+src/core/            pure logic, no Zotero imports, tested with node --test
+src/shared/          feature registry, checked patching, citation dialog watcher
+src/features/<f>/    one folder per feature; talks to Zotero
+src/prefs/           script of the preference pane (separate bundle)
+src/utils/           locale, prefs, menu registration, ztoolkit
+```
 
-`main()` calls `patch()` on `IntegrationPatch`, `CitationDialogPatch` and `CitaviImport`; `uninit()` calls
-`unpatch()` on all three. `addToAllWindows()` covers windows open at startup, `onMainWindowLoad()` later
-ones. Both paths are idempotent — each injection point checks for its own element ID first.
-`FlexAnnotate.storeAddedElement()` records element IDs once, not per window; `removeFromWindow()` resolves
-them per document and also drops the injected `<link href="flexannotate.ftl">`.
+Dependencies point downwards: features import `core`, `shared` and `utils`; `core` imports nothing from Zotero. Features: `print`, `citeOnly`, `citavi`, `reader`, `organizer`. `src/hooks.ts` is the only place that knows all features.
+
+## Feature lifecycle
+
+`src/shared/feature.ts` defines `Feature` with optional hooks `start`, `stop`, `addToWindow`, `removeFromWindow`. `startAll`, `stopAll`, `addToWindow` and `removeFromWindow` call them in order (stop in reverse) and log a failing hook without aborting the others or throwing.
+
+`hooks.ts` holds the ordered `features` array and runs it:
+
+1. `onStartup` waits for Zotero, calls `initLocale()`, exposes `addon.api` (used by the Zotero tests), registers the preference pane, runs `startAll(features)`, then `onMainWindowLoad` for every open window.
+2. `onMainWindowLoad` inserts the FTL files and runs `addToWindow(features, win)`.
+3. `onMainWindowUnload` runs `removeFromWindow`; `onShutdown` runs `stopAll`.
+
+Global work (patches, observers, `MenuManager` menus) belongs in `start`/`stop`; DOM belongs in `addToWindow`/`removeFromWindow`. Both must be idempotent and check for their own element IDs.
 
 ## Module map
 
-| Module | Responsibility |
-|---|---|
-| `bootstrap.js` | Lifecycle contract, preference-pane registration, first script load |
-| `flexannotate.js` | Namespace, module loading, preference and logging helpers, item context menu |
-| `placeholder.js` | Generation, lookup and cleanup of the placeholder attachment |
-| `printAnnotations.js` | Create, update, erase annotations; page label, sort index, locator tags, document defaults |
-| `dialog.js` | Input mask as a compact XUL `<panel>` in main and reader windows with full keyboard support |
-| `annotationMenu.js` | Context menu on `annotation-row` elements in the item pane |
-| `readerMenu.js` | Reader context menu, sidebar annotation header localization, LabelPopup injection, live updates |
-| `integrationPatch.js` | Citation-only rewrite in the word-processor integration |
-| `citationDialogPatch.js` | Mode selector injected into the citation dialog |
-| `citaviImport.js` | Second import pass for Citavi quotes Zotero discards |
-| `preferences.js` / `.xhtml` / `prefs.js` | Preference pane and defaults (branch `extensions.flexannotate.`) |
+| Folder                   | Responsibility                                                                                                      | Key files                                                                                                                                                |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/core`               | Rules without Zotero: locators, sort index, outline tree, Citavi parsing, cite-only rewrite, dialog view, selection | `locator.ts`, `printAnnotation.ts`, `outline.ts`, `citavi.ts`, `citeOnly.ts`, `cited.ts`, `dialogView.ts`, `selection.ts`                                |
+| `src/shared`             | Registry and helpers used by several features                                                                       | `feature.ts`, `patch.ts` (`assignChecked`), `citationDialog.ts` (watcher + injectors)                                                                    |
+| `src/features/print`     | Placeholder attachment, print annotations, input panel, menus                                                       | `placeholder.ts`, `printAnnotations.ts`, `dialog.ts`, `menus.ts`, `annotationRowMenu.ts`                                                                 |
+| `src/features/citeOnly`  | Citation-only insertion and the mode selector                                                                       | `integrationPatch.ts`, `modeSelector.ts`                                                                                                                 |
+| `src/features/citavi`    | Second import pass for Citavi, contribution links                                                                   | `citaviImport.ts`, `citaviPrintQuotes.ts`, `citaviLinks.ts`                                                                                              |
+| `src/features/reader`    | Reader context menu, locator in the page-number popup                                                               | `readerMenu.ts`, `labelPopup.ts`                                                                                                                         |
+| `src/features/organizer` | Organizer window, annotation index, outline model, citation dialog view, export, toolbar button                     | `organizer*.ts`, `annotationIndex.ts`, `outlineModel.ts`, `dialogOutline*.ts`, `dialogCited.ts`, `outlineExport.ts`, `toolbarButton.ts`, `openTarget.ts` |
+| `src/prefs`              | Fills the Citavi locator menulists in the preference pane                                                           | `preferences.ts`                                                                                                                                         |
+| `src/utils`              | Helpers from the scaffold template plus menu registration                                                           | `locale.ts`, `prefs.ts`, `menu.ts`, `ztoolkit.ts`                                                                                                        |
+| `addon/`                 | Manifest, default prefs, XHTML of the pane, FTL (`de`, `en-US`), icons                                              | `manifest.json`, `prefs.js`, `content/preferences.xhtml`, `locale/*`                                                                                     |
+
+The organizer window builds its DOM in code; its texts live in `organizer/strings.ts` (German and English). Menus and preferences use Fluent.
 
 ## Data model
 
-### Annotation parent and placeholder attachment
+All data lives in Zotero's own structures (tags, notes, child items), so it syncs and survives a plugin removal.
 
-Zotero stores annotations only under a file attachment whose `attachmentReaderType` is set — `pdf`, `epub`
-or `snapshot` (`xpcom/data/item.js:2246-2259`; reader types derived from content type at
-`xpcom/data/item.js:3500-3516`). An annotation whose parent is a regular item or a linked-URL attachment
-throws on save.
+| Datum                                  | Where                             | Meaning                                                                         |
+| -------------------------------------- | --------------------------------- | ------------------------------------------------------------------------------- |
+| `#flexannotate-placeholder`            | tag on the placeholder attachment | marks the generated PDF that carries print annotations                          |
+| `#flexannotate-locator-<type>`         | automatic tag on an annotation    | CSL locator type; absent for `page` unless the document default differs         |
+| `#flexannotate-default-locator-<type>` | automatic tag on an attachment    | default locator for annotations created later; `page` is never tagged           |
+| `§Title`                               | tag on annotations and works      | files the item under the outline heading `Title`                                |
+| `★outline`                             | tag on a standalone note          | the note holds the outline tree as JSON after the sentinel `LATTICE-OUTLINE-V1` |
+| `citedAnnotations`                     | preference                        | per document session id: annotation id to work id, at most 50 documents         |
 
-`Placeholder.create()` therefore attaches a generated, empty single-page PDF (A4, `MediaBox [0 0 595 842]`,
-346 bytes) to the regular item and tags it `#flexannotate-placeholder` as an automatic tag.
-`Placeholder.ensure()` returns an existing one; `Placeholder.isPlaceholder()` identifies it by tag, not by
-title, so a later UI language change leaves older attachments valid. `Placeholder.cleanUpIfEmpty()`, called
-from `PrintAnnotations.erase()`, erases the attachment once its last annotation is gone, unless the
-`keepEmptyPlaceholders` preference is set.
+### Placeholder attachment
 
-`Placeholder.buildPDF()` composes the file as ASCII and computes the xref offsets from the running string
-length, so pdf.js opens it without a repair pass. The PDF is generated at runtime rather than shipped as an
-asset: `Zotero.Attachments.importFromFile()` requires a real filesystem path, and inside an installed XPI
-`rootURI` is a `jar:` URI with no such path. The file is written to `Zotero.getTempDirectory()` and removed
-in a `finally` block.
+Zotero accepts annotations only under a file attachment with an `attachmentReaderType` (`xpcom/data/item.js:2246-2259`; reader types from the content type, `:3530-3540`). A regular item or a linked URL as parent throws on save. `placeholder.create()` therefore imports a generated one-page PDF (`core/printAnnotation.ts: buildPlaceholderPDF`) as a child, titled from `placeholder-title`, and tags it. The file is generated at runtime because `Zotero.Attachments.importFromFile()` needs a real path and `rootURI` inside an XPI is a `jar:` URI. `isPlaceholder()` checks the tag, not the title. `cleanUpIfEmpty()` erases the placeholder after its last annotation unless `keepEmptyPlaceholders` is set.
 
 ### Annotation field rules
 
-Enforced by Zotero, all in `xpcom/data/item.js`:
+Enforced by Zotero in `xpcom/data/item.js` (10.0.5 line numbers):
 
-| Rule | Source |
-|---|---|
-| `annotationType` must be assigned before any other annotation field | `:4487` |
-| `annotationText` is allowed only for `highlight` and `underline` | `:4507` |
-| `annotationColor` must match `/#[a-f0-9]{6}/` (lowercase) | `:4514` |
-| `annotationSortIndex` must match `/^\d{5}\|\d{6}\|\d{5}$/` for a PDF parent | `:4524` |
-| Type changes are restricted to `highlight` ↔ `underline` | `:4494-4498` |
-| `annotationPageLabel` is persisted as `pageLabel \|\| null` | `:2290` |
+| Rule                                                                             | Line         |
+| -------------------------------------------------------------------------------- | ------------ |
+| `annotationType` must be set before any other annotation field                   | `:4511`      |
+| Type changes only between `highlight` and `underline`                            | `:4518-4520` |
+| `annotationText` only for `highlight` and `underline`                            | `:4530-4531` |
+| `annotationColor` must match `/#[a-f0-9]{6}/` (lowercase)                        | `:4537`      |
+| `annotationSortIndex` must match `/^\d{5}\|\d{6}\|\d{5}$/` for a PDF parent      | `:4547`      |
+| `annotationPageLabel` is saved as `pageLabel \|\| null` and reads back as `null` | `:2290`      |
 
-`PrintAnnotations.create()` assigns `annotationType` first. For type `note` it folds any quoted text into
-the comment instead of dropping it. `PrintAnnotations.normalizeColor()` falls back to `#ffd400` for anything
-failing the color pattern. An empty page label reads back as `null`, which callers must handle explicitly.
-`annotationPosition` is a fixed `{ pageIndex: 0, rects: [[0, 0, 0, 0]] }` — the field is required by the PDF
-parent, and no real geometry exists.
+`printAnnotations.create()` sets the type first, folds quoted text into the comment for type `note`, falls back to `#ffd400` for invalid colors and writes a fixed `annotationPosition` (`pageIndex` 0, one zero rect), because the PDF parent requires the field and no geometry exists. The printed page goes into `annotationPageLabel`; `buildSortIndex()` takes the first digit run, clamps it to 99999 and pads it, so a label without digits sorts last.
 
-### Page label, sort order, locator type
+### Locator type
 
-The printed page goes into `annotationPageLabel` verbatim and, encoded, into `annotationSortIndex`, so the
-annotations pane sorts by printed page rather than by creation order. `PrintAnnotations.buildSortIndex()`
-extracts the first `\d+` run, clamps it to 99999 and pads it to the three-group format; a label with no
-digits yields 99999 and therefore sorts last while keeping its relative order.
+`core/locator.ts` resolves the locator in this order: tag on the annotation, default tag on the attachment, `page`. `setDefaultLocator()` first freezes existing annotations without an explicit tag to the previous default, so changing the default never alters old annotations. `applyLocatorTag()` removes old locator tags before writing the new one.
 
-Zotero has no field for the *kind* of locator. The CSL locator is stored as an automatic tag
-`#flexannotate-locator-<name>` on the annotation: tags are native, synchronize, and survive a round trip
-through other devices. In addition, an attachment item can carry `#flexannotate-default-locator-<name>`
-to establish a default locator for all future annotations created under it. `page` is the global default and
-is not tagged on attachments. Valid locator names come from `Zotero.Cite.labels` plus `'margin'`.
+### Outline note
 
-`PrintAnnotations.getLocator()` checks for an explicit tag on the annotation first, then falls back to the
-attachment's default locator via `PrintAnnotations.getDefaultLocator(attachment)`, and finally to `'page'`.
-When `PrintAnnotations.setDefaultLocator(attachment, locator)` sets a new document default, it first freezes
-all existing annotations on the attachment that lack an explicit locator tag to the previous default tag,
-ensuring that changing the document default for the future never retroactively alters existing annotations.
-`PrintAnnotations.applyLocatorTag()` writes the tag (removing any previous locator tag first), and
-`IntegrationPatch.rewriteToCitationOnly()` consumes it as the citation item's `label`.
+`core/outline.ts` and `organizer/outlineModel.ts` read and write the note. Zotero rewrites `<pre><code>` to `<pre>` on save; the reader accepts both. Numbers such as `1.2.3` are computed for display and never stored. Format and tags are compatible with Lattice.
 
 ## Control flow
 
-### Print annotations
+### Create a print annotation
 
-`flexannotate.js` appends a separator and three `menuitem`s to `zotero-itemmenu` and manages their
-visibility on `popupshowing` via `FlexAnnotate.updateMenuState()`
-(see [Pitfall 9](#9-plugin-added-item-menu-entries-survive)). `Dialog.open()` and `Dialog.openForEdit()`
-await `Zotero.Styles.init()` through `Dialog.ensureLocatorsReady()`, then build the panel once with
-`MozXULElement.parseXULToFragment()` and cache it by ID. `Dialog.buildLocatorMenu()` fills the locator
-menulist from `Zotero.Cite.labels`, labelled through `Zotero.Cite.getLocatorString()` and sorted by label;
-`Dialog.buildColorMenu()` fills the color menulist from `Zotero.Annotations.COLORS` using
-`Zotero.getString()` (see [Pitfall 7](#7-fluent-value-messages-vs-xul-labels)).
-
-`Dialog.applyView()` adapts the panel's width to the active view (320 px for locator editing, 380 px for
-comments, 440 px for full editing). Long source titles are truncated with ellipsis to avoid layout overflow.
-A dedicated `keydown` listener provides complete keyboard control: `Tab` and `Shift+Tab` cycle through all
-focusable controls via `Dialog.getFocusableElements()`, `Enter` triggers `Dialog.accept()` immediately (unless
-editing in a multi-line comment textarea or selecting from an open menupopup), and `Escape` cancels.
-
-`AnnotationMenu` registers a single `contextmenu` listener on the document in the capture phase rather than
-on the rows: `annotation-row` elements (`elements/attachmentAnnotationsBox.js:134`) are rebuilt on every
-selection change, so only a delegated listener survives. Native annotations can also be edited directly from
-the main window item tree via `Annotation bearbeiten…`.
-
-### Reader integration (PDF, EPUB, snapshot)
-
-`ReaderMenu.patch()` connects to Zotero's reader framework via three integration hooks:
-
-1. **Annotation context menu:** Registered via `Zotero.Reader.registerEventListener('createAnnotationContextMenu', …)`.
-   Appends *„Kommentar hinzufügen… / bearbeiten…“* and *„Locator festlegen…“* to the context menu of highlighted
-   passages in the reader.
-2. **Sidebar annotation headers:** Registered via `Zotero.Reader.registerEventListener('renderSidebarAnnotationHeader', …)`.
-   Replaces the default *„Seite“* label with the localized locator string (e.g. *„Randnummer“*, *„Absatz“*).
-3. **Label popup enhancement:** Observes reader iframes using a `MutationObserver` watching for `.label-popup`.
-   When the native *„Seitenzahl bearbeiten…“* popup appears, `ReaderMenu.enhanceLabelPopup()`:
-   - Injects a locator `<select>` and a checkbox to set the locator as the document default.
-   - Dispatches a click on the `single` radio button (*„Diese Annotation“*), preventing Zotero's default `from`
-     mode from triggering linear page-offset arithmetic on Randnummern.
-   - Disables linear page-offset radio choices (*„Diese Seite und folgende Seiten“*, *„Alle Seiten“*) when a
-     non-page locator is selected.
-   - Hides Zotero's native `renumber-auto-detect` checkbox column for non-page locators, preventing accidental
-     resets to physical PDF page numbers.
-   - Listens for apply/Enter to assign the locator tag to the targeted annotation and updates all reader views.
-4. **Live reader synchronization:** A `Zotero.Notifier` observer listens for `item` modifications and updates
-   all open readers automatically. On plugin teardown, `ReaderMenu.unpatch()` resets all reader DOM elements cleanly.
+1. `printMenus` (`menus.ts`) adds a separator and three entries to `zotero-itemmenu` and toggles them on `popupshowing` through `core/printMenuState.ts`.
+2. The entry calls `dialog.open(win, item)`, which awaits `Zotero.Styles.init()`, builds a XUL `<panel>` once (`parseXULToFragment`) and fills locator and color menulists.
+3. On save, `printAnnotations.create()` calls `placeholder.ensure(item)`, creates the annotation under it and applies the locator tag.
+4. Edit and delete use the same panel; `annotationRowMenu.ts` adds a popup for `annotation-row` elements in the item pane via one capture-phase `contextmenu` listener on the document.
 
 ### Citation-only insertion
 
-Patch target: `Zotero.Integration.Session.prototype._insertCitingResult`
-(`xpcom/integration.js:1678-1701`). Zotero branches there: if any cited item is an annotation it builds a
-mock note via `Zotero.EditorInstance.createNoteFromAnnotations()` and inserts that; otherwise it takes the
-ordinary citation path `_insertItemsIntoDocument()`. With the `citationOnly` preference set, the patched
-method calls `IntegrationPatch.rewriteToCitationOnly()` and, on success, invokes
-`_insertItemsIntoDocument()` directly. Both paths are unmodified Zotero logic; only the choice of path
-changes. Any error inside the patch is logged and falls through to the original method, so insertion never
-fails because of the plugin.
+1. `citeOnlyPatch.start()` replaces `Zotero.Integration.Session.prototype._insertCitingResult` (`xpcom/integration.js:1678`) through `assignChecked`; a failed patch throws and is logged by the registry.
+2. Zotero branches there: annotations become a mock note; everything else goes to `_insertItemsIntoDocument()` (`:1778`).
+3. With `citationOnly` set, the patched method calls `core/citeOnly.ts: citationOnlyItems`. Only when every cited item is an annotation with a citable top-level item does it build a new item list (parent item, `annotationPageLabel` as locator, locator tag as label), assign it to the same citation object and call `_insertItemsIntoDocument()` itself.
+4. Any other case, or any error, falls through to the original method. The citation object is mutated, not cloned, because the session later calls `.serialize()` on it (`:1778-1785`).
+5. The mode selector is injected into the citation dialog (see next flow) and writes the same preference.
 
-`rewriteToCitationOnly()` returns `null` — falling back to native behaviour — when the citation is empty,
-when not every cited item is an annotation, or when an annotation has no citable top-level item. Otherwise
-it replaces each citation item with one addressing `annotation.topLevelItem`, carries `annotationPageLabel`
-as `locator` and the locator tag as `label`, drops the stale `uris` and `itemData`, and awaits
-`citation.loadItemData()`.
+### Citation dialog: shared watcher and injectors
 
-The citation object is mutated in place and returned. Cloning would lose the `Zotero.Integration.Citation`
-prototype, and `_insertItemsIntoDocument()` (`xpcom/integration.js:1778-1785`) hands the same object to the
-session, which later calls `.serialize()` on it. Mutation happens only after every annotation has been
-validated. `Zotero.Integration.Session.prototype.insertAnnotations` does not exist; `insertAnnotations`
-lives only on `Zotero.EditorInstance` (`editorInstance.js:392`) and is not a viable target.
-
-### Citation dialog control
-
-The citation dialog is a separate window, `chrome://zotero/content/integration/citationDialog.xhtml`, opened
-from `xpcom/integration.js:1611`. `CitationDialogPatch.patch()` registers an observer for `domwindowopened`
-through `Services.ww.registerNotification`, waits for `load`, and matches on `window.location.href`.
-`CitationDialogPatch.inject()` adds a `<select>` at two points: `#settings-popup .popup`, and
-`#itemDetails .popup` before its `.buttons` row. Both write the same `citationOnly` preference and are kept
-in step by `syncSelects()`. Injection failures are caught and logged; the dialog stays usable without the
-selector.
-
-`citationDialog.js:244-248` shows and hides `[data-dialog-type]` elements on mode change. Injection happens
-after that pass, so `CitationDialogPatch.trackDialogType()` sets the initial state itself and follows later
-changes with a `MutationObserver` on the `dialog-type` attribute of `documentElement`. Labels come from
-adding `flexannotate.ftl` to the dialog document's own L10n resources (`doc.l10n.addResourceIds()`) plus
-`translateFragment()` on the injected rows; a hardcoded fallback prevents an unlabelled control.
+1. `shared/citationDialog.ts` registers one `Services.wm` listener. For each window with `location.href` equal to `chrome://zotero/content/integration/citationDialog.xhtml` it waits until `DIALOG_STATE.loaded` (`integration/citationDialog.js:149`).
+2. It then calls every registered `DialogInjector.inject(win)` once, in registration order: first `modeSelector`, then `outlineView` (`organizer/dialogOutline.ts`).
+3. `modeSelector` adds the "Einfügen als" select to the settings popup and the item popup and follows `dialog-type` changes with a `MutationObserver`.
+4. `outlineView` adds the "Nach Gliederung anordnen" checkbox to the annotations view. When on, it renders tree, list and preview in the dialog's three columns. Inserting clicks the "+" of a hidden native `annotation-row`, so Zotero's own insertion code runs.
+5. On `accept`, `dialogCited.ts` wraps `io.accept` to record cited annotation ids per document session id. An entry counts as cited while its work is still cited in the document.
+6. An unload of the window or `stop()` calls `detach` of every injector. A failing injector does not stop the others.
 
 ### Citavi import
 
-Zotero's importer walks `//Annotations/Annotation` — nodes carrying PDF coordinates (`Quads`) — and
-additionally skips sources with no attachment (`import/citavi.js:76-80`). Quotes on printed sources have no
-`<Annotation>` node at all; they exist only as `<KnowledgeItem>`. Two hooks, each answering a different
-question:
+Zotero's importer walks `//Annotations/Annotation` (nodes with `Quads`) and skips sources without an attachment (`import/citavi.js:76-80`). Quotes on printed sources exist only as `<KnowledgeItem>`.
 
-| Hook | Target | Answers |
-|---|---|---|
-| `CitaviImport.patch()` | `Zotero.Translate.Import.prototype.translate` | *whether* a Citavi export was read; retains the translation object |
-| `CitaviImport.addToWindow()` | `Zotero_File_Interface.importFile` / `.importFromClipboard` | *when* the pass runs — after Zotero's own annotation pass (`fileInterface.js:686`) |
-
-The translation object carries both inputs the pass needs: `_itemSaver._IDMap` (Citavi `ReferenceID` →
-Zotero item ID) and `_io` for the XML. `CitaviImport._afterTranslate()` matches the translator label against
-`/^Citavi (?:[56]) XML/i` and parks the object in `_pending`; `_runPending()`, invoked from the `finally`
-block of the patched import method, consumes it.
-
-Ordering is load-bearing. Zotero's pass resolves a source's attachment blindly as `getAttachments()[0]`
-(`import/citavi.js:76-82`), so a placeholder created first can receive Zotero's PDF annotations. If no
-window exposes a writable `Zotero_File_Interface`, the pass runs directly after `translate()` with that
-caveat and a warning in the log.
-
-`CitaviImport.importPrintQuotes()` re-initialises the stream (`translation._io.init('xml/dom')`; the stream
-is consumed by Zotero's pass, and `import/citavi.js:14` re-initialises it the same way), collects anchored
-knowledge-item IDs from `//EntityLinks/EntityLink/SourceID`, then walks `//KnowledgeItems/KnowledgeItem`. A
-node is skipped when it has no `ReferenceID`, no mapped item, a non-regular item, neither text nor comment,
-or when it is anchored *and* the source has a non-placeholder attachment with an `attachmentReaderType`
-(`CitaviImport.hasAnnotatableAttachment()`) — the case Zotero already handled. Skip counters are logged by
-reason, so a result of `created 0` is diagnosable.
-
-### Contribution–parent linking
-
-Citavi tracks which contributions belong to an edited book, legal commentary or conference proceedings in
-`<ReferenceReferences>`, a section that Zotero's translator does not process (the `seeAlso` code in
-`translate_item.js:1080-1089` is commented out). `CitaviImport.linkContributions()`, invoked from
-`_runPending()` after the print-quote pass, fills that gap.
-
-Each `<OnetoN>` node carries a semicolon-separated list: the first ID is the parent, the rest are children
-(`ParentID;ChildID1;ChildID2;…`). The method resolves every ID through `_IDMap` and creates bidirectional
-Zotero relations via `addRelatedItem()` — both between parent and child and among siblings within the same
-group. All affected items are saved in a single `Zotero.DB.executeTransaction()` with
-`skipDateModifiedUpdate`, mirroring how `zoteroPane.js:2670-2688` handles user-initiated relations. An
-already-existing relation is silently ignored by `addRelatedItem()`, so re-importing the same export does
-not create duplicates.
-
-The feature is gated by its own preference (`citaviLinkContributions`, default `true`) and runs
-independently of the print-annotation import (`citaviImport`). Both share the Citavi-detection hook
-(`_afterTranslate`), which now sets `_pending` whenever at least one of the two features is enabled.
-
-## Citavi export format
-
-Verified against a Citavi 7.4 export (`<CitaviExchangeData Version="7.4.0.23">`, UTF-8 with BOM, 57
-`KnowledgeItem`). The pass created 15 print annotations there; the other 42 quotes were already handled by
-Zotero as PDF annotations.
-
-| Finding | Consequence |
-|---|---|
-| `KnowledgeItem` references its source directly via `ReferenceID`; `EntityLinks` is needed only for PDF anchoring | Sources resolve without walking `EntityLinks` |
-| A `KnowledgeItem` without an `EntityLink` is exactly what Zotero discards — 15 of 57 | Defines the working set |
-| `PageRange` contains embedded markup: `<os>` display form, `<nt>` numbering type, `<n>` number | `CitaviImport.parsePageRange()` regex-matches `<os>` and `<nt>` out of the text content |
-| `<nt>` values are `Margin`, `Paragraph`, `Column`, `Other`; a page carries no `<nt>` at all | Drives `CitaviImport.getLocatorFor()` |
-| Any other `<nt>` value is treated as "other" and logged once per distinct name | An extended Citavi list does not pass unnoticed |
-| `PageRangeNumber` is `-1` when no locator was recorded | Treated as "no page label" |
-| `Text` is often empty with only `CoreStatement` filled — 11 of the 15 unanchored quotes | `buildAnnotationData()` uses `CoreStatement` as the quote when `Text` is empty, unlike `import/citavi.js` |
-| The translator's note follows `<h1>CoreStatement</h1>\n<p>Text</p>\n<i>locator</i>` (`Citavi 5 XML.js:183-206`) | Basis of the note-matching rule below |
-| `ReferenceReferences/OnetoN` links contributions to their parent work; format is `ParentID;ChildID1;ChildID2;…` | `linkContributions()` parses these and creates bidirectional Zotero relations |
-| Zotero's translator does not process `ReferenceReferences` (the `seeAlso` code in `translate_item.js:1080-1089` is commented out) | The plugin fills that gap |
-
-`CitaviImport.QUOTATION_TYPES` maps `<QuotationType>` to color and to how `CoreStatement` and `Text` are
-distributed; unknown values fall back to type 1. Keywords are read as `import/citavi.js:58-65` reads them,
-via `//KnowledgeItemKeywords/OnetoN`, and attached as tags.
-
-| Value | Kind | Color | Flag |
-|---|---|---|---|
-| 1 | Direct quote | `#2ea8e5` | — |
-| 2 | Indirect quote | `#a6507b` | `swap` — `CoreStatement` becomes the text, `Text` the comment |
-| 3 | Summary | `#5fb236` | — |
-| 4 | Comment | `#ff8c19` | — |
-| 5 | Highlight, yellow | `#ffd400` | `dropComment` |
-| 6 | Highlight, red | `#ff6666` | `dropComment` |
-
-`CitaviImport.getLocatorFor()` resolves each `<nt>` value through its own preference, because CSL has no
-equivalent for a margin number and the workable choice depends on the citation style.
-
-| `<nt>` | Preference (branch `extensions.flexannotate.`) | Default |
-|---|---|---|
-| *(absent)* | `citaviLocatorPage` | `page` |
-| `Column` | `citaviLocatorColumn` | `column` |
-| `Paragraph` | `citaviLocatorParagraph` | `paragraph` |
-| `Margin` | `citaviLocatorMargin` | `paragraph` |
-| `Other`, unknown | `citaviLocatorOther` | `page` |
-
-## Destructive operation: note removal
-
-`CitaviImport.removeQuoteNote()` erases the note Zotero's translator created for the same knowledge item,
-unless the `citaviKeepNotes` preference is set. It runs only for quotes the plugin itself imported; notes
-belonging to PDF quotes are never examined. Three conditions must all hold:
-
-1. The note hangs on the same source item (`item.getNotes()` bounds the search).
-2. Its normalized plain text starts with `CoreStatement` + `Text` of this `KnowledgeItem`.
-3. The remainder can only be a locator — `CitaviImport.isPageTail()`: at most `MAX_NOTE_TAIL` (60)
-   characters, matching `/^[\s\d–-]*$/`.
-
-Condition 3 is the actual safeguard. The translator strips everything but digits and hyphens from the
-locator (`extractPages()` in `Citavi 5 XML.js`), so a remainder containing letters cannot have come from the
-importer and marks the note as unrelated. The condition holds independently of quote length and therefore
-also covers a one-word quote, which a minimum-length rule does not. Comparison runs on normalized plain text
-(`stripMarkup()` then `normalizeText()`), not on markup: Zotero reshapes the HTML on save, while the running
-text survives.
+1. `CitaviImport.patch()` (feature `start`) wraps `Zotero.Translate.Import.prototype.translate`. After a Citavi XML translation it keeps the translation object (`_itemSaver._IDMap`, `_io`).
+2. `CitaviImport.addToWindow()` patches `importFile` and `importFromClipboard` of each window's own `Zotero_File_Interface`. The pass runs in their `finally`, after Zotero's own annotation pass (`fileInterface.js:686`).
+3. `importPrintQuotes` re-inits the XML stream, collects anchored IDs from `//EntityLinks/EntityLink/SourceID` and creates print annotations for the other `KnowledgeItem`s (colors and text distribution from `QUOTATION_TYPES`, locator type from `PageRange` `<nt>` through the `citaviLocator*` preferences).
+4. For quotes it created, it removes the translator's note only if the note starts with `CoreStatement` + `Text` and the remainder looks like a locator (`isPageTail`, at most 60 characters of digits, spaces and hyphens). `citaviKeepNotes` disables this.
+5. `linkContributions` reads `ReferenceReferences/OnetoN` (`Parent;Child1;Child2…`) and adds related-item links between parent and children and among siblings in one transaction. The translator does not do this (`xpcom/translation/translate_item.js:1081-1089` is commented out).
 
 ## Pitfalls
 
-### 1. Silent patch failure
+Rules that still apply. Line numbers are 10.0.5 unless marked.
 
-A patch assignment can fail in two ways. Outside strict mode, assigning to a frozen object or through an
-Xray wrapper does nothing instead of throwing. Under `"use strict"` a non-writable target throws a
-TypeError, which aborts the caller and takes unrelated patches down with it; an Xray expando still absorbs
-the write without any error at all. Either way an ineffective patch is indistinguishable from a successful
-one. **Rule:** wrap the assignment in `try`/`catch`, then read the property back and compare identity, and
-treat the result as a boolean. Every patch here goes through one such helper.
+1. **Silent patch failure.** Assigning to a frozen object does nothing outside strict mode and throws inside it; an Xray expando swallows the write. Always use `assignChecked()` (`shared/patch.ts`): assign in `try`/`catch`, read back, compare identity. CommonJS modules from `require()` run in their own sandbox with frozen `exports` (`resource/require.js`, `resource/loader.sys.mjs`) and are no patch targets.
+2. **`Zotero_File_Interface` is not a singleton.** Every window that loads `fileInterface.js` has its own object (`fileInterface.js:179`; the wizard loads it itself, `import/importWizard.xhtml:22`). Patch per window; the failure is silent.
+3. **Order of the Citavi passes.** Zotero takes the attachment with `getAttachments()[0]` (`import/citavi.js:76,82`). A placeholder created earlier can receive PDF annotations, so the print pass must run after Zotero's.
+4. **Startup cache.** Zotero loads `bootstrap.js` with `ignoreCache: true` (`xpcom/plugins.js:205-210`); the bundled build has no inner script loading of its own. The pane script is the exception, which Zotero loads without it: after changing `preferences.ts`, start once with `-purgecaches` (10.0.1, not rechecked).
+5. **XUL parses only in privileged chrome documents.** A plugin cannot register a `chrome.manifest`; `openDialog()` with `file:` or `jar:` URLs gives an empty window. Build UI with `MozXULElement.parseXULToFragment()` in the main window, as Zotero does in `elements/*.js` (10.0.1, not rechecked).
+6. **`Zotero.Styles.init()` before locator labels.** `Cite.getLocatorString()` reads `Object.keys(Zotero.Styles.locales)` (`xpcom/cite.js:54`), and `locales` is set at the end of `init()` (`xpcom/style.js:154`). `init()` returns a running initialization as a promise (`:68-77`). `getLocatorString()` creates its per-locale map before filling it (`cite.js:66-67`), so an aborted fill leaves later calls returning `undefined`; fall back to the raw locator name.
+7. **Preference pane menulists.** Pane scripts run in a sandbox before the fragment exists (`preferences/preferences.js:313-320`, `translateFragment` at `:355`). Zotero fires a `load` event at each pane child (`:617-618`): listen on `document` in the capture phase and re-check each time. Zotero resyncs late-added menuitems through a `MutationObserver` only if the binding exists (`:516-524`); set `elem.value` after filling instead. The pane needs its own `<linkset>` with the plugin FTL (`preferences_general.xhtml:29`).
+8. **Fluent value messages versus XUL labels.** `data-l10n-id` sets `textContent`, a `<menuitem>` shows `label`. Use `Zotero.getString()` for color names (`Zotero.Annotations.COLORS` are `[l10n-id, hex]` pairs, `xpcom/annotations.js:40-42`; the `getString` pattern is from `elements/zoteroSearch.js`, 10.0.1 line 1269, not rechecked).
+9. **`strict_max_version` is mandatory on Zotero 10.** Without it the plugin is dropped silently at manifest parsing (tested on 10.0.1 with five otherwise identical plugins). `extensions.strictCompatibility` is `false` in `defaults/preferences/zotero.js:6`, but the toolkit sets `addon.strictCompatibility` itself for release builds (`XPIInstall.sys.mjs:507`, toolkit `omni.ja`, 10.0.1, not rechecked).
+10. **Item context menu.** `buildItemContextMenu()` removes only its own `zotero-locate` entries (`zoteroPane.js:4196-4199`) and hides only its known options, so appended plugin entries persist and must manage their own visibility on `popupshowing`. For annotation selections the function returns at `:4680`, before `Zotero.MenuManager.updateMenuPopup` (`:4685`), so `MenuManager` entries never update for annotations. `printMenus` therefore uses DOM, not `MenuManager`.
+11. **The plugin scope is global, windows are not.** Module objects exist once per session, elements once per window. State of one interaction belongs on the element (expando on the panel, attribute on the popup), per-window bookkeeping in a `WeakMap`. Do not use a "some window is set up" flag; collect windows and test for empty.
+12. **`MenuManager` unregistration needs the returned key.** `registerMenu()` returns a key; `unregisterMenu()` with the raw `menuID` finds nothing (`utils/menu.ts`; `xpcom/pluginAPI/menuManager.js:824,833`). `unregisterAllPluginMenus()` stores the keys.
+13. **`Zotero.Reader.open` is wrapped by `readerMenu`** and restored through `assignChecked` on stop (`readerMenu.ts`); `Reader.open` is at `xpcom/reader.js:2917`.
 
-Concrete case: `fileInterface.js:686` calls `(0, _citavi.ImportCitaviAnnotatons)(translation)` and reads the
-property from the module object at call time, so replacing it there ought to work. It does not —
-`resource://zotero/require.js` loads CommonJS modules through `loader.sys.mjs` into their own sandbox whose
-`exports` is frozen and writable neither directly nor via `wrappedJSObject` or `Cu.waiveXrays()`. **Rule:**
-CommonJS modules reached through `require()` are unsuitable patch targets.
+## Teardown
 
-### 2. `Zotero_File_Interface` is not a singleton
-
-Every window that loads `fileInterface.js` gets its own object. The import wizard does exactly that
-(`import/importWizard.xhtml`, `fileInterface.js:179`), so a patch applied to the main window never sees the
-wizard's import — and the failure is silent: the queued pass simply remains unclaimed. **Rule:** patch per
-window, driven by `domwindowopened`. `CitaviImport._watchWindows()` inspects every opened window and skips
-the majority that carry no `Zotero_File_Interface`.
-
-### 3. Startup cache
-
-Own scripts must be loaded with `loadSubScriptWithOptions(url, { ignoreCache: true })` at *every* level
-(`xpcom/plugins.js:205-210` is how Zotero loads `bootstrap.js` itself). Plain `loadSubScript()` serves the
-previous revision from the startup cache, so a fix in an inner module has no effect while the outer one is
-stale. Zotero loads the preference-pane script without `ignoreCache`; changes to `preferences.js` take
-effect only after a start with `-purgecaches`.
-
-### 4. XUL only parses in privileged chrome documents
-
-A plugin cannot register a `chrome.manifest`. `openDialog()` with a `file:` or `jar:` URL yields an empty
-window: the XUL elements count as unknown tags and `onload` attributes never fire. **Rule:** build UI with
-`MozXULElement.parseXULToFragment()` inside the main window, as Zotero does in `elements/*.js`. `Dialog` and
-`AnnotationMenu` both do.
-
-### 5. Locator labels require `Zotero.Styles.init()`
-
-`Zotero.Cite.getLocatorString()` reads `Object.keys(Zotero.Styles.locales)` (`xpcom/cite.js:52-55`), and
-`Styles.locales` is only assigned at the end of `Zotero.Styles.init()` (`xpcom/style.js:139-154`), so the
-call throws before that. `init()` returns an in-flight initialization as a promise
-(`xpcom/style.js:70-77`) and may be called any number of times. `Zotero.Cite.labels` is a static array and
-is unaffected. **Rule:** `await Zotero.Styles.init()` before building any locator list. In `Dialog` this is
-mandatory rather than defensive: `build()` inserts the panel before filling the list and returns the cached
-panel on later calls, so one failure would leave the list empty until Zotero restarts.
-
-`getLocatorString()` installs its per-locale map *before* populating it (`xpcom/cite.js:66-67`), so if
-population aborts every later call returns `undefined`. Without the fallback to the raw locator name,
-sorting by label throws and no entry is produced at all.
-
-### 6. Preference-pane menulists
-
-Pane scripts run in a `Cu.Sandbox(window, { sandboxPrototype: window })` *before* the XHTML fragment is
-inserted (`preferences/preferences.js:313-320`; insertion at 341 and 363). Zotero then dispatches a
-non-bubbling `load` event to each direct child of the pane container (`preferences/preferences.js:617`).
-**Rule:** register the listener on `document` in the capture phase, and re-check on every event — other
-panes fire it too. `preferences.js` chains the passes on one promise queue so two runs cannot overtake each
-other, and fills all five menulists in a single pass, since five concurrent passes would each hang on their
-own `await` and one failure would leave the rest empty.
-
-Zotero resyncs a menulist whose items arrive later through a `MutationObserver` with `subtree: true`
-(`preferences/preferences.js:516-539`), but only if the preference binding is already in place. Setting
-`elem.value` after populating is deterministic and fires no `command` event, so it writes nothing back. A
-preference pane needs its own `<linkset>` with the plugin FTL or all labels stay empty
-(`preferences/preferences.js:355`).
-
-### 7. Fluent value messages vs. XUL labels
-
-`data-l10n-id` sets `textContent`, but a XUL `<menuitem>` displays its `label` attribute, which stays empty.
-Zotero's color palette entries (`general-yellow = Yellow`) are plain value messages. **Rule:** use
-`Zotero.getString()` for XUL labels, as Zotero does in `elements/zoteroSearch.js:1269`.
-
-### 8. `strict_max_version` is mandatory on Zotero 10
-
-Without it the plugin is dropped while the manifest is parsed: it appears neither in the plugin list nor in
-`extensions.json`, and nothing is logged. `extensions.strictCompatibility` (`zotero.js:6`, `false`) is
-misleading — `XPIInstall.sys.mjs:507` (toolkit `omni.ja`) sets `addon.strictCompatibility` to `true` for
-every release build, meaning any version without `-beta`, `-dev` or `SOURCE`.
-
-### 9. Plugin-added item-menu entries survive
-
-`buildItemContextMenu()` removes only its own entries (`zoteroPane.js:4170-4173`), so appended plugin
-entries persist across rebuilds. **Rule:** a plugin manages the visibility of its own entries itself, on
-`popupshowing`. `FlexAnnotate.updateMenuState()` toggles `hidden` for the separator and the three entries
-based on whether exactly one regular item is selected and whether the selection is a print annotation
-(`FlexAnnotate.getSelectedPrintAnnotation()`). Print annotations appear both as item-tree rows under the
-placeholder and as `annotation-row` elements in the item pane, so edit and delete are registered in both
-menus.
-
-### 10. The plugin scope is global, windows are not
-
-A bootstrapped plugin is loaded once per session, so every module object is shared by all main windows,
-while the elements it builds — panels, popups, menus — exist once per document. Storing "what the user just
-clicked" on the module object therefore couples windows that should be independent: a right-click in the
-second window overwrites the field, and the button in the first window then acts on the second window's
-item. Nothing throws, and the wrong record is written.
-
-**Rule:** state that belongs to one interaction lives on the element the interaction happened on — an
-expando on the panel, an attribute on the popup — never on the module object. Only genuinely global state
-(installed patches, registered observers) belongs there, and per-window bookkeeping goes into a
-`WeakMap` keyed by the window.
-
-The same asymmetry has a second edge: a flag meaning "at least one window is set up" latches. Track the
-windows in a collection and test whether it is empty; a flag set in `addToWindow()` will not be cleared by
-`removeFromWindow()` unless every caller remembers to, and a stale `true` silently disables the very path
-it was meant to guard.
-
-## Compatibility and teardown
-
-Every patch performs feature detection before patching and read-back verification after. On failure only the
-affected capability disables itself and logs a warning; Zotero is left untouched and the remaining
-capabilities keep working. Errors inside a patched method are caught and delegated to the original
-implementation.
-
-`shutdown()` calls `removeFromAllWindows()` and `uninit()`, which reverse every patch — prototype methods,
-per-window `Zotero_File_Interface` methods, both `domwindowopened` observers — and remove all injected DOM,
-including rows already injected into open citation dialogs.
-
-Line references in this document are anchored to Zotero 10.0.1. After a major Zotero release they are a
-starting point for verification, not a guarantee. The unpacked reference source is obtained by extracting
-`omni.ja` from the running installation.
+`onShutdown` calls `stopAll(features)` in reverse order: patches are restored through `assignChecked` (`_insertCitingResult`, `translate`, per-window `Zotero_File_Interface` methods, `Reader.open`), the citation dialog watcher detaches all injectors (including those in open dialogs), `MenuManager` menus are unregistered by key, the annotation index unloads its notifier observer, and `ztoolkit.unregisterAll()` removes toolkit UI. `removeFromWindow` removes the toolbar button, item-menu entries and the annotation popup of each window. Each patch checks its target before patching and verifies the result after; on failure only that feature disables itself and logs a warning.

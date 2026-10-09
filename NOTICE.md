@@ -1,5 +1,7 @@
 # NOTICE – Herkunft und Urheberschaft
 
+**Stand ab FlexAnnotate 2.0.0:** Annotree ist als Organizer Teil von **FlexAnnotate** geworden (siehe `CHANGELOG.md`). Der Organizer-Teil (Gliederung, Annotationsindex, Export- und Zitierdialog-Ansicht unter `src/features/organizer/` und `src/core/outline.ts`) basiert auf Lattice von birugit und ist wie unten beschrieben ein abgeleitetes Werk. Die übrigen Teile von FlexAnnotate (Print-Annotationen, Nur-Nachweis-Zitieren, Citavi-Import, Reader-Erweiterungen) stammen vom Projektautor justanotherjurastudent. Wo unten „Annotree“ steht, ist der Organizer-Teil gemeint.
+
 **Annotree** ist ein **abgeleitetes Werk (Fork mit starken Änderungen)** des Zotero-Plugins **Lattice** (Repository `zotero-grounded-qa`).
 
 |                                    |                                                                                                                                                                              |

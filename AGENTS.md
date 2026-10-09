@@ -2,102 +2,63 @@
 
 ## Projekt
 
-FlexAnnotate — Zotero-Plugin. Drei Funktionen:
+FlexAnnotate ist ein Zotero-Plugin (TypeScript, zotero-plugin-scaffold, Version 2.0.0-dev.0, Addon-ID `flexannotate@justanotherjurastudent.github.io`, AGPL-3.0-or-later). Es vereint das frühere FlexAnnotate (Print-Annotationen, Nur-Nachweis-Zitieren, Citavi-Import; 1.2.0 liegt unter dem Git-Tag `pre-merge`) und Annotree (Organizer; Fork von Lattice). Ziel: Zotero 7 bis 10, entwickelt und getestet nur gegen **Zotero 10.0.5** (Per-User-Install unter `%LOCALAPPDATA%\Zotero`). Aufbau und Fallstricke: `docs/architecture.md`.
 
-- **Print-Annotationen** — Annotationen mit manueller Seitenangabe für Quellen ohne
-  Dateianhang (Printbücher).
-- **Nur-Nachweis-Zitieren** — beim Einfügen von Annotationen in Word/LibreOffice
-  wahlweise nur die Zitation mit Locator setzen.
-- **Citavi-Import** — Zitate ohne Dateianhang als Print-Annotationen übernehmen.
+## Aufbau
 
-Aufbau und die heiklen Stellen: `docs/architecture.md`. Ursprüngliche Spezifikation:
-`docs/plan.md` — für Zotero 7 geschrieben, Abweichungen sind hier und im `README.md`
-dokumentiert.
-
-## Zielversion
-
-Entwickelt und geprüft gegen **Zotero 10.0.1** (Per-User-Install unter
-`%LOCALAPPDATA%\Zotero`, Gecko 140.14). Achtung: unter `C:\Program Files\Zotero` kann
-noch eine ältere Installation liegen — die ist nicht die laufende.
-
-## Kommandos
-
-```powershell
-# XPI bauen -> build/flexannotate.xpi
-powershell -File tools/build.ps1
-
-# Entwicklungsinstallation (Proxy-Datei ins Profil, Zotero vorher schließen)
-powershell -File tools/install-dev.ps1
-powershell -File tools/install-dev.ps1 -Remove
-
-# Zotero mit Debug-Ausgabe starten
-& "$env:LOCALAPPDATA\Zotero\zotero.exe" -purgecaches -ZoteroDebugText
+```
+src/core/           reine Logik ohne Zotero-Importe (Node-testbar)
+src/shared/         Feature-Registry, assignChecked, Zitierdialog-Watcher
+src/features/       print, citeOnly, citavi, reader, organizer
+src/prefs/          Skript des Einstellungsfensters (eigenes Bundle)
+src/utils/          Locale, Prefs, Menü-Registrierung, ztoolkit
+src/hooks.ts        Feature-Liste und Lebenszyklus
+addon/              manifest.json, prefs.js, content/ (XHTML, Icons), locale/{de,en-US}
+test-unit/          Node-Tests der reinen Logik
+test/               Mocha-Tests im echten Zotero
+scripts/            Testläufer, Kill-Skript, Word-Rauchtest
+docs/               architecture, testing, anchors, plan (historisch), lattice-changelog
 ```
 
-Es gibt bewusst keinen npm-/TypeScript-Build: das Plugin folgt dem offiziellen
-Zotero-Beispiel `zotero/make-it-red` (`src-2.0`) und kommt ohne Abhängigkeiten aus.
+## Befehle
 
-## Regel: keine Annahmen über interne Zotero-APIs
-
-Interne Zotero-APIs sind nicht stabil und haben sich zwischen 7 und 10 erheblich
-geändert. **Jede Annahme über eine Zotero-API vor der Verwendung im Quellcode prüfen**,
-nicht aus dem Gedächtnis oder aus Tutorials übernehmen.
-
-Der entpackte Zotero-Quellcode liegt dafür unter `.zotero-reference/10.0.1/`
-(gitignored). Neu erzeugen mit:
-
-```powershell
-$dst = "$env:TEMP\zotero-omni"
-Copy-Item "$env:LOCALAPPDATA\Zotero\app\omni.ja" "$dst.zip" -Force
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-[System.IO.Compression.ZipFile]::ExtractToDirectory("$dst.zip", $dst)
-# Quellcode liegt unter $dst\chrome\content\zotero
+```bash
+npm run build         # zotero-plugin build + tsc --noEmit -> .scaffold/build/flex-annotate.xpi
+npm run test:unit     # Node-Tests
+npm run test:zotero   # Zotero-Tests, eigene Instanz, rund 15 s
+npm run lint:check    # prettier --check . und eslint .
+npm run lint:fix      # prettier --write . und eslint --fix
+npm run verify        # lint:check, build, test:unit, test:zotero
+npm start             # zotero-plugin serve (Entwicklung, Zugangsdaten in .env, siehe .env.example)
 ```
 
-Ergänzend: „Tools → Developer → Run JavaScript" im laufenden Zotero, um Verhalten
-gegenzuprüfen.
+## Regeln
 
-## Belegte Befunde (Zotero 10.0.1)
+- **Nie das produktive Zotero oder Word anfassen.** Tests laufen im isolierten Profil `.scaffold/test/`; der Wrapper beendet nur diese Instanz. Kein Skript, das das Nutzer-Zotero, dessen Bibliothek oder ein laufendes Word verändert.
+- **Zotero-Interna nur gegen den Quellcode prüfen**, nicht aus dem Gedächtnis. Referenz: `.zotero-reference/10.0.5/` (gitignored). Neu erzeugen aus der `omni.ja` der laufenden Installation:
 
-Diese Punkte sind am Quellcode verifiziert und begründen den Aufbau des Plugins:
+  ```powershell
+  $dst = "$env:TEMP\zotero-omni"
+  Copy-Item "$env:LOCALAPPDATA\Zotero\app\omni.ja" "$dst.zip" -Force
+  Expand-Archive "$dst.zip" $dst   # Quellcode unter $dst\chrome\content\zotero
+  ```
 
-| Befund | Fundstelle |
-|---|---|
-| Annotationen brauchen zwingend ein **Datei-Attachment** als Parent (PDF/EPUB/HTML-Snapshot). Annotation direkt am Titel-Item oder an einem Linked-URL-Attachment wirft beim Speichern. | `xpcom/data/item.js:2246-2259` |
-| `attachmentReaderType` ist nur für `application/pdf`, `application/epub+zip`, `text/html` gesetzt | `xpcom/data/item.js:3500-3516` |
-| `annotationType` muss **vor** allen anderen Annotation-Feldern gesetzt werden | `xpcom/data/item.js:4487` |
-| `annotationText` nur bei `highlight`/`underline` erlaubt | `xpcom/data/item.js:4507` |
-| `annotationColor` muss `/#[a-f0-9]{6}/` erfüllen (Kleinbuchstaben) | `xpcom/data/item.js:4514` |
-| `annotationSortIndex` muss bei PDF-Parent `/^\d{5}\|\d{6}\|\d{5}$/` erfüllen | `xpcom/data/item.js:4524` |
-| Annotationen werden beim Zitieren in `_insertCitingResult` als Mock-Note eingefügt — **hier** setzt Feature B an, nicht am im Plan genannten `insertAnnotations` (existiert nicht) | `xpcom/integration.js:1678-1701` |
-| `_insertItemsIntoDocument` gibt dasselbe Citation-Objekt zurück, das die Session weiterverwendet → Citation **in place** ändern, nicht klonen | `xpcom/integration.js:1778-1785` |
-| `buildItemContextMenu` entfernt nur eigene Einträge, angehängte Plugin-Einträge bleiben | `zoteroPane.js:4170-4173` |
-| Farbpalette als `[l10n-Key, Hex]`-Paare | `xpcom/annotations.js` (`Zotero.Annotations.COLORS`) |
-| **`strict_max_version` ist auf Zotero 10 Pflicht.** Fehlt es im Manifest, wird das Plugin beim Parsen verworfen — es taucht nicht einmal in `extensions.json` auf und es erscheint keine Fehlermeldung. Experimentell belegt: von fünf sonst identischen Test-Plugins lud nur das mit `strict_max_version`. | Empirisch, Zotero 10.0.1 |
-| **Jeden Patch an einem fremden Objekt in `try`/`catch` setzen und danach zurücklesen.** Unter `"use strict"` wirft ein nicht schreibbares Ziel und reißt die übrigen Patches mit; ein Xray-Expando schluckt die Zuweisung dagegen ohne Fehler. Beides sieht sonst wie ein gelungener Patch aus. Dafür gibt es `FlexAnnotate.assignChecked()`. | Belegt am Citavi-Modul, siehe `docs/architecture.md` |
-| **Der Plugin-Scope ist global, Fenster sind es nicht.** Modulobjekte existieren einmal je Sitzung, die Elemente daran je Dokument. Was zu einer Interaktion gehört (angeklickte Annotation, Bearbeiten/Anlegen), gehört ans Element — Expando am Panel, Attribut am Popup —, nicht ans Modulobjekt; sonst schreibt der Klick im einen Fenster auf den Datensatz des anderen, ohne Fehler. Fensterweise Buchführung in eine `WeakMap`. Ein Flag „mindestens ein Fenster ist eingerichtet" rastet ein: stattdessen die Fenster sammeln und auf leer prüfen. | Belegt an `Dialog`, `AnnotationMenu`, `CitaviImport` |
-| CommonJS-Module aus `require()` liegen in einer eigenen Loader-Sandbox und ihr `exports` ist eingefroren: weder direkt noch über `wrappedJSObject` oder `Cu.waiveXrays()` beschreibbar. Solche Module sind als Patch-Ziel ungeeignet. | `resource://zotero/require.js`, `resource://zotero/loader.sys.mjs` |
-| XUL-Elemente werden nur in privilegierten chrome-Dokumenten geparst. Ein Plugin kann kein `chrome.manifest` registrieren, `openDialog()` mit `file://`- oder `jar:`-URL ergibt ein leeres Fenster. Oberfläche stattdessen mit `MozXULElement.parseXULToFragment()` im Hauptfenster bauen. | wie Zotero selbst in `elements/*.js` |
-| Eigene Skripte mit `loadSubScriptWithOptions(url, { ignoreCache: true })` laden — auf **jeder** Ebene. `loadSubScript()` bedient sich sonst aus dem Startup-Cache und liefert stillschweigend die vorige Fassung. | `xpcom/plugins.js:205-210` |
-| Fluent-Wertnachrichten (`general-yellow = Gelb`) landen über `data-l10n-id` als textContent; ein XUL-`<menuitem>` zeigt aber das `label`-Attribut. Dafür `Zotero.getString()` verwenden. | `elements/zoteroSearch.js:1269` |
-| Einstellungs-Panes brauchen ein eigenes `<linkset>` mit der Plugin-FTL, sonst bleiben alle Beschriftungen leer (`translateFragment() failed`) | `preferences/preferences.js:355`, `preferences_general.xhtml:29` |
-| `Zotero.Cite.getLocatorString()` wirft, solange `Zotero.Styles.init()` nicht durch ist: es liest `Object.keys(Zotero.Styles.locales)`, und `locales` entsteht erst am Ende der Initialisierung. Vorher `await Zotero.Styles.init()` (liefert eine laufende Initialisierung als Promise, beliebig oft aufrufbar). `Zotero.Cite.labels` ist als feste Liste unbedenklich. | `xpcom/cite.js:52-55`, `xpcom/style.js:70-77`, `139-154` |
-| `getLocatorString()` legt seine Locale-Map an, **bevor** es sie füllt — bricht das Füllen ab, liefern alle späteren Aufrufe `undefined` statt erneut zu versuchen | `xpcom/cite.js:66-67` |
-| Menulists in Einstellungs-Panes: Zotero setzt die Auswahl für nachträglich eingefügte `menuitem`s per MutationObserver nach, aber nur wenn die Pref-Bindung zu diesem Zeitpunkt schon steht. Sicherer ist, `elem.value` nach dem Füllen selbst zu setzen (löst kein `command` aus, schreibt also nichts zurück). | `preferences/preferences.js:516-539` |
-| `Zotero_File_Interface` ist **kein Singleton**: jedes Fenster, das `fileInterface.js` lädt, hat ein eigenes Objekt. Der Importassistent lädt es selbst, ein Patch am Hauptfenster erreicht ihn also nicht — und der Fehler ist stumm. | `import/importWizard.xhtml`, `fileInterface.js:179` |
-| Zoteros Citavi-Durchlauf greift den Anhang einer Quelle blind über `getAttachments()[0]`. Wer vorher einen eigenen Anhang anlegt, verschiebt ihm das Ziel. | `import/citavi.js:76-82` |
-| `annotationPageLabel` wird als `pageLabel \|\| null` gespeichert und liest sich bei leerem Wert als `null` zurück — in Logausgaben sonst als `"null"` sichtbar | `xpcom/data/item.js:2290` |
-| Der Pref `extensions.strictCompatibility` (`zotero.js:6`, `false`) ist irreführend: `XPIInstall.sys.mjs:507` setzt `addon.strictCompatibility` bei jedem Release-Build (ohne `-beta`/`-dev`/`SOURCE` in der Version) selbst auf `true` | `modules/addons/XPIInstall.sys.mjs:507` (Toolkit-omni.ja) |
+  Neue Fundstellen mit Zeile in `docs/anchors.md` eintragen und die Version nennen.
+
+- **Prototyp-Patches** nur mit `assignChecked` (`src/shared/patch.ts`): Ziel vorher prüfen, Ergebnis zurücklesen, Fehlschlag protokollieren, in `stop`/`removeFromWindow` zurücknehmen. Ein Patch braucht einen Nachweis (Test oder Quellstelle).
+- **Reine Logik nach `src/core`** (keine Zotero-Globals, Importe mit `.ts`-Endung) und dort mit einem Node-Test in `test-unit/` absichern.
+- **Zotero-Tests nur über `addon.api`** (siehe `src/hooks.ts`); Module nicht direkt importieren, sie brauchen das Global `ztoolkit`.
+- **Neue Features** als `Feature` (`src/shared/feature.ts`) in `src/hooks.ts` eintragen: Globales in `start`/`stop`, DOM in `addToWindow`/`removeFromWindow`, beides idempotent.
+- **Fensterzustand** gehört ans Element oder in eine `WeakMap` je Fenster, nicht ans Modulobjekt (`docs/architecture.md`, Fallstrick 11).
+- **Menüs:** `Zotero.MenuManager` über `src/utils/menu.ts`; für Annotationen im Item-Baum DOM, weil Zotero dort keine Plugin-Menüs anwendet (`docs/architecture.md`, Fallstrick 10).
+- **Urheberschaft:** Der Organizer basiert auf Lattice (birugit, AGPL-3.0-or-later). Lizenz- und Urheberhinweise erhalten, Herkunft in `NOTICE.md` pflegen. Keine Rechtsaussagen erfinden.
+- **Kein Push, kein Release, kein Tag** ohne ausdrücklichen Auftrag. Commits nur auf Anweisung, im Format Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).
 
 ## Konventionen
 
-- Zoteros [Coding Guidelines](https://www.zotero.org/support/dev/client_coding/coding_guidelines) gelten:
-  Tabs (Breite 4), Zeilen bis 100 Zeichen, `"use strict";` als erste Zeile jeder JS-Datei, Klammern auch um
-  einzeilige Blöcke, JSDoc mit `@param`/`@return`, private Member mit `_`-Präfix, `throw new Error()` statt
-  Strings.
-- Kommentare und Nutzertexte auf Deutsch; Bezeichner und Log-Ausgaben auf Englisch.
-- `docs/architecture.md` ist bewusst **englisch** — technische Referenz für die
-  Zotero-Community, ohne Projekt- oder Nutzerbezug. Nicht übersetzen.
-- Lokalisierung über Fluent, `en-US` und `de` gleichzeitig pflegen.
-- Jeder Patch an einer internen Zotero-Funktion braucht Feature-Detection und muss in
-  `shutdown()` zurückgenommen werden.
+- Kommentare, Nutzertexte und diese Datei auf Deutsch; Bezeichner und Log-Ausgaben auf Englisch. `docs/architecture.md` ist englisch (technische Referenz).
+- Lokalisierung: Fluent in `addon/locale/de` und `addon/locale/en-US` gleichzeitig pflegen; der Organizer hat seine Texte in `src/features/organizer/strings.ts`.
+- Format: Prettier (`package.json`, 80 Zeichen, 2 Leerzeichen). Vor dem Abschluss `npm run lint:check`.
+- Preference-Schlüssel liegen unter `extensions.flexannotate.` und sind für Nutzerdaten stabil; nicht umbenennen. Gleiches gilt für die Tags `#flexannotate-*`, `§Titel` und `★outline`.
+- `strict_max_version` im Manifest ist auf Zotero 10 Pflicht; bei einer neuen Hauptversion anheben und neu prüfen.
+- Doku im selben Änderungssatz wie der Code: `README.md`, `CHANGELOG.md`, bei Zotero-Interna `docs/anchors.md`.

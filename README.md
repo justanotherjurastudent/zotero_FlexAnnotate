@@ -1,381 +1,154 @@
-[![zotero target version](https://img.shields.io/badge/Zotero-10-green?style=flat-square&logo=zotero&logoColor=CC2936)](https://www.zotero.org)
 # FlexAnnotate
 
-**Sprache / Language: [🇩🇪 Deutsch](#deutsch) · [🇬🇧 English](#english)**
+**Sprache / Language: [Deutsch](#deutsch) · [English](#english)**
 
-Zotero-Plugin für drei Lücken im Arbeitsablauf mit gedruckten Quellen — Annotationen ohne
-Datei, Nur-Nachweis-Zitieren und der Citavi-Import von Zitaten ohne Anhang.
-A Zotero plugin that closes three gaps in the workflow with printed sources — annotations
-without a file, citation-only citing, and the Citavi import of citations without an
-attachment.
-
-Entwickelt und geprüft gegen **Zotero 10.0.1** / Developed and tested against
-**Zotero 10.0.1**.
-
----
+Zotero-Plugin für gedruckte Quellen: Annotationen ohne Datei, Nur-Nachweis-Zitieren, Citavi-Import und ein Organizer (Gliederung) für Annotationen. Version 2.0.0-dev.0, Zotero 7 bis 10 (entwickelt und getestet nur gegen Zotero 10.0.5).
 
 ## Deutsch
 
-Zotero-Plugin für drei Lücken im Arbeitsablauf mit gedruckten Quellen: Annotationen ohne
-Datei, Nur-Nachweis-Zitieren und der Citavi-Import von Zitaten ohne Anhang.
+### Inhalt
+
+[Wozu](#wozu) · [Funktionen](#funktionen) · [Installation](#installation) · [Bedienung](#bedienung) · [Einstellungen](#einstellungen) · [Daten und Kompatibilität](#daten-und-kompatibilität) · [Bekannte Punkte](#bekannte-punkte) · [Entwicklung](#entwicklung) · [Lizenz und Herkunft](#lizenz-und-herkunft)
 
 ### Wozu
 
-Zotero speichert Textstellen als Annotationen nur, wenn ein Dateianhang vorliegt — ein
-PDF, EPUB oder HTML-Snapshot. Eine Annotation ohne Datei-Elternteil lässt sich technisch
-nicht anlegen. Für Fächer, die überwiegend mit gedruckten Quellen arbeiten, entfällt
-damit ein zentraler Arbeitsschritt. Der Standardfall in den Rechtswissenschaften ist der
-Kommentar oder das Lehrbuch, das es als Buch gibt und nicht als PDF; zitiert wird nach
-Randnummer, Paragraph, Spalte oder Seite. Wer daraus zitiert, kann die Stelle nur als
-formlose Notiz ablegen: Sie erscheint nicht im Annotations-Tab und steht beim Zitieren in
-Word oder LibreOffice nicht als Textstelle zur Auswahl. Die Fundstelle wird bei jedem
-Beleg neu eingetippt.
+Zotero legt Annotationen nur unter einem Dateianhang (PDF, EPUB, Snapshot) ab. Wer mit gedruckten Büchern, Kommentaren oder Gesetzessammlungen arbeitet, hat dort keine Datei und kann Textstellen samt Seitenangabe nicht als Annotation festhalten. Außerdem setzt Zotero Annotationen in Word und LibreOffice immer mit Zitattext ein, und Zoteros Citavi-Import verwirft Zitate ohne PDF-Anker.
 
-Hinzu kommen zwei Punkte. Beim Einfügen einer Annotation schreibt Zotero stets den
-Zitattext samt Anführungszeichen mit — für einen reinen Fußnotennachweis („Autor, Werk,
-Rn. 12") zu viel, und das nachträgliche Löschen beschädigt leicht das Zotero-Feld. Und
-Zoteros Citavi-Importer übernimmt nur Zitate, die an einer PDF-Stelle verankert sind;
-alle übrigen verwirft er ersatzlos — bei einem Testexport 15 von 57 Zitaten.
-
-Das Plugin schließt diese drei Lücken:
-
-- Annotationen für Quellen ohne Datei, mit frei wählbarem Locator-Typ
-- Zitieren wahlweise nur mit Fundstelle, ohne Zitattext
-- Citavi-Import auch der nicht verankerten Zitate
-
-Gedacht für Jura, Geschichte, Theologie, Philologien und Altertumswissenschaften — und
-für Umsteiger von Citavi.
+FlexAnnotate füllt diese Lücken und bringt einen Organizer mit, der Annotationen in einer Gliederung ordnet (Wissensorganisation wie in Citavi). Seit 2.0.0 sind das frühere FlexAnnotate und Annotree ein einziges Plugin.
 
 ### Funktionen
 
-#### Print-Annotationen
+#### Gedruckte Quellen
 
-Annotationen mit manuell gepflegter Seitenangabe für Quellen **ohne** Dateianhang —
-Printbücher, Kommentare, Gesetzessammlungen. Rechtsklick auf einen Titel →
-*Print-Annotation hinzufügen…*; Seite, Locator-Typ, Zitat, Kommentar, Farbe und Typ
-eintragen. Bearbeiten und Löschen über das Kontextmenü, sowohl im Item-Baum als auch im
-Annotations-Bereich rechts.
-Die Annotationen lassen sich im Nachhinein auch mit Rechtsklick auf die Annotation bearbeiten oder löschen.
+- **Print-Annotationen:** Annotationen mit eigener Seitenangabe und wählbarem Locator (Seite, Randnummer, Absatz …) für Titel ohne Dateianhang. Technisch hängen sie an einem automatisch angelegten Platzhalter-Anhang. Bearbeiten und Löschen per Kontextmenü; Locator und Kommentar lassen sich auch an PDF-/EPUB-Annotationen im Reader ändern.
+- **Nur-Nachweis-Zitieren:** Beim Einfügen von Annotationen aus Word oder LibreOffice wahlweise nur die Zitation mit Fundstelle, ohne Zitattext. Umschaltbar im Zitierdialog („Einfügen als“) und in den Einstellungen.
+- **Citavi-Import:** Zitate ohne Dateianhang, die Zoteros Importer verwirft, werden als Print-Annotationen angelegt. Beiträge werden mit ihrem Hauptwerk verknüpft.
 
-Die Annotationen verhalten sich anschließend wie gewöhnliche Zotero-Annotationen: sie
-erscheinen im Annotations-Tab, lassen sich durchsuchen und taggen und sind im
-Word-/LibreOffice-Dialog „Anmerkung hinzufügen" auswählbar.
-<img width="619" height="393" alt="image" src="https://github.com/user-attachments/assets/acc79329-b4ab-47b4-a478-ddc07fd89309" />
-<img width="1273" height="155" alt="image" src="https://github.com/user-attachments/assets/c7e1dcd2-bd16-4819-b6ab-52d47db0f59f" />
+#### Organizer
 
+- **Gliederung:** Überschriften (beliebig verschachtelt, Dezimalnummern nur zur Anzeige) ordnen Annotationen und Werke per Drag and Drop oder Zuweisungsleiste. Tabs „Wissen“ (Annotationen) und „Titel“ (Werke), Auswahl der Sammlung, Bearbeiten von Zitattext, Kommentar, Zitatstelle und Locator, Tastaturbedienung.
+- **Zitierdialog-Ansicht:** Im Zitierdialog aus Word zeigt die Option „Nach Gliederung anordnen (FlexAnnotate)“ drei Spalten: Überschriften mit Anzahl, Annotationen, Vorschau. Ein grüner Haken markiert bereits zitierte Annotationen.
+- **Export:** „Als Notiz exportieren“ legt eine Zotero-Notiz mit der Gliederung und den zugeordneten Zitaten an. „Zitatstelle öffnen“ springt zur Annotation im Reader.
 
-#### Native Annotationen (PDF, EPUB, Snapshot)
-
-- **Locator im Reader:**
-  - Im Seitenzahl-Popup des Readers (*Seitenzahl bearbeiten…*) kann der Locator-Typ (Seite, Randnummer, Absatz, Paragraf …) direkt ausgewählt werden.
-  - Das Popup wählt standardmäßig *„Diese Annotation“* vor und sperrt irrelevante lineare Zählmodi (*„Diese Seite und folgende Seiten“*, *„Alle Seiten“*) für Nicht-Seitenzahlen (z. B. Randnummern), um ungewolltes automatisches Weiterschalten zu verhindern.
-  - Zoteros native Checkbox *„Automatisch erkennen“* wird bei Randnummern ausgeblendet, damit die Zählung nicht versehentlich auf physische PDF-Seitenzahlen zurückgesetzt wird.
-  - Mit *„Diesen Locator künftig für dieses Dokument verwenden“* erhalten künftig neu erstellte Annotationen dieses Dokuments automatisch den gewählten Standard. Bereits bestehende Annotationen bleiben unverändert erhalten.
-  - Die Seitenleiste des Readers zeigt den gewählten Locator automatisch an (z. B. *„Randnummer 284“* statt *„Seite 284“*).
-- **Kontextmenü im Reader:**
-  - Rechtsklick auf eine Annotation im Dokument oder in der Seitenleiste → *Locator festlegen…* bzw. *Kommentar hinzufügen… / Kommentar bearbeiten…*.
-- **Tastaturnavigation & kompaktes Bearbeitungsfenster:**
-  - Das Bearbeitungsfenster ist im Locator-Modus schlank und kompakt gestaltet (320 px).
-  - Volle Tastatursteuerung: `Tab` und `Shift+Tab` navigieren durch die Eingabefelder (Locator, Nummer, Checkbox, Buttons); `Enter` speichert und schließt das Fenster sofort aus jedem Feld heraus; `Escape` bricht ab.
-- **Bearbeiten aus der Literaturübersicht:**
-  - Rechtsklick auf eine beliebige Annotation im Item-Baum (oder im Annotations-Bereich rechts) → *Annotation bearbeiten…* öffnet die Maske direkt, ohne dass das Dokument geöffnet werden muss.
-- Der Locator-Typ liegt als automatischer Tag (`#flexannotate-locator-…` an der Annotation, `#flexannotate-default-locator-…` am Anhang) und wird beim Nur-Nachweis-Zitieren verwendet.
-- Kontextmenü-Einträge im Hauptfenster besitzen passende Symbole (*Hinzufügen*, *Bearbeiten*, *Löschen*). Der Reader baut sein Menü selbst und unterstützt dort keine Icons.
-
-#### Nur-Nachweis-Zitieren
-
-Beim Einfügen von Annotationen in Word oder LibreOffice wahlweise **nur die Zitation mit
-Fundstelle** — ohne Zitattext und Kommentar. Umschaltbar direkt im Zitationsdialog
-(„Einfügen als"), voreingestellt über die Zotero-Einstellungen.
-<img width="796" height="177" alt="image" src="https://github.com/user-attachments/assets/64b45262-7d9e-4a52-b3cc-26527489cd73" />
-
-
-#### Citavi-Import
-
-Zoteros Citavi-Import übernimmt nur Zitate, die an einer PDF-Stelle hängen; alle übrigen
-verwirft er. FlexAnnotate legt für diese Print-Annotationen an — mit Fundstelle,
-Zitattyp-Farbe und Schlagwörtern. Auf Wunsch bleibt die Notiz, die Zotero zu demselben
-Zitat anlegt, erhalten.
-
-Zusätzlich verknüpft FlexAnnotate Beiträge (in Sammelwerken, Gesetzeskommentaren,
-Tagungsbänden) automatisch mit ihrem übergeordneten Hauptwerk und untereinander als
-Zotero-„Verwandte" — eine Zuordnung, die Zoteros eigener Übersetzer verwirft.
-
-### Plattformen
-
-Überall dort, wo Zotero 7 oder 10 läuft: **Windows, macOS** (Intel und Apple Silicon)
-**und Linux**. Das Plugin besteht ausschließlich aus JavaScript und XUL, enthält keinen
-plattformabhängigen Code und legt Dateien nur über Zoteros eigene Wege an
-(`Zotero.getTempDirectory()`, `PathUtils.join()`).
-
-Zwei Einschränkungen kommen nicht vom Plugin, sondern von Zotero:
-
-- **Zotero für iOS und Android** kennt überhaupt keine Plugins. Die Print-Annotationen
-  synchronisieren dorthin trotzdem — sie sind gewöhnliche Zotero-Annotationen; nur
-  Anlegen und Bearbeiten geht dort nicht.
-- **Nur-Nachweis-Zitieren** setzt eines der Textverarbeitungs-Plugins voraus: Word gibt
-  es für Windows und macOS, LibreOffice für alle drei Systeme.
-
-Nur die Skripte unter `tools/` sind PowerShell — sie werden zum Bauen gebraucht, nicht
-zum Benutzen.
-
-### Sprachen
-
-Die Oberfläche liegt auf **Deutsch** und **Englisch** vor. Die Sprache folgt der
-Einstellung von Zotero (*Bearbeiten → Einstellungen → Allgemein → Sprache*); für jede
-andere Sprache greift Englisch. Zotero registriert die Fluent-Dateien unter
-`src/locale/<locale>/flexannotate.ftl` selbst — eine weitere Sprache braucht nur einen
-neuen Ordner mit denselben IDs.
+Die Dateien in `doc/` stammen aus der Dokumentation von Lattice und zeigen nicht mehr den heutigen Stand (u. a. die entfernte Ideen-Ebene); sie sind deshalb hier nicht eingebunden.
 
 ### Installation
 
-Fertiges XPI aus den [Releases](https://github.com/justanotherjurastudent/zotero_flexAnnotations/releases)
-laden, dann in Zotero: *Werkzeuge → Plugins → Zahnrad → Add-on aus Datei installieren…*
+Fertiges XPI: [Releases](https://github.com/justanotherjurastudent/zotero_flexAnnotations/releases) (2.0.0 ist noch nicht veröffentlicht). In Zotero: _Werkzeuge → Plugins → Zahnrad → Plugin aus Datei installieren…_.
 
-Selbst bauen:
+Selbst bauen (Node.js 24 wurde verwendet):
 
-```powershell
-powershell -File tools/build.ps1     # -> build/flexannotate.xpi
+```bash
+npm install
+npm run build     # -> .scaffold/build/flex-annotate.xpi
 ```
+
+Zotero muss mindestens Version 7.0 haben (Manifest); die Menüs nutzen `Zotero.MenuManager` und brauchen eine entsprechend neue Version, siehe [Bekannte Punkte](#bekannte-punkte).
+
+### Bedienung
+
+| Wo                                                | Was                                                                                |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Rechtsklick auf einen Titel                       | _Print-Annotation hinzufügen…_                                                     |
+| Rechtsklick auf eine Annotation (Item-Baum)       | _Annotation bearbeiten…_, bei Print-Annotationen auch _Print-Annotation löschen_   |
+| Rechtsklick auf eine Annotation (rechter Bereich) | dieselben Einträge                                                                 |
+| Reader: Rechtsklick auf eine Annotation           | _Kommentar hinzufügen…/bearbeiten…_, _Locator festlegen…_                          |
+| Reader: Seitenzahl bearbeiten                     | Locator-Auswahl und „Diesen Locator künftig für dieses Dokument verwenden“         |
+| Toolbar-Button oben rechts, neben dem Sync-Button | öffnet den Organizer                                                               |
+| _Werkzeuge → FlexAnnotate: Organizer_             | öffnet den Organizer                                                               |
+| Zitierdialog aus Word/LibreOffice                 | „Einfügen als“ (Vollnachweis / Nur Nachweis); im Annotationsbereich die Gliederung |
+| _Bearbeiten → Einstellungen → FlexAnnotate_       | Einstellungen                                                                      |
 
 ### Einstellungen
 
-*Bearbeiten → Einstellungen → FlexAnnotate*
+Schlüssel liegen unter `extensions.flexannotate.`.
 
-| Einstellung | Standard | Wirkung |
-|---|---|---|
-| Standardmäßig nur den Nachweis einfügen | aus | Annotationen werden als reine Zitation mit Fundstelle eingefügt |
-| Leere Platzhalter-Anhänge behalten | aus | Platzhalter bleibt bestehen, auch wenn keine Annotation mehr daran hängt |
-| Zitate ohne Dateianhang als Print-Annotationen übernehmen | **an** | Citavi-Import: Zitate, die Zotero verwirft, werden übernommen |
-| Notiz zum Zitat behalten | aus | Citavi-Import: die zusätzliche Notiz zum übernommenen Zitat bleibt stehen |
-| Beiträge mit ihrem Hauptwerk verknüpfen | **an** | Citavi-Import: verknüpft Beiträge mit dem Hauptwerk und untereinander als Zotero-„Verwandte" |
-| Fundstellen zitieren als | Seite → Seite, Spalte → Spalte, Paragraph → Absatz, Randnummer → Absatz, Andere → Seite | Citavi-Import: welcher CSL-Locator je Citavi-Seitentyp gesetzt wird |
+| Option                                                                       | Wirkung                                                                  | Standard                                                                               |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| Standardmäßig nur den Nachweis einfügen (`citationOnly`)                     | Annotationen werden nur als Zitation mit Seitenangabe eingefügt          | aus                                                                                    |
+| Leere Platzhalter-Anhänge behalten (`keepEmptyPlaceholders`)                 | Platzhalter bleibt, auch wenn keine Annotation mehr daran hängt          | aus                                                                                    |
+| Werke hinter den Annotationen mitanzeigen (`showWorksInAnnotationView`)      | Organizer: Annotationsansicht zeigt auch die Werke                       | aus                                                                                    |
+| Zitate ohne Dateianhang als Print-Annotationen übernehmen (`citaviImport`)   | Citavi-Import legt Print-Annotationen für Zitate an, die Zotero verwirft | an                                                                                     |
+| Notiz zum Zitat behalten (`citaviKeepNotes`)                                 | Aus: die Notiz, die Zoteros Übersetzer zum Zitat anlegt, wird entfernt   | aus                                                                                    |
+| Beiträge mit ihrem Hauptwerk verknüpfen (`citaviLinkContributions`)          | Citavi-Import legt „Verwandte“-Verknüpfungen an                          | an                                                                                     |
+| Fundstellen zitieren als (`citaviLocatorPage/Column/Paragraph/Margin/Other`) | CSL-Locator je Citavi-Seitentyp                                          | Seite: page, Spalte: column, Paragraph: paragraph, Randnummer: paragraph, Andere: page |
+
+Intern, ohne Oberfläche: `dialogOutlineView` (Zustand der Gliederungsoption im Zitierdialog), `citedAnnotations` (zitierte Annotationen je Dokument).
+
+### Daten und Kompatibilität
+
+Nutzerdaten der Version 1.x gelten unverändert weiter; die Preference-Schlüssel `extensions.flexannotate.*` sind gleich geblieben.
+
+- `#flexannotate-locator-<typ>`: Locator-Typ einer Annotation (automatischer Tag; bei „Seite“ ohne abweichenden Dokument-Standard kein Tag).
+- `#flexannotate-default-locator-<typ>`: Standard-Locator eines Anhangs für künftige Annotationen.
+- `#flexannotate-placeholder`: kennzeichnet den Platzhalter-Anhang der Print-Annotationen.
+- `§Titel`: Überschrift der Gliederung als Tag an zugeordneten Annotationen und Werken (Lattice-kompatibel).
+- `★outline` und `LATTICE-OUTLINE-V1`: Notiz mit dem Gliederungsbaum als JSON (Lattice-kompatibel).
+
+Die alte Version 1.2.0 ist über den Git-Tag `pre-merge` erreichbar.
+
+### Bekannte Punkte
+
+- Citavi-Import: Die Schlagwort-Zuordnung nutzt einen Präfix-Vergleich (K1 kann K10 treffen). Verhalten der alten Version, unverändert.
+- Citavi-Import prüft keine Duplikate: ein zweiter Import desselben Exports legt Print-Annotationen erneut an.
+- Das Seitenformat `PageRange` (`<os>`/`<nt>`) ist nur gegen synthetische Fixtures getestet.
+- Reader-Popup, Reader-Menü sowie Toolbar- und Menü-Icons im Dark Mode sind nur per Code-Review geprüft, nicht visuell und nicht automatisch.
+- Das Toolbar-Icon ist 16 px groß; Zoteros eigene Icons sind 20 px.
+- Die Mindestversion Zotero 7.0 im Manifest ist nicht getestet. Getestet wurde nur gegen Zotero 10.0.5; die `MenuManager`-basierten Menüs erfordern eine neuere Zotero-Version als 7.0.
+- Bearbeiten und Löschen für Annotationen im Item-Baum laufen über DOM, nicht über `MenuManager`: Zotero wendet bei Annotationsauswahl keine Plugin-Menüs an (`zoteroPane.js:4680` in 10.0.5).
+- Nicht automatisch getestet: Reader-Fenster, ein echter Word-Lauf, der echte Citavi-Translator (siehe [docs/testing.md](docs/testing.md)).
 
 ### Entwicklung
 
-```powershell
-# Proxy-Datei ins Zotero-Profil (Zotero vorher schließen); lädt direkt aus src/
-powershell -File tools/install-dev.ps1
-powershell -File tools/install-dev.ps1 -Remove
+Befehle, Aufbau und Regeln: [AGENTS.md](AGENTS.md). Dazu [docs/architecture.md](docs/architecture.md) (Aufbau, Datenmodell, Fallstricke), [docs/testing.md](docs/testing.md), [docs/anchors.md](docs/anchors.md) (verwendete Zotero-Interna) und [CHANGELOG.md](CHANGELOG.md).
 
-# Zotero mit Debug-Ausgabe starten
-& "$env:LOCALAPPDATA\Zotero\zotero.exe" -purgecaches -ZoteroDebugText
-```
+### Lizenz und Herkunft
 
-Kein npm, kein TypeScript — das Plugin folgt dem offiziellen Beispiel
-`zotero/make-it-red` und kommt ohne Abhängigkeiten aus.
-
-- [`docs/architecture.md`](docs/architecture.md) — technische Referenz: Aufbau,
-  Ablauflogik, Datenmodell und die heiklen Stellen in Zoteros Interna (englisch)
-- [`AGENTS.md`](AGENTS.md) — Arbeitsregeln und belegte Befunde zur Zotero-API
-- [`docs/plan.md`](docs/plan.md) — ursprüngliche Spezifikation
-
-#### Release
-
-`version` in `src/manifest.json` **und** in `updates.json` anheben — Zotero prüft
-`update_url` gegen `updates.json`, eine veraltete Datei bietet kein Update an. Dann
-`tools/build.ps1` laufen lassen und `build/flexannotate.xpi` an ein Release
-`v<version>` hängen; der `update_link` in `updates.json` zeigt genau dorthin.
-
-Die Manifest-Datei des Plugins ist `src/manifest.json`; sie wird beim Bauen ins XPI
-gepackt. Der Zotero-Add-on-Scraper
-([`syt2/zotero-addons-scraper`](https://github.com/syt2/zotero-addons-scraper)) liest
-daraus `id`, `version`, `name`, `description` sowie `strict_min_version` /
-`strict_max_version` und findet das XPI über das Release-Asset `flexannotate.xpi`.
-
-### Kompatibilität
-
-Das Manifest **muss** ein `strict_max_version` setzen. Fehlt das Feld, verwirft Zotero 10
-das Plugin beim Parsen und meldet nichts — es erscheint weder in der Plugin-Liste noch im
-Log. Bei einer neuen Zotero-Hauptversion ist der Wert anzuheben.
-
-Das Plugin patcht interne Zotero-Funktionen. Jeder Patch prüft vorher, ob es sein Ziel
-gibt, und danach, ob er wirklich sitzt. Schlägt einer fehl, deaktiviert sich die
-betroffene Funktion still und schreibt eine Warnung ins Debug-Log — die übrigen
-Funktionen und Zotero selbst bleiben unberührt.
-
-### Lizenz
-
-[AGPL-3.0-or-later](LICENSE) — dieselbe Lizenz wie Zotero selbst.
+[AGPL-3.0-or-later](LICENSE). Der Organizer basiert auf [Lattice](https://github.com/birugit/zotero-grounded-qa) von birugit (AGPL-3.0-or-later); die Print-Annotationen, das Nur-Nachweis-Zitieren und der Citavi-Import stammen vom Projektautor. Einzelheiten: [NOTICE.md](NOTICE.md).
 
 ---
 
 ## English
 
-A Zotero plugin for three gaps in the workflow with printed sources: annotations without
-a file, citation-only citing, and the Citavi import of citations without an attachment.
+### Contents
 
-### Why
+[Purpose](#purpose) · [Features](#features) · [Install](#install) · [Where to find things](#where-to-find-things) · [Settings and data](#settings-and-data) · [Known issues](#known-issues) · [Development and license](#development-and-license)
 
-Zotero stores passages as annotations only when a file attachment is present — a PDF,
-EPUB, or HTML snapshot. An annotation without a file parent cannot be created at all. For
-disciplines that work mostly with printed sources, this removes a central step. The
-typical case in law is the commentary or textbook that exists as a book, not as a PDF;
-citations reference a margin number, section, column, or page. Anyone citing from it can
-only file the passage as a free-form note: it does not appear in the annotations tab and
-is not offered as a passage when citing in Word or LibreOffice. The pinpoint gets retyped
-for every reference.
+### Purpose
 
-Two more points. When inserting an annotation, Zotero always writes the quoted text along
-with quotation marks — too much for a plain footnote reference ("Author, Work, para. 12"),
-and deleting it afterwards easily damages the Zotero field. And Zotero's Citavi importer
-only takes citations anchored to a spot in a PDF; it discards all others without
-replacement — 15 of 57 citations in one test export.
-
-The plugin closes these three gaps:
-
-- Annotations for sources without a file, with a freely chosen locator type
-- Citing optionally with the pinpoint only, without the quoted text
-- Citavi import of the non-anchored citations too
-
-Intended for law, history, theology, philology, and classics — and for people switching
-from Citavi.
+Zotero stores annotations only under a file attachment, so printed books, commentaries and statute collections cannot hold annotations with a page reference. Zotero also always inserts annotations into Word and LibreOffice with their quoted text, and its Citavi import discards quotes without a PDF anchor. FlexAnnotate closes these gaps and adds an organizer that files annotations under an outline. Since 2.0.0, the former FlexAnnotate and Annotree are one plugin.
 
 ### Features
 
-#### Print annotations
+**Printed sources**
 
-Annotations with a manually maintained page reference for sources **without** a file
-attachment — printed books, commentaries, statute collections. Right-click a title →
-*Add print annotation…*; enter page, locator type, quote, comment, color, and type. Edit
-and delete via the context menu, both in the item tree and in the annotations pane on the
-right.
-Annotations can be edited and deleted afterwards by right-click on the annotation.
+- Print annotations: annotations with a manual page reference and selectable locator on items without a file. They hang under an automatically created placeholder attachment.
+- Citation-only insertion: insert only the citation with its pinpoint from Word or LibreOffice (toggle in the citation dialog and in the settings).
+- Citavi import: quotes without a file attachment become print annotations; contributions are linked to their parent work.
 
-The annotations then behave like ordinary Zotero annotations: they appear in the
-annotations tab, can be searched and tagged, and are selectable in the Word/LibreOffice
-"Add note" dialog.
-<img width="619" height="393" alt="image" src="https://github.com/user-attachments/assets/acc79329-b4ab-47b4-a478-ddc07fd89309" />
-<img width="1273" height="155" alt="image" src="https://github.com/user-attachments/assets/c7e1dcd2-bd16-4819-b6ab-52d47db0f59f" />
+**Organizer**
 
-#### Native annotations (PDF, EPUB, snapshot)
+- Outline: headings (tags `§Title`) file annotations and works by drag and drop; export as a Zotero note.
+- Citation dialog view: option "Nach Gliederung anordnen (FlexAnnotate)" in the annotations view of the dialog opened from Word, with a green check for already cited annotations.
 
-- **Locator in the reader:**
-  - The reader's page-number popup (*Edit Page Number…*) directly includes locator selection (page, margin/randnummer, paragraph, section …).
-  - Defaults to *“This annotation”* and disables linear page-offset options (*“This page and later pages”*, *“All pages”*) for non-page locators to prevent unwanted renumbering.
-  - Hides Zotero's native *“Auto-detect”* checkbox when non-page locators are active so numbers are never accidentally overwritten with physical PDF page numbers.
-  - Ticking *“Use this locator by default for this document”* sets the default for future annotations on that document without retroactively modifying existing ones.
-  - The reader sidebar dynamically displays the active locator label (e.g. *“Margin 284”* instead of *“Page 284”*).
-- **Context menu in the reader:**
-  - Right-click an annotation in the reader → *Set Locator…* or *Add Comment… / Edit Comment…*.
-- **Keyboard navigation & compact dialog:**
-  - Slim dialog layout (optimized to 320 px in locator mode).
-  - Full keyboard accessibility: `Tab` / `Shift+Tab` cycles through controls (locator dropdown, number field, checkbox, buttons); `Enter` saves immediately from any field; `Escape` cancels.
-- **Edit from the library view:**
-  - Right-click an annotation in the library item tree (or in the annotations pane) → *Edit Annotation…* opens the editor directly without opening the reader.
-- The locator type is stored as an automatic tag (`#flexannotate-locator-…` on the annotation, `#flexannotate-default-locator-…` on the attachment) and is used when citing in citation-only mode.
-- Context menu entries in the main window feature matching icons (*Add*, *Edit*, *Delete*). The reader builds its own menu and does not support third-party icons there.
+### Install
 
-#### Citation-only citing
+Download the XPI from [Releases](https://github.com/justanotherjurastudent/zotero_flexAnnotations/releases) (2.0.0 is not released yet) or build it with `npm install && npm run build` (`.scaffold/build/flex-annotate.xpi`). Install it via _Tools → Plugins → gear → Install Plugin From File…_.
 
-When inserting annotations into Word or LibreOffice, optionally **only the citation with
-the pinpoint** — without the quoted text and comment. Toggled directly in the citation
-dialog ("Insert as"), with a default set in the Zotero preferences.
-<img width="796" height="177" alt="image" src="https://github.com/user-attachments/assets/64b45262-7d9e-4a52-b3cc-26527489cd73" />
+### Where to find things
 
-#### Citavi import
+- Right-click an item: _Add print annotation…_; right-click an annotation: _Edit annotation…_ (print annotations also _Delete_).
+- Organizer: toolbar button next to the Sync button, or _Tools → FlexAnnotate: Organizer_.
+- Settings: _Edit → Settings → FlexAnnotate_ (preference keys `extensions.flexannotate.*`).
 
-Zotero's Citavi import only takes citations attached to a spot in a PDF; it discards all
-others. FlexAnnotate creates print annotations for them — with the pinpoint, citation-type
-color, and tags. Optionally, the note Zotero creates for the same citation is kept.
+### Settings and data
 
-Additionally, FlexAnnotate automatically links contributions (in edited books, legal
-commentaries, conference proceedings) to their parent work and among siblings as Zotero
-"Related" items — a relationship that Zotero's native importer ignores.
+The settings table above applies (German UI labels; the English UI uses the same options). Data created by 1.x keeps working unchanged: tags `#flexannotate-locator-<type>`, `#flexannotate-default-locator-<type>`, `#flexannotate-placeholder`, and the Lattice-compatible `§Title` tags and `★outline` note (`LATTICE-OUTLINE-V1`). Version 1.2.0 is available at the Git tag `pre-merge`.
 
-### Platforms
+### Known issues
 
-Everywhere Zotero 7 or 10 runs: **Windows, macOS** (Intel and Apple Silicon) **and
-Linux**. The plugin consists solely of JavaScript and XUL, contains no
-platform-dependent code, and creates files only through Zotero's own mechanisms
-(`Zotero.getTempDirectory()`, `PathUtils.join()`).
+See the German list above. In short: the Citavi keyword match is prefix-based, the Citavi import does not detect duplicates, the minimum Zotero version 7.0 in the manifest is untested (only 10.0.5 was tested), and dark-mode icons and the reader popup were reviewed in code only.
 
-Two limitations come from Zotero, not from the plugin:
+### Development and license
 
-- **Zotero for iOS and Android** does not support plugins at all. The print annotations
-  still sync there — they are ordinary Zotero annotations; only creating and editing them
-  is not possible there.
-- **Citation-only citing** requires one of the word-processor plugins: Word is available
-  for Windows and macOS, LibreOffice for all three systems.
-
-Only the scripts under `tools/` are PowerShell — they are needed for building, not for
-using the plugin.
-
-### Languages
-
-The interface is available in **German** and **English**. The language follows Zotero's
-setting (*Edit → Preferences → General → Language*); any other language falls back to
-English. Zotero registers the Fluent files under `src/locale/<locale>/flexannotate.ftl`
-itself — another language only needs a new folder with the same IDs.
-
-### Installation
-
-Download the built XPI from the
-[Releases](https://github.com/justanotherjurastudent/zotero_flexAnnotations/releases),
-then in Zotero: *Tools → Plugins → gear icon → Install Add-on From File…*
-
-Build it yourself:
-
-```powershell
-powershell -File tools/build.ps1     # -> build/flexannotate.xpi
-```
-
-### Preferences
-
-*Edit → Preferences → FlexAnnotate*
-
-| Preference | Default | Effect |
-|---|---|---|
-| Insert the pinpoint only by default | off | Annotations are inserted as a plain citation with the pinpoint |
-| Keep empty placeholder attachments | off | The placeholder stays even when no annotation is attached to it any more |
-| Import citations without a file attachment as print annotations | **on** | Citavi import: citations Zotero discards are imported |
-| Keep the note for the citation | off | Citavi import: the extra note for the imported citation is kept |
-| Link contributions to their parent work | **on** | Citavi import: links contributions to their parent work and among siblings as Zotero "Related" items |
-| Cite pinpoints as | Page → page, Column → column, Paragraph → paragraph, Margin number → paragraph, Other → page | Citavi import: which CSL locator is set per Citavi page type |
-
-### Development
-
-```powershell
-# Proxy file into the Zotero profile (close Zotero first); loads straight from src/
-powershell -File tools/install-dev.ps1
-powershell -File tools/install-dev.ps1 -Remove
-
-# Start Zotero with debug output
-& "$env:LOCALAPPDATA\Zotero\zotero.exe" -purgecaches -ZoteroDebugText
-```
-
-No npm, no TypeScript — the plugin follows the official `zotero/make-it-red` example and
-has no dependencies.
-
-- [`docs/architecture.md`](docs/architecture.md) — technical reference: structure, control
-  flow, data model, and the delicate spots in Zotero's internals (English)
-- [`AGENTS.md`](AGENTS.md) — working rules and verified findings on the Zotero API
-- [`docs/plan.md`](docs/plan.md) — original specification
-
-#### Release
-
-Bump `version` in `src/manifest.json` **and** in `updates.json` — Zotero checks
-`update_url` against `updates.json`, and a stale file offers no update. Then run
-`tools/build.ps1` and attach `build/flexannotate.xpi` to a release `v<version>`; the
-`update_link` in `updates.json` points exactly there.
-
-The plugin's manifest file is `src/manifest.json`; it is packed into the XPI at build
-time. The Zotero add-on scraper
-([`syt2/zotero-addons-scraper`](https://github.com/syt2/zotero-addons-scraper)) reads
-`id`, `version`, `name`, `description`, and `strict_min_version` / `strict_max_version`
-from it, and finds the XPI through the release asset `flexannotate.xpi`.
-
-### Compatibility
-
-The manifest **must** set a `strict_max_version`. Without the field, Zotero 10 discards
-the plugin while parsing and reports nothing — it appears neither in the plugin list nor
-in the log. Raise the value for a new major Zotero version.
-
-The plugin patches internal Zotero functions. Each patch first checks that its target
-exists and afterwards that it actually took. If one fails, the affected feature disables
-itself silently and writes a warning to the debug log — the other features and Zotero
-itself are unaffected.
-
-### License
-
-[AGPL-3.0-or-later](LICENSE) — the same license as Zotero itself.
+See [AGENTS.md](AGENTS.md) and [docs/](docs/). AGPL-3.0-or-later; the organizer is based on Lattice by birugit, see [NOTICE.md](NOTICE.md).

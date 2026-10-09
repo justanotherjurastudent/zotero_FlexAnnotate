@@ -6,8 +6,6 @@ export type FluentMessageId =
   | 'add-print-annotation'
   | 'annotation-delete'
   | 'annotation-edit'
-  | 'annotations-menu-label'
-  | 'annotations-window-title'
   | 'button-cancel'
   | 'button-save'
   | 'dialog-mode-citation'

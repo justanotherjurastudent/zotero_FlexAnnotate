@@ -2,6 +2,36 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach [SemVer](https://semver.org/). Der Changelog des Ursprungsprojekts Lattice liegt unverändert in [`docs/lattice-changelog.md`](docs/lattice-changelog.md).
 
+## 2.0.0 (unreleased)
+
+**Merged: Annotree is now part of FlexAnnotate.** Ein einziges TypeScript-Plugin (zotero-plugin-scaffold) ersetzt das Vanilla-JS-FlexAnnotate 1.2.0 (Git-Tag `pre-merge`) und Annotree. Entwickelt und getestet nur gegen Zotero 10.0.5.
+
+### Added
+
+- Organizer (Gliederung, Zitierdialog-Ansicht, Notiz-Export) aus Annotree als Teil von FlexAnnotate.
+- Toolbar-Button oben rechts neben dem Sync-Button, der den Organizer öffnet; Eintrag _Werkzeuge → FlexAnnotate: Organizer_.
+- Icons in den Menüs (Hinzufügen, Bearbeiten, Löschen, Organizer).
+- Neue Struktur: `src/core` (reine Logik), `src/shared`, `src/features/{print,citeOnly,citavi,reader,organizer}`; 119 Node-Unit-Tests und 50 Zotero-Tests.
+
+### Changed
+
+- Ein gemeinsames Einstellungsfenster _FlexAnnotate_ statt zweier getrennter.
+- Zitierdialog: ein gemeinsamer Fenster-Watcher mit Injectoren für Modus-Auswahl und Gliederungsansicht.
+- Menüs über `Zotero.MenuManager`; Bearbeiten/Löschen für Annotationen im Item-Baum bleiben DOM-basiert, weil Zotero bei Annotationsauswahl keine Plugin-Menüs anwendet.
+- Dokumentation (`README.md`, `docs/`, `AGENTS.md`) neu gefasst und gekürzt.
+
+### Removed
+
+- Startup-Popup.
+- Annotree-Fallback-Tag `annotree:locator=<typ>`: Annotree wurde nie veröffentlicht, es gibt keine Daten, die ihn brauchen.
+- Der Build mit PowerShell-Skripten (`tools/`); gebaut wird mit `npm run build`.
+
+### Migration
+
+- Preference-Schlüssel `extensions.flexannotate.*` sind unverändert; Nutzerdaten von 1.x (Tags `#flexannotate-locator-<typ>`, `#flexannotate-default-locator-<typ>`, `#flexannotate-placeholder`, Platzhalter-Anhänge, Print-Annotationen) gelten weiter.
+- Gliederungsdaten (`§Titel`, Notiz `★outline` mit `LATTICE-OUTLINE-V1`) bleiben mit Lattice kompatibel.
+- Bekannte Einschränkungen: siehe README, Abschnitt „Bekannte Punkte“ (u. a. Mindestversion Zotero 7.0 nicht getestet).
+
 ## [0.2.4] – 2026-10-06
 
 ### Hinzugefügt

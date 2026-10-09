@@ -1,4 +1,3 @@
-annotations-window-title = FlexAnnotate: Alle Annotationen
 outline-window-title = FlexAnnotate: Organizer
 
 # Titel des Platzhalter-Anhangs, unter dem die Print-Annotationen hängen

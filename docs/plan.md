@@ -1,12 +1,10 @@
 # Entwicklungsplan: Zotero-Plugin „FlexAnnotate" (Arbeitstitel)
 
-> **Historisches Dokument — der ursprüngliche Plan, nicht der Ist-Zustand.**
-> Geschrieben für Zotero 7 und vor der Umsetzung. Überholt sind insbesondere: der
-> npm-/TypeScript-Aufbau (das Plugin kommt ohne Abhängigkeiten aus), der Einhängepunkt
-> für Feature B (`insertAnnotations` existiert nicht, siehe `src/integrationPatch.js`),
-> der Per-Klick-Override über eine Modifier-Taste (ersetzt durch das Auswahlfeld
-> „Einfügen als" im Zitationsdialog) und der Citavi-Import, den der Plan noch nicht kennt.
-> Verbindlich sind [`architecture.md`](architecture.md) und [`../README.md`](../README.md).
+> **Historisch - Stand 1.x, nicht mehr gepflegt.**
+> Dies ist die ursprüngliche Spezifikation für Zotero 7, geschrieben vor der Umsetzung und vor
+> der Verschmelzung mit Annotree (2.0.0). Sie beschreibt weder den heutigen Aufbau noch den
+> heutigen Funktionsumfang. Aktuell gilt [`architecture.md`](architecture.md); für die
+> Bedienung [`../README.md`](../README.md).
 
 > Dieses Dokument dient als Arbeits- und Task-Spezifikation für einen Coding-Agenten (Codex).
 > Zielgruppe: Agent mit vollem Dateisystem-Zugriff auf dieses Repo; Zotero wird lokal installiert betrieben.
@@ -32,25 +30,27 @@ Nicht-Ziele: kein eigenes Zitations-Layout, kein Fork von Zotero, keine Änderun
 
 Vor Implementierung diese Dateien im Repo `zotero/zotero` lesen (nur lesen, nicht ändern):
 
-| Pfad | Relevanz |
-|---|---|
-| `chrome/content/zotero/xpcom/annotations.js` | Annotationen-Datenmodell, Felder wie `annotationPageLabel`, `annotationText`, `annotationColor`, `annotationType`, `annotationSortIndex` |
-| `chrome/content/zotero/xpcom/data/item.js` / `items.js` | Anlegen von Items (`new Zotero.Item('annotation')`), Parent-Beziehung |
-| `chrome/content/zotero/integration.js` | Session-Logik, Einfügen von Annotationen (`insertAnnotations` bzw. äquivalente Methode in aktueller Version), `addNote`-Befehl |
-| `chrome/content/zotero/elements/annotationRow.js` | Darstellung im Annotations-Tab |
-| `chrome/content/zotero/xpcom/reader.js` | Öffnen von Annotationen im Reader |
+| Pfad                                                    | Relevanz                                                                                                                                 |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `chrome/content/zotero/xpcom/annotations.js`            | Annotationen-Datenmodell, Felder wie `annotationPageLabel`, `annotationText`, `annotationColor`, `annotationType`, `annotationSortIndex` |
+| `chrome/content/zotero/xpcom/data/item.js` / `items.js` | Anlegen von Items (`new Zotero.Item('annotation')`), Parent-Beziehung                                                                    |
+| `chrome/content/zotero/integration.js`                  | Session-Logik, Einfügen von Annotationen (`insertAnnotations` bzw. äquivalente Methode in aktueller Version), `addNote`-Befehl           |
+| `chrome/content/zotero/elements/annotationRow.js`       | Darstellung im Annotations-Tab                                                                                                           |
+| `chrome/content/zotero/xpcom/reader.js`                 | Öffnen von Annotationen im Reader                                                                                                        |
 
 Wichtig: Die Annotation-Objekte in Zotero sind Items vom Typ `annotation` mit Eltern-Attachment. Seite 1 der Recherche: klären, ob ein `annotation`-Item technisch auch unter einem **normalen Titel-Item** (nicht Attachment) liegen kann und was UI/Sync dann machen (Spike A2).
 
 ## 4. Meilensteine
 
 ### M1 – Spike: Datenmodell (Zeit: 1 Agent-Durchlauf)
+
 - **A1:** Per „Tools → Developer → Run JavaScript" im Zotero-Testprofil: Annotation-Item unter einem PDF-Anhang anlegen, `annotationPageLabel` setzen, prüfen, dass es im Annotations-Tab erscheint und im Word-Plugin wählbar ist. Ergebnis dokumentieren.
 - **A2:** Dasselbe Experiment mit einem Titel-Item als Parent (ohne Attachment). Dokumentieren: funktioniert die Anzeige? Sync? Word-Plugin? Crash-Risiken?
 - **A3:** Entscheidung: **Pfad 1** (verstecktes Platzhalter-Attachment + echte Annotations-Items darunter) vs. **Pfad 2** (Annotation direkt am Titel-Item). Standardentscheidung: Pfad 1, da er alle nativen Mechanismen unangetastet lässt.
 - **Abbruchkriterium:** Wenn weder Pfad funktioniert, Feature A auf „Notiz-basiert mit strukturiertem Seitenfeld + eigene Zitationskopier-Funktion" reduzieren (Fallback, geringerer Wert).
 
 ### M2 – Feature A: Print-Annotationen anlegen (Pfad 1)
+
 - Beim ersten Anlegen einer Print-Annotation für einen Titel: einmalig ein Platzhalter-Attachment erzeugen – bevorzugt ein gebündeltes, winziges 1-Seiten-PDF aus den Plugin-Assets; Alternative: Linked-URL-Attachment. Kennzeichnung über Namenskonvention und Plugin-Relation/Tag (z. B. `#flexannotate-placeholder`), damit es erkannt und bereinigt werden kann.
 - Annotations-Item darunter anlegen: Typ (highlight/note), `annotationText` (Zitat), `annotationComment` (eigener Kommentar), `annotationColor`, `annotationPageLabel` = manuelle Druck-Seitenzahl.
 - **UI:** Kontextmenü auf Titel-Item: „Print-Annotation hinzufügen…" → XHTML-Dialog (Seite, Zitat, Kommentar, Farbe, Typ). Fluent-Lokalisierung (mindestens en-US, de).
@@ -58,18 +58,21 @@ Wichtig: Die Annotation-Objekte in Zotero sind Items vom Typ `annotation` mit El
 - **Akzeptanzkriterien:** Print-Annotation erscheint im Annotations-Tab, ist im Word-„Anmerkung hinzufügen"-Dialog wählbar und wird dort mit der hinterlegten Seitenzahl als Locator zitiert; Sync in ein zweites Profil überlebt den Roundtrip.
 
 ### M3 – Feature A: Bearbeiten und Import
+
 - Annotation bearbeiten: Seitenangabe und Text nachträglich ändern (Kontextmenü im Annotations-Tab oder eigener Dialog).
 - (Optional) CSV/Markdown-Import: Liste `Seite; Zitat; Kommentar; Farbe` → Batch-Anlage für ganze Bücher.
 
 ### M4 – Feature B: Nur-Nachweis-Zitieren im Textverarbeitungs-Plugin
+
 - **Hook:** `Zotero.Integration.Session.prototype.insertAnnotations` (bzw. die in der installierten Zotero-Version tatsächlich verwendete Methode – vorher prüfen, Zotero 8–10 haben den Zitationsdialog umgebaut) per Wrapper patchen: Original merken, im Wrapper prüfen, ob Modus „nur Nachweis" aktiv ist; wenn ja, pro Annotation nur das Zitationsfeld (Titel-Item + Locator aus `annotationPageLabel`) einfügen, Fließtext/HTML weglassen.
-- **Steuerung:** 
+- **Steuerung:**
   - Voreinstellung im Plugin-Einstellungspanel: Standard = „vollständige Annotation" | „nur Nachweis".
   - Per-Invocation-Override: Modifier-Taste (z. B. Alt/Option beim Klick auf „Anmerkung hinzufügen") invertiert die Voreinstellung. UI-Patch des Zotero-Dialogs (Checkbox) nur, wenn stabil machbar – sonst bewusst weglassen und im README dokumentieren.
 - **Fallback-Fallback:** Zusätzlich Menüpunkt „Zitation der Auswahl kopieren" (Annotation auswählen → formatierte Zitation mit Seitenzahl via Quick-Copy/CSL in die Zwischenablage). Statischer Text, kein Live-Feld – im Menü klar kennzeichnen.
 - **Akzeptanzkriterien:** In Word 365 und LibreOffice wird bei aktivem Modus ausschließlich eine normale Zotero-Zitation mit Locator eingefügt; Literaturverzeichnis aktualisiert sich korrekt; bei deaktiviertem Modus verhält sich alles exakt wie ohne Plugin (Regressionstest!).
 
 ### M5 – Härtung und Verteilung
+
 - Feature-Detection statt Versionsvergleich: Patch nur anwenden, wenn Zielfunktion existiert; sonst sauber deaktivieren und Log-Warnung.
 - Deinstallation: Patches zurücknehmen, Platzhalter-Attachments optional entfernen (Nachfrage-Dialog).
 - Fehlerbehandlung: alle internen Aufrufe mit try/catch und Fehlermeldungs-Log (`Zotero.debug` + Error-Notification).
@@ -77,16 +80,16 @@ Wichtig: Die Annotation-Objekte in Zotero sind Items vom Typ `annotation` mit El
 
 ## 5. Test-Matrix (manuell, pro Release)
 
-| Szenario | Erwartung |
-|---|---|
-| Print-Annotation anlegen, im Annotations-Tab prüfen | Sichtbar, mit Seitenzahl, editierbar |
-| Word: „Anmerkung hinzufügen", Print-Annotation, Modus „vollständig" | Zitat + Zitation wie nativ |
-| Word: Print-Annotation, Modus „nur Nachweis" | Nur Zitationsfeld mit Locator |
-| Word: PDF-Annotation, Modus „nur Nachweis" | Nur Zitationsfeld mit PDF-Seite |
-| Modifier-Taste beim Klick | Invertiert die Voreinstellung |
-| Sync Profil A → Profil B | Annotationen + Seitenzahlen intakt |
-| Plugin deaktivieren/deinstallieren | Zotero verhält sich unauffällig; Zitationen im Dokument bleiben intakt |
-| Zotero-Update (nächste Hauptversion) | Plugin deaktiviert Feature sauber statt zu crashen |
+| Szenario                                                            | Erwartung                                                              |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Print-Annotation anlegen, im Annotations-Tab prüfen                 | Sichtbar, mit Seitenzahl, editierbar                                   |
+| Word: „Anmerkung hinzufügen", Print-Annotation, Modus „vollständig" | Zitat + Zitation wie nativ                                             |
+| Word: Print-Annotation, Modus „nur Nachweis"                        | Nur Zitationsfeld mit Locator                                          |
+| Word: PDF-Annotation, Modus „nur Nachweis"                          | Nur Zitationsfeld mit PDF-Seite                                        |
+| Modifier-Taste beim Klick                                           | Invertiert die Voreinstellung                                          |
+| Sync Profil A → Profil B                                            | Annotationen + Seitenzahlen intakt                                     |
+| Plugin deaktivieren/deinstallieren                                  | Zotero verhält sich unauffällig; Zitationen im Dokument bleiben intakt |
+| Zotero-Update (nächste Hauptversion)                                | Plugin deaktiviert Feature sauber statt zu crashen                     |
 
 ## 6. Risiken
 
