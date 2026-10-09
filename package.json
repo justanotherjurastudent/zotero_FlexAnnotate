@@ -28,6 +28,7 @@
     "release": "zotero-plugin release",
     "test": "zotero-plugin test",
     "test:zotero": "node scripts/run-zotero-tests.mjs",
+    "screenshots": "node scripts/run-zotero-tests.mjs --screenshots",
     "verify": "npm run lint:check && npm run build && npm run test:unit && npm run test:zotero",
     "test:unit": "node --test \"test-unit/*.test.ts\"",
     "update-deps": "npm update --save"

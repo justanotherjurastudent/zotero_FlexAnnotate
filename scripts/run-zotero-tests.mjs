@@ -7,6 +7,7 @@
 // the scaffold test profile, never the user's own Zotero) and exits with the
 // result of the run.
 import { spawn, spawnSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -15,12 +16,22 @@ const killScript = join(root, "scripts", "kill-test-zotero.ps1");
 const killCommand = `powershell -NoProfile -File "${killScript}"`;
 const limitMs = Number(process.env.FLEXANNOTATE_TEST_LIMIT_MS || 90_000);
 
+// --screenshots: also runs test/screenshots.test.ts (skipped otherwise) and
+// writes the PNGs into .scaffold/screenshots (inside the git-ignored .scaffold).
+const screenshots = process.argv.includes("--screenshots");
+const screenshotDir = join(root, ".scaffold", "screenshots");
+if (screenshots) mkdirSync(screenshotDir, { recursive: true });
+
 const env = {
   ...process.env,
   ZOTERO_PLUGIN_ZOTERO_BIN_PATH:
     process.env.ZOTERO_PLUGIN_ZOTERO_BIN_PATH ||
     join(process.env.LOCALAPPDATA || "", "Zotero", "zotero.exe"),
   ZOTERO_PLUGIN_KILL_COMMAND: killCommand,
+  ...(screenshots && {
+    FLEXANNOTATE_SCREENSHOTS: "1",
+    FLEXANNOTATE_SCREENSHOT_DIR: screenshotDir,
+  }),
 };
 
 const child = spawn("npx", ["zotero-plugin", "test"], {

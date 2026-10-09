@@ -109,25 +109,6 @@ export async function waitFor<T>(
   throw new Error("waitFor timed out");
 }
 
-export async function screenshot(win: Window, name: string): Promise<void> {
-  const doc = win.document;
-  const canvas = doc.createElementNS(
-    "http://www.w3.org/1999/xhtml",
-    "canvas",
-  ) as HTMLCanvasElement;
-  canvas.width = win.innerWidth;
-  canvas.height = win.innerHeight;
-  const ctx = canvas.getContext("2d") as any;
-  ctx.drawWindow(win, 0, 0, canvas.width, canvas.height, "white");
-  const blob: Blob = await new Promise((r) => canvas.toBlob((b) => r(b!)));
-  const dir = PathUtils.join(PathUtils.parent(PathUtils.profileDir)!, "shots");
-  await IOUtils.makeDirectory(dir, { ignoreExisting: true });
-  await IOUtils.write(
-    PathUtils.join(dir, `${name}.png`),
-    new Uint8Array(await blob.arrayBuffer()),
-  );
-}
-
 /** Like waitFor, for an async condition. */
 export async function waitForAsync<T>(
   fn: () => Promise<T | null | false | undefined>,

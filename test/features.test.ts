@@ -9,10 +9,10 @@ import {
   makeAnnotation,
   makePdfAttachment,
   makeWork,
-  screenshot,
   waitFor,
   waitForAsync,
 } from "./helpers";
+import { screenshot } from "./screenshot";
 
 /**
  * Feature tests in a real Zotero: opening the citation place, renaming,

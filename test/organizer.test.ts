@@ -7,9 +7,9 @@ import {
   makeAnnotation,
   makePdfAttachment,
   makeWork,
-  screenshot,
   waitFor,
 } from "./helpers";
+import { screenshot } from "./screenshot";
 
 /**
  * Integration tests inside a real Zotero (scaffold test profile with its own
