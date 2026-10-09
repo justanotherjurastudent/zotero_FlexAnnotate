@@ -16,7 +16,7 @@ import {
  * dataDir). All data is synthetic and removed again in `after`.
  */
 
-describe("Annotree", function () {
+describe("FlexAnnotate", function () {
   describe("organizer data and filing", function () {
     this.timeout(60000);
     let work: Zotero.Item;

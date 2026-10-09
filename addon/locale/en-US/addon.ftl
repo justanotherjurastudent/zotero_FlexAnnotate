@@ -1,3 +1,3 @@
-startup-finish = Annotree loaded
-annotations-window-title = Annotree: All Annotations
-outline-window-title = Annotree: Organizer
+startup-finish = FlexAnnotate loaded
+annotations-window-title = FlexAnnotate: All Annotations
+outline-window-title = FlexAnnotate: Organizer

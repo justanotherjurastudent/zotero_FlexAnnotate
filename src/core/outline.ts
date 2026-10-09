@@ -220,7 +220,7 @@ export function serializeOutline(roots: OutlineNode[]): string {
   // The <pre><code> block is the source of truth on read; the list above it is
   // just so the note is glanceable inside Zotero itself.
   return (
-    `<h1>📚 Annotree — Gliederung</h1>` +
+    `<h1>📚 FlexAnnotate — Gliederung</h1>` +
     readable +
     `<pre><code>${SENTINEL}\n${escapeHtml(json)}</code></pre>`
   );

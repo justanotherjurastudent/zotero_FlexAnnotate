@@ -4,7 +4,7 @@
  *
  * Zotero's own views (works / annotations / notes) stay untouched. In the
  * annotations view we add one checkbox; when it is on, the three columns of
- * the dialog show the Annotree outline instead:
+ * the dialog show the FlexAnnotate outline instead:
  *   left   the headings with their number of annotations
  *   middle the annotations of the chosen heading (green check = already cited)
  *   right  the quote, comment and source of the clicked annotation

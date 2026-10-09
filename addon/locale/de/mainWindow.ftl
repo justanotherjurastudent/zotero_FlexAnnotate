@@ -1,4 +1,4 @@
 annotations-menu-label =
-    .label = Annotree: Alle Annotationen
+    .label = FlexAnnotate: Alle Annotationen
 outline-menu-label =
-    .label = Annotree: Organizer
+    .label = FlexAnnotate: Organizer

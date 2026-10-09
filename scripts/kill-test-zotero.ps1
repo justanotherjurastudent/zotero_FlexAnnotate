@@ -1,4 +1,4 @@
-# Stops ONLY Zotero processes started with the Annotree test profile
+# Stops ONLY Zotero processes started with the FlexAnnotate test profile
 # (.scaffold\test\profile). The user's own Zotero is never touched.
 # Used as ZOTERO_PLUGIN_KILL_COMMAND for `npm run test:zotero`.
 $marker = Join-Path $PSScriptRoot "..\.scaffold\test"

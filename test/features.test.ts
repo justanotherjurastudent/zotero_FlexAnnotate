@@ -23,7 +23,7 @@ const api = () => (Zotero as any)[config.addonInstance].api;
 const DIALOG_URL = "chrome://zotero/content/integration/citationDialog.xhtml";
 const prefs = `${config.prefsPrefix}`;
 
-describe("Annotree features", function () {
+describe("FlexAnnotate features", function () {
   this.timeout(60000);
   const libraryID = () => Zotero.Libraries.userLibraryID;
 

@@ -1,5 +1,5 @@
 /**
- * organizer — the three-column Annotree window.
+ * organizer — the three-column FlexAnnotate window.
  *
  *   column 1: outline tree with "(Alle)" and "(Ohne Kategorie)"
  *   column 2: one-line rows (annotations or works) with a permanent assign bar
