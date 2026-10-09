@@ -3,7 +3,7 @@
  * Reine Logik ohne DOM: ein kleiner XML-Scanner liest nur die benoetigten
  * Strukturen. Der Import ist ein Append-Merge in die bestehende Gliederung.
  */
-import type { OutlineNode } from "./outline.ts";
+import { makeNode, type OutlineNode } from "./outline.ts";
 
 export interface DocHeading {
   /** 1-basiert. */
@@ -453,4 +453,36 @@ export function planOutlineImport(
     stack.push(node);
   }
   return { ops, created, reused, renamed: renames.length, renames };
+}
+
+/**
+ * Wendet den Plan auf eine Kopie der Gliederung an (die Eingabe bleibt
+ * unveraendert). Die Operationen sind in Dokumentreihenfolge: neue Knoten
+ * werden letztes Kind des Knotens auf Ebene-1; "reuse" wird ueber die Id
+ * gefunden und bleibt an seinem Platz.
+ */
+export function applyImportPlan(
+  roots: OutlineNode[],
+  plan: ImportPlan,
+): OutlineNode[] {
+  const copy = (ns: OutlineNode[]): OutlineNode[] =>
+    ns.map((n) => ({ ...n, children: copy(n.children) }));
+  const out = copy(roots);
+  const byId = new Map<string, OutlineNode>();
+  const index = (ns: OutlineNode[]) =>
+    ns.forEach((n) => (byId.set(n.id, n), index(n.children)));
+  index(out);
+  // stack[d] = Knoten auf Ebene d+1 im aktuellen Pfad
+  const stack: OutlineNode[] = [];
+  for (const op of plan.ops) {
+    const level = Math.max(1, Math.min(op.level, stack.length + 1));
+    stack.splice(level - 1);
+    let node = op.kind === "reuse" && op.id ? byId.get(op.id) : undefined;
+    if (!node) {
+      node = makeNode(op.title);
+      (level === 1 ? out : stack[level - 2].children).push(node);
+    }
+    stack.push(node);
+  }
+  return out;
 }

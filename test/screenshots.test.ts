@@ -8,6 +8,7 @@ import {
   makeWork,
   waitFor,
 } from "./helpers";
+import { DE_BODY, DE_STYLES, files, makeDocx } from "./docFixtures";
 import { screenshot } from "./screenshot";
 
 /**
@@ -212,6 +213,37 @@ describe("screenshots", function () {
     });
     organizer?.close();
     organizer = null;
+
+    // (a2) Vorschau des Gliederungsimports (Overlay im Organizer-Fenster)
+    await step("import-preview", async () => {
+      await waitFor(() => !findOrganizerWindow()); // das vorige ist zu
+      await api().OrganizerFactory.open();
+      organizer = await waitFor(findOrganizerWindow);
+      const doc = organizer.document;
+      await waitFor(() => doc.getElementById("flexannotate-scope"));
+      const ctx = {
+        s: api().OrganizerFactory.lastState,
+        doc,
+        root: doc.getElementById("flexannotate-root"),
+        render() {},
+      };
+      const done = api().docImport.importFromFile(
+        ctx,
+        makeDocx("shots.docx", DE_BODY, DE_STYLES),
+        {},
+      );
+      const overlay = await waitFor(() =>
+        doc.querySelector("[data-import-preview]"),
+      );
+      await Zotero.Promise.delay(800);
+      const path = await screenshot(organizer, "import-preview");
+      (overlay.querySelectorAll("button")[0] as HTMLElement).click(); // Abbrechen
+      await done;
+      return path;
+    });
+    organizer?.close();
+    organizer = null;
+    for (const f of files) await IOUtils.remove(f, { ignoreAbsent: true });
 
     // (b) und (c) Zitierdialog mit und ohne Gliederungsansicht
     await step("citation-dialog", async () => {

@@ -71,6 +71,23 @@ const de = {
   dialogUncite: "Zitiert-Markierung entfernen",
   dialogMark: "Als zitiert markieren",
   dialogCheckHint: "Klicken, um die Markierung zu entfernen oder zu setzen",
+  importTitle: "Gliederung aus Word/ODT-Dokument importieren…",
+  importPickTitle: "Word- oder ODT-Dokument wählen",
+  importFilter: "Word- und LibreOffice-Dokumente",
+  importDialogTitle: "Gliederung importieren",
+  importCount: "{n} Überschriften gefunden",
+  importSummary: "{c} neu, {r} bereits vorhanden, {n} umbenannt (Duplikate)",
+  importMore: "… und {n} weitere",
+  importExists: "bereits vorhanden",
+  importStrip: "Nummerierung aus Titeln entfernen",
+  importDo: "Importieren",
+  importNone:
+    "Keine Überschriften-Formatvorlagen gefunden. Das Dokument braucht Absätze mit den Formatvorlagen „Überschrift 1“, „Überschrift 2“, „Überschrift 3“ … (Word und LibreOffice).",
+  importBadFile:
+    "„{file}“ konnte nicht gelesen werden: kein gültiges .docx- oder .odt-Dokument oder beschädigt.",
+  importTooBig: "„{file}“ ist zu groß: {entry} umfasst mehr als {mb} MB.",
+  importDone: "{n} Überschriften importiert ({m} neu)",
+  importFailed: "Import fehlgeschlagen: {err}",
   dialogHint:
     "Klicke eine Annotation, um das Zitat zu sehen. Doppelklick oder + fügt sie ein.",
 };
@@ -140,6 +157,23 @@ const en: Record<Key, string> = {
   dialogUncite: "Remove cited mark",
   dialogMark: "Mark as cited",
   dialogCheckHint: "Click to remove or set the mark",
+  importTitle: "Import outline from Word/ODT document…",
+  importPickTitle: "Choose a Word or ODT document",
+  importFilter: "Word and LibreOffice documents",
+  importDialogTitle: "Import outline",
+  importCount: "{n} headings found",
+  importSummary: "{c} new, {r} already present, {n} renamed (duplicates)",
+  importMore: "… and {n} more",
+  importExists: "already present",
+  importStrip: "Remove numbering from titles",
+  importDo: "Import",
+  importNone:
+    'No heading styles found. The document needs paragraphs with the styles "Heading 1", "Heading 2", "Heading 3" … (Word and LibreOffice).',
+  importBadFile:
+    '"{file}" could not be read: not a valid .docx or .odt document, or damaged.',
+  importTooBig: '"{file}" is too large: {entry} exceeds {mb} MB.',
+  importDone: "{n} headings imported ({m} new)",
+  importFailed: "Import failed: {err}",
   dialogHint:
     "Click an annotation to see the quote. Double-click or + inserts it.",
 };

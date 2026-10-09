@@ -1,6 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
+  applyImportPlan,
   normalizeHeadings,
   parseDocxHeadings,
   parseOdtHeadings,
@@ -433,5 +434,97 @@ describe("planOutlineImport", () => {
       parentTitle: null,
       id: null,
     });
+  });
+});
+
+describe("applyImportPlan", () => {
+  const h = (level: number, text: string): DocHeading => ({ level, text });
+  const shape = (ns: OutlineNode[]): unknown =>
+    ns.map((n) => [n.title, shape(n.children)]);
+  const run = (roots: OutlineNode[], items: DocHeading[]) =>
+    applyImportPlan(roots, planOutlineImport(roots, items));
+
+  it("legt Wurzeln und Kinder in Dokumentreihenfolge an", () => {
+    const out = run(
+      [],
+      [h(1, "A"), h(2, "A1"), h(3, "A1a"), h(2, "A2"), h(1, "B")],
+    );
+    assert.deepEqual(shape(out), [
+      [
+        "A",
+        [
+          ["A1", [["A1a", []]]],
+          ["A2", []],
+        ],
+      ],
+      ["B", []],
+    ]);
+  });
+
+  it("haengt neue Knoten als letztes Kind an und aendert nichts Vorhandenes", () => {
+    const existing = [node("A", [node("A1")]), node("Z")];
+    const out = run(existing, [h(1, "A"), h(2, "A2"), h(1, "Neu")]);
+    assert.deepEqual(shape(out), [
+      [
+        "A",
+        [
+          ["A1", []],
+          ["A2", []],
+        ],
+      ],
+      ["Z", []],
+      ["Neu", []],
+    ]);
+  });
+
+  it("behaelt die Ids wiederverwendeter Knoten", () => {
+    const existing = [node("A", [node("A1")])];
+    const out = run(existing, [h(1, "a"), h(2, "A1")]);
+    assert.equal(out[0].id, existing[0].id);
+    assert.equal(out[0].children[0].id, existing[0].children[0].id);
+  });
+
+  it("benennt Duplikate unter anderem Elternknoten um", () => {
+    const existing = [node("Teil", [node("Einleitung")])];
+    const out = run(existing, [h(1, "Einleitung")]);
+    assert.deepEqual(shape(out), [
+      ["Teil", [["Einleitung", []]]],
+      ["Einleitung (2)", []],
+    ]);
+  });
+
+  it("kehrt nach tiefer Ebene zur richtigen Ebene zurueck", () => {
+    const out = run(
+      [],
+      [h(1, "A"), h(2, "B"), h(3, "C"), h(2, "D"), h(3, "E")],
+    );
+    assert.deepEqual(shape(out), [
+      [
+        "A",
+        [
+          ["B", [["C", []]]],
+          ["D", [["E", []]]],
+        ],
+      ],
+    ]);
+  });
+
+  it("ist bei leerem Plan ein Nullbefehl", () => {
+    const existing = [node("A")];
+    assert.deepEqual(shape(run(existing, [])), shape(existing));
+  });
+
+  it("ist idempotent: zweiter Import erzeugt keine Duplikate", () => {
+    const items = [h(1, "A"), h(2, "A1"), h(1, "B")];
+    const once = run([], items);
+    const twice = run(once, items);
+    assert.deepEqual(shape(twice), shape(once));
+    assert.equal(planOutlineImport(once, items).created, 0);
+  });
+
+  it("veraendert die Eingabe nicht", () => {
+    const existing = [node("A")];
+    run(existing, [h(1, "A"), h(2, "Neu")]);
+    assert.equal(existing[0].children.length, 0);
   });
 });
