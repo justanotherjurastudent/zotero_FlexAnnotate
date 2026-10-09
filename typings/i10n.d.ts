@@ -10,6 +10,7 @@ export type FluentMessageId =
   | 'dialog-mode-label'
   | 'outline-menu-label'
   | 'outline-window-title'
+  | 'placeholder-title'
   | 'pref-section'
   | 'pref-show-works'
   | 'pref-show-works-hint'
