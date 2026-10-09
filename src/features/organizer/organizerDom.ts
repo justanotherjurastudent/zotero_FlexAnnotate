@@ -8,7 +8,7 @@ import { Palette } from "./theme";
 
 export const HTML_NS = "http://www.w3.org/1999/xhtml";
 /** Drag and drop payload: JSON array of row ids. */
-export const DND_TYPE = "text/x-annotree-ids";
+export const DND_TYPE = "text/x-flexannotate-ids";
 
 export function el<K extends keyof HTMLElementTagNameMap>(
   doc: Document,

@@ -139,7 +139,7 @@ describe("FlexAnnotate features", function () {
       // starts with that collection (the default scope) and its sub: 2 rows.
       await waitFor(() => rowCount() === 2);
       const scopeSel = doc.getElementById(
-        "annotree-scope",
+        "flexannotate-scope",
       ) as HTMLSelectElement;
       const selected = (
         Zotero.getMainWindow() as any
@@ -259,14 +259,15 @@ describe("FlexAnnotate features", function () {
 
     it("limits the entries to a collection and its subcollections", async function () {
       const set = async (id: number) => {
-        click(doc.getElementById("annotree-scope")!);
+        click(doc.getElementById("flexannotate-scope")!);
         const opt = await waitFor(() =>
-          doc.querySelector(`#annotree-scope-menu [data-value="${id}"]`),
+          doc.querySelector(`#flexannotate-scope-menu [data-value="${id}"]`),
         );
         click(opt!);
         await waitFor(
           () =>
-            doc.getElementById("annotree-scope")?.dataset.value === String(id),
+            doc.getElementById("flexannotate-scope")?.dataset.value ===
+            String(id),
         );
       };
       const [sub, root] = cols;
@@ -274,7 +275,9 @@ describe("FlexAnnotate features", function () {
       assert.equal(rowCount(), 2, "current collection to begin with");
       await set(root.id); // includes subcollections by default
       await waitFor(() => rowCount() === 2);
-      const cb = doc.getElementById("annotree-scope-sub") as HTMLInputElement;
+      const cb = doc.getElementById(
+        "flexannotate-scope-sub",
+      ) as HTMLInputElement;
       cb.click(); // only the collection itself: work1 lives in the sub
       await waitFor(() => rowCount() === 0);
       cb.click();
@@ -293,15 +296,16 @@ describe("FlexAnnotate features", function () {
       await waitFor(() => buttonWith(/Bearbeiten|Edit/));
       click(buttonWith(/Bearbeiten|Edit/)!);
       const quote = (await waitFor(() =>
-        doc.getElementById("annotree-edit-quote"),
+        doc.getElementById("flexannotate-edit-quote"),
       )) as HTMLTextAreaElement;
       quote.value = "Zwei A geändert";
       (
-        doc.getElementById("annotree-edit-comment") as HTMLTextAreaElement
+        doc.getElementById("flexannotate-edit-comment") as HTMLTextAreaElement
       ).value = "Mein Kommentar";
-      (doc.getElementById("annotree-edit-place") as HTMLInputElement).value =
-        "12";
-      const loc = doc.getElementById("annotree-edit-locator")!;
+      (
+        doc.getElementById("flexannotate-edit-place") as HTMLInputElement
+      ).value = "12";
+      const loc = doc.getElementById("flexannotate-edit-locator")!;
       assert.match(
         doc.body.textContent || "",
         /Locator/,
@@ -309,16 +313,19 @@ describe("FlexAnnotate features", function () {
       );
       click(loc); // the list of locator types opens
       const option = await waitFor(() =>
-        doc.querySelector('#annotree-edit-locator-menu [data-value="section"]'),
+        doc.querySelector(
+          '#flexannotate-edit-locator-menu [data-value="section"]',
+        ),
       );
       assert.isAbove(
-        doc.querySelectorAll("#annotree-edit-locator-menu [data-value]").length,
+        doc.querySelectorAll("#flexannotate-edit-locator-menu [data-value]")
+          .length,
         3,
         "several locator types are offered",
       );
       click(option!);
       const otherPages = anns.slice(0, 2).map((a) => a.annotationPageLabel);
-      click(doc.getElementById("annotree-edit-save")!);
+      click(doc.getElementById("flexannotate-edit-save")!);
       await waitFor(() => anns[2].annotationText === "Zwei A geändert");
       assert.equal(anns[2].annotationComment, "Mein Kommentar");
       assert.equal(anns[2].annotationPageLabel, "12");
@@ -425,7 +432,7 @@ describe("FlexAnnotate features", function () {
     const openDialog = async (cited: Record<string, unknown> = {}) => {
       await closeDialogs();
       const io: any = new (Zotero.Integration as any).CitationEditInterface(
-        { citationItems: [], properties: {}, citationID: "annotree-test" },
+        { citationItems: [], properties: {}, citationID: "flexannotate-test" },
         true,
         Promise.resolve(0),
         // Zotero loads the document's citations after the dialog opened
@@ -445,7 +452,7 @@ describe("FlexAnnotate features", function () {
       );
       const w = await waitFor(() => findWindowByUrl(DIALOG_URL));
       const toggle = (await waitFor(() =>
-        w.document.getElementById("annotree-toggle"),
+        w.document.getElementById("flexannotate-toggle"),
       )) as HTMLInputElement;
       return { w, io, toggle };
     };
@@ -497,16 +504,17 @@ describe("FlexAnnotate features", function () {
       const doc = w.document;
       if (!toggle.checked) toggle.click();
       await waitFor(
-        () => doc.querySelectorAll("#annotree-tree [data-node-id]").length >= 3,
+        () =>
+          doc.querySelectorAll("#flexannotate-tree [data-node-id]").length >= 3,
       );
       const einleitung = Array.from(
-        doc.querySelectorAll("#annotree-tree [data-node-id]"),
+        doc.querySelectorAll("#flexannotate-tree [data-node-id]"),
       ).find((n) => n.textContent?.includes("Einleitung"))!;
       assert.match(einleitung.textContent || "", /2$/, "count behind heading");
       await waitFor(
         () =>
-          doc.querySelectorAll("#annotree-list-pane [data-ann-id]").length ===
-          2,
+          doc.querySelectorAll("#flexannotate-list-pane [data-ann-id]")
+            .length === 2,
       );
       // left column keeps showing categories, native trees are hidden
       assert.equal(
@@ -518,7 +526,7 @@ describe("FlexAnnotate features", function () {
       click(doc.querySelector(`[data-ann-id="${anns[0].id}"]`)!);
       await waitFor(() =>
         doc
-          .getElementById("annotree-preview")
+          .getElementById("flexannotate-preview")
           ?.textContent?.includes("Dialogzitat 0"),
       );
       await screenshot(w, "dialog-three-columns");
@@ -527,7 +535,7 @@ describe("FlexAnnotate features", function () {
       click(doc.querySelector(`[data-ann-id="${anns[1].id}"]`)!);
       await waitFor(() =>
         doc
-          .getElementById("annotree-preview")
+          .getElementById("flexannotate-preview")
           ?.textContent?.includes("Sehr langes Zitat"),
       );
       assert.isAtMost(
@@ -541,7 +549,9 @@ describe("FlexAnnotate features", function () {
       click(doc.querySelector(`[data-ann-id="${anns[0].id}"]`)!);
 
       // inserting goes through Zotero's own handler
-      click(doc.querySelector(`[data-ann-id="${anns[0].id}"] .annotree-plus`)!);
+      click(
+        doc.querySelector(`[data-ann-id="${anns[0].id}"] .flexannotate-plus`)!,
+      );
       await waitFor(
         () => doc.querySelectorAll("#bubble-input .bubble").length === 1,
       );
@@ -550,7 +560,7 @@ describe("FlexAnnotate features", function () {
       click(doc.querySelector(`[data-ann-id="${anns[1].id}"]`)!);
       await waitFor(() =>
         doc
-          .getElementById("annotree-preview")
+          .getElementById("flexannotate-preview")
           ?.textContent?.includes("Sehr langes"),
       );
       key(doc, "Enter");
@@ -581,7 +591,7 @@ describe("FlexAnnotate features", function () {
       if (!toggle.checked) toggle.click();
       try {
         await waitFor(
-          () => w.document.querySelectorAll(".annotree-cited").length === 2,
+          () => w.document.querySelectorAll(".flexannotate-cited").length === 2,
         );
       } catch (e) {
         const v = api().CitationDialogPatch.viewOf(w);
@@ -597,21 +607,21 @@ describe("FlexAnnotate features", function () {
         Zotero.Prefs.get(`${prefs}.citedAnnotations`, true) as string;
       click(
         w.document.querySelector(
-          `[data-ann-id="${anns[0].id}"] .annotree-cited`,
+          `[data-ann-id="${anns[0].id}"] .flexannotate-cited`,
         )!,
       );
       await waitFor(
-        () => w.document.querySelectorAll(".annotree-cited").length === 1,
+        () => w.document.querySelectorAll(".flexannotate-cited").length === 1,
       );
       assert.notInclude(readStore(), `"${anns[0].id}"`);
       // select it: the preview offers the opposite action
       click(w.document.querySelector(`[data-ann-id="${anns[0].id}"]`)!);
       const mark = await waitFor(() =>
-        w.document.getElementById("annotree-toggle-cited"),
+        w.document.getElementById("flexannotate-toggle-cited"),
       );
       click(mark);
       await waitFor(
-        () => w.document.querySelectorAll(".annotree-cited").length === 2,
+        () => w.document.querySelectorAll(".flexannotate-cited").length === 2,
       );
       assert.include(readStore(), `"${anns[0].id}"`);
 
@@ -626,10 +636,10 @@ describe("FlexAnnotate features", function () {
       if (!toggle.checked) toggle.click();
       await waitFor(
         () =>
-          w.document.querySelectorAll("#annotree-list-pane [data-ann-id]")
+          w.document.querySelectorAll("#flexannotate-list-pane [data-ann-id]")
             .length === 2,
       );
-      assert.lengthOf(w.document.querySelectorAll(".annotree-cited"), 0);
+      assert.lengthOf(w.document.querySelectorAll(".flexannotate-cited"), 0);
     });
 
     it("shows the works behind the annotations only when the setting is on", async function () {
@@ -645,7 +655,7 @@ describe("FlexAnnotate features", function () {
         // 2 in Einleitung + 3 of the work under Hauptteil
         await waitFor(
           () =>
-            w.document.querySelectorAll("#annotree-list-pane [data-ann-id]")
+            w.document.querySelectorAll("#flexannotate-list-pane [data-ann-id]")
               .length === 5,
         );
         await screenshot(w, "dialog-works-shown");

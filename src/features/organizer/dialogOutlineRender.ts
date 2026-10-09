@@ -20,10 +20,10 @@ import {
   writeCitedStore,
 } from "./dialogCited";
 
-export const TREE_ID = "annotree-tree";
-export const LIST_ID = "annotree-list-pane";
-export const PREVIEW_ID = "annotree-preview";
-export const NATIVE_ID = "annotree-native";
+export const TREE_ID = "flexannotate-tree";
+export const LIST_ID = "flexannotate-list-pane";
+export const PREVIEW_ID = "flexannotate-preview";
+export const NATIVE_ID = "flexannotate-native";
 const GREEN = "#1f9d55";
 const SELECTED = "rgba(60,120,220,0.16)";
 const LINE = "var(--fill-quinary, rgba(128,128,128,0.25))";
@@ -210,7 +210,9 @@ function rowEl(win: Window, v: View, r: Row, order: number[]): HTMLElement {
     `flex:none;width:16px;text-align:center;cursor:pointer;color:${GREEN};font-weight:700;`,
     cited ? "✓" : "",
   );
-  check.className = cited ? "annotree-check annotree-cited" : "annotree-check";
+  check.className = cited
+    ? "flexannotate-check flexannotate-cited"
+    : "flexannotate-check";
   check.title = cited ? tr("dialogCited") : tr("dialogCheckHint");
   // manual correction: click toggles the mark of this row (or the selection)
   check.addEventListener("click", (e) => {
@@ -243,7 +245,7 @@ function rowEl(win: Window, v: View, r: Row, order: number[]): HTMLElement {
       `border:1px solid ${LINE};border-radius:50%;cursor:pointer;font-weight:700;`,
     "+",
   );
-  plus.className = "annotree-plus";
+  plus.className = "flexannotate-plus";
   plus.title = tr("dialogInsert");
   plus.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -331,7 +333,7 @@ export function renderPreview(win: Window, v: View) {
       );
   }
   const btn = doc.createElement("button");
-  btn.id = "annotree-insert";
+  btn.id = "flexannotate-insert";
   btn.textContent = tr("dialogInsert");
   btn.style.cssText = "align-self:flex-start;padding:5px 12px;";
   btn.addEventListener("click", () => void insert(win, [...v.sel.selected]));
@@ -340,7 +342,7 @@ export function renderPreview(win: Window, v: View) {
   // manual correction of the green check
   const allCited = picked.every((r) => v.cited.has(r.id));
   const mark = doc.createElement("button");
-  mark.id = "annotree-toggle-cited";
+  mark.id = "flexannotate-toggle-cited";
   mark.textContent = allCited ? tr("dialogUncite") : tr("dialogMark");
   mark.style.cssText = "align-self:flex-start;padding:5px 12px;";
   mark.addEventListener("click", () =>
@@ -363,7 +365,7 @@ function setCited(win: Window, v: View, ids: number[], on: boolean) {
   try {
     writeCitedStore(next);
   } catch (e) {
-    ztoolkit.log("annotree cited store write failed:", e);
+    ztoolkit.log("flexannotate cited store write failed:", e);
   }
   for (const id of ids) {
     if (on) v.cited.add(id);

@@ -45,7 +45,7 @@ describe("citation mode selector", function () {
     );
     const w = await waitFor(() => findWindowByUrl(DIALOG_URL));
     // The watcher injects once the dialog is initialised; its outline toggle is the signal
-    await waitFor(() => w.document.getElementById("annotree-toggle"));
+    await waitFor(() => w.document.getElementById("flexannotate-toggle"));
     return w;
   };
 

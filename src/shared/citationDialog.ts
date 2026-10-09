@@ -67,7 +67,7 @@ export function start(): void {
       try {
         track(xulWin.docShell.domWindow as Window);
       } catch (e) {
-        ztoolkit.log("annotree dialog watch failed:", e);
+        ztoolkit.log("flexannotate dialog watch failed:", e);
       }
     },
     onCloseWindow: () => {},

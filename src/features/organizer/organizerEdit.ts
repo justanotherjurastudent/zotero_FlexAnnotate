@@ -36,13 +36,13 @@ export function renderEditForm(ctx: Ctx, box: HTMLElement, t: Palette, r: Row) {
   };
   const canEditText = r.type === "highlight" || r.type === "underline";
   const quote = area(r.text, 5);
-  quote.id = "annotree-edit-quote";
+  quote.id = "flexannotate-edit-quote";
   if (canEditText) field(tr("fQuote"), quote);
   const comment = area(r.comment, 3);
-  comment.id = "annotree-edit-comment";
+  comment.id = "flexannotate-edit-comment";
   field(tr("fComment"), comment);
   const place = input(doc, t, "");
-  place.id = "annotree-edit-place";
+  place.id = "flexannotate-edit-place";
   place.value = r.pageLabel;
   field(tr("fPlace"), place);
   // The list of locator types, like in FlexAnnotate sorted by its label. It
@@ -59,7 +59,7 @@ export function renderEditForm(ctx: Ctx, box: HTMLElement, t: Palette, r: Row) {
       `background:${t.inputBg};border:1px solid ${t.border};border-radius:4px;` +
       "padding:5px 8px;font-size:12px;display:flex;justify-content:space-between;",
   );
-  loc.id = "annotree-edit-locator";
+  loc.id = "flexannotate-edit-locator";
   loc.dataset.value = r.locator;
   const locText = el(doc, "span", "", labelOf(r.locator));
   loc.append(locText, el(doc, "span", "", "▾"));
@@ -70,7 +70,7 @@ export function renderEditForm(ctx: Ctx, box: HTMLElement, t: Palette, r: Row) {
       `max-height:240px;overflow-y:auto;background:${t.panel};color:${t.text};` +
       `border:1px solid ${t.border};border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.25);`,
   );
-  locMenu.id = "annotree-edit-locator-menu";
+  locMenu.id = "flexannotate-edit-locator-menu";
   locMenu.dataset.menu = "1";
   for (const ty of types) {
     const o = el(
@@ -125,7 +125,7 @@ export function renderEditForm(ctx: Ctx, box: HTMLElement, t: Palette, r: Row) {
       ctx.render();
     })();
   });
-  saveBtn.id = "annotree-edit-save";
+  saveBtn.id = "flexannotate-edit-save";
   actions.append(
     saveBtn,
     button(doc, t, tr("cancel"), "", () => {

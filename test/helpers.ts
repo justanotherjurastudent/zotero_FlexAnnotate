@@ -28,7 +28,10 @@ export async function makeWork(title: string): Promise<Zotero.Item> {
 export async function makePdfAttachment(
   parent: Zotero.Item,
 ): Promise<Zotero.Item> {
-  const path = PathUtils.join(PathUtils.tempDir, `annotree-${parent.key}.pdf`);
+  const path = PathUtils.join(
+    PathUtils.tempDir,
+    `flexannotate-${parent.key}.pdf`,
+  );
   await IOUtils.writeUTF8(path, "%PDF-1.4\n%%EOF\n");
   const att = await Zotero.Attachments.linkFromFile({
     file: path,
@@ -87,7 +90,7 @@ export function findOrganizerWindow(): Window | null {
   const en = Services.wm.getEnumerator("");
   while (en.hasMoreElements()) {
     const w = en.getNext() as Window;
-    if (w.document?.getElementById("annotree-root")) return w;
+    if (w.document?.getElementById("flexannotate-root")) return w;
   }
   return null;
 }

@@ -34,6 +34,6 @@ export async function openRow(row: Row): Promise<void> {
     });
     activateMainWindow();
   } catch (e) {
-    ztoolkit.log("annotree open row failed:", e);
+    ztoolkit.log("flexannotate open row failed:", e);
   }
 }

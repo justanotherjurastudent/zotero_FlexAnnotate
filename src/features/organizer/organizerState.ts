@@ -86,7 +86,7 @@ export function persist(s: State): Promise<void> {
     .then(async () => {
       s.noteID = await OutlineModel.save(s.libraryID, s.noteID, s.roots);
     })
-    .catch((e) => ztoolkit.log("annotree outline save failed:", e));
+    .catch((e) => ztoolkit.log("flexannotate outline save failed:", e));
   return s.saveChain;
 }
 

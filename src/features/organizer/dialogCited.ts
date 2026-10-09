@@ -49,7 +49,7 @@ export async function citedWorksOf(win: Window): Promise<Set<number> | null> {
       map = result?.[1] ?? null;
     }
   } catch (e) {
-    ztoolkit.log("annotree cited works wait failed:", e);
+    ztoolkit.log("flexannotate cited works wait failed:", e);
   }
   map ??=
     (Zotero as any).Integration?.currentSession?.citationsByItemID ?? null;
@@ -73,16 +73,16 @@ function recordCited(io: any) {
 /** Wraps io.accept once per dialog so that the accepted citation is remembered. */
 export function hookAccept(win: Window): void {
   const io = (win as any).io;
-  if (io && typeof io.accept === "function" && !io.__annotreeHooked) {
+  if (io && typeof io.accept === "function" && !io.__flexannotateHooked) {
     const original = io.accept;
     io.accept = function (...args: unknown[]) {
       try {
         recordCited(io);
       } catch (e) {
-        ztoolkit.log("annotree record cited failed:", e);
+        ztoolkit.log("flexannotate record cited failed:", e);
       }
       return original.apply(this, args);
     };
-    io.__annotreeHooked = true;
+    io.__flexannotateHooked = true;
   }
 }

@@ -66,7 +66,7 @@ export function tabBar(ctx: Ctx, t: Palette): HTMLElement {
       `border:1px solid ${t.border};border-radius:4px;padding:3px 8px;font-size:12px;`,
     `${current.name}  ▾`,
   );
-  sel.id = "annotree-scope";
+  sel.id = "flexannotate-scope";
   sel.dataset.value = String(current.id);
   const menu = el(
     doc,
@@ -75,7 +75,7 @@ export function tabBar(ctx: Ctx, t: Palette): HTMLElement {
       `max-height:320px;overflow-y:auto;background:${t.panel};color:${t.text};` +
       `border:1px solid ${t.border};border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.25);`,
   );
-  menu.id = "annotree-scope-menu";
+  menu.id = "flexannotate-scope-menu";
   menu.dataset.menu = "1";
   for (const c of choices) {
     const o = el(
@@ -110,7 +110,7 @@ export function tabBar(ctx: Ctx, t: Palette): HTMLElement {
   );
   const cb = el(doc, "input");
   cb.type = "checkbox";
-  cb.id = "annotree-scope-sub";
+  cb.id = "flexannotate-scope-sub";
   cb.checked = s.scope.includeSub;
   cb.disabled = s.scope.collectionID === null;
   cb.addEventListener("change", () => {

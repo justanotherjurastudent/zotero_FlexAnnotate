@@ -25,7 +25,7 @@ describe("FlexAnnotate", function () {
 
     before(async function () {
       libraryID = Zotero.Libraries.userLibraryID;
-      work = await makeWork("Annotree Testwerk");
+      work = await makeWork("FlexAnnotate Testwerk");
       const att = await makePdfAttachment(work);
       for (let i = 0; i < 3; i++) {
         annotations.push(
@@ -173,7 +173,7 @@ describe("FlexAnnotate", function () {
         ),
       )) as HTMLElement;
       const dt = new (win as any).DataTransfer();
-      dt.setData("text/x-annotree-ids", JSON.stringify(ids));
+      dt.setData("text/x-flexannotate-ids", JSON.stringify(ids));
       target.dispatchEvent(
         new (win as any).DragEvent("drop", { bubbles: true, dataTransfer: dt }),
       );

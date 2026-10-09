@@ -201,7 +201,7 @@ export function defaultScope(): { libraryID: number; scope: Scope } {
     const col = pane?.getSelectedCollection?.();
     if (col && col.libraryID === libraryID) collectionID = col.id;
   } catch (e) {
-    ztoolkit.log("annotree default scope failed:", e);
+    ztoolkit.log("flexannotate default scope failed:", e);
   }
   return { libraryID, scope: { collectionID, includeSub: true } };
 }

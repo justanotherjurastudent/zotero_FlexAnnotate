@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 const root = join(fileURLToPath(import.meta.url), "..", "..");
 const killScript = join(root, "scripts", "kill-test-zotero.ps1");
 const killCommand = `powershell -NoProfile -File "${killScript}"`;
-const limitMs = Number(process.env.ANNOTREE_TEST_LIMIT_MS || 90_000);
+const limitMs = Number(process.env.FLEXANNOTATE_TEST_LIMIT_MS || 90_000);
 
 const env = {
   ...process.env,

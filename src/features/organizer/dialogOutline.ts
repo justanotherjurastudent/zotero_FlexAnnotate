@@ -54,8 +54,8 @@ import type { View } from "./dialogOutlineRender";
 import { tr } from "./strings";
 
 const PREF = "dialogOutlineView";
-const STYLE_ID = "annotree-dialog-style";
-const ROW_ID = "annotree-toggle-row";
+const STYLE_ID = "flexannotate-dialog-style";
+const ROW_ID = "flexannotate-toggle-row";
 /** Native elements hidden while our three columns are shown. */
 const NATIVE_HIDE = [
   "zotero-collections-tree",
@@ -68,8 +68,8 @@ const NATIVE_HIDE = [
 const LAYOUT_CSS =
   "#library-trees{overflow:hidden !important;min-width:0 !important;}" +
   "#item-tree-container{flex:1 1 0 !important;min-width:0 !important;overflow:hidden !important;}" +
-  "#annotree-list-pane,#annotree-list-pane *{min-width:0;}" +
-  "#annotree-preview{min-width:0;overflow-x:hidden;overflow-wrap:anywhere;}";
+  "#flexannotate-list-pane,#flexannotate-list-pane *{min-width:0;}" +
+  "#flexannotate-preview{min-width:0;overflow-x:hidden;overflow-wrap:anywhere;}";
 
 interface Attached {
   observer: MutationObserver | null;
@@ -96,7 +96,7 @@ function writePref(v: boolean) {
   try {
     Zotero.Prefs.set(prefKey(PREF), v, true);
   } catch (e) {
-    ztoolkit.log("annotree dialog pref write failed:", e);
+    ztoolkit.log("flexannotate dialog pref write failed:", e);
   }
 }
 
@@ -120,9 +120,9 @@ function inject(win: Window) {
     "display:flex;gap:6px;align-items:center;padding:6px 8px;flex:none;";
   const cb = doc.createElement("input");
   cb.type = "checkbox";
-  cb.id = "annotree-toggle";
+  cb.id = "flexannotate-toggle";
   const label = doc.createElement("label");
-  label.htmlFor = "annotree-toggle";
+  label.htmlFor = "flexannotate-toggle";
   label.textContent = tr("dialogOutline");
   row.append(cb, label);
   sidebar.insertBefore(row, sidebar.firstChild);
@@ -161,7 +161,7 @@ function detach(win: Window) {
     if (info?.enabled) restoreLayout(win);
     doc.getElementById(ROW_ID)?.remove();
   } catch (e) {
-    ztoolkit.log("annotree dialog detach failed:", e);
+    ztoolkit.log("flexannotate dialog detach failed:", e);
   }
   attached.delete(win);
 }
@@ -199,7 +199,7 @@ async function enable(win: Window, cb: HTMLInputElement) {
     addKeys(win, info);
     cb.checked = true;
   } catch (e) {
-    ztoolkit.log("annotree dialog enable failed:", e);
+    ztoolkit.log("flexannotate dialog enable failed:", e);
     info.enabled = false;
     restoreLayout(win);
   }
@@ -329,7 +329,7 @@ function restoreLayout(win: Window) {
     // Let Zotero recompute its list from the current item selection.
     (win as any).libraryLayout?.itemsView?.selection?.clearSelection?.();
   } catch (e) {
-    ztoolkit.log("annotree dialog restore failed:", e);
+    ztoolkit.log("flexannotate dialog restore failed:", e);
   }
 }
 

@@ -47,13 +47,13 @@ export class OrganizerFactory {
 
   static registerMenu() {
     registerPluginMenu({
-      menuID: "zotero-tools-annotree-organizer",
+      menuID: "zotero-tools-flexannotate-organizer",
       target: "main/menubar/tools",
       l10nID: "outline-menu-label",
       icon: `chrome://${addon.data.config.addonRef}/content/icons/organizer.svg`,
       onCommand: () => {
         OrganizerFactory.open().catch((e) =>
-          ztoolkit.log("annotree organizer open failed:", e),
+          ztoolkit.log("flexannotate organizer open failed:", e),
         );
       },
     });
@@ -62,7 +62,7 @@ export class OrganizerFactory {
   static async open() {
     const dialog = new ztoolkit.Dialog(1, 1).addCell(0, 0, {
       tag: "div",
-      id: "annotree-root",
+      id: "flexannotate-root",
       styles: {
         width: "calc(100vw - 24px)",
         height: "calc(100vh - 64px)",
@@ -75,10 +75,10 @@ export class OrganizerFactory {
       loadCallback: () => {
         try {
           const doc = dialog.window.document;
-          const root = doc.getElementById("annotree-root") as HTMLElement;
+          const root = doc.getElementById("flexannotate-root") as HTMLElement;
           if (root) void this.mount(doc, root);
         } catch (e) {
-          ztoolkit.log("annotree organizer build failed:", e);
+          ztoolkit.log("flexannotate organizer build failed:", e);
         }
       },
     });
@@ -98,7 +98,7 @@ export class OrganizerFactory {
     try {
       await Zotero.Styles.init(); // locator labels need the CSL locales
     } catch (e) {
-      ztoolkit.log("annotree styles init failed:", e);
+      ztoolkit.log("flexannotate styles init failed:", e);
     }
     const { libraryID, scope } = defaultScope();
     const loaded = await OutlineModel.load(libraryID);
