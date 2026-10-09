@@ -1,24 +1,24 @@
 {
-  "name": "zotero-annotree",
+  "name": "zotero-flexannotate",
   "type": "module",
-  "version": "0.2.4",
-  "description": "Annotree: sort Zotero annotations and works into an outline (Citavi-style knowledge organizer), usable from the Word citation dialog.",
+  "version": "2.0.0-dev.0",
+  "description": "FlexAnnotate: print annotations, citation-only insertion, Citavi import and a Citavi-style annotation organizer for Zotero.",
   "config": {
-    "addonName": "Annotree",
-    "addonID": "annotree@justanotherjurastudent.github.io",
-    "addonRef": "annotree",
-    "addonInstance": "Annotree",
-    "prefsPrefix": "extensions.zotero.annotree"
+    "addonName": "FlexAnnotate",
+    "addonID": "flexannotate@justanotherjurastudent.github.io",
+    "addonRef": "flexannotate",
+    "addonInstance": "FlexAnnotate",
+    "prefsPrefix": "extensions.flexannotate"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/justanotherjurastudent/zotero_Annotree.git"
+    "url": "git+https://github.com/justanotherjurastudent/zotero_flexAnnotations.git"
   },
-  "author": "justanotherjurastudent (based on Lattice by birugit)",
+  "author": "justanotherjurastudent (organizer based on Lattice by birugit)",
   "bugs": {
-    "url": "https://github.com/justanotherjurastudent/zotero_Annotree/issues"
+    "url": "https://github.com/justanotherjurastudent/zotero_flexAnnotations/issues"
   },
-  "homepage": "https://github.com/justanotherjurastudent/zotero_Annotree#readme",
+  "homepage": "https://github.com/justanotherjurastudent/zotero_flexAnnotations#readme",
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "start": "zotero-plugin serve",
