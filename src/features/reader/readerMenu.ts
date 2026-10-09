@@ -18,7 +18,7 @@ import {
 import type { DialogView } from "../../core/printDialog";
 import * as printDialog from "../print/dialog";
 import * as printAnnotations from "../print/printAnnotations";
-import { enhanceLabelPopup } from "./labelPopup";
+import { enhanceLabelPopup, setLabelPopupHooks } from "./labelPopup";
 
 type MainWin = _ZoteroTypes.MainWindow;
 type ReaderInstance = _ZoteroTypes.ReaderInstance;
@@ -47,6 +47,7 @@ interface ReaderInternals {
 
 interface AnnotationManager {
   _getAnnotationByID(id: string): ReaderAnnotation | undefined;
+  updateAnnotations(updates: unknown[]): void;
 }
 
 interface ReaderAnnotation {
@@ -172,6 +173,12 @@ export function patch(): boolean {
 
   // Nach dem Speichern im Dialog offene Reader aktualisieren (siehe print/dialog.ts)
   printDialog.setAfterSave(() => updateAllReaders());
+  // Callbacks für das Seitenzahl-Popup (labelPopup.ts importiert dieses Modul nicht)
+  setLabelPopupHooks({
+    updateLocators: updateAllLocators,
+    updateReaders: updateAllReaders,
+    getAnnotationManager,
+  });
 
   // 4. Bestehende und künftige Reader überwachen für den Seitenzahl-Popup
   watchAllReaders();
@@ -198,6 +205,7 @@ export function unpatch(): void {
     notifierID = null;
   }
   printDialog.setAfterSave(null);
+  setLabelPopupHooks(null);
   if (origOpen && Zotero.Reader) {
     assignChecked(Zotero.Reader, "open", origOpen);
     origOpen = null;
