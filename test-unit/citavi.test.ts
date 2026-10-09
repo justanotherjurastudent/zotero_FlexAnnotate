@@ -3,12 +3,15 @@ import assert from "node:assert/strict";
 import {
   buildAnnotationData,
   createLocatorResolver,
+  isDuplicateAnnotation,
   isPageTail,
   isQuoteNote,
   normalizeText,
   parsePageRange,
   resolveKeywords,
+  splitOnetoN,
   stripMarkup,
+  xpathLiteral,
 } from "../src/core/citavi.ts";
 
 // Standardwerte der Prefs (prefs.js)
@@ -215,5 +218,123 @@ describe("resolveKeywords", () => {
   it("drops unknown keyword IDs and handles empty input", () => {
     assert.deepEqual(resolveKeywords("KI1;KW9", nameOf), []);
     assert.deepEqual(resolveKeywords(null, nameOf), []);
+  });
+});
+
+describe("splitOnetoN and resolveKeywords prefix collisions", () => {
+  it("returns the owner ID and the keyword IDs after it", () => {
+    assert.deepEqual(splitOnetoN("K1:x;KW1:x;KW2:x"), {
+      ownerId: "K1",
+      keywordIds: ["KW1", "KW2"],
+    });
+  });
+
+  it("keeps K1 and K10 apart: the owner ID is compared as a whole", () => {
+    const k10 = "K10:x;KW3:x";
+    assert.equal(splitOnetoN(k10).ownerId, "K10");
+    assert.notEqual(splitOnetoN(k10).ownerId, "K1");
+    assert.deepEqual(splitOnetoN(k10).keywordIds, ["KW3"]);
+  });
+
+  it("handles empty input without keyword IDs", () => {
+    assert.deepEqual(splitOnetoN(""), { ownerId: "", keywordIds: [] });
+    assert.deepEqual(splitOnetoN(null), { ownerId: "", keywordIds: [] });
+    assert.deepEqual(
+      resolveKeywords("", () => "x"),
+      [],
+    );
+  });
+
+  it("resolves only the keywords of the given group", () => {
+    const names: Record<string, string> = { KW1: "Eins", KW3: "Drei" };
+    assert.deepEqual(
+      resolveKeywords("K1:x;KW1:x", (id) => names[id]),
+      ["Eins"],
+    );
+  });
+});
+
+describe("xpathLiteral", () => {
+  it("quotes plain values with apostrophes", () => {
+    assert.equal(xpathLiteral("KW1"), "'KW1'");
+  });
+
+  it("switches quote style when the value contains an apostrophe", () => {
+    assert.equal(xpathLiteral("a'b"), `"a'b"`);
+  });
+
+  it("builds a concat() when the value contains both quote characters", () => {
+    assert.equal(xpathLiteral(`a'b"c`), `concat('a', "'", 'b"c')`);
+  });
+});
+
+describe("isDuplicateAnnotation", () => {
+  const base = { pageLabel: "12", text: "Zitat", comment: "Kern" };
+
+  it("treats the same page and text as a duplicate", () => {
+    assert.equal(isDuplicateAnnotation([base], { ...base }), true);
+  });
+
+  it("does not match the same page with another text", () => {
+    assert.equal(
+      isDuplicateAnnotation([base], { ...base, text: "Anderes" }),
+      false,
+    );
+  });
+
+  it("does not match the same text on another page", () => {
+    assert.equal(
+      isDuplicateAnnotation([base], { ...base, pageLabel: "13" }),
+      false,
+    );
+  });
+
+  it("treats a null page label (Zotero's empty value) like an empty one", () => {
+    assert.equal(
+      isDuplicateAnnotation([{ ...base, pageLabel: null }], {
+        ...base,
+        pageLabel: "",
+      }),
+      true,
+    );
+  });
+
+  it("normalizes whitespace and markup in the text", () => {
+    const existing = { ...base, text: "Das  <i>Zitat</i>\n" };
+    assert.equal(
+      isDuplicateAnnotation([existing], { ...base, text: "Das Zitat" }),
+      true,
+    );
+  });
+
+  it("compares page and comment when the text is empty", () => {
+    const note = { pageLabel: "7", text: "", comment: "Kern" };
+    assert.equal(isDuplicateAnnotation([note], { ...note }), true);
+    assert.equal(
+      isDuplicateAnnotation([note], { ...note, comment: "Anders" }),
+      false,
+    );
+    assert.equal(
+      isDuplicateAnnotation([base], {
+        pageLabel: "12",
+        text: "",
+        comment: "Kern",
+      }),
+      false,
+    );
+  });
+
+  it("ignores a changed comment when the text is present", () => {
+    assert.equal(
+      isDuplicateAnnotation([base], {
+        ...base,
+        comment: "vom Nutzer geändert",
+      }),
+      true,
+    );
+  });
+
+  it("finds nothing in an empty list", () => {
+    assert.equal(isDuplicateAnnotation([], base), false);
   });
 });

@@ -171,22 +171,77 @@ export function parsePageRange(
 }
 
 /**
- * Schlüsselwort-IDs aus einem `//KnowledgeItemKeywords/OnetoN`-Text (`ID:…;KwID:…;…`)
- * und deren Namen. Das erste Glied ist das KnowledgeItem selbst und wird übersprungen.
+ * Zerlegt einen `//KnowledgeItemKeywords/OnetoN`-Text (`ID:…;KwID:…;…`, Glieder durch `;`,
+ * je Glied der Teil vor `:`) in die ID des ersten Glieds (das KnowledgeItem) und die
+ * Schlüsselwort-IDs danach. Der Teil nach `:` ist im Export nicht dokumentiert und bleibt
+ * unberücksichtigt (wie import/citavi.js:58-65).
+ */
+export function splitOnetoN(oneToN: string | null | undefined): {
+  ownerId: string;
+  keywordIds: string[];
+} {
+  const ids = (oneToN ?? "")
+    .split(";")
+    .map((part) => part.split(":")[0].trim())
+    .filter(Boolean);
+  return { ownerId: ids[0] ?? "", keywordIds: ids.slice(1) };
+}
+
+/**
+ * Schlüsselwort-IDs aus einem OnetoN-Text und deren Namen. Das erste Glied ist das
+ * KnowledgeItem selbst und wird übersprungen.
  */
 export function resolveKeywords(
   oneToN: string | null | undefined,
   nameOf: (keywordId: string) => string | null | undefined,
 ): string[] {
-  if (!oneToN) {
-    return [];
-  }
-  return oneToN
-    .split(";")
-    .map((part) => part.split(":")[0])
-    .slice(1)
-    .map((keywordId) => nameOf(keywordId))
+  return splitOnetoN(oneToN)
+    .keywordIds.map((keywordId) => nameOf(keywordId))
     .filter((name): name is string => !!name);
+}
+
+/**
+ * XPath-1.0-Stringliteral für einen beliebigen Wert, damit er nicht den Ausdruck bricht.
+ * Ein Wert mit beiden Anführungszeichen wird per concat() zusammengesetzt.
+ */
+export function xpathLiteral(value: string): string {
+  if (!value.includes("'")) {
+    return `'${value}'`;
+  }
+  if (!value.includes('"')) {
+    return `"${value}"`;
+  }
+  return `concat('${value.split("'").join(`', "'", '`)}')`;
+}
+
+/** Identität einer Print-Annotation für die Dublettenprüfung. */
+export interface AnnotationKey {
+  pageLabel: string | null;
+  text: string | null;
+  comment: string | null;
+}
+
+/**
+ * Ist der Kandidat schon als Annotation vorhanden? Gleich sind Seitenlabel und
+ * normalisierter Zitattext (Markup entfernt). Ist der Zitattext leer, zählt stattdessen
+ * der Kommentar. Bei vorhandenem Text bleibt der Kommentar außen vor, weil der Nutzer ihn
+ * nach dem Import ändern darf.
+ */
+export function isDuplicateAnnotation(
+  existing: AnnotationKey[],
+  candidate: AnnotationKey,
+): boolean {
+  const plain = (value: string | null | undefined) =>
+    normalizeText(stripMarkup(value));
+  const label = plain(candidate.pageLabel);
+  const text = plain(candidate.text);
+  const comment = plain(candidate.comment);
+  return existing.some(
+    (e) =>
+      plain(e.pageLabel) === label &&
+      plain(e.text) === text &&
+      (text !== "" || plain(e.comment) === comment),
+  );
 }
 
 /**

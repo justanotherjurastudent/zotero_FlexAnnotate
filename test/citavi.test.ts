@@ -54,11 +54,13 @@ const FIXTURE = `<?xml version="1.0" encoding="utf-8"?>
     </KnowledgeItem>
   </KnowledgeItems>
   <KnowledgeItemKeywords>
+    <OnetoN>K10:x;KW3:x</OnetoN>
     <OnetoN>K1:x;KW1:x;KW2:x</OnetoN>
   </KnowledgeItemKeywords>
   <Keywords>
     <Keyword id="KW1"><Name>Schlagwort eins</Name></Keyword>
     <Keyword id="KW2"><Name>Schlagwort zwei</Name></Keyword>
+    <Keyword id="KW3"><Name>Schlagwort drei</Name></Keyword>
   </Keywords>
   <EntityLinks>
     <EntityLink><SourceID>K2</SourceID></EntityLink>
@@ -124,12 +126,13 @@ describe("citavi import", function () {
       .flatMap((att: Zotero.Item) => att.getAnnotations()) as Zotero.Item[];
 
   it("creates print annotations for unanchored quotes and reports the skip reasons", async function () {
-    const count = await api().citavi.importPrintQuotes(
+    const result = await api().citavi.importPrintQuotes(
       fakeTranslation(FIXTURE, idMap),
     );
     // K1 and K3 are created; K2 (anchored, PDF) is left to Zotero; K4 has no item;
     // K5 has no text and no comment.
-    assert.equal(count, 2);
+    assert.equal(result.created, 2);
+    assert.equal(result.duplicates, 0);
 
     const anns = annotationsOf(works.a);
     assert.lengthOf(anns, 2);
@@ -143,6 +146,8 @@ describe("citavi import", function () {
     const tags = direct.getTags().map((t: { tag: string }) => t.tag);
     assert.include(tags, "Schlagwort eins");
     assert.include(tags, "Schlagwort zwei");
+    // K10 is listed first in the OnetoN section and shares the prefix "K1"
+    assert.notInclude(tags, "Schlagwort drei");
 
     // Indirect quote (type 2): the core statement becomes the text, the quote the comment.
     const indirect = byText("Indirekte Aussage");
@@ -150,6 +155,38 @@ describe("citavi import", function () {
     assert.equal(indirect.annotationColor, "#a6507b");
     // Zotero stores an empty page label as null (xpcom/data/item.js:2290)
     assert.isNull(indirect.annotationPageLabel);
+  });
+
+  it("skips quotes already annotated on a second import", async function () {
+    const first = await api().citavi.importPrintQuotes(
+      fakeTranslation(FIXTURE, idMap),
+    );
+    assert.equal(first.created, 2);
+
+    const second = await api().citavi.importPrintQuotes(
+      fakeTranslation(FIXTURE, idMap),
+    );
+    assert.equal(second.created, 0);
+    assert.equal(second.duplicates, 2, "K1 and K3 are duplicates");
+    assert.lengthOf(annotationsOf(works.a), 2);
+  });
+
+  it("creates a quote again when its page differs from the existing one", async function () {
+    await api().citavi.importPrintQuotes(fakeTranslation(FIXTURE, idMap));
+
+    // PageRange is escaped in the XML, so the replaced text is the escaped form
+    const moved = FIXTURE.replace(
+      "&lt;os&gt;128&lt;/os&gt;",
+      "&lt;os&gt;129&lt;/os&gt;",
+    );
+    assert.notEqual(moved, FIXTURE, "the page change reached the fixture");
+    const result = await api().citavi.importPrintQuotes(
+      fakeTranslation(moved, idMap),
+    );
+    assert.equal(result.created, 1, "K1 on page 129 is new");
+    assert.equal(result.duplicates, 1, "K3 is still a duplicate");
+    const pages = annotationsOf(works.a).map((a) => a.annotationPageLabel);
+    assert.sameMembers(pages, ["128", "129", null]);
   });
 
   it("removes the translator note only when citaviKeepNotes is off", async function () {

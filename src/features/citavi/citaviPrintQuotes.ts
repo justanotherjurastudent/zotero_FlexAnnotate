@@ -6,13 +6,17 @@
 import {
   buildAnnotationData,
   createLocatorResolver,
+  isDuplicateAnnotation,
   isQuoteNote,
   resolveKeywords,
+  splitOnetoN,
+  xpathLiteral,
+  type AnnotationKey,
   type CitaviKnowledgeItem,
 } from "../../core/citavi";
 import { getPref } from "../../utils/prefs";
 import * as printAnnotations from "../print/printAnnotations";
-import { isPlaceholder } from "../print/placeholder";
+import { find as findPlaceholder, isPlaceholder } from "../print/placeholder";
 import type { CitaviTranslation, CitaviXml } from "./citaviLinks";
 
 /**
@@ -50,20 +54,18 @@ function readKnowledgeItem(
 }
 
 /**
- * Schlagwörter wie import/citavi.js:58-65.
- * shortcut: `starts-with(text(), id)` ist ein Präfix-Vergleich — ID 12 trifft auch die
- * Gruppe „123:…", wenn sie zuerst im Dokument steht; Legacy-Verhalten bleibt bewusst,
- * exakter Vergleich wäre `substring-before(text(), ":") = id`.
+ * Schlagwörter des KnowledgeItem. Der OnetoN-Knoten wird über die ID des ersten Glieds
+ * exakt zugeordnet (nicht per `starts-with`, sonst träfe ID K1 den Knoten von K10).
+ * Die Zuordnung erfolgt in JS, damit die ID nie in einen XPath-Ausdruck gerät.
  */
 function keywordsOf(ZU: CitaviXml, node: Element, doc: Document): string[] {
   try {
     const id = ZU.xpathText(node, "@id");
-    const oneToN = ZU.xpathText(
-      doc,
-      `//KnowledgeItemKeywords/OnetoN[starts-with(text(), "${id}")]`,
-    );
+    const oneToN = ZU.xpath(doc, "//KnowledgeItemKeywords/OnetoN")
+      .map((n) => n.textContent)
+      .find((text) => splitOnetoN(text).ownerId === id);
     return resolveKeywords(oneToN, (keywordId) =>
-      ZU.xpathText(doc, `.//Keyword[@id='${keywordId}']/Name`),
+      ZU.xpathText(doc, `.//Keyword[@id=${xpathLiteral(keywordId)}]/Name`),
     );
   } catch (e) {
     Zotero.logError(e as Error);
@@ -102,17 +104,19 @@ function hasAnnotatableAttachment(item: Zotero.Item): boolean {
 
 /**
  * Legt für jedes Citavi-Zitat, das Zotero nicht übernommen hat, eine Print-Annotation
- * an. Es gibt keine Dublettenprüfung (wie in legacy): jeder Lauf legt neu an.
+ * an. Ein wiederholter Import überspringt Zitate, die schon als Annotation am Platzhalter
+ * stehen (isDuplicateAnnotation); legacy hatte keine Prüfung. Die Notiz des Übersetzers
+ * wird nur für tatsächlich angelegte Annotationen entfernt.
  *
- * @return Anzahl angelegter Annotationen
+ * @return Anzahl angelegter Annotationen und übersprungener Dubletten
  */
 export async function importPrintQuotes(
   translation: CitaviTranslation,
-): Promise<number> {
+): Promise<{ created: number; duplicates: number }> {
   const idMap = translation?._itemSaver?._IDMap;
   if (!idMap) {
     ztoolkit.log("Citavi import: no ID map available");
-    return 0;
+    return { created: 0, duplicates: 0 };
   }
 
   // Der Stream ist nach Zoteros Durchlauf verbraucht (import/citavi.js:14).
@@ -138,8 +142,11 @@ export async function importPrintQuotes(
     notRegular: 0,
     handledByZotero: 0,
     empty: 0,
+    duplicates: 0,
   };
   const attachmentCache = new Map<number, boolean>();
+  // Vorhandene Annotationen je Titel, einmal geladen; neu angelegte kommen dazu
+  const existingByItem = new Map<number, AnnotationKey[]>();
 
   for (const node of ZU.xpath(doc, "//KnowledgeItems/KnowledgeItem")) {
     seen++;
@@ -181,7 +188,28 @@ export async function importPrintQuotes(
       continue;
     }
 
+    let existing = existingByItem.get(item.id);
+    if (!existing) {
+      const placeholder = findPlaceholder(item);
+      existing = (placeholder?.getAnnotations() ?? []).map((a) => ({
+        pageLabel: a.annotationPageLabel,
+        text: a.annotationText,
+        comment: a.annotationComment,
+      }));
+      existingByItem.set(item.id, existing);
+    }
+    const key = {
+      pageLabel: data.pageLabel,
+      text: data.text,
+      comment: data.comment,
+    };
+    if (isDuplicateAnnotation(existing, key)) {
+      skipped.duplicates++;
+      continue;
+    }
+
     await printAnnotations.create(item, data);
+    existing.push(key);
     created++;
 
     if (!keepNotes && (await removeQuoteNote(item, quote))) {
@@ -196,5 +224,5 @@ export async function importPrintQuotes(
         .map(([k, v]) => `${k}=${v}`)
         .join(" "),
   );
-  return created;
+  return { created, duplicates: skipped.duplicates };
 }
