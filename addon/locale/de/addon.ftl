@@ -66,3 +66,8 @@ reader-locator-margin =
     .label = Randnummer
 reader-locator-opus =
     .label = Randnummer
+
+# Seitenzahl-Popup im Reader (features/reader/labelPopup.ts)
+reader-popup-locator-label = Locator:
+reader-popup-legend = Locator und Nummerierung ändern:
+reader-popup-already-default = Ist bereits Standard für dieses Dokument

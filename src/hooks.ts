@@ -22,6 +22,9 @@ import {
 } from "./features/print/menus";
 import { annotationRowMenu } from "./features/print/annotationRowMenu";
 import * as readerMenuModule from "./features/reader/readerMenu";
+import { CitaviImport, citaviImport } from "./features/citavi/citaviImport";
+import { linkContributions } from "./features/citavi/citaviLinks";
+import { importPrintQuotes } from "./features/citavi/citaviPrintQuotes";
 
 import { unregisterAllPluginMenus } from "./utils/menu";
 import {
@@ -49,6 +52,7 @@ const features: Feature[] = [
   },
   citeOnlyPatch,
   readerMenuModule.readerMenu,
+  citaviImport,
   {
     // Cross-paper annotation layer: Notifier observer keeps the index fresh as
     // annotations are added/edited/removed anywhere in the library.
@@ -81,6 +85,12 @@ async function onStartup() {
     modeSelector,
     citeOnly: { patch: citeOnlyPatch, isPatched: citeOnlyIsPatched },
     reader: { readerMenu: readerMenuModule },
+    citavi: {
+      importer: CitaviImport,
+      feature: citaviImport,
+      importPrintQuotes,
+      linkContributions,
+    },
     print: {
       placeholder: printPlaceholder,
       printAnnotations,
