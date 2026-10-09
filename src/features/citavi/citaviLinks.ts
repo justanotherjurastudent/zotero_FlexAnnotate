@@ -1,5 +1,5 @@
 /**
- * Citavi: Beiträge mit ihrem Hauptwerk verknüpfen. Herkunft: legacy/citaviImport.js
+ * Citavi: Beiträge mit ihrem Hauptwerk verknüpfen. Herkunft: pre-merge:src/citaviImport.js
  * (linkContributions). Läuft aus citaviImport.ts nach dem Print-Quoten-Durchlauf.
  *
  * Zotero 10.0.5: Der Übersetzer verarbeitet ReferenceReferences nicht. Der seeAlso-Code

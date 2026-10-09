@@ -1,6 +1,6 @@
 /**
  * Sichtbarkeit der Einträge im Item-Kontextmenü, ohne Zotero-Globals (in Node testbar).
- * Herkunft: legacy/flexannotate.js updateMenuState. Die Zuordnung zu Menüeinträgen steht
+ * Herkunft: pre-merge:src/flexannotate.js updateMenuState. Die Zuordnung zu Menüeinträgen steht
  * in features/print/menus.ts.
  */
 

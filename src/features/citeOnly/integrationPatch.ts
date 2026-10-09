@@ -1,5 +1,5 @@
 /**
- * Feature B – Nur-Nachweis-Zitieren (Herkunft: legacy/integrationPatch.js).
+ * Feature B – Nur-Nachweis-Zitieren (Herkunft: pre-merge:src/integrationPatch.js).
  *
  * Angriffspunkt (verifiziert gegen Zotero 10.0.5, xpcom/integration.js:1678-1701):
  * `Zotero.Integration.Session.prototype._insertCitingResult` zweigt ab, sobald die

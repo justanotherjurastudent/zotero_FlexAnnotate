@@ -1,7 +1,7 @@
 /**
  * Citavi-Import: reine Parser- und Textlogik, ohne Zotero-Globals und ohne DOM.
  *
- * Herkunft: legacy/citaviImport.js
+ * Herkunft: pre-merge:src/citaviImport.js
  *   - QUOTATION_TYPES, LOCATOR_PREF_BY_NUMBER_TYPE, MAX_NOTE_TAIL: Konstanten
  *   - getLocatorFor()          -> createLocatorResolver() (Prefs und Log injiziert)
  *   - isPageTail(), stripMarkup(), normalizeText()

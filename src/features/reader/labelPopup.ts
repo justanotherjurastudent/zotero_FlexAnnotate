@@ -1,6 +1,6 @@
 /**
  * Seitenzahl-Popup (.label-popup) im Reader: Locator-Auswahl und Standard-Checkbox.
- * Herkunft: legacy/readerMenu.js enhanceLabelPopup (Zeilen 316-706), verkürzt. Die
+ * Herkunft: pre-merge:src/readerMenu.js enhanceLabelPopup (Zeilen 316-706), verkürzt. Die
  * reinen Entscheidungen stehen in core/labelPopup.ts.
  *
  * Zotero-Quelle (10.0.5, resource/reader/reader.js): Komponente LabelPopup ab Zeile

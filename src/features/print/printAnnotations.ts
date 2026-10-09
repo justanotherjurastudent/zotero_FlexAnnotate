@@ -1,5 +1,5 @@
 /**
- * Anlegen und Bearbeiten von Print-Annotationen. Herkunft: legacy/printAnnotations.js.
+ * Anlegen und Bearbeiten von Print-Annotationen. Herkunft: pre-merge:src/printAnnotations.js.
  *
  * Feldregeln verifiziert gegen Zotero 10.0.1 (item.js:4487-4555):
  *  - `annotationType` muss vor allen anderen Annotation-Feldern gesetzt werden

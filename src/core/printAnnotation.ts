@@ -1,6 +1,6 @@
 /**
  * Reine Regeln für Print-Annotationen, ohne Zotero-Globals (in Node testbar).
- * Herkunft: legacy/printAnnotations.js und legacy/placeholder.js.
+ * Herkunft: pre-merge:src/printAnnotations.js und pre-merge:src/placeholder.js.
  */
 
 export const DEFAULT_COLOR = "#ffd400";

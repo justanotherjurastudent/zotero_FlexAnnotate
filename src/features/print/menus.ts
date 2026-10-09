@@ -1,6 +1,6 @@
 /**
  * Einträge im Item-Kontextmenü: Print-Annotation anlegen, Annotation bearbeiten,
- * Print-Annotation löschen. Herkunft: legacy/flexannotate.js (addToWindow, addMenuItem,
+ * Print-Annotation löschen. Herkunft: pre-merge:src/flexannotate.js (addToWindow, addMenuItem,
  * setMenuIcon, updateMenuState).
  *
  * Per DOM statt Zotero.MenuManager: Zotero baut das Item-Menü bei Annotations-Auswahl

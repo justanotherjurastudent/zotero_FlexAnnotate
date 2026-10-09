@@ -1,6 +1,6 @@
 /**
  * Kontextmenü an den Annotations-Zeilen im rechten Item-Bereich. Herkunft:
- * legacy/annotationMenu.js.
+ * pre-merge:src/annotationMenu.js.
  *
  * Zotero zeichnet Annotationen dort als <annotation-row annotation-id="…"> und bringt
  * kein eigenes Menü dafür mit. Die Zeilen werden bei jeder Auswahländerung neu gebaut,

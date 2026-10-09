@@ -1,6 +1,6 @@
 /**
  * Reader-Integration (Dokumentenansicht), Teil 1: Kontextmenü an Annotationen, Sidebar-
- * Header und Aktualisierung der Locator-Anzeige. Herkunft: legacy/readerMenu.js
+ * Header und Aktualisierung der Locator-Anzeige. Herkunft: pre-merge:src/readerMenu.js
  * (Zeilen 1-315 und 714-907). Das Seitenzahl-Popup steht in labelPopup.ts.
  *
  * Zotero-Quelle (10.0.5, chrome/content/zotero/xpcom/reader.js): registerEventListener

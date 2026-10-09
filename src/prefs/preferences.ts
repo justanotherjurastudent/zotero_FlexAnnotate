@@ -2,7 +2,7 @@
  * Skript des gemeinsamen Einstellungsfensters. Zotero lädt es über den scripts-Eintrag
  * der Pane in einen Sandbox-Scope des Fensters (preferences.js:313-320) — daher nur
  * Zotero.*, window und document, keine Plugin-Globals wie ztoolkit oder addon.
- * Herkunft: legacy/preferences.js.
+ * Herkunft: pre-merge:src/preferences.js.
  */
 import { buildLocatorOptions } from "../core/labelPopup.ts";
 

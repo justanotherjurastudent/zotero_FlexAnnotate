@@ -1,7 +1,7 @@
 /**
  * Eingabemaske für Print-Annotationen: anlegen, bearbeiten und Kommentar bzw. Locator
  * nachtragen, auch bei nativen Annotationen aus PDF, EPUB und Snapshot.
- * Herkunft: legacy/dialog.js. Die reinen Regeln stehen in core/printDialog.ts.
+ * Herkunft: pre-merge:src/dialog.js. Die reinen Regeln stehen in core/printDialog.ts.
  *
  * Kein eigenes Fenster: XUL-Elemente werden nur in privilegierten chrome-Dokumenten
  * geparst, eine chrome://-URI kann ein Plugin in Zotero 10 nicht registrieren, und

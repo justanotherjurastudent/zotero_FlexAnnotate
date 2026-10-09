@@ -6,7 +6,7 @@
  * Annotation direkt an einem Titel-Item ist damit nicht möglich, ebenso wenig ein
  * Linked-URL-Attachment. Für Print-Quellen hängen wir deshalb ein winziges, leeres
  * 1-Seiten-PDF unter den Titel und führen die Print-Annotationen darunter.
- * Herkunft: legacy/placeholder.js.
+ * Herkunft: pre-merge:src/placeholder.js.
  */
 import { buildPlaceholderPDF } from "../../core/printAnnotation";
 import { getString } from "../../utils/locale";

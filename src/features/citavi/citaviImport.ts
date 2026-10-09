@@ -1,6 +1,6 @@
 /**
  * Citavi-Import: Zitate ohne Dateianhang als Print-Annotationen übernehmen.
- * Herkunft: legacy/citaviImport.js. Reine Parser- und Textlogik liegt in core/citavi.ts.
+ * Herkunft: pre-merge:src/citaviImport.js. Reine Parser- und Textlogik liegt in core/citavi.ts.
  *
  * Zoteros Importer verwirft sie. Er läuft über `//Annotations/Annotation` — Knoten, die
  * PDF-Koordinaten (`Quads`) tragen — und steigt zusätzlich aus, wenn die Quelle keinen

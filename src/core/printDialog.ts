@@ -1,6 +1,6 @@
 /**
  * Reine Regeln der Eingabemaske für Annotationen, ohne Zotero-Globals (in Node testbar).
- * Herkunft: legacy/dialog.js. Die Maske selbst (DOM, Fenster, Speichern) steht in
+ * Herkunft: pre-merge:src/dialog.js. Die Maske selbst (DOM, Fenster, Speichern) steht in
  * features/print/dialog.ts.
  */
 import { DEFAULT_LOCATOR } from "./locator.ts";

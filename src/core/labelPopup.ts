@@ -1,7 +1,7 @@
 /**
  * Reine Entscheidungen des Seitenzahl-Popups (.label-popup): Locator-Auswahl,
  * Standard-Checkbox, Anwendungsplan, Zielmenge der Radio-Modi. Keine Zotero-Importe.
- * Herkunft: legacy/readerMenu.js enhanceLabelPopup (Zeilen 316-706).
+ * Herkunft: pre-merge:src/readerMenu.js enhanceLabelPopup (Zeilen 316-706).
  */
 import { DEFAULT_LOCATOR, FALLBACK_LOCATORS } from "./locator.ts";
 

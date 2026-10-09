@@ -1,7 +1,7 @@
 /**
  * Locator-Regeln für die Anzeige im Reader: welcher Locator gilt, und welche Beschriftung
  * er bekommt. Reine Logik ohne Zotero-Globals, daher im Node-Test prüfbar.
- * Herkunft: legacy/readerMenu.js (getAnnotationLocator, getLocatorLabel).
+ * Herkunft: pre-merge:src/readerMenu.js (getAnnotationLocator, getLocatorLabel).
  */
 import { DEFAULT_LOCATOR, LOCATOR_PREFIX } from "./locator.ts";
 

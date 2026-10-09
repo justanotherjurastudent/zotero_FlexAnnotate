@@ -1,6 +1,6 @@
 /**
  * Citavi: Zitate ohne Dateianhang als Print-Annotationen anlegen. Herkunft:
- * legacy/citaviImport.js (importPrintQuotes, Lesen des XML, Notiz-Entfernung).
+ * pre-merge:src/citaviImport.js (importPrintQuotes, Lesen des XML, Notiz-Entfernung).
  * Reine Parser- und Textlogik liegt in core/citavi.ts.
  */
 import {
