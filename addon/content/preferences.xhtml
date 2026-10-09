@@ -1,16 +1,161 @@
+<!--
+	Gemeinsames Einstellungsfenster (Pane "FlexAnnotate"). Die Menüs der Citavi-Zuordnung
+	füllt src/prefs/preferences.ts, das über den scripts-Eintrag der Pane geladen wird.
+	Zotero lädt das Fragment mit linkset → document.l10n.translateFragment (preferences.js:355).
+-->
 <linkset>
   <html:link rel="localization" href="__addonRef__-preferences.ftl" />
 </linkset>
 
 <groupbox>
-  <label><html:h2 data-l10n-id="pref-section"></html:h2></label>
+  <html:h2 data-l10n-id="prefs-citing-heading"></html:h2>
+  <checkbox
+    id="flexannotate-pref-citation-only"
+    data-l10n-id="prefs-citation-only"
+    preference="extensions.__addonRef__.citationOnly"
+    native="true"
+  />
+  <description
+    class="indented-pref"
+    data-l10n-id="prefs-citation-only-description"
+  />
+</groupbox>
+
+<groupbox>
+  <html:h2 data-l10n-id="prefs-print-heading"></html:h2>
+  <checkbox
+    id="flexannotate-pref-keep-placeholders"
+    data-l10n-id="prefs-keep-placeholders"
+    preference="extensions.__addonRef__.keepEmptyPlaceholders"
+    native="true"
+  />
+  <description
+    class="indented-pref"
+    data-l10n-id="prefs-keep-placeholders-description"
+  />
+</groupbox>
+
+<groupbox>
+  <html:h2 data-l10n-id="pref-section"></html:h2>
   <checkbox
     id="zotero-prefpane-__addonRef__-showworks"
     data-l10n-id="pref-show-works"
     preference="extensions.__addonRef__.showWorksInAnnotationView"
+    native="true"
   />
-  <html:p
-    data-l10n-id="pref-show-works-hint"
-    style="font-size: 11px; color: gray; margin: 2px 0 8px 0"
-  ></html:p>
+  <description class="indented-pref" data-l10n-id="pref-show-works-hint" />
+</groupbox>
+
+<groupbox>
+  <html:h2 data-l10n-id="prefs-citavi-heading"></html:h2>
+
+  <checkbox
+    id="flexannotate-pref-citavi-import"
+    data-l10n-id="prefs-citavi-import"
+    preference="extensions.__addonRef__.citaviImport"
+    native="true"
+  />
+  <description
+    class="indented-pref"
+    data-l10n-id="prefs-citavi-import-description"
+  />
+
+  <checkbox
+    id="flexannotate-pref-citavi-keep-notes"
+    data-l10n-id="prefs-citavi-keep-notes"
+    preference="extensions.__addonRef__.citaviKeepNotes"
+    native="true"
+  />
+  <description
+    class="indented-pref"
+    data-l10n-id="prefs-citavi-keep-notes-description"
+  />
+
+  <checkbox
+    id="flexannotate-pref-citavi-link-contributions"
+    data-l10n-id="prefs-citavi-link-contributions"
+    preference="extensions.__addonRef__.citaviLinkContributions"
+    native="true"
+  />
+  <description
+    class="indented-pref"
+    data-l10n-id="prefs-citavi-link-contributions-description"
+  />
+
+  <html:h3 data-l10n-id="prefs-citavi-locator-heading"></html:h3>
+
+  <hbox align="center">
+    <label
+      control="flexannotate-pref-citavi-locator-page"
+      data-l10n-id="prefs-citavi-locator-page"
+    />
+    <menulist
+      id="flexannotate-pref-citavi-locator-page"
+      preference="extensions.__addonRef__.citaviLocatorPage"
+      native="true"
+    >
+      <menupopup id="flexannotate-pref-citavi-locator-page-popup" />
+    </menulist>
+  </hbox>
+
+  <hbox align="center">
+    <label
+      control="flexannotate-pref-citavi-locator-column"
+      data-l10n-id="prefs-citavi-locator-column"
+    />
+    <menulist
+      id="flexannotate-pref-citavi-locator-column"
+      preference="extensions.__addonRef__.citaviLocatorColumn"
+      native="true"
+    >
+      <menupopup id="flexannotate-pref-citavi-locator-column-popup" />
+    </menulist>
+  </hbox>
+
+  <hbox align="center">
+    <label
+      control="flexannotate-pref-citavi-locator-paragraph"
+      data-l10n-id="prefs-citavi-locator-paragraph"
+    />
+    <menulist
+      id="flexannotate-pref-citavi-locator-paragraph"
+      preference="extensions.__addonRef__.citaviLocatorParagraph"
+      native="true"
+    >
+      <menupopup id="flexannotate-pref-citavi-locator-paragraph-popup" />
+    </menulist>
+  </hbox>
+
+  <hbox align="center">
+    <label
+      control="flexannotate-pref-citavi-locator-margin"
+      data-l10n-id="prefs-citavi-locator-margin"
+    />
+    <menulist
+      id="flexannotate-pref-citavi-locator-margin"
+      preference="extensions.__addonRef__.citaviLocatorMargin"
+      native="true"
+    >
+      <menupopup id="flexannotate-pref-citavi-locator-margin-popup" />
+    </menulist>
+  </hbox>
+
+  <hbox align="center">
+    <label
+      control="flexannotate-pref-citavi-locator-other"
+      data-l10n-id="prefs-citavi-locator-other"
+    />
+    <menulist
+      id="flexannotate-pref-citavi-locator-other"
+      preference="extensions.__addonRef__.citaviLocatorOther"
+      native="true"
+    >
+      <menupopup id="flexannotate-pref-citavi-locator-other-popup" />
+    </menulist>
+  </hbox>
+
+  <description
+    class="indented-pref"
+    data-l10n-id="prefs-citavi-locator-description"
+  />
 </groupbox>

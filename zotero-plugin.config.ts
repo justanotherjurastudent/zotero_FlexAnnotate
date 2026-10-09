@@ -36,6 +36,13 @@ export default defineConfig({
         target: "firefox140",
         outfile: `.scaffold/build/addon/content/scripts/${pkg.config.addonRef}.js`,
       },
+      {
+        // Skript des Einstellungsfensters (Pane-Scripts laufen ohne Plugin-Globals)
+        entryPoints: ["src/prefs/preferences.ts"],
+        bundle: true,
+        target: "firefox140",
+        outfile: ".scaffold/build/addon/content/scripts/preferences.js",
+      },
     ],
   },
 

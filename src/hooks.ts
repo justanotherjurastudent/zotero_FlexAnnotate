@@ -1,4 +1,4 @@
-import { getString, initLocale } from "./utils/locale";
+import { initLocale } from "./utils/locale";
 import { createZToolkit } from "./utils/ztoolkit";
 import { AnnotationIndex } from "./modules/annotationIndex";
 import { OrganizerFactory } from "./modules/organizer";
@@ -26,6 +26,7 @@ import { CitaviImport, citaviImport } from "./features/citavi/citaviImport";
 import { linkContributions } from "./features/citavi/citaviLinks";
 import { importPrintQuotes } from "./features/citavi/citaviPrintQuotes";
 
+import { organizerToolbarButton } from "./features/organizer/toolbarButton";
 import { unregisterAllPluginMenus } from "./utils/menu";
 import {
   addToWindow,
@@ -45,6 +46,7 @@ const features: Feature[] = [
     start: () => OrganizerFactory.registerMenu(),
     stop: () => unregisterAllPluginMenus(),
   },
+  organizerToolbarButton,
   {
     name: "citationDialog",
     start: () => CitationDialogPatch.start(),
@@ -79,6 +81,7 @@ async function onStartup() {
     outline: outlineCore,
     outlineModel: outlineModelModule,
     OrganizerFactory,
+    organizerToolbar: organizerToolbarButton,
     openTarget,
     cited: citedCore,
     CitationDialogPatch,
@@ -102,6 +105,9 @@ async function onStartup() {
   Zotero.PreferencePanes.register({
     pluginID: addon.data.config.addonID,
     src: `chrome://${addon.data.config.addonRef}/content/preferences.xhtml`,
+    scripts: [
+      `chrome://${addon.data.config.addonRef}/content/scripts/preferences.js`,
+    ],
     label: addon.data.config.addonName,
     image: `chrome://${addon.data.config.addonRef}/content/icons/favicon.png`,
   });
@@ -126,17 +132,6 @@ async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
   );
 
   await addToWindow(features, win);
-
-  new ztoolkit.ProgressWindow(addon.data.config.addonName, {
-    closeOnClick: true,
-    closeTime: 3000,
-  })
-    .createLine({
-      text: getString("startup-finish"),
-      type: "success",
-      progress: 100,
-    })
-    .show();
 }
 
 async function onMainWindowUnload(win: _ZoteroTypes.MainWindow): Promise<void> {

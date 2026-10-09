@@ -214,7 +214,7 @@ export class OrganizerFactory {
       menuID: "zotero-tools-annotree-organizer",
       target: "main/menubar/tools",
       l10nID: "outline-menu-label",
-      icon: `chrome://${addon.data.config.addonRef}/content/icons/favicon@0.5x.png`,
+      icon: `chrome://${addon.data.config.addonRef}/content/icons/organizer.svg`,
       onCommand: () => {
         OrganizerFactory.open().catch((e) =>
           ztoolkit.log("annotree organizer open failed:", e),
