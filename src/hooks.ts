@@ -3,6 +3,7 @@ import { createZToolkit } from "./utils/ztoolkit";
 import { AnnotationIndex } from "./modules/annotationIndex";
 import { OrganizerFactory } from "./modules/organizer";
 import { CitationDialogPatch } from "./modules/citationDialogPatch";
+import * as modeSelector from "./features/citeOnly/modeSelector";
 import * as openTarget from "./modules/openTarget";
 import * as citedCore from "./core/cited";
 import * as organizerData from "./modules/organizerData";
@@ -29,6 +30,7 @@ async function onStartup() {
     openTarget,
     cited: citedCore,
     CitationDialogPatch,
+    modeSelector,
   };
 
   Zotero.PreferencePanes.register({

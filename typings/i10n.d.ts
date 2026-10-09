@@ -5,6 +5,9 @@
 export type FluentMessageId =
   | 'annotations-menu-label'
   | 'annotations-window-title'
+  | 'dialog-mode-citation'
+  | 'dialog-mode-full'
+  | 'dialog-mode-label'
   | 'outline-menu-label'
   | 'outline-window-title'
   | 'pref-section'

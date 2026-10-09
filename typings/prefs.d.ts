@@ -10,6 +10,16 @@ declare namespace _ZoteroTypes {
       "showWorksInAnnotationView": boolean;
       "dialogOutlineView": boolean;
       "citedAnnotations": string;
+      "citationOnly": boolean;
+      "keepEmptyPlaceholders": boolean;
+      "citaviImport": boolean;
+      "citaviKeepNotes": boolean;
+      "citaviLinkContributions": boolean;
+      "citaviLocatorPage": string;
+      "citaviLocatorColumn": string;
+      "citaviLocatorParagraph": string;
+      "citaviLocatorMargin": string;
+      "citaviLocatorOther": string;
     };
   }
 }

@@ -39,6 +39,10 @@ import {
 } from "./organizerData";
 import type { Row } from "./organizerData";
 import { tr } from "../utils/strings";
+import {
+  injectModeSelector,
+  removeModeSelector,
+} from "../features/citeOnly/modeSelector";
 
 const DIALOG_URL = "chrome://zotero/content/integration/citationDialog.xhtml";
 const PREF = "dialogOutlineView";
@@ -224,6 +228,13 @@ export class CitationDialogPatch {
   // ── injection ──────────────────────────────────────────────────────────────
 
   private static inject(win: Window) {
+    try {
+      injectModeSelector(win);
+    } catch (e) {
+      // Nie den Zitationsdialog mitreißen: ohne die Auswahl bleibt er benutzbar.
+      ztoolkit.log("citation mode selector failed:", e);
+    }
+
     const doc = win.document;
     const sidebar = doc.getElementById("annotations-sidebar");
     const info = this.attached.get(win);
@@ -284,6 +295,7 @@ export class CitationDialogPatch {
   }
 
   private static detach(win: Window) {
+    removeModeSelector(win);
     const info = this.attached.get(win);
     try {
       info?.observer?.disconnect();
