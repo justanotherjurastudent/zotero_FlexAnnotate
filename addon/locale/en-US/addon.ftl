@@ -9,3 +9,39 @@ placeholder-title = FlexAnnotate: Print Annotations
 dialog-mode-label = Insert as
 dialog-mode-full = Full annotation (quotation and citation)
 dialog-mode-citation = Citation only
+
+# Annotation editor for print annotations (features/print/dialog.ts)
+field-type =
+    .value = Type
+field-color =
+    .value = Color
+field-text =
+    .value = Quotation
+field-comment =
+    .value = Comment
+
+type-highlight =
+    .label = Highlight
+type-underline =
+    .label = Underline
+type-note =
+    .label = Note
+type-text =
+    .label = Text
+type-image =
+    .label = Image
+type-ink =
+    .label = Ink
+
+# Checkbox below the locator: remembers the type for the whole document
+field-default-locator =
+    .label = Use this locator by default for this document
+
+button-save =
+    .label = Save
+button-cancel =
+    .label = Cancel
+
+save-failed =
+    The print annotation could not be saved. Details are in the debug log
+    (Help → Debug Output Logging).

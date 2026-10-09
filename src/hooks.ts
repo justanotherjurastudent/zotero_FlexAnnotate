@@ -11,6 +11,7 @@ import * as outlineCore from "./core/outline";
 import * as outlineModelModule from "./modules/outlineModel";
 import * as printPlaceholder from "./features/print/placeholder";
 import * as printAnnotations from "./features/print/printAnnotations";
+import * as printDialog from "./features/print/dialog";
 
 import { unregisterAllPluginMenus } from "./utils/menu";
 import {
@@ -64,7 +65,11 @@ async function onStartup() {
     cited: citedCore,
     CitationDialogPatch,
     modeSelector,
-    print: { placeholder: printPlaceholder, printAnnotations },
+    print: {
+      placeholder: printPlaceholder,
+      printAnnotations,
+      dialog: printDialog,
+    },
   };
 
   Zotero.PreferencePanes.register({
