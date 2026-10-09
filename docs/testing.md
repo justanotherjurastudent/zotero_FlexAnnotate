@@ -36,7 +36,7 @@ Stand bei der Erstellung dieser Datei (2026-10-09): 119 Unit-Tests und 50 Zotero
 - setzt `ZOTERO_PLUGIN_ZOTERO_BIN_PATH` auf `%LOCALAPPDATA%\Zotero\zotero.exe`, falls nicht gesetzt,
 - setzt `ZOTERO_PLUGIN_KILL_COMMAND` auf `scripts/kill-test-zotero.ps1`, das nur Prozesse beendet, deren Befehlszeile `.scaffold/test` enthält,
 - erkennt „Test run completed“ im Ausgabestrom und beendet die Testinstanz sofort (`zotero-plugin test` bliebe sonst bis zum Abbruch stehen),
-- bricht nach `FLEXANNOTATE_TEST_LIMIT_MS` Millisekunden ab (Standard 90000).
+- bricht nach `FLEXANNOTATE_TEST_LIMIT_MS` Millisekunden ab (Standard 240000).
 
 Die Testdateien in `test/` decken: Start und Feature-Lebenszyklus, Einstellungen, Print-Annotationen (Platzhalter, Eingabemaske, Menüs), Nur-Nachweis-Patch und Modus-Auswahl, Citavi-Import, Reader-Menü (nur An- und Abmelden), Organizer (Daten, Fenster, Toolbar-Button, Zitierdialog-Ansicht).
 

@@ -94,8 +94,44 @@ describe("FlexAnnotate features", function () {
     };
     const focused = async (input: HTMLElement) =>
       waitFor(() => doc.activeElement === input);
-    const outline = async () =>
-      (await api().outlineModel.OutlineModel.load(libraryID())).roots;
+    // Prefer the note the organizer is bound to; findNote is the fallback.
+    // Wait for queued saves first: the note only holds what has been written.
+    const outline = async () => {
+      const st = api().OrganizerFactory.lastState;
+      await st?.saveChain;
+      const noteID = st?.noteID;
+      const note = noteID ? (Zotero.Items.get(noteID) as Zotero.Item) : null;
+      if (note?.isNote?.()) return api().outline.parseOutline(note.getNote());
+      return (await api().outlineModel.OutlineModel.load(libraryID())).roots;
+    };
+    /** Every outline note in the library, for failure messages. */
+    const outlineNotes = async () => {
+      const s = new Zotero.Search();
+      (s as any).libraryID = libraryID();
+      s.addCondition("tag", "is", "★outline");
+      const items = await Zotero.Items.getAsync(await s.search());
+      return items.map((i: Zotero.Item) => ({
+        id: i.id,
+        dateModified: i.dateModified,
+        titles: api()
+          .outline.parseOutline(i.getNote())
+          .map((r: any) => r.title),
+      }));
+    };
+    const diag = async (what: string) =>
+      `${what}: lastState.noteID=${api().OrganizerFactory.lastState?.noteID} ` +
+      `dbNote=${JSON.stringify(
+        api()
+          .outline.parseOutline(
+            (await Zotero.DB.valueQueryAsync(
+              "SELECT note FROM itemNotes WHERE itemID=?",
+              [api().OrganizerFactory.lastState?.noteID],
+            )) || "",
+          )
+          .map((r: any) => r.title),
+      )} ` +
+      `saveLog=${JSON.stringify(api().OrganizerFactory.lastState?.saveLog)} ` +
+      `outlineNotes=${JSON.stringify(await outlineNotes())}`;
     const buttonWith = (re: RegExp) =>
       Array.from(doc.querySelectorAll("button")).find(
         (b) => re.test(b.textContent || "") || re.test(b.title || ""),
@@ -194,19 +230,8 @@ describe("FlexAnnotate features", function () {
       } catch (e) {
         const st = api().OrganizerFactory.lastState;
         throw new Error(
-          `rename not saved: mem=${JSON.stringify(st.roots)} saved=${JSON.stringify(await outline())} renaming=${st.renaming} notes=${JSON.stringify(
-            await (async () => {
-              const s = new Zotero.Search();
-              (s as any).libraryID = libraryID();
-              s.addCondition("tag", "is", "★outline");
-              const items = await Zotero.Items.getAsync(await s.search());
-              return items.map((i: Zotero.Item) => [
-                i.id,
-                i.dateModified,
-                i.getNote().slice(-260),
-              ]);
-            })(),
-          )}`,
+          `rename not saved: mem=${JSON.stringify(st.roots)} saved=${JSON.stringify(await outline())} renaming=${st.renaming} ` +
+            (await diag("rename")),
           { cause: e },
         );
       }
@@ -233,8 +258,14 @@ describe("FlexAnnotate features", function () {
         );
       } catch (e) {
         const st = api().OrganizerFactory.lastState;
+        // Is the save chain still busy (lag) or did it finish with stale data?
+        const chain = await Promise.race([
+          st.saveChain.then(() => "settled"),
+          Zotero.Promise.delay(200).then(() => "pending"),
+        ]);
         throw new Error(
-          `move failed: node=${st.node} col=${st.focusCol} renaming=${st.renaming} roots=${st.roots.map((r: any) => r.title)} saved=${(await outline()).map((r: any) => r.title)}`,
+          `move failed: node=${st.node} col=${st.focusCol} renaming=${st.renaming} chain=${chain} roots=${st.roots.map((r: any) => r.title)} saved=${(await outline()).map((r: any) => r.title)} ` +
+            (await diag("move")),
           { cause: e },
         );
       }
@@ -242,17 +273,31 @@ describe("FlexAnnotate features", function () {
       // Entf löscht die Überschrift (Rückfrage wird bestätigt)
       const factory = api().OrganizerFactory;
       const original = factory.confirm;
-      factory.confirm = () => true;
+      let asked = 0; // 0 = the Delete key never reached deleteNode's confirm
+      factory.confirm = () => {
+        asked++;
+        return true;
+      };
       try {
         mousedown(nodeEl("Alpha")!);
         click(nodeEl("Alpha")!);
         await waitFor(() => nodeEl("Alpha"));
         key(doc, "Delete");
-        await waitForAsync(async () =>
-          (await outline()).every((n: any) => n.title !== "Alpha")
-            ? true
-            : null,
-        );
+        try {
+          await waitForAsync(async () =>
+            (await outline()).every((n: any) => n.title !== "Alpha")
+              ? true
+              : null,
+          );
+        } catch (e) {
+          const st = factory.lastState;
+          throw new Error(
+            `delete failed: asked=${asked} focusCol=${st.focusCol} node=${st.node} renaming=${st.renaming} ` +
+              `saved=${(await outline()).map((r: any) => r.title)} ` +
+              (await diag("delete")),
+            { cause: e },
+          );
+        }
       } finally {
         factory.confirm = original;
       }
@@ -354,8 +399,12 @@ describe("FlexAnnotate features", function () {
         s.addCondition("itemType", "is", "note");
         const items = await Zotero.Items.getAsync(await s.search());
         for (const i of items as Zotero.Item[]) {
-          await i.loadAllData();
-          if (re.test(i.getNote())) return i;
+          try {
+            await i.loadAllData();
+            if (re.test(i.getNote())) return i;
+          } catch {
+            // the export is still saving this note; look again on the next poll
+          }
         }
         return null;
       });

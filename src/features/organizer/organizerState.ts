@@ -46,6 +46,8 @@ export interface State {
   renaming: string | null;
   /** Pending outline saves, in order. */
   saveChain: Promise<void>;
+  /** Last save events (newest last), for diagnosing a lagging save. */
+  saveLog: string[];
   /** Ends the open inline rename (set while a heading is being renamed). */
   endRename: (() => void) | null;
   editing: number | null;
@@ -82,13 +84,25 @@ export function applyScope(s: State) {
  * by a move) can never overwrite each other with an older state.
  */
 export function persist(s: State): Promise<void> {
+  const log = (what: string) => {
+    s.saveLog.push(`${Date.now() % 100000} ${what}`);
+    if (s.saveLog.length > 30) s.saveLog.shift();
+  };
+  const n = ++saveSeq;
+  log(`#${n} queued roots=${s.roots.map((r) => r.title)}`);
   s.saveChain = s.saveChain
     .then(async () => {
+      log(`#${n} start roots=${s.roots.map((r) => r.title)}`);
       s.noteID = await OutlineModel.save(s.libraryID, s.noteID, s.roots);
+      log(`#${n} done`);
     })
-    .catch((e) => ztoolkit.log("flexannotate outline save failed:", e));
+    .catch((e) => {
+      log(`#${n} FAILED ${e}`);
+      ztoolkit.log("flexannotate outline save failed:", e);
+    });
   return s.saveChain;
 }
+let saveSeq = 0;
 
 /** Rows of the current node, after the keyword filter. */
 export function visibleRows(s: State): Row[] {

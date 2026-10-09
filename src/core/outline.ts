@@ -182,6 +182,28 @@ export function flatten(roots: OutlineNode[]): FlatNode[] {
   return out;
 }
 
+/**
+ * The outline note to use when several carry OUTLINE_TAG (e.g. a sync conflict):
+ * the latest dateModified wins. Ties (same second) go to the higher id, i.e. the
+ * note created later, so the result never depends on the order of the input.
+ * Plain string comparison: dateModified is "YYYY-MM-DD HH:MM:SS", so it sorts.
+ */
+export function pickNewest<T extends { id: number; dateModified?: string }>(
+  notes: T[],
+): T | null {
+  let best: T | null = null;
+  for (const n of notes) {
+    if (!best) {
+      best = n;
+      continue;
+    }
+    const a = n.dateModified || "";
+    const b = best.dateModified || "";
+    if (a > b || (a === b && n.id > best.id)) best = n;
+  }
+  return best;
+}
+
 // ── serialization ────────────────────────────────────────────────────────────
 
 function escapeHtml(s: string): string {

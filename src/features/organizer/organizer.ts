@@ -119,6 +119,7 @@ export class OrganizerFactory {
       showWorks: readShowWorks(),
       renaming: null,
       saveChain: Promise.resolve(),
+      saveLog: [],
       endRename: null,
       editing: null,
       focusCol: "list",

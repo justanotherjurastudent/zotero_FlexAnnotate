@@ -14,7 +14,8 @@ import { fileURLToPath } from "node:url";
 const root = join(fileURLToPath(import.meta.url), "..", "..");
 const killScript = join(root, "scripts", "kill-test-zotero.ps1");
 const killCommand = `powershell -NoProfile -File "${killScript}"`;
-const limitMs = Number(process.env.FLEXANNOTATE_TEST_LIMIT_MS || 90_000);
+// Default 240 s: the suite (57+ tests) is slower on older Zotero versions.
+const limitMs = Number(process.env.FLEXANNOTATE_TEST_LIMIT_MS || 240_000);
 
 // --screenshots: also runs test/screenshots.test.ts (skipped otherwise) and
 // writes the PNGs into .scaffold/screenshots (inside the git-ignored .scaffold).

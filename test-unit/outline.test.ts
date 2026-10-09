@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
   groupByOutline,
+  pickNewest,
   headingTag,
   indent,
   itemsUnder,
@@ -158,5 +159,28 @@ describe("Zotero note normalisation", () => {
         .replace("</code></pre>", "</pre>")
         .replace(/^/, '<div data-schema-version="9">') + "</div>";
     assert.deepEqual(parseOutline(normalized), r);
+  });
+});
+
+describe("pickNewest (outline note choice)", () => {
+  it("returns null for an empty list", () => {
+    assert.equal(pickNewest([]), null);
+  });
+  it("prefers the later dateModified", () => {
+    const old = { id: 9, dateModified: "2026-01-01 10:00:00" };
+    const newer = { id: 2, dateModified: "2026-01-01 10:00:05" };
+    assert.equal(pickNewest([newer, old]), newer);
+    assert.equal(pickNewest([old, newer]), newer);
+  });
+  it("breaks a same-second tie by the higher id, regardless of order", () => {
+    const a = { id: 10, dateModified: "2026-01-01 10:00:00" };
+    const b = { id: 42, dateModified: "2026-01-01 10:00:00" };
+    assert.equal(pickNewest([a, b]), b);
+    assert.equal(pickNewest([b, a]), b);
+  });
+  it("treats a missing dateModified as oldest", () => {
+    const none = { id: 99 } as { id: number; dateModified?: string };
+    const dated = { id: 1, dateModified: "2026-01-01 10:00:00" };
+    assert.equal(pickNewest([none, dated]), dated);
   });
 });

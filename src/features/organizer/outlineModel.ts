@@ -15,6 +15,7 @@ import {
   OUTLINE_TAG,
   OutlineNode,
   parseOutline,
+  pickNewest,
   serializeOutline,
 } from "../../core/outline";
 export * from "../../core/outline";
@@ -66,10 +67,7 @@ export class OutlineModel {
         i.isNote() &&
         i.getTags().some((t) => t.tag === OUTLINE_TAG),
     );
-    notes.sort((a, b) =>
-      (b.dateModified || "").localeCompare(a.dateModified || ""),
-    );
-    return notes[0] || null;
+    return pickNewest(notes);
   }
 
   /** Load the outline tree for a library (empty tree if none exists yet). */
@@ -97,7 +95,9 @@ export class OutlineModel {
       note.libraryID = libraryID;
       note.setNote(html);
       note.addTag(OUTLINE_TAG);
-      await note.saveTx();
+      // skipSelect: a selected note opens in Zotero's note editor, which later
+      // writes its own (older) copy over our saves.
+      await note.saveTx({ skipSelect: true });
       return note.id;
     }
     note.setNote(html);
