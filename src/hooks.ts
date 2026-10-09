@@ -4,6 +4,10 @@ import { AnnotationIndex } from "./modules/annotationIndex";
 import { OrganizerFactory } from "./modules/organizer";
 import { CitationDialogPatch } from "./modules/citationDialogPatch";
 import * as modeSelector from "./features/citeOnly/modeSelector";
+import {
+  citeOnlyPatch,
+  isPatched as citeOnlyIsPatched,
+} from "./features/citeOnly/integrationPatch";
 import * as openTarget from "./modules/openTarget";
 import * as citedCore from "./core/cited";
 import * as organizerData from "./modules/organizerData";
@@ -42,6 +46,7 @@ const features: Feature[] = [
     start: () => CitationDialogPatch.start(),
     stop: () => CitationDialogPatch.stop(),
   },
+  citeOnlyPatch,
   {
     // Cross-paper annotation layer: Notifier observer keeps the index fresh as
     // annotations are added/edited/removed anywhere in the library.
@@ -72,6 +77,7 @@ async function onStartup() {
     cited: citedCore,
     CitationDialogPatch,
     modeSelector,
+    citeOnly: { patch: citeOnlyPatch, isPatched: citeOnlyIsPatched },
     print: {
       placeholder: printPlaceholder,
       printAnnotations,
