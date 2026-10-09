@@ -28,6 +28,7 @@ import { linkContributions } from "./features/citavi/citaviLinks";
 import { importPrintQuotes } from "./features/citavi/citaviPrintQuotes";
 
 import { organizerToolbarButton } from "./features/organizer/toolbarButton";
+import { toolsMenuFallback } from "./features/organizer/toolsMenuFallback";
 import { unregisterAllPluginMenus } from "./utils/menu";
 import {
   addToWindow,
@@ -56,6 +57,7 @@ const features: Feature[] = [
     stop: () => unregisterAllPluginMenus(),
   },
   organizerToolbarButton,
+  toolsMenuFallback,
   {
     name: "citationDialog",
     start: () => citationDialog.start(),
@@ -91,6 +93,7 @@ async function onStartup() {
     outlineModel: outlineModelModule,
     OrganizerFactory,
     organizerToolbar: organizerToolbarButton,
+    toolsMenu: toolsMenuFallback,
     openTarget,
     cited: citedCore,
     CitationDialogPatch: { viewOf: outlineView.viewOf },

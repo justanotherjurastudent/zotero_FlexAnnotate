@@ -23,7 +23,7 @@ import {
   type DialogInput,
   type DialogView,
 } from "../../core/printDialog";
-import { supportsText } from "../../core/printAnnotation";
+import { annotationColors, supportsText } from "../../core/printAnnotation";
 import { getString } from "../../utils/locale";
 import { defaultLogger } from "../../shared/feature";
 import * as placeholder from "./placeholder";
@@ -498,16 +498,32 @@ function buildLocatorMenu(doc: Document): void {
  */
 function buildColorMenu(doc: Document): void {
   const popup = byId(doc, "flexannotate-dialog-color-popup");
-  // In zotero-types nicht typisiert
-  const colors = (
-    Zotero.Annotations as unknown as { COLORS: [string, string][] }
-  ).COLORS;
+  // In zotero-types nicht typisiert; Zotero 7-9 führt COLORS nicht
+  const colors = annotationColors(
+    (Zotero.Annotations as unknown as { COLORS?: unknown }).COLORS,
+  );
   for (const [nameKey, hex] of colors) {
     const menuitem = doc.createXULElement("menuitem");
     menuitem.setAttribute("value", hex);
-    menuitem.setAttribute("label", Zotero.getString(nameKey));
+    menuitem.setAttribute("label", colorLabel(nameKey));
     popup.appendChild(menuitem);
   }
+}
+
+/**
+ * Name einer Farbe. 8.x/9.x/10.x: general-*; 7.x: general.* (zotero.properties).
+ * Fehlt ein Schlüssel, wirft Zotero in en-US, in anderen Sprachen liefert es den Schlüssel.
+ */
+function colorLabel(nameKey: string): string {
+  for (const key of [nameKey, nameKey.replace("-", ".")]) {
+    try {
+      const label = Zotero.getString(key);
+      if (label && label !== key) return label;
+    } catch {
+      // Schlüssel in dieser Version unbekannt
+    }
+  }
+  return nameKey;
 }
 
 /**

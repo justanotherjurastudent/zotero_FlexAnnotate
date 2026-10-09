@@ -5,6 +5,42 @@
 
 export const DEFAULT_COLOR = "#ffd400";
 
+/**
+ * Zoteros acht Standardfarben als [l10n-Schlüssel, Hex], Reihenfolge wie im Reader.
+ * Quelle: .zotero-reference/10.0.5/.../xpcom/annotations.js:40-52 (COLORS). Zotero 8/9
+ * nennt dieselben Schlüssel general-* (en-US/zotero/zotero.ftl), 7.x general.* in
+ * zotero.properties; die Hex-Werte von 7.x bis 9.x belegt xpcom/reader.js:113-117 nur
+ * teilweise (Mendeley-Mapping). Der Reader-Quellcode liegt nicht in den Referenzen.
+ */
+export const STANDARD_COLORS: [string, string][] = [
+  ["general-yellow", "#ffd400"],
+  ["general-red", "#ff6666"],
+  ["general-green", "#5fb236"],
+  ["general-blue", "#2ea8e5"],
+  ["general-purple", "#a28ae5"],
+  ["general-magenta", "#e56eee"],
+  ["general-orange", "#f19837"],
+  ["general-gray", "#aaaaaa"],
+];
+
+/**
+ * Nimmt Zotero.Annotations.COLORS, sofern Zotero es führt (10.x) und die Form stimmt,
+ * sonst die Standardliste. Prüft die Form, weil der Wert von außen kommt.
+ */
+export function annotationColors(zoteroColors?: unknown): [string, string][] {
+  const valid =
+    Array.isArray(zoteroColors) &&
+    zoteroColors.length > 0 &&
+    zoteroColors.every(
+      (pair) =>
+        Array.isArray(pair) &&
+        pair.length === 2 &&
+        typeof pair[0] === "string" &&
+        /^#[0-9a-f]{6}$/i.test(String(pair[1])),
+    );
+  return valid ? (zoteroColors as [string, string][]) : STANDARD_COLORS;
+}
+
 /** Zotero erlaubt annotationText nur bei highlight/underline (item.js:4507). */
 export function supportsText(type: string): boolean {
   return type === "highlight" || type === "underline";

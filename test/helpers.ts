@@ -77,6 +77,21 @@ export async function cleanup(): Promise<void> {
   created.length = 0;
 }
 
+/**
+ * Ob der Word-Zitierdialog den Annotationsmodus kennt (ab Zotero 9; 8.x hat dort
+ * keine #annotations-sidebar, 7.x heißt die Datei addCitationDialog.xhtml).
+ */
+export function hasAnnotationDialog(): boolean {
+  try {
+    const src = Zotero.File.getContentsFromURL(
+      "chrome://zotero/content/integration/citationDialog.xhtml",
+    );
+    return src.includes("annotations-sidebar");
+  } catch {
+    return false;
+  }
+}
+
 export function findWindowByUrl(url: string): Window | null {
   const en = Services.wm.getEnumerator("");
   while (en.hasMoreElements()) {

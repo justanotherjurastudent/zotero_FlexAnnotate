@@ -11,7 +11,14 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 - Organizer (Gliederung, Zitierdialog-Ansicht, Notiz-Export) aus Annotree als Teil von FlexAnnotate.
 - Toolbar-Button oben rechts neben dem Sync-Button, der den Organizer öffnet; Eintrag _Werkzeuge → FlexAnnotate: Organizer_.
 - Icons in den Menüs (Hinzufügen, Bearbeiten, Löschen, Organizer).
+- Zotero 7.x ohne `Zotero.MenuManager`: Eintrag _Werkzeuge → FlexAnnotate: Organizer_ direkt im Werkzeugmenü (`features/organizer/toolsMenuFallback.ts`).
+- `npm run test:versions`: Zotero-Suite nacheinander für die installierte Version und alle Testversionen in `.zotero-versions/`.
+
 - Neue Struktur: `src/core` (reine Logik), `src/shared`, `src/features/{print,citeOnly,citavi,reader,organizer}`; 119 Node-Unit-Tests und 50 Zotero-Tests.
+
+### Fixed
+
+- Print-Annotationen auf Zotero 7.x bis 9.x: die Farbauswahl nutzte `Zotero.Annotations.COLORS`, das es erst ab 10.x gibt. Jetzt Fallback auf die acht Standardfarben (`core/printAnnotation.ts`).
 
 ### Changed
 

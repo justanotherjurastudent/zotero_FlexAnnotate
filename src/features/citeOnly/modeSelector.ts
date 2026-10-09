@@ -30,6 +30,10 @@ export function injectModeSelector(win: Window): void {
   if (doc.querySelector(`.${ROW_CLASS}`)) {
     return;
   }
+  // Zotero 8 kennt den Annotationsmodus im Zitierdialog nicht (ab 9.x)
+  if (!doc.getElementById("annotations-sidebar")) {
+    return;
+  }
 
   const rows: HTMLElement[] = [];
 

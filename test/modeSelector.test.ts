@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { config } from "../package.json";
-import { findWindowByUrl, waitFor } from "./helpers";
+import { findWindowByUrl, hasAnnotationDialog, waitFor } from "./helpers";
 
 /**
  * "Vollnachweis / Nur Nachweis" im Zitationsdialog: Einbau an allen Einbauorten,
@@ -55,6 +55,8 @@ describe("citation mode selector", function () {
     (doc.querySelector("#itemDetails .popup .buttons") ? 1 : 0);
 
   before(async function () {
+    // needs Zotero >= 9 (annotation mode in citation dialog)
+    if (!hasAnnotationDialog()) this.skip();
     Zotero.Prefs.set(PREF, false, true);
   });
 

@@ -1,11 +1,38 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
+  annotationColors,
   buildPlaceholderPDF,
   buildSortIndex,
   DEFAULT_COLOR,
   normalizeColor,
+  STANDARD_COLORS,
 } from "../src/core/printAnnotation.ts";
+
+describe("annotationColors", () => {
+  it("uses Zotero's own list when it is valid (Zotero 10)", () => {
+    const own: [string, string][] = [["general-yellow", "#ffd400"]];
+    assert.deepEqual(annotationColors(own), own);
+  });
+
+  it("falls back to the eight standard colors when Zotero has none", () => {
+    assert.equal(annotationColors(undefined), STANDARD_COLORS);
+    assert.equal(STANDARD_COLORS.length, 8);
+    assert.equal(STANDARD_COLORS[0][1], DEFAULT_COLOR);
+  });
+
+  it("rejects malformed lists", () => {
+    for (const bad of [
+      [],
+      "x",
+      [["general-red"]],
+      [["a", "red"]],
+      [[1, "#ff6666"]],
+    ]) {
+      assert.equal(annotationColors(bad), STANDARD_COLORS);
+    }
+  });
+});
 
 describe("buildSortIndex", () => {
   it("sorts by the first number in the label", () => {

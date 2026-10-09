@@ -5,6 +5,7 @@ import {
   click,
   findOrganizerWindow,
   findWindowByUrl,
+  hasAnnotationDialog,
   key,
   makeAnnotation,
   makePdfAttachment,
@@ -458,6 +459,7 @@ describe("FlexAnnotate features", function () {
     };
 
     before(async function () {
+      if (!hasAnnotationDialog()) this.skip(); // needs Zotero >= 9 (annotation mode in citation dialog)
       await Zotero.Styles.init(); // locator labels need the CSL locales
       const work = await makeWork("Dialog Werk");
       workID = work.id;

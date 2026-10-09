@@ -9,13 +9,14 @@
 
 ## Befehle
 
-| Befehl                | Wirkung                                                                  |
-| --------------------- | ------------------------------------------------------------------------ |
-| `npm run test:unit`   | Node-Tests in `test-unit/` (`node --test`), kein Zotero nötig            |
-| `npm run test:zotero` | Mocha-Tests in `test/` in einer eigenen Zotero-Instanz (läuft rund 15 s) |
-| `npm run lint:check`  | `prettier --check .` und `eslint .`                                      |
-| `npm run build`       | `zotero-plugin build` und `tsc --noEmit`                                 |
-| `npm run verify`      | `lint:check`, `build`, `test:unit`, `test:zotero` nacheinander           |
+| Befehl                  | Wirkung                                                                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run test:unit`     | Node-Tests in `test-unit/` (`node --test`), kein Zotero nötig                                                                    |
+| `npm run test:zotero`   | Mocha-Tests in `test/` in einer eigenen Zotero-Instanz (läuft rund 15 s)                                                         |
+| `npm run test:versions` | wie `test:zotero`, nacheinander für die installierte Version und jede Testversion in `.zotero-versions/*`; Tabelle und Exit-Code |
+| `npm run lint:check`    | `prettier --check .` und `eslint .`                                                                                              |
+| `npm run build`         | `zotero-plugin build` und `tsc --noEmit`                                                                                         |
+| `npm run verify`        | `lint:check`, `build`, `test:unit`, `test:zotero` nacheinander                                                                   |
 
 Stand bei der Erstellung dieser Datei (2026-10-09): 119 Unit-Tests und 50 Zotero-Tests, alle bestanden.
 
