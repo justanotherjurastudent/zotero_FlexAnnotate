@@ -278,16 +278,34 @@ describe("screenshots", function () {
     prefs?.close();
     prefs = null;
 
-    // (e) Ausschnitt der Hauptfenster-Leiste (Organizer-Button: flexannotate-tb-organizer)
-    await step("main-toolbar", async () => {
+    // (e) Hauptfenster: Beispielbuch ausgewählt, Kinder ausgeklappt
+    await step("main-window", async () => {
       const main = Zotero.getMainWindow() as Window;
-      return screenshot(main, "main-toolbar", {
-        selector: "#zotero-tabs-toolbar",
+      const zp = Zotero.getActiveZoteroPane() as any;
+      const size = [main.outerWidth, main.outerHeight];
+      try {
+        main.resizeTo(1280, 800); // best effort, Fenstermanager kann es verweigern
+        await Zotero.Promise.delay(300);
+        await zp.selectItem(work.id);
+        await waitFor(() => zp.itemsView.getSelectedItems(true)[0] === work.id);
+        zp.itemsView.expandAllRows(true);
+        await Zotero.Promise.delay(800);
+        return await screenshot(main, "main-window");
+      } finally {
+        main.resizeTo(size[0], size[1]);
+      }
+    });
+
+    // (f) Organizer-Button in der Titelleiste (flexannotate-tb-organizer)
+    await step("toolbar", async () => {
+      const main = Zotero.getMainWindow() as Window;
+      return screenshot(main, "toolbar", {
+        selector: "#zotero-title-bar",
         scale: 2,
       });
     });
 
-    // (f) Die Print-Annotation-Maske fehlt bewusst: sie ist ein <panel>
+    // (g) Die Print-Annotation-Maske fehlt bewusst: sie ist ein <panel>
     // (Popup), das drawWindow weder ohne noch mit USE_WIDGET_LAYERS erfasst;
     // das Bild zeigte nur den Inhalt darunter. Siehe Bericht.
 

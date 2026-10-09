@@ -30,6 +30,7 @@
     "test:zotero": "node scripts/run-zotero-tests.mjs",
     "test:versions": "node scripts/run-versions.mjs",
     "screenshots": "node scripts/run-zotero-tests.mjs --screenshots",
+    "screenshots:docs": "node scripts/docs-screenshots.mjs",
     "verify": "npm run lint:check && npm run build && npm run test:unit && npm run test:zotero",
     "test:unit": "node --test \"test-unit/*.test.ts\"",
     "update-deps": "npm update --save"

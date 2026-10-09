@@ -121,7 +121,7 @@ async function onStartup() {
       `chrome://${addon.data.config.addonRef}/content/scripts/preferences.js`,
     ],
     label: addon.data.config.addonName,
-    image: `chrome://${addon.data.config.addonRef}/content/icons/favicon.png`,
+    image: `chrome://${addon.data.config.addonRef}/content/icons/icon.svg`,
   });
 
   await startAll(features);
