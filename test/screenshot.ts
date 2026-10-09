@@ -11,6 +11,8 @@ export interface ScreenshotOptions {
   /** Nur ohne `selector`: Breite und Höhe statt der Fenstergröße. */
   width?: number;
   height?: number;
+  /** Nur mit `selector`: nur die rechten N CSS-px des Elements. */
+  clipRight?: number;
   /** Skalierung für schärfere Bilder (Standard 1). */
   scale?: number;
   /**
@@ -50,6 +52,10 @@ export async function screenshot(
     y = r.top;
     w = Math.ceil(r.width);
     h = Math.ceil(r.height);
+    if (opts.clipRight) {
+      x = r.right - opts.clipRight;
+      w = opts.clipRight;
+    }
   }
   if (!(w > 0 && h > 0)) {
     throw new Error(`screenshot: empty area for ${fileName} (${w}x${h})`);

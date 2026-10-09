@@ -18,6 +18,7 @@ const CURATED = [
   "preferences.png",
   "main-window.png",
   "toolbar.png",
+  "import-preview.png",
 ];
 const WARN_BYTES = 250 * 1024;
 

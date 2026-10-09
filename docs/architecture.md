@@ -1,8 +1,8 @@
 # FlexAnnotate — Architecture
 
-FlexAnnotate is a bootstrapped Zotero plugin written in TypeScript and built with zotero-plugin-scaffold (version 2.0.0-dev.0, `strict_min_version` 7.0, `strict_max_version` 10.\*). It was verified only against Zotero 10.0.5. It combines two former plugins: the vanilla-JS FlexAnnotate (print annotations, citation-only insertion, Citavi import; tag `pre-merge` holds 1.2.0) and Annotree (organizer, a fork of Lattice).
+FlexAnnotate is a bootstrapped Zotero plugin written in TypeScript and built with zotero-plugin-scaffold (version 2.0.0-dev.0, `strict_min_version` 7.0, `strict_max_version` 10.\*). It is developed against Zotero 10.0.5 and run through the automated suite on 7.0.32, 8.0.4, 9.0.6 and 10.0.5/10.0.6 (`npm run test:versions`); see the README for what each version supports. It combines two former plugins: the vanilla-JS FlexAnnotate (print annotations, citation-only insertion, Citavi import; tag `pre-merge` holds 1.2.0) and Annotree (organizer, a fork of Lattice).
 
-References like `xpcom/integration.js:1678` are paths inside `chrome/content/zotero/` of Zotero's `omni.ja`. Unless marked "(10.0.1, not rechecked)", they were checked against 10.0.5.
+References like `xpcom/integration.js:1678` are paths inside `chrome/content/zotero/` of Zotero's `omni.ja`. Unless marked "(10.0.1, not rechecked)" or given with another version, they were checked against 10.0.5. All anchors by version: [anchors.md](anchors.md).
 
 ## Contents
 
@@ -40,18 +40,18 @@ Global work (patches, observers, `MenuManager` menus) belongs in `start`/`stop`;
 
 ## Module map
 
-| Folder                   | Responsibility                                                                                                      | Key files                                                                                                                                                |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/core`               | Rules without Zotero: locators, sort index, outline tree, Citavi parsing, cite-only rewrite, dialog view, selection | `locator.ts`, `printAnnotation.ts`, `outline.ts`, `citavi.ts`, `citeOnly.ts`, `cited.ts`, `dialogView.ts`, `selection.ts`                                |
-| `src/shared`             | Registry and helpers used by several features                                                                       | `feature.ts`, `patch.ts` (`assignChecked`), `citationDialog.ts` (watcher + injectors)                                                                    |
-| `src/features/print`     | Placeholder attachment, print annotations, input panel, menus                                                       | `placeholder.ts`, `printAnnotations.ts`, `dialog.ts`, `menus.ts`, `annotationRowMenu.ts`                                                                 |
-| `src/features/citeOnly`  | Citation-only insertion and the mode selector                                                                       | `integrationPatch.ts`, `modeSelector.ts`                                                                                                                 |
-| `src/features/citavi`    | Second import pass for Citavi, contribution links                                                                   | `citaviImport.ts`, `citaviPrintQuotes.ts`, `citaviLinks.ts`                                                                                              |
-| `src/features/reader`    | Reader context menu, locator in the page-number popup                                                               | `readerMenu.ts`, `labelPopup.ts`                                                                                                                         |
-| `src/features/organizer` | Organizer window, annotation index, outline model, citation dialog view, export, toolbar button                     | `organizer*.ts`, `annotationIndex.ts`, `outlineModel.ts`, `dialogOutline*.ts`, `dialogCited.ts`, `outlineExport.ts`, `toolbarButton.ts`, `openTarget.ts` |
-| `src/prefs`              | Fills the Citavi locator menulists in the preference pane                                                           | `preferences.ts`                                                                                                                                         |
-| `src/utils`              | Helpers from the scaffold template plus menu registration                                                           | `locale.ts`, `prefs.ts`, `menu.ts`, `ztoolkit.ts`                                                                                                        |
-| `addon/`                 | Manifest, default prefs, XHTML of the pane, FTL (`de`, `en-US`), icons                                              | `manifest.json`, `prefs.js`, `content/preferences.xhtml`, `locale/*`                                                                                     |
+| Folder                   | Responsibility                                                                                                      | Key files                                                                                                                                                                                        |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/core`               | Rules without Zotero: locators, sort index, outline tree, Citavi parsing, cite-only rewrite, dialog view, selection | `locator.ts`, `printAnnotation.ts`, `outline.ts`, `citavi.ts`, `citeOnly.ts`, `cited.ts`, `dialogView.ts`, `docOutline.ts`, `selection.ts`                                                       |
+| `src/shared`             | Registry and helpers used by several features                                                                       | `feature.ts`, `patch.ts` (`assignChecked`), `citationDialog.ts` (watcher + injectors)                                                                                                            |
+| `src/features/print`     | Placeholder attachment, print annotations, input panel, menus                                                       | `placeholder.ts`, `printAnnotations.ts`, `dialog.ts`, `menus.ts`, `annotationRowMenu.ts`                                                                                                         |
+| `src/features/citeOnly`  | Citation-only insertion and the mode selector                                                                       | `integrationPatch.ts`, `modeSelector.ts`                                                                                                                                                         |
+| `src/features/citavi`    | Second import pass for Citavi, contribution links                                                                   | `citaviImport.ts`, `citaviPrintQuotes.ts`, `citaviLinks.ts`                                                                                                                                      |
+| `src/features/reader`    | Reader context menu, locator in the page-number popup                                                               | `readerMenu.ts`, `labelPopup.ts`                                                                                                                                                                 |
+| `src/features/organizer` | Organizer window, annotation index, outline model, citation dialog view, export, toolbar button, outline import     | `organizer*.ts`, `annotationIndex.ts`, `outlineModel.ts`, `dialogOutline*.ts`, `dialogCited.ts`, `outlineExport.ts`, `toolbarButton.ts`, `toolsMenuFallback.ts`, `openTarget.ts`, `docImport.ts` |
+| `src/prefs`              | Fills the Citavi locator menulists in the preference pane                                                           | `preferences.ts`                                                                                                                                                                                 |
+| `src/utils`              | Helpers from the scaffold template plus menu registration                                                           | `locale.ts`, `prefs.ts`, `menu.ts`, `ztoolkit.ts`                                                                                                                                                |
+| `addon/`                 | Manifest, default prefs, XHTML of the pane, FTL (`de`, `en-US`), icons                                              | `manifest.json`, `prefs.js`, `content/preferences.xhtml`, `locale/*`                                                                                                                             |
 
 The organizer window builds its DOM in code; its texts live in `organizer/strings.ts` (German and English). Menus and preferences use Fluent.
 
@@ -95,6 +95,8 @@ Enforced by Zotero in `xpcom/data/item.js` (10.0.5 line numbers):
 
 `core/outline.ts` and `organizer/outlineModel.ts` read and write the note. Zotero rewrites `<pre><code>` to `<pre>` on save; the reader accepts both. Numbers such as `1.2.3` are computed for display and never stored. Format and tags are compatible with Lattice.
 
+`OutlineModel.save()` creates the note with `saveTx({ skipSelect: true })`. If several notes carry `★outline` (for example after a sync conflict), `findNote()` takes `pickNewest()` (`core/outline.ts`): latest `dateModified`, on a tie the higher id, so the result does not depend on the input order. See pitfall 14.
+
 ## Control flow
 
 ### Create a print annotation
@@ -118,6 +120,9 @@ Enforced by Zotero in `xpcom/data/item.js` (10.0.5 line numbers):
 2. It then calls every registered `DialogInjector.inject(win)` once, in registration order: first `modeSelector`, then `outlineView` (`organizer/dialogOutline.ts`).
 3. `modeSelector` adds the "Einfügen als" select to the settings popup and the item popup and follows `dialog-type` changes with a `MutationObserver`.
 4. `outlineView` adds the "Nach Gliederung anordnen" checkbox to the annotations view. When on, it renders tree, list and preview in the dialog's three columns. Inserting clicks the "+" of a hidden native `annotation-row`, so Zotero's own insertion code runs.
+   The plugin sets no width of its own on `#sidebar`, so the right column keeps Zotero's width with and without the view. The CSS it adds only keeps long rows from widening the layout (`LAYOUT_CSS` in `dialogOutline.ts`).
+   Zotero's own search bar is mirrored into the outline filter: `bubble-input` fires `handle-input` (`detail.query`) on the document (`integration/citationDialog.js:1261`, `elements/bubbleInput.js:333`), and `addSearchSync` writes the query into the plugin's filter field and re-renders. The filter field is never written back.
+   With exactly one annotation selected, the preview offers "Zitatstelle anzeigen": `openTarget.openRow()` calls `Zotero.Reader.open(attachmentID, { annotationID: key })` and activates the main window with `Zotero.Utilities.Internal.activate`. The dialog stays open.
 5. On `accept`, `dialogCited.ts` wraps `io.accept` to record cited annotation ids per document session id. An entry counts as cited while its work is still cited in the document.
 6. An unload of the window or `stop()` calls `detach` of every injector. A failing injector does not stop the others.
 
@@ -129,7 +134,17 @@ Zotero's importer walks `//Annotations/Annotation` (nodes with `Quads`) and skip
 2. `CitaviImport.addToWindow()` patches `importFile` and `importFromClipboard` of each window's own `Zotero_File_Interface`. The pass runs in their `finally`, after Zotero's own annotation pass (`fileInterface.js:686`).
 3. `importPrintQuotes` re-inits the XML stream, collects anchored IDs from `//EntityLinks/EntityLink/SourceID` and creates print annotations for the other `KnowledgeItem`s (colors and text distribution from `QUOTATION_TYPES`, locator type from `PageRange` `<nt>` through the `citaviLocator*` preferences).
 4. For quotes it created, it removes the translator's note only if the note starts with `CoreStatement` + `Text` and the remainder looks like a locator (`isPageTail`, at most 60 characters of digits, spaces and hyphens). `citaviKeepNotes` disables this.
+   Keywords: `//KnowledgeItemKeywords/OnetoN` holds one text per item, `ID:…;KeywordID:…;…`. The first member is the id of the `KnowledgeItem`, the others are keyword ids (the part after `:` is ignored). `splitOnetoN()` and `resolveKeywords()` (`core/citavi.ts`) match the owner id exactly and look up each keyword name by id. The earlier prefix match (`starts-with`) let id `K1` hit the node of `K10`.
+   Duplicates: before saving, `isDuplicateAnnotation()` compares the candidate with the existing annotations of the same work's placeholder: equal page label and equal normalized quote text (markup stripped); with an empty text, the comment counts instead. A second import of the same export therefore creates nothing.
 5. `linkContributions` reads `ReferenceReferences/OnetoN` (`Parent;Child1;Child2…`) and adds related-item links between parent and children and among siblings in one transaction. The translator does not do this (`xpcom/translation/translate_item.js:1081-1089` is commented out).
+
+### Outline import from Word/LibreOffice
+
+1. The document icon in the outline toolbar (`organizerTree.ts`) calls `docImport.start()`. `pickFile()` uses Zotero's `FilePicker` wrapper (`modules/filePicker.mjs`, which adapts `init()` per version, see anchors.md) with the filter `*.docx; *.odt`.
+2. `readHeadings()` opens the file with `nsIZipReader`, rejects entries above `MAX_ENTRY_BYTES` (50 MB) before reading, and reads `word/document.xml` (+ `word/styles.xml`) or `content.xml` through `Zotero.File.getContentsAsync(stream)`. The reader is always closed.
+3. `core/docOutline.ts` scans the XML with a small tokenizer (no DOM). DOCX: the level comes from the paragraph's `outlineLvl`, else from its style (`outlineLvl` of the style, style name `Heading n`/`Überschrift n`, `basedOn` chain, last the style id); `w:del`/`w:moveFrom` text is skipped. ODT: `text:h` with `outline-level`; `text:note` and `text:deletion` are skipped. Headers, footers and footnote parts are never read; text boxes are not treated separately.
+4. `normalizeHeadings()` makes the levels gapless and, if at least 80 % (and at least 3) of the titles start with a manual number (`STRIP_RE`), reports `numberingDetected`; stripping is applied only if the user ticks the box.
+5. `planOutlineImport()` plans an append-merge against the current tree (`reuse` under the same parent by NFC-normalized, case-insensitive title, else `create` as last child; collisions with any existing title become `Title (2)`). `applyImportPlan()` works on a copy. Only if something is created, the tree is saved through `OutlineModel.save()`.
 
 ## Pitfalls
 
@@ -148,6 +163,7 @@ Rules that still apply. Line numbers are 10.0.5 unless marked.
 11. **The plugin scope is global, windows are not.** Module objects exist once per session, elements once per window. State of one interaction belongs on the element (expando on the panel, attribute on the popup), per-window bookkeeping in a `WeakMap`. Do not use a "some window is set up" flag; collect windows and test for empty.
 12. **`MenuManager` unregistration needs the returned key.** `registerMenu()` returns a key; `unregisterMenu()` with the raw `menuID` finds nothing (`utils/menu.ts`; `xpcom/pluginAPI/menuManager.js:824,833`). `unregisterAllPluginMenus()` stores the keys.
 13. **`Zotero.Reader.open` is wrapped by `readerMenu`** and restored through `assignChecked` on stop (`readerMenu.ts`); `Reader.open` is at `xpcom/reader.js:2917`.
+14. **Zotero's note editor can overwrite the outline note.** A note that gets selected in the item tree opens in the note editor, and `EditorInstance._save()` (`xpcom/editorInstance.js:1149`; it calls `item.setNote(html)` at `:1177`) writes the editor's copy back, also for a later change it did not see. Selection after a save is suppressed only for `skipSelect` (`xpcom/data/dataObject.js:1053-1054`; `collectionViewItemTree.js:816, 1040`). `OutlineModel.save()` therefore creates the note with `skipSelect: true`. If the user opens the note in the editor, the editor can still overwrite later organizer saves; nothing in the plugin prevents that. No test opens the note in the editor, so the overwrite itself is derived from the source, not reproduced.
 
 ## Teardown
 

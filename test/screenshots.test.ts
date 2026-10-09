@@ -229,7 +229,7 @@ describe("screenshots", function () {
       };
       const done = api().docImport.importFromFile(
         ctx,
-        makeDocx("shots.docx", DE_BODY, DE_STYLES),
+        makeDocx("Hausarbeit-Aktienrecht.docx", DE_BODY, DE_STYLES),
         {},
       );
       const overlay = await waitFor(() =>
@@ -322,7 +322,20 @@ describe("screenshots", function () {
         await waitFor(() => zp.itemsView.getSelectedItems(true)[0] === work.id);
         zp.itemsView.expandAllRows(true);
         await Zotero.Promise.delay(800);
-        return await screenshot(main, "main-window");
+        // Hinweisbanner (Update, Sync-Erinnerung) fürs Bild ausblenden, danach zurück
+        const banners = Array.from(
+          main.document.querySelectorAll<HTMLElement>(".banner-container"),
+        ).map((el) => [el, el.getAttribute("collapsed")] as const);
+        for (const [el] of banners) el.setAttribute("collapsed", "true");
+        try {
+          await Zotero.Promise.delay(100);
+          return await screenshot(main, "main-window");
+        } finally {
+          for (const [el, prev] of banners) {
+            if (prev === null) el.removeAttribute("collapsed");
+            else el.setAttribute("collapsed", prev);
+          }
+        }
       } finally {
         main.resizeTo(size[0], size[1]);
       }
@@ -332,8 +345,9 @@ describe("screenshots", function () {
     await step("toolbar", async () => {
       const main = Zotero.getMainWindow() as Window;
       return screenshot(main, "toolbar", {
-        selector: "#zotero-title-bar",
-        scale: 2,
+        selector: "#zotero-tabs-toolbar",
+        clipRight: 80, // Trenner, Organizer- und Sync-Button
+        scale: 3,
       });
     });
 

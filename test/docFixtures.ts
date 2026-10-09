@@ -59,11 +59,16 @@ export const ODT_CONTENT =
 
 /** ZIP mit den Eintraegen {Name: Text} schreiben (nsIZipWriter). */
 export const makeZip = (name: string, entries: Record<string, string>) => {
-  const path = PathUtils.join(
-    PathUtils.tempDir,
-    `flexannotate-test-${Date.now()}-${files.length}-${name}`,
+  // Eigenes Verzeichnis, damit der Dateiname (leafName) ohne Präfix bleibt
+  const dir = Zotero.File.pathToFile(
+    PathUtils.join(
+      PathUtils.tempDir,
+      `flexannotate-test-${Date.now()}-${files.length}`,
+    ),
   );
-  files.push(path);
+  dir.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, 0o755);
+  const path = PathUtils.join(dir.path, name);
+  files.push(path, dir.path); // Datei vor Verzeichnis: Aufräumen in Reihenfolge
   const zw = (Components.classes as any)[
     "@mozilla.org/zipwriter;1"
   ].createInstance(Components.interfaces.nsIZipWriter);

@@ -2,7 +2,7 @@
 
 ## Projekt
 
-FlexAnnotate ist ein Zotero-Plugin (TypeScript, zotero-plugin-scaffold, Version 2.0.0-dev.0, Addon-ID `flexannotate@justanotherjurastudent.github.io`, AGPL-3.0-or-later). Es vereint das frühere FlexAnnotate (Print-Annotationen, Nur-Nachweis-Zitieren, Citavi-Import; 1.2.0 liegt unter dem Git-Tag `pre-merge`) und Annotree (Organizer; Fork von Lattice). Ziel: Zotero 7 bis 10, entwickelt und getestet nur gegen **Zotero 10.0.5** (Per-User-Install unter `%LOCALAPPDATA%\Zotero`). Aufbau und Fallstricke: `docs/architecture.md`.
+FlexAnnotate ist ein Zotero-Plugin (TypeScript, zotero-plugin-scaffold, Version 2.0.0-dev.0, Addon-ID `flexannotate@justanotherjurastudent.github.io`, AGPL-3.0-or-later). Es vereint das frühere FlexAnnotate (Print-Annotationen, Nur-Nachweis-Zitieren, Citavi-Import; 1.2.0 liegt unter dem Git-Tag `pre-merge`) und Annotree (Organizer; Fork von Lattice). Ziel: Zotero 7.0 bis 10. Entwickelt gegen **Zotero 10.0.5/10.0.6** (Per-User-Install unter `%LOCALAPPDATA%\Zotero`); die Testsuite läuft zusätzlich gegen 7.0.32, 8.0.4 und 9.0.6 (`npm run test:versions`). Was vor Zotero 10 fehlt, steht im README. Aufbau und Fallstricke: `docs/architecture.md`.
 
 ## Aufbau
 
@@ -16,8 +16,8 @@ src/hooks.ts        Feature-Liste und Lebenszyklus
 addon/              manifest.json, prefs.js, content/ (XHTML, Icons), locale/{de,en-US}
 test-unit/          Node-Tests der reinen Logik
 test/               Mocha-Tests im echten Zotero
-scripts/            Testläufer, Kill-Skript, Word-Rauchtest
-docs/               architecture, testing, anchors, plan (historisch), lattice-changelog
+scripts/            Testläufer (ein Lauf, mehrere Versionen), Screenshots, Kill-Skript, Word-Rauchtest
+docs/               architecture, testing, anchors, img/ (README-Bilder), plan (historisch), lattice-changelog
 ```
 
 ## Befehle
@@ -26,6 +26,9 @@ docs/               architecture, testing, anchors, plan (historisch), lattice-c
 npm run build         # zotero-plugin build + tsc --noEmit -> .scaffold/build/flex-annotate.xpi
 npm run test:unit     # Node-Tests
 npm run test:zotero   # Zotero-Tests, eigene Instanz, rund 15 s
+npm run test:versions # dieselbe Suite für die installierte Version und .zotero-versions/* (frisches Profil je Version)
+npm run screenshots   # Zotero-Tests mit Fensteraufnahmen nach .scaffold/screenshots
+npm run screenshots:docs # wie screenshots, kuratierte PNGs nach docs/img/
 npm run lint:check    # prettier --check . und eslint .
 npm run lint:fix      # prettier --write . und eslint --fix
 npm run verify        # lint:check, build, test:unit, test:zotero
@@ -34,8 +37,8 @@ npm start             # zotero-plugin serve (Entwicklung, Zugangsdaten in .env, 
 
 ## Regeln
 
-- **Nie das produktive Zotero oder Word anfassen.** Tests laufen im isolierten Profil `.scaffold/test/`; der Wrapper beendet nur diese Instanz. Kein Skript, das das Nutzer-Zotero, dessen Bibliothek oder ein laufendes Word verändert.
-- **Zotero-Interna nur gegen den Quellcode prüfen**, nicht aus dem Gedächtnis. Referenz: `.zotero-reference/10.0.5/` (gitignored). Neu erzeugen aus der `omni.ja` der laufenden Installation:
+- **Nie das produktive Zotero oder Word anfassen.** Tests laufen im isolierten Profil `.scaffold/test/` (`test:versions` löscht davon `profile/` je Version); der Wrapper beendet nur diese Instanz. Kein Skript, das das Nutzer-Zotero, dessen Bibliothek oder ein laufendes Word verändert.
+- **Zotero-Interna nur gegen den Quellcode prüfen**, nicht aus dem Gedächtnis. Referenz: `.zotero-reference/<version>/` (gitignored; vorhanden: 7.0.32, 8.0.4, 9.0.6, 10.0.1, 10.0.5). Neu erzeugen aus der `omni.ja` der laufenden Installation (für andere Versionen aus `.zotero-versions/<version>/core/` entsprechend):
 
   ```powershell
   $dst = "$env:TEMP\zotero-omni"
@@ -43,7 +46,10 @@ npm start             # zotero-plugin serve (Entwicklung, Zugangsdaten in .env, 
   Expand-Archive "$dst.zip" $dst   # Quellcode unter $dst\chrome\content\zotero
   ```
 
-  Neue Fundstellen mit Zeile in `docs/anchors.md` eintragen und die Version nennen.
+  Neue Fundstellen mit Zeile in `docs/anchors.md` eintragen und die Version nennen. Was nur auf einer Version nachgeschlagen wurde, als solches kennzeichnen.
+
+- **Weitere Zotero-Versionen** liegen als entpackte Installer in `.zotero-versions/<version>/` (gitignored, nicht installiert; Beschaffung in `docs/testing.md`). Neue Funktionen auf 7.x bis 9.x prüfen und, wo sie fehlen, mit Funktionserkennung statt Versionsvergleich umgehen (Beispiele: `core/printAnnotation.ts` `annotationColors`, `features/organizer/toolsMenuFallback.ts`).
+- **Bilder in `docs/img/`** nur über `npm run screenshots:docs` erzeugen, nicht von Hand ändern; die README bindet sie ein.
 
 - **Prototyp-Patches** nur mit `assignChecked` (`src/shared/patch.ts`): Ziel vorher prüfen, Ergebnis zurücklesen, Fehlschlag protokollieren, in `stop`/`removeFromWindow` zurücknehmen. Ein Patch braucht einen Nachweis (Test oder Quellstelle).
 - **Reine Logik nach `src/core`** (keine Zotero-Globals, Importe mit `.ts`-Endung) und dort mit einem Node-Test in `test-unit/` absichern.
@@ -61,4 +67,5 @@ npm start             # zotero-plugin serve (Entwicklung, Zugangsdaten in .env, 
 - Format: Prettier (`package.json`, 80 Zeichen, 2 Leerzeichen). Vor dem Abschluss `npm run lint:check`.
 - Preference-Schlüssel liegen unter `extensions.flexannotate.` und sind für Nutzerdaten stabil; nicht umbenennen. Gleiches gilt für die Tags `#flexannotate-*`, `§Titel` und `★outline`.
 - `strict_max_version` im Manifest ist auf Zotero 10 Pflicht; bei einer neuen Hauptversion anheben und neu prüfen.
-- Doku im selben Änderungssatz wie der Code: `README.md`, `CHANGELOG.md`, bei Zotero-Interna `docs/anchors.md`.
+- Doku im selben Änderungssatz wie der Code: `README.md`, `CHANGELOG.md`, bei Zotero-Interna `docs/anchors.md`, bei Fallstricken `docs/architecture.md`.
+- Die README-Funktionsmatrix für Zotero vor 10 nur aus Testläufen (`npm run test:versions`) ableiten und nach jeder Änderung an einem Rückfall nachziehen.

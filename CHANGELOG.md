@@ -4,7 +4,7 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 
 ## 2.0.0 (unreleased)
 
-**Merged: Annotree is now part of FlexAnnotate.** Ein einziges TypeScript-Plugin (zotero-plugin-scaffold) ersetzt das Vanilla-JS-FlexAnnotate 1.2.0 (Git-Tag `pre-merge`) und Annotree. Entwickelt und getestet nur gegen Zotero 10.0.5.
+**Merged: Annotree is now part of FlexAnnotate.** Ein einziges TypeScript-Plugin (zotero-plugin-scaffold) ersetzt das Vanilla-JS-FlexAnnotate 1.2.0 (Git-Tag `pre-merge`) und Annotree. Geprüft gegen Zotero 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6; Umfang je Version siehe README.
 
 ### Added
 
@@ -12,12 +12,18 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 - Toolbar-Button oben rechts neben dem Sync-Button, der den Organizer öffnet; Eintrag _Werkzeuge → FlexAnnotate: Organizer_.
 - Icons in den Menüs (Hinzufügen, Bearbeiten, Löschen, Organizer).
 - Zotero 7.x ohne `Zotero.MenuManager`: Eintrag _Werkzeuge → FlexAnnotate: Organizer_ direkt im Werkzeugmenü (`features/organizer/toolsMenuFallback.ts`).
-- `npm run test:versions`: Zotero-Suite nacheinander für die installierte Version und alle Testversionen in `.zotero-versions/`.
-
-- Neue Struktur: `src/core` (reine Logik), `src/shared`, `src/features/{print,citeOnly,citavi,reader,organizer}`; 119 Node-Unit-Tests und 50 Zotero-Tests.
+- Gliederungsimport aus Word/LibreOffice: Button mit Dokument-Symbol in der Werkzeugleiste der Gliederung. Erkennt Überschriften-Formatvorlagen (`.docx`: „Überschrift/Heading 1–9“, benutzerdefinierte Vorlagen mit `outlineLvl`; `.odt`: `text:h`), zeigt eine Vorschau (neu, vorhanden, umbenannt; Option „Nummerierung aus Titeln entfernen“ nur bei erkannter Nummerierung) und hängt an, ohne etwas zu löschen oder zu verschieben. Gleiche Titel unter gleichem Elternknoten werden wiederverwendet, Duplikate heißen „Titel (2)“. Grenzen: nur Absatz-Formatvorlagen, Fußnoten und gelöschte Änderungen fehlen im Titel, kein `.doc`/`.rtf`, 50 MB je XML-Eintrag (`features/organizer/docImport.ts`, `core/docOutline.ts`).
+- Zitierdialog aus Word: Die rechte Spalte behält mit und ohne Gliederungsansicht die native Breite (vorher feste 330 px). Die Suchleiste des Dialogs filtert die Gliederungsliste mit (gespiegelt ins Filterfeld des Plugins, nicht umgekehrt). Neuer Knopf „Zitatstelle anzeigen“ in der Vorschau öffnet den Reader an der Annotation und holt Zotero nach vorn; der Dialog bleibt offen.
+- Citavi-Import: Dublettenprüfung. Ein zweiter Import desselben Exports legt nichts neu an; gleich sind Platzhalter (Werk), Seitenlabel und normalisierter Zitattext, bei leerem Text Seitenlabel und Kommentar.
+- Plugin-Icon (Buch mit Textmarker).
+- `npm run test:versions`: Zotero-Suite nacheinander für die installierte Version und alle Testversionen in `.zotero-versions/` (frisches Testprofil je Version).
+- `npm run screenshots` und `npm run screenshots:docs`: Fensteraufnahmen aus den Zotero-Tests, kuratierte Bilder nach `docs/img/`.
+- Neue Struktur: `src/core` (reine Logik), `src/shared`, `src/features/{print,citeOnly,citavi,reader,organizer}`; 181 Node-Unit-Tests und Zotero-Tests (letzter Lauf: 66 bestanden auf 10.0.6 und 9.0.6, 60 auf 7.0.32, 58 auf 8.0.4; Rest übersprungen, siehe `docs/testing.md`).
 
 ### Fixed
 
+- Datenverlust: Die Gliederungsnotiz wurde als markierte Notiz angelegt, sodass Zoteros Notiz-Editor sie öffnete und spätere Speicherungen des Organizers mit seinem älteren Stand überschreiben konnte (`editorInstance.js` `_save`). Sie wird jetzt mit `skipSelect: true` angelegt. Hat der Nutzer die Notiz selbst im Editor geöffnet, kann der Editor weiter überschreiben. Gibt es mehrere Gliederungsnotizen, gewinnt die zuletzt geänderte, bei Gleichstand die mit der höheren id (`pickNewest`).
+- Citavi-Import: Die Schlagwort-Zuordnung verglich Präfixe (K1 traf K10). Im `OnetoN`-Text ist das erste Glied die ID des Eintrags, danach folgen die Schlagwörter; die Zuordnung ist jetzt exakt.
 - Print-Annotationen auf Zotero 7.x bis 9.x: die Farbauswahl nutzte `Zotero.Annotations.COLORS`, das es erst ab 10.x gibt. Jetzt Fallback auf die acht Standardfarben (`core/printAnnotation.ts`).
 
 ### Changed
@@ -37,7 +43,7 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 
 - Preference-Schlüssel `extensions.flexannotate.*` sind unverändert; Nutzerdaten von 1.x (Tags `#flexannotate-locator-<typ>`, `#flexannotate-default-locator-<typ>`, `#flexannotate-placeholder`, Platzhalter-Anhänge, Print-Annotationen) gelten weiter.
 - Gliederungsdaten (`§Titel`, Notiz `★outline` mit `LATTICE-OUTLINE-V1`) bleiben mit Lattice kompatibel.
-- Bekannte Einschränkungen: siehe README, Abschnitt „Bekannte Punkte“ (u. a. Mindestversion Zotero 7.0 nicht getestet).
+- Bekannte Einschränkungen: siehe README, Abschnitte „Einschränkungen auf Zotero-Versionen vor 10“ und „Bekannte Punkte“.
 
 ## [0.2.4] – 2026-10-06
 
