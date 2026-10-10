@@ -1,6 +1,11 @@
 import { assert } from "chai";
 import { config } from "../package.json";
-import { findOrganizerWindow, waitFor } from "./helpers";
+import {
+  findOrganizerWindow,
+  lastLockError,
+  lockFile,
+  waitFor,
+} from "./helpers";
 import {
   DE_BODY,
   DE_STYLES,
@@ -168,6 +173,38 @@ describe("docImport", function () {
     assert.equal(r2.status, "error");
     assert.lengthOf(ctx.s.roots, 0);
     assert.isNull(ctx.s.noteID);
+  });
+
+  it("reports a locked file instead of an invalid document", async function () {
+    const ctx = fresh();
+    const file = makeDocx("locked.docx", DE_BODY, DE_STYLES);
+    const lock = lockFile(file.path);
+    if (!lock) assert.fail(`lockFile null: ${lastLockError}`);
+    try {
+      const r = await imp(ctx, file);
+      assert.equal(r.status, "error");
+      assert.match(
+        messages[0],
+        /gerade von einem anderen Programm|in use by another program/,
+      );
+      assert.include(messages[0], "locked.docx");
+      assert.lengthOf(ctx.s.roots, 0);
+      assert.isNull(ctx.s.noteID);
+    } finally {
+      lock.close();
+    }
+  });
+
+  it("reports the legacy .doc format", async function () {
+    const ctx = fresh();
+    const path = PathUtils.join(PathUtils.tempDir, "flexannotate-legacy.doc");
+    files.push(path);
+    await IOUtils.writeUTF8(path, "kein zip, aber lesbar");
+    const r = await imp(ctx, Zotero.File.pathToFile(path));
+    assert.equal(r.status, "error");
+    assert.include(messages[0], "flexannotate-legacy.doc");
+    assert.match(messages[0], /\.doc/);
+    assert.lengthOf(ctx.s.roots, 0);
   });
 
   it("changes nothing when the preview is cancelled", async function () {

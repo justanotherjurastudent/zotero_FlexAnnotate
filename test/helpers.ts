@@ -77,6 +77,54 @@ export async function cleanup(): Promise<void> {
   created.length = 0;
 }
 
+/** Letzter Fehler von lockFile (fuer Skip-Meldungen in den Tests). */
+export let lastLockError: unknown = null;
+
+/**
+ * Exklusives Dateilock halten (Windows, kernel32!CreateFileW mit Share-Mode 0);
+ * null, wenn ctypes fehlt oder die Sperre nicht moeglich ist (andere Plattform).
+ * ctypes kommt wie in Zoteros Winword-Integration per importESModule.
+ */
+export function lockFile(path: string): { close: () => void } | null {
+  try {
+    const { ctypes } = ChromeUtils.importESModule(
+      "resource://gre/modules/ctypes.sys.mjs",
+    ) as any;
+    const kernel32 = ctypes.open("kernel32.dll");
+    // stdcall_abi wie in Zoteros Winword-Integration (winapi_abi gibt es in fx140 nicht mehr)
+    const CreateFileW = kernel32.declare(
+      "CreateFileW",
+      ctypes.stdcall_abi,
+      ctypes.voidptr_t, // return
+      ctypes.jschar.ptr, // lpFileName
+      ctypes.unsigned_long, // dwDesiredAccess
+      ctypes.unsigned_long, // dwShareMode
+      ctypes.voidptr_t, // lpSecurityAttributes
+      ctypes.unsigned_long, // dwCreationDisposition
+      ctypes.unsigned_long, // dwFlagsAndAttributes
+      ctypes.voidptr_t, // hTemplateFile
+    );
+    // GENERIC_READ|GENERIC_WRITE (0xc0000000), Share-Mode 0 = exklusiv,
+    // OPEN_EXISTING (3), FILE_ATTRIBUTE_NORMAL (0x80)
+    const handle = CreateFileW(path, 0xc0000000, 0, null, 3, 0x80, null);
+    if (!handle || handle.isNull()) {
+      lastLockError = "CreateFileW failed";
+      return null;
+    }
+    const CloseHandle = kernel32.declare(
+      "CloseHandle",
+      ctypes.stdcall_abi,
+      ctypes.bool,
+      ctypes.voidptr_t,
+    );
+    return { close: () => CloseHandle(handle) };
+  } catch (e) {
+    lastLockError = e;
+    console.error("flexannotate test: lock failed:", e);
+    return null;
+  }
+}
+
 /**
  * Ob der Word-Zitierdialog den Annotationsmodus kennt (ab Zotero 9; 8.x hat dort
  * keine #annotations-sidebar, 7.x heißt die Datei addCitationDialog.xhtml).

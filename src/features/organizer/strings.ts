@@ -88,6 +88,18 @@ const de = {
   importTooBig: "„{file}“ ist zu groß: {entry} umfasst mehr als {mb} MB.",
   importDone: "{n} Überschriften importiert ({m} neu)",
   importFailed: "Import fehlgeschlagen: {err}",
+  importInUse:
+    "„{file}“ wird gerade von einem anderen Programm verwendet oder ist schreibgeschützt. Bitte schließe das Dokument dort und versuche es erneut.",
+  importLegacyDoc:
+    "„{file}“ ist ein Word-Dokument im alten .doc-Format. Bitte speichere es in Word oder LibreOffice als .docx bzw. .odt und versuche es erneut.",
+  exportDocTitle: "Gliederung als Word/ODT exportieren…",
+  exportDefaultName: "Gliederung.docx",
+  exportFilterDocx: "Word-Dokument (*.docx)",
+  exportFilterOdt: "LibreOffice-Dokument (*.odt)",
+  exportNone: "Es gibt noch keine Überschriften zum Exportieren.",
+  exportDocDone: "Gliederung exportiert: {n} Überschriften.",
+  exportFailed:
+    "„{file}“ konnte nicht geschrieben werden. Wenn das Dokument gerade in Word oder LibreOffice geöffnet oder schreibgeschützt ist, schließe es dort und versuche es erneut. ({err})",
   dialogHint:
     "Klicke eine Annotation, um das Zitat zu sehen. Doppelklick oder + fügt sie ein.",
 };
@@ -174,6 +186,18 @@ const en: Record<Key, string> = {
   importTooBig: '"{file}" is too large: {entry} exceeds {mb} MB.',
   importDone: "{n} headings imported ({m} new)",
   importFailed: "Import failed: {err}",
+  importInUse:
+    '"{file}" is currently in use by another program or read-only. Close the document there and try again.',
+  importLegacyDoc:
+    '"{file}" is a Word document in the legacy .doc format. Save it as .docx (or .odt) in Word or LibreOffice and try again.',
+  exportDocTitle: "Export outline as Word/ODT document…",
+  exportDefaultName: "Outline.docx",
+  exportFilterDocx: "Word document (*.docx)",
+  exportFilterOdt: "LibreOffice document (*.odt)",
+  exportNone: "There are no headings to export yet.",
+  exportDocDone: "Outline exported: {n} headings.",
+  exportFailed:
+    '"{file}" could not be written. If the document is currently open in Word or LibreOffice or read-only, close it there and try again. ({err})',
   dialogHint:
     "Click an annotation to see the quote. Double-click or + inserts it.",
 };

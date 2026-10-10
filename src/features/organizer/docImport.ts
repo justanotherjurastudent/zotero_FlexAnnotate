@@ -68,6 +68,20 @@ async function readHeadings(file: any): Promise<DocHeading[]> {
       zr.open(file);
     } catch (e) {
       ztoolkit.log("flexannotate docImport: not a zip:", e);
+      // Öffnen scheitert auch, wenn die Datei exklusiv gesperrt ist (anderes
+      // Programm hat sie offen); das soll sich in der Meldung von "kein
+      // gültiges Dokument" unterscheiden.
+      if (!(await IOUtils.exists(file.path))) throw bad();
+      let readable = true;
+      try {
+        await IOUtils.read(file.path, { maxBytes: 16 });
+      } catch {
+        readable = false;
+      }
+      if (!readable)
+        throw new ImportError(tr("importInUse").replace("{file}", name));
+      if (/\.doc$/i.test(name))
+        throw new ImportError(tr("importLegacyDoc").replace("{file}", name));
       throw bad();
     }
     const text = async (entry: string) => {
