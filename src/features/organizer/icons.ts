@@ -31,7 +31,8 @@ export type IconName =
   | "rename"
   | "delete"
   | "export"
-  | "importDoc";
+  | "importDoc"
+  | "exportDoc";
 
 const ICONS: Record<IconName, Shape[]> = {
   add: [
@@ -73,6 +74,16 @@ const ICONS: Record<IconName, Shape[]> = {
       "path",
       {
         d: "M9 8h4M9 17h7M13 11v4M10.5 13l2.5 2.5 2.5-2.5",
+        ...stroke("#fff", 1.8),
+      },
+    ],
+  ],
+  exportDoc: [
+    ["path", { d: "M6 3h9l4 4v14H6z", fill: GREEN }],
+    [
+      "path",
+      {
+        d: "M9 8h4M9 17h7M13 16V11M10.5 13.5l2.5-2.5 2.5 2.5",
         ...stroke("#fff", 1.8),
       },
     ],

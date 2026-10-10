@@ -36,6 +36,7 @@ FlexAnnotate füllt diese Lücken und bringt einen Organizer mit, der Annotation
 ![Toolbar-Ausschnitt: Organizer-Button links neben dem Sync-Button](docs/img/toolbar.png)
 
 - **Gliederungsimport aus Word/LibreOffice:** übernimmt die Überschriften eines `.docx`- oder `.odt`-Dokuments in die Gliederung (siehe unten).
+- **Gliederungsexport als Word/ODT:** schreibt die Gliederung als `.docx` oder `.odt` mit den Standard-Formatvorlagen („Überschrift 1–9“) und einer mehrstufigen, automatischen Nummerierung — das Dokument ist damit der Ausgangspunkt für die eigene Arbeit (siehe unten).
 
 ![Vorschau des Gliederungsimports: Zähler, eingerückte Liste, Option zur Nummerierung](docs/img/import-preview.png)
 
@@ -80,6 +81,7 @@ Mindestversion ist Zotero 7.0 (Manifest). Was vor Zotero 10 fehlt, steht im Absc
 | Toolbar-Button oben rechts, neben dem Sync-Button | öffnet den Organizer                                                               |
 | _Werkzeuge → FlexAnnotate: Organizer_             | öffnet den Organizer                                                               |
 | Organizer, Dokument-Symbol der Gliederungsleiste  | Gliederung aus Word/LibreOffice importieren                                        |
+| Organizer, Export-Symbol der Gliederungsleiste    | Gliederung als Word/ODT exportieren                                                |
 | Zitierdialog aus Word/LibreOffice                 | „Einfügen als“ (Vollnachweis / Nur Nachweis); im Annotationsbereich die Gliederung |
 | _Bearbeiten → Einstellungen → FlexAnnotate_       | Einstellungen                                                                      |
 
@@ -102,6 +104,16 @@ Grenzen:
 - `.doc` und `.rtf` werden nicht unterstützt (vorher in `.docx` oder `.odt` speichern).
 - Je XML-Eintrag (`document.xml`, `styles.xml`, `content.xml`) gilt eine Grenze von 50 MB.
 - Textfelder sowie Kopf- und Fußzeilen werden nicht gezielt behandelt.
+
+Ist das Dokument gerade in einem anderen Programm geöffnet und exklusiv gesperrt, meldet der Import das statt „kein gültiges Dokument“; das Dokument in dem Programm schließen und es erneut versuchen.
+
+#### Gliederung als Word/ODT exportieren
+
+1. Organizer öffnen und in der Gliederungsleiste das Export-Symbol anklicken (_Gliederung als Word/ODT exportieren…_).
+2. Ort und Namen wählen; über das Format-Aufklappmenü zwischen `.docx` (Word) und `.odt` (LibreOffice) wechseln.
+3. Das Dokument enthält alle Überschriften in Gliederungsreihenfolge mit den Standard-Formatvorlagen „Überschrift 1–9“ (bzw. „Heading 1–9“) und einer mehrstufigen automatischen Nummerierung („1“, „1.1“ …), die beim Umstellen von Kapiteln in Word/LibreOffice automatisch mitläuft. Direkt loslegen und unter den Überschriften schreiben.
+
+Der Export ändert nichts in der Bibliothek; die Zieldatei wird überschrieben (der Dateidialog fragt vorher nach). Ist die Zieldatei gerade in Word/LibreOffice geöffnet oder schreibgeschützt, schlägt das Schreiben mit einer Meldung fehl, ohne die Datei zu beschädigen — das Dokument dort schließen und erneut exportieren.
 
 ### Einstellungen
 
@@ -129,6 +141,7 @@ Das Manifest verlangt Zotero 7.0 bis 10.\*. Geprüft ist das nur durch die autom
 | --------------------------------------------------------------------------------------------------- | --------------------------- | --------------------------- | --------------------------- | ----------------------- |
 | Organizer (Fenster, Gliederung, Export), Toolbar-Button                                             | geprüft                     | geprüft                     | geprüft                     | geprüft                 |
 | Gliederungsimport aus Word/LibreOffice                                                              | geprüft                     | geprüft                     | geprüft                     | geprüft                 |
+| Gliederungsexport als Word/ODT (inkl. Sperr-Tests)                                                  | nicht geprüft¹              | nicht geprüft¹              | nicht geprüft¹              | geprüft                 |
 | Print-Annotationen inkl. Eingabemaske                                                               | geprüft, Farbmenü: Rückfall | geprüft, Farbmenü: Rückfall | geprüft, Farbmenü: Rückfall | geprüft                 |
 | Citavi-Import                                                                                       | geprüft                     | geprüft                     | geprüft                     | geprüft                 |
 | Nur-Nachweis-Zitieren (Patch von `_insertCitingResult`, nur synthetisch geprüft)                    | geprüft                     | geprüft                     | geprüft                     | geprüft                 |
@@ -139,6 +152,7 @@ Das Manifest verlangt Zotero 7.0 bis 10.\*. Geprüft ist das nur durch die autom
 - **Farbmenü (7.x bis 9.x):** `Zotero.Annotations.COLORS` gibt es erst ab 10.x. Davor verwendet die Eingabemaske die acht Standardfarben von Zotero (`STANDARD_COLORS` in `src/core/printAnnotation.ts`).
 - **Werkzeugmenü (7.x):** `Zotero.MenuManager` fehlt in 7.0.32; der Eintrag wird direkt in das Menü _Werkzeuge_ eingehängt. Die übrigen Menüs (Rechtsklick auf Titel und Annotationen) arbeiten ohnehin über DOM.
 - **Zitierdialog (7.x, 8.x):** Der Annotationsmodus im Zitierdialog existiert erst ab Zotero 9. Auf 7.x und 8.x gibt es dort weder die Option „Nach Gliederung anordnen“ noch die Modus-Auswahl „Einfügen als“ noch „Zitatstelle anzeigen“. Das Plugin tut in diesem Dialog nichts und stört nicht.
+- ¹ **Gliederungsexport:** Auf 10.0.6 geprüft (inkl. gesperrte Zieldatei). Für 7.x bis 9.x `npm run test:versions` mit den Installern in `.zotero-versions/` laufen lassen (Beschaffung: [docs/testing.md](docs/testing.md)); der Export nutzt nur `nsIZipWriter`, `Zotero.File` und den `FilePicker`-Wrapper, die es in allen Versionen gibt.
 
 ### Daten und Kompatibilität
 
@@ -192,7 +206,8 @@ Zotero stores annotations only under a file attachment, so printed books, commen
 **Organizer**
 
 - Outline: headings (tags `§Title`) file annotations and works by drag and drop; export as a Zotero note.
-- Outline import: the toolbar button with the document icon reads the heading styles of a `.docx` or `.odt` file, shows a preview and appends the headings to the outline (nothing is deleted or moved; duplicates become "Title (2)"). `.doc` and `.rtf` are not supported.
+- Outline import: the toolbar button with the document icon reads the heading styles of a `.docx` or `.odt` file, shows a preview and appends the headings to the outline (nothing is deleted or moved; duplicates become "Title (2)"). Locked files get their own message, legacy `.doc` files a hint. `.doc` and `.rtf` are not supported.
+- Outline export: the toolbar button with the arrow icon writes the outline as a `.docx` or `.odt` document with the standard heading styles ("Heading 1–9") and an automatic multilevel numbering ("1", "1.1" …) that updates in Word/LibreOffice when chapters are rearranged. If the target file is open or read-only, the write fails with a message instead of damaging the file.
 - Citation dialog view (Zotero 9 and later): option "Nach Gliederung anordnen (FlexAnnotate)" in the annotations view of the dialog opened from Word, with a green check for already cited annotations. The right column keeps its native width, the dialog's search bar also filters the outline list, and "Zitatstelle anzeigen" opens the reader at the annotation.
 
 ### Install
@@ -202,7 +217,7 @@ Download the XPI from [Releases](https://github.com/justanotherjurastudent/zoter
 ### Where to find things
 
 - Right-click an item: _Add print annotation…_; right-click an annotation: _Edit annotation…_ (print annotations also _Delete_).
-- Organizer: toolbar button next to the Sync button, or _Tools → FlexAnnotate: Organizer_.
+- Organizer: toolbar button next to the Sync button, or _Tools → FlexAnnotate: Organizer_. In the outline toolbar, the document icon imports from Word/ODT, the arrow icon exports to Word/ODT (see the German walkthrough above).
 - Settings: _Edit → Settings → FlexAnnotate_ (preference keys `extensions.flexannotate.*`).
 
 ### Settings and data
@@ -214,6 +229,7 @@ The settings table above applies (German UI labels; the English UI uses the same
 The manifest allows Zotero 7.0 to 10.\*. Only these versions were run through the automated suite: 7.0.32, 8.0.4, 9.0.6 and 10.0.5/10.0.6; other patch releases are untested. On all four, the organizer (with toolbar button), outline import, print annotations, Citavi import, the citation-only patch and the settings pane pass the tests. Differences:
 
 - **Before 10:** the color menu of the print annotation panel falls back to Zotero's eight standard colors (`Zotero.Annotations.COLORS` exists only in 10.x).
+- **Outline export:** verified on 10.0.6 only (including the locked-target test). For 7.x–9.x run `npm run test:versions` with the installers in `.zotero-versions/`; the export only uses `nsIZipWriter`, `Zotero.File` and the `FilePicker` wrapper, which exist in all versions.
 - **7.x:** no `Zotero.MenuManager`; _Tools → FlexAnnotate: Organizer_ is added to the Tools menu directly.
 - **7.x and 8.x:** the citation dialog has no annotations mode (it starts in 9.x). The mode selector, the outline view, the search mirror and "Zitatstelle anzeigen" are therefore not available there; the plugin does nothing in that dialog.
 

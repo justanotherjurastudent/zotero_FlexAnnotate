@@ -10,6 +10,7 @@ import {
   isPatched as citeOnlyIsPatched,
 } from "./features/citeOnly/integrationPatch";
 import { docImport } from "./features/organizer/docImport";
+import { docExport } from "./features/organizer/docExport";
 import * as openTarget from "./features/organizer/openTarget";
 import * as docOutlineCore from "./core/docOutline";
 import * as citedCore from "./core/cited";
@@ -95,6 +96,7 @@ async function onStartup() {
     outlineModel: outlineModelModule,
     OrganizerFactory,
     docImport,
+    docExport,
     docOutline: docOutlineCore,
     organizerToolbar: organizerToolbarButton,
     toolsMenu: toolsMenuFallback,

@@ -25,6 +25,7 @@ import { exportNote } from "./organizerExport";
 import { assign } from "./organizerFiling";
 import { button, DND_TYPE, el, iconButton, input, toast } from "./organizerDom";
 import { docImport } from "./docImport";
+import { docExport } from "./docExport";
 import { Ctx, NodeSel, persist, reload } from "./organizerState";
 import { Palette } from "./theme";
 import { tr } from "./strings";
@@ -71,6 +72,9 @@ export function renderTree(ctx: Ctx, c: HTMLElement, t: Palette) {
     sep(),
     iconButton(doc, t, "importDoc", tr("importTitle"), () => {
       void docImport.start(ctx);
+    }),
+    iconButton(doc, t, "exportDoc", tr("exportDocTitle"), () => {
+      void docExport.start(ctx);
     }),
     iconButton(doc, t, "rename", tr("rename"), () => {
       if (selNode) {
