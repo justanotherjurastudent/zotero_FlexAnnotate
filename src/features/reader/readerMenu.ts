@@ -378,6 +378,7 @@ function watchReader(reader: ReaderInstance | undefined): void {
 /** Hängt einen MutationObserver an das Dokument des Reader-iFrames. */
 function attachObserver(reader: ReaderInstance, iframeWin: Window): void {
   const doc = iframeWin.document;
+  const watchedClasses = ["page", "preview", "annotation"];
   const observer = new iframeWin.MutationObserver(
     (mutations: MutationRecord[]) => {
       if (updatingLocators) {
@@ -396,12 +397,10 @@ function attachObserver(reader: ReaderInstance, iframeWin: Window): void {
                 enhanceLabelPopup(reader, popup);
               }
               if (
-                el.classList?.contains("page") ||
-                el.querySelector?.(".page") ||
-                el.classList?.contains("preview") ||
-                el.querySelector?.(".preview") ||
-                el.classList?.contains("annotation") ||
-                el.querySelector?.(".annotation")
+                watchedClasses.some(
+                  (c) =>
+                    el.classList?.contains(c) || el.querySelector?.(`.${c}`),
+                )
               ) {
                 hasPageOrCard = true;
               }
