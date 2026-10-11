@@ -3,7 +3,7 @@
  * Reine Logik ohne DOM: ein kleiner XML-Scanner liest nur die benoetigten
  * Strukturen. Der Import ist ein Append-Merge in die bestehende Gliederung.
  */
-import { makeNode, type OutlineNode } from "./outline.ts";
+import { makeNode, numbering, type OutlineNode } from "./outline.ts";
 
 export interface DocHeading {
   /** 1-basiert. */
@@ -372,7 +372,14 @@ export function normalizeHeadings(
 
   const n = leveled.length;
   const numbered = leveled.filter((h) => STRIP_RE.test(h.text.trim())).length;
-  const numberingDetected = n >= 3 && numbered / n >= 0.8;
+  const level1 = leveled.filter((h) => h.level === 1);
+  const numberedLevel1 = level1.filter((h) =>
+    STRIP_RE.test(h.text.trim()),
+  ).length;
+  const numberingDetected =
+    n >= 3 &&
+    (numbered / n >= 0.8 ||
+      (level1.length >= 2 && numberedLevel1 / level1.length >= 0.5));
 
   let numberingStripped = false;
   let items = leveled;
@@ -500,4 +507,37 @@ export function applyImportPlan(
     stack.push(node);
   }
   return out;
+}
+
+/**
+ * Berechnet fuer jede Operation im Import-Plan die Dezimalnummer ("1", "1.1", ...),
+ * die der Knoten in der resultierenden Gliederung haben wird (wie im Organizer).
+ */
+export function computePlanNumbers(
+  roots: OutlineNode[],
+  plan: ImportPlan,
+): string[] {
+  const copy = (ns: OutlineNode[]): OutlineNode[] =>
+    ns.map((n) => ({ ...n, children: copy(n.children) }));
+  const out = copy(roots);
+  const byId = new Map<string, OutlineNode>();
+  const index = (ns: OutlineNode[]) =>
+    ns.forEach((n) => (byId.set(n.id, n), index(n.children)));
+  index(out);
+  const stack: OutlineNode[] = [];
+  const nodesForOps: OutlineNode[] = [];
+  for (const op of plan.ops) {
+    const level = Math.max(1, Math.min(op.level, stack.length + 1));
+    stack.splice(level - 1);
+    let node = op.kind === "reuse" && op.id ? byId.get(op.id) : undefined;
+    if (!node) {
+      node = makeNode(op.title);
+      (level === 1 ? out : stack[level - 2].children).push(node);
+      byId.set(node.id, node);
+    }
+    stack.push(node);
+    nodesForOps.push(node);
+  }
+  const nums = numbering(out);
+  return nodesForOps.map((node) => nums.get(node.id) || "");
 }

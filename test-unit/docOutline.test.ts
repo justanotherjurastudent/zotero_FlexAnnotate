@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
   applyImportPlan,
+  computePlanNumbers,
   normalizeHeadings,
   parseDocxHeadings,
   parseOdtHeadings,
@@ -305,6 +306,21 @@ describe("normalizeHeadings", () => {
     assert.equal(r.numberingDetected, false);
   });
 
+  it("erkennt Nummerierung auch wenn nur Ebene-1-Ueberschriften nummeriert sind", () => {
+    const input: DocHeading[] = [
+      { level: 1, text: "Einleitung" },
+      { level: 2, text: "Problemstellung" },
+      { level: 2, text: "Stand" },
+      { level: 1, text: "2. Hauptteil" },
+      { level: 2, text: "Analyse" },
+      { level: 1, text: "3. Fazit" },
+    ];
+    const r = normalizeHeadings(input, { stripNumbering: true });
+    assert.equal(r.numberingDetected, true);
+    assert.equal(r.items[3].text, "Hauptteil");
+    assert.equal(r.items[5].text, "Fazit");
+  });
+
   it("stripNumbering erzeugt nie einen leeren Titel", () => {
     const r = normalizeHeadings(
       [
@@ -535,5 +551,36 @@ describe("applyImportPlan", () => {
     const existing = [node("A")];
     run(existing, [h(1, "A"), h(2, "Neu")]);
     assert.equal(existing[0].children.length, 0);
+  });
+});
+
+describe("computePlanNumbers", () => {
+  const h = (level: number, text: string): DocHeading => ({ level, text });
+
+  it("berechnet hierarchische Dezimalnummern fuer leere Gliederung", () => {
+    const plan = planOutlineImport(
+      [],
+      [
+        h(1, "Einleitung"),
+        h(2, "Problemstellung"),
+        h(2, "Forschungsstand"),
+        h(1, "Hauptteil"),
+        h(2, "Analyse"),
+      ],
+    );
+    const nums = computePlanNumbers([], plan);
+    assert.deepEqual(nums, ["1", "1.1", "1.2", "2", "2.1"]);
+  });
+
+  it("beruecksichtigt vorhandene Wurzeln und Wiederverwendung", () => {
+    const existing = [node("Einleitung", [node("Problemstellung")])];
+    const plan = planOutlineImport(existing, [
+      h(1, "Einleitung"),
+      h(2, "Problemstellung"),
+      h(2, "Forschungsstand"),
+      h(1, "Fazit"),
+    ]);
+    const nums = computePlanNumbers(existing, plan);
+    assert.deepEqual(nums, ["1", "1.1", "1.2", "2"]);
   });
 });

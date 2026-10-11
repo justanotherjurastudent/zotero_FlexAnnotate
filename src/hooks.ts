@@ -57,7 +57,10 @@ const features: Feature[] = [
   {
     name: "organizer",
     start: () => OrganizerFactory.registerMenu(),
-    stop: () => unregisterAllPluginMenus(),
+    stop: () => {
+      unregisterAllPluginMenus();
+      OrganizerFactory.close();
+    },
   },
   organizerToolbarButton,
   toolsMenuFallback,

@@ -94,6 +94,7 @@ export interface ToastOptions {
   closeTime?: number;
   actionLabel?: string;
   onAction?: () => void;
+  window?: Window;
 }
 
 export function toast(
@@ -111,6 +112,7 @@ export function toast(
   const pw = new ztoolkit.ProgressWindow(addon.data.config.addonName, {
     closeOnClick: true,
     closeTime,
+    window: opts.window,
   });
   pw.createLine({ text, type, progress: 100 }).show();
 
@@ -139,12 +141,27 @@ export function toast(
       const hbox = line?._hbox as HTMLElement | undefined;
       if (hbox && hbox.ownerDocument) {
         const doc = hbox.ownerDocument;
+        const win = doc.defaultView as
+          (Window & { sizeToContent?: () => void }) | null;
+
+        // Nachrichtenzeile selbst ebenfalls klickbar machen
+        hbox.style.cursor = "pointer";
+        hbox.addEventListener("mouseup", (e) => e.stopPropagation());
+        hbox.addEventListener("click", (e) => {
+          e.stopPropagation();
+          trigger();
+        });
+
         if (actionLabel) {
+          const actionRow = doc.createElement("div");
+          actionRow.style.display = "flex";
+          actionRow.style.marginTop = "6px";
+          actionRow.style.marginLeft = "22px";
+
           const btn = doc.createElement("button");
           btn.textContent = actionLabel;
           btn.setAttribute("type", "button");
-          btn.style.marginLeft = "8px";
-          btn.style.padding = "1px 6px";
+          btn.style.padding = "2px 8px";
           btn.style.fontSize = "11px";
           btn.style.lineHeight = "16px";
           btn.style.cursor = "pointer";
@@ -157,19 +174,49 @@ export function toast(
             e.stopPropagation();
             trigger();
           });
-          hbox.appendChild(btn);
+          actionRow.appendChild(btn);
+
+          if (hbox.nextSibling) {
+            hbox.parentElement?.insertBefore(actionRow, hbox.nextSibling);
+          } else {
+            hbox.parentElement?.appendChild(actionRow);
+          }
+        }
+
+        if (win) {
           try {
-            (doc.defaultView as any)?.sizeToContent();
+            win.sizeToContent?.();
           } catch {
             // sizeToContent may not be available on all window types
           }
-        } else {
-          hbox.style.cursor = "pointer";
-          hbox.addEventListener("mouseup", (e) => e.stopPropagation());
-          hbox.addEventListener("click", (e) => {
-            e.stopPropagation();
-            trigger();
-          });
+          try {
+            (Zotero as any).ProgressWindowSet?.tile(win);
+          } catch {
+            // tile may fail if not registered
+          }
+          try {
+            const margin = 24;
+            const availLeft = win.screen.availLeft ?? 0;
+            const availTop = win.screen.availTop ?? 0;
+            const maxRight = availLeft + win.screen.availWidth - margin;
+            const maxBottom = availTop + win.screen.availHeight - margin;
+            let targetX = win.screenX;
+            let targetY = win.screenY;
+            if (targetX + win.outerWidth > maxRight) {
+              targetX = maxRight - win.outerWidth;
+            }
+            if (targetY + win.outerHeight > maxBottom) {
+              targetY = maxBottom - win.outerHeight;
+            }
+            if (targetX !== win.screenX || targetY !== win.screenY) {
+              win.moveTo(
+                Math.max(availLeft + margin, targetX),
+                Math.max(availTop + margin, targetY),
+              );
+            }
+          } catch {
+            // best effort position clamping
+          }
         }
       } else if (retries-- > 0) {
         setTimeout(checkLine, 50);

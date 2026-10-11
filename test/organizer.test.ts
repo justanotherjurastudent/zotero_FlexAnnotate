@@ -221,5 +221,20 @@ describe("FlexAnnotate", function () {
         await screenshot(win!, "organizer-titel");
       }
     });
+
+    it("focuses existing window instead of opening a duplicate instance", async function () {
+      const win2 = await api().OrganizerFactory.open();
+      assert.equal(win2, win);
+      assert.equal(api().OrganizerFactory.getOpenWindow(), win);
+      const en = Services.wm.getEnumerator("");
+      let count = 0;
+      while (en.hasMoreElements()) {
+        const w = en.getNext() as Window;
+        if (!w.closed && w.document?.getElementById("flexannotate-root")) {
+          count++;
+        }
+      }
+      assert.equal(count, 1);
+    });
   });
 });

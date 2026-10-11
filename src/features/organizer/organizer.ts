@@ -59,7 +59,69 @@ export class OrganizerFactory {
     });
   }
 
-  static async open() {
+  /** Currently open Organizer window, if any. */
+  private static currentWindow: Window | null = null;
+
+  /**
+   * Returns the currently open Organizer window, or null if none is open.
+   */
+  static getOpenWindow(): Window | null {
+    if (
+      this.currentWindow &&
+      !this.currentWindow.closed &&
+      this.currentWindow.document?.getElementById("flexannotate-root")
+    ) {
+      return this.currentWindow;
+    }
+    const en = (Services as any).wm.getEnumerator("");
+    while (en.hasMoreElements()) {
+      const w = en.getNext() as Window;
+      if (!w.closed && w.document?.getElementById("flexannotate-root")) {
+        this.currentWindow = w;
+        return w;
+      }
+    }
+    this.currentWindow = null;
+    return null;
+  }
+
+  /**
+   * Closes the open Organizer window, if any.
+   */
+  static close(): void {
+    const win = this.getOpenWindow();
+    if (win) {
+      try {
+        win.close();
+      } catch (e) {
+        ztoolkit.log("flexannotate organizer close failed:", e);
+      }
+      this.currentWindow = null;
+    }
+  }
+
+  static async open(): Promise<Window> {
+    const existing = this.getOpenWindow();
+    if (existing) {
+      try {
+        const anyWin = existing as any;
+        if (
+          anyWin.windowState === anyWin.STATE_MINIMIZED ||
+          anyWin.windowState === 2
+        ) {
+          anyWin.restore?.();
+        }
+      } catch {
+        // best-effort un-minimize
+      }
+      try {
+        existing.focus();
+      } catch (e) {
+        ztoolkit.log("flexannotate organizer focus failed:", e);
+      }
+      return existing;
+    }
+
     const dialog = new ztoolkit.Dialog(1, 1).addCell(0, 0, {
       tag: "div",
       id: "flexannotate-root",
@@ -81,12 +143,19 @@ export class OrganizerFactory {
           ztoolkit.log("flexannotate organizer build failed:", e);
         }
       },
+      unloadCallback: () => {
+        if (this.currentWindow === dialog.window) {
+          this.currentWindow = null;
+        }
+      },
     });
     dialog.open(getString("outline-window-title"), {
       width: 1240,
       height: 760,
       resizable: true,
     });
+    this.currentWindow = dialog.window;
+    return dialog.window;
   }
 
   private static async mount(doc: Document, root: HTMLElement) {

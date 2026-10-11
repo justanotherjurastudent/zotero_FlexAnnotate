@@ -11,6 +11,7 @@
 
 import {
   applyImportPlan,
+  computePlanNumbers,
   type DocHeading,
   type ImportPlan,
   normalizeHeadings,
@@ -191,7 +192,17 @@ function showPreview(
         .replace("{n}", String(plan.renamed));
       label.style.display = numberingDetected ? "flex" : "none";
       list.textContent = "";
-      for (const op of plan.ops.slice(0, PREVIEW_LINES)) {
+      const roots = ctx.s.roots;
+      const nums = computePlanNumbers(roots, plan);
+      const shownCount = Math.min(plan.ops.length, PREVIEW_LINES);
+      for (let i = 0; i < shownCount; i++) {
+        const op = plan.ops[i];
+        const num = nums[i] || "";
+        const prefix = num ? `${num}  ` : "";
+        const label =
+          op.kind === "reuse"
+            ? `${prefix}${op.title} (${tr("importExists")})`
+            : `${prefix}${op.title}`;
         list.appendChild(
           el(
             doc,
@@ -199,9 +210,7 @@ function showPreview(
             `padding-left:${(op.level - 1) * 16}px;white-space:nowrap;` +
               "overflow:hidden;text-overflow:ellipsis;" +
               (op.kind === "reuse" ? `color:${t.sub};` : ""),
-            op.kind === "reuse"
-              ? `${op.title} (${tr("importExists")})`
-              : op.title,
+            label,
           ),
         );
       }
@@ -225,6 +234,11 @@ function showPreview(
 
     const finish = (ok: boolean) => {
       overlay.remove();
+      try {
+        doc.defaultView?.focus?.();
+      } catch {
+        // window may not be available
+      }
       resolve({ ok, strip });
     };
     const okButton = button(doc, t, tr("importDo"), "", () => finish(true));
@@ -275,9 +289,22 @@ export const docImport = {
     } catch (e) {
       ztoolkit.log("flexannotate docImport: file picker failed:", e);
       docImport.alert(win, tr("importFailed").replace("{err}", String(e)));
+      try {
+        win?.focus?.();
+      } catch {
+        // window may not be available
+      }
       return null;
     }
-    return file ? docImport.importFromFile(ctx, file, {}) : null;
+    if (!file) {
+      try {
+        win?.focus?.();
+      } catch {
+        // window may not be available
+      }
+      return null;
+    }
+    return docImport.importFromFile(ctx, file, {});
   },
 
   async importFromFile(
@@ -335,7 +362,13 @@ export const docImport = {
         tr("importDone")
           .replace("{n}", String(plan.ops.length))
           .replace("{m}", String(plan.created)),
+        { window: win ?? undefined },
       );
+      try {
+        win?.focus?.();
+      } catch {
+        // window may not be available
+      }
       return { status: "imported", plan };
     } catch (e) {
       ztoolkit.log("flexannotate docImport failed:", e);

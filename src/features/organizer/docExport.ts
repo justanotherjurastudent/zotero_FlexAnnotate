@@ -128,7 +128,14 @@ export const docExport = {
       );
       return null;
     }
-    if (!pick) return null;
+    if (!pick) {
+      try {
+        win?.focus?.();
+      } catch {
+        // window may not be available
+      }
+      return null;
+    }
     return docExport.exportTo(ctx.s.roots, pick, win);
   },
 
@@ -148,7 +155,13 @@ export const docExport = {
       toast(tr("exportDocDone").replace("{n}", String(count)), {
         actionLabel: tr("exportOpenDoc"),
         onAction: () => docExport.openDocument(pick.path),
+        window: (win as Window) ?? undefined,
       });
+      try {
+        (win as Window)?.focus?.();
+      } catch {
+        // window may not be available
+      }
       return { status: "exported", path: pick.path, count };
     } catch (e) {
       ztoolkit.log("flexannotate docExport failed:", e);
