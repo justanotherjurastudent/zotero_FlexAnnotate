@@ -88,11 +88,29 @@ describe("buildDocxParts", () => {
   it("styling: Normal plus Heading 1-9 mit outlineLvl, numPr und passendem ilvl", () => {
     assert.match(
       p.stylesXml,
-      /<w:style w:type="paragraph" w:default="1" w:styleId="Normal">/,
+      /<w:style w:type="paragraph" w:default="1" w:styleId="Normal">.*<w:uiPriority w:val="0"\/>/,
     );
     for (let i = 1; i <= 9; i++) {
       assert.match(p.stylesXml, new RegExp(`w:styleId="Heading${i}">`));
     }
+    // Heading 1-3 sind sofort im Katalog sichtbar (kein unhideWhenUsed)
+    assert.match(
+      p.stylesXml,
+      /w:styleId="Heading1">.*?<w:uiPriority w:val="9"\/><w:qFormat\/>/,
+    );
+    assert.match(
+      p.stylesXml,
+      /w:styleId="Heading3">.*?<w:uiPriority w:val="9"\/><w:qFormat\/>/,
+    );
+    // Heading 4-9 haben unhideWhenUsed vor qFormat
+    assert.match(
+      p.stylesXml,
+      /w:styleId="Heading4">.*?<w:uiPriority w:val="9"\/><w:unhideWhenUsed\/><w:qFormat\/>/,
+    );
+    assert.match(
+      p.stylesXml,
+      /w:styleId="Heading9">.*?<w:uiPriority w:val="9"\/><w:unhideWhenUsed\/><w:qFormat\/>/,
+    );
     assert.match(
       p.stylesXml,
       /w:styleId="Heading1">.*<w:numPr><w:ilvl w:val="0"\/><w:numId w:val="1"\/><\/w:numPr><w:outlineLvl w:val="0"\/>/,

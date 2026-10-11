@@ -89,11 +89,92 @@ export function input(
   return i;
 }
 
-export function toast(text: string, type = "success") {
-  new ztoolkit.ProgressWindow(addon.data.config.addonName, {
+export interface ToastOptions {
+  type?: string;
+  closeTime?: number;
+  actionLabel?: string;
+  onAction?: () => void;
+}
+
+export function toast(
+  text: string,
+  typeOrOptions: string | ToastOptions = "success",
+) {
+  const opts: ToastOptions =
+    typeof typeOrOptions === "string"
+      ? { type: typeOrOptions }
+      : typeOrOptions || {};
+  const type = opts.type ?? "success";
+  const hasAction = typeof opts.onAction === "function";
+  const closeTime = opts.closeTime ?? (hasAction ? 8000 : 2500);
+
+  const pw = new ztoolkit.ProgressWindow(addon.data.config.addonName, {
     closeOnClick: true,
-    closeTime: 2500,
-  })
-    .createLine({ text, type, progress: 100 })
-    .show();
+    closeTime,
+  });
+  pw.createLine({ text, type, progress: 100 }).show();
+
+  if (hasAction && opts.onAction) {
+    const onAction = opts.onAction;
+    const actionLabel = opts.actionLabel;
+    let handled = false;
+    const trigger = () => {
+      if (handled) return;
+      handled = true;
+      try {
+        pw.win.close();
+      } catch {
+        // window may already be closed
+      }
+      try {
+        onAction();
+      } catch (e) {
+        ztoolkit.log("flexannotate toast action failed:", e);
+      }
+    };
+
+    let retries = 20;
+    const checkLine = () => {
+      const line = (pw as any).lines?.[0];
+      const hbox = line?._hbox as HTMLElement | undefined;
+      if (hbox && hbox.ownerDocument) {
+        const doc = hbox.ownerDocument;
+        if (actionLabel) {
+          const btn = doc.createElement("button");
+          btn.textContent = actionLabel;
+          btn.setAttribute("type", "button");
+          btn.style.marginLeft = "8px";
+          btn.style.padding = "1px 6px";
+          btn.style.fontSize = "11px";
+          btn.style.lineHeight = "16px";
+          btn.style.cursor = "pointer";
+          btn.style.borderRadius = "3px";
+          btn.style.border = "1px solid var(--color-border, #ccc)";
+          btn.style.background = "var(--material-button, #f0f0f0)";
+          btn.style.color = "var(--fill-primary, inherit)";
+          btn.addEventListener("mouseup", (e) => e.stopPropagation());
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            trigger();
+          });
+          hbox.appendChild(btn);
+          try {
+            (doc.defaultView as any)?.sizeToContent();
+          } catch {
+            // sizeToContent may not be available on all window types
+          }
+        } else {
+          hbox.style.cursor = "pointer";
+          hbox.addEventListener("mouseup", (e) => e.stopPropagation());
+          hbox.addEventListener("click", (e) => {
+            e.stopPropagation();
+            trigger();
+          });
+        }
+      } else if (retries-- > 0) {
+        setTimeout(checkLine, 50);
+      }
+    };
+    checkLine();
+  }
 }

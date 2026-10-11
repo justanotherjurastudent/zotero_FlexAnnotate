@@ -98,6 +98,7 @@ const de = {
   exportFilterOdt: "LibreOffice-Dokument (*.odt)",
   exportNone: "Es gibt noch keine Überschriften zum Exportieren.",
   exportDocDone: "Gliederung exportiert: {n} Überschriften.",
+  exportOpenDoc: "Datei öffnen",
   exportFailed:
     "„{file}“ konnte nicht geschrieben werden. Wenn das Dokument gerade in Word oder LibreOffice geöffnet oder schreibgeschützt ist, schließe es dort und versuche es erneut. ({err})",
   dialogHint:
@@ -196,6 +197,7 @@ const en: Record<Key, string> = {
   exportFilterOdt: "LibreOffice document (*.odt)",
   exportNone: "There are no headings to export yet.",
   exportDocDone: "Outline exported: {n} headings.",
+  exportOpenDoc: "Open file",
   exportFailed:
     '"{file}" could not be written. If the document is currently open in Word or LibreOffice or read-only, close it there and try again. ({err})',
   dialogHint:

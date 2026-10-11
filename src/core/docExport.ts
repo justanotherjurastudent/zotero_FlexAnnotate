@@ -79,7 +79,9 @@ export function docxStyles(): string {
   const heading = (level: number) =>
     `<w:style w:type="paragraph" w:styleId="Heading${level}">` +
     `<w:name w:val="heading ${level}"/><w:basedOn w:val="Normal"/>` +
-    `<w:next w:val="Normal"/><w:qFormat/><w:pPr>` +
+    `<w:next w:val="Normal"/><w:uiPriority w:val="9"/>` +
+    (level > 3 ? `<w:unhideWhenUsed/>` : "") +
+    `<w:qFormat/><w:pPr>` +
     `<w:numPr><w:ilvl w:val="${level - 1}"/><w:numId w:val="1"/></w:numPr>` +
     `<w:outlineLvl w:val="${level - 1}"/></w:pPr></w:style>`;
   const headings = Array.from({ length: MAX_LEVEL }, (_, i) =>
@@ -88,7 +90,7 @@ export function docxStyles(): string {
   return (
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles ${W}>` +
     `<w:style w:type="paragraph" w:default="1" w:styleId="Normal">` +
-    `<w:name w:val="Normal"/><w:qFormat/></w:style>${headings}</w:styles>`
+    `<w:name w:val="Normal"/><w:uiPriority w:val="0"/><w:qFormat/></w:style>${headings}</w:styles>`
   );
 }
 

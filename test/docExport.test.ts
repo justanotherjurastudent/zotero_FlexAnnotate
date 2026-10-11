@@ -15,8 +15,10 @@ const api = () => (Zotero as any)[config.addonInstance].api;
 describe("docExport", function () {
   this.timeout(60000);
   const messages: string[] = [];
+  const opened: string[] = [];
   const states: any[] = [];
   let oldAlert: any;
+  let oldOpen: any;
 
   const fresh = (roots: any[] = []) => {
     const s = {
@@ -36,14 +38,18 @@ describe("docExport", function () {
   before(function () {
     oldAlert = api().docExport.alert;
     api().docExport.alert = (_w: unknown, text: string) => messages.push(text);
+    oldOpen = api().docExport.openDocument;
+    api().docExport.openDocument = (path: string) => opened.push(path);
   });
 
   beforeEach(function () {
     messages.length = 0;
+    opened.length = 0;
   });
 
   after(async function () {
     api().docExport.alert = oldAlert;
+    api().docExport.openDocument = oldOpen;
     for (const s of states) {
       await s.saveChain;
       if (s.noteID) {
@@ -224,5 +230,11 @@ describe("docExport", function () {
     }
     // erst nach dem Freigeben lesbar: nichts wurde überschrieben
     assert.deepEqual(await IOUtils.read(path), before);
+  });
+
+  it("bietet openDocument an", function () {
+    assert.isFunction(api().docExport.openDocument);
+    api().docExport.openDocument("test.docx");
+    assert.deepEqual(opened, ["test.docx"]);
   });
 });

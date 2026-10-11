@@ -60,6 +60,15 @@ export const docExport = {
   alert: (win: unknown, text: string) =>
     (Services as any).prompt.alert(win, tr("exportDocTitle"), text),
 
+  /** Open exported document with system default handler (Word / LibreOffice). */
+  openDocument: (path: string) => {
+    try {
+      (Zotero as any).launchFile(path);
+    } catch (e) {
+      ztoolkit.log("flexannotate docExport: launchFile failed:", e);
+    }
+  },
+
   writeDocx: (path: string, roots: OutlineNode[]) => {
     const p = buildDocxParts(roots);
     writeZip(path, {
@@ -136,7 +145,10 @@ export const docExport = {
       if (pick.format === "odt") docExport.writeOdt(pick.path, roots);
       else docExport.writeDocx(pick.path, roots);
       const count = flatten(roots).filter((f) => f.node.title.trim()).length;
-      toast(tr("exportDocDone").replace("{n}", String(count)));
+      toast(tr("exportDocDone").replace("{n}", String(count)), {
+        actionLabel: tr("exportOpenDoc"),
+        onAction: () => docExport.openDocument(pick.path),
+      });
       return { status: "exported", path: pick.path, count };
     } catch (e) {
       ztoolkit.log("flexannotate docExport failed:", e);
