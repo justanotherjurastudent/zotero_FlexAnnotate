@@ -189,6 +189,39 @@ export function patch(): boolean {
   return true;
 }
 
+/** Trennt alle MutationObserver; ein Fehler stoppt die übrigen nicht. */
+function disconnectObservers(): void {
+  for (const obs of observers) {
+    try {
+      obs.disconnect();
+    } catch (e) {
+      defaultLogger("readerMenu", "disconnect", e);
+    }
+  }
+  observers.clear();
+}
+
+/** Offene Reader zurücksetzen: UI-Elemente entfernen und Label auf Zotero-Standard zurücksetzen. */
+function resetOpenReaders(): void {
+  const defaultLabel = pageLabel();
+  for (const reader of registry()._readers ?? []) {
+    const doc = internals(reader)._iframeWindow?.document;
+    if (!doc) continue;
+    try {
+      doc
+        .querySelectorAll(".flexannotate-locator-section")
+        .forEach((el: Element) => el.remove());
+      for (const pageEl of doc.querySelectorAll('.page[id^="page_"]')) {
+        if (pageEl.firstElementChild) {
+          pageEl.firstElementChild.textContent = defaultLabel;
+        }
+      }
+    } catch (e) {
+      defaultLogger("readerMenu", "unpatch", e);
+    }
+  }
+}
+
 /** Entfernt die Reader-Erweiterungen und setzt geöffnete Reader sauber zurück. */
 export function unpatch(): void {
   const zr = registry();
@@ -210,35 +243,8 @@ export function unpatch(): void {
     assignChecked(Zotero.Reader, "open", origOpen);
     origOpen = null;
   }
-  for (const obs of observers) {
-    try {
-      obs.disconnect();
-    } catch (e) {
-      defaultLogger("readerMenu", "disconnect", e);
-    }
-  }
-  observers.clear();
-
-  // Offene Reader zurücksetzen: UI-Elemente entfernen und Label auf Zotero-Standard zurücksetzen
-  const defaultLabel = pageLabel();
-  for (const reader of registry()._readers ?? []) {
-    const doc = internals(reader)._iframeWindow?.document;
-    if (doc) {
-      try {
-        doc
-          .querySelectorAll(".flexannotate-locator-section")
-          .forEach((el: Element) => el.remove());
-        const pageElements = doc.querySelectorAll('.page[id^="page_"]');
-        for (const pageEl of pageElements) {
-          if (pageEl.firstElementChild) {
-            pageEl.firstElementChild.textContent = defaultLabel;
-          }
-        }
-      } catch (e) {
-        defaultLogger("readerMenu", "unpatch", e);
-      }
-    }
-  }
+  disconnectObservers();
+  resetOpenReaders();
 }
 
 /** Feature-Registry: start richtet ein, stop räumt wieder auf. */
@@ -375,10 +381,26 @@ function watchReader(reader: ReaderInstance | undefined): void {
   pollForIframe();
 }
 
+const WATCHED_CLASSES = ["page", "preview", "annotation"];
+
+/** Verbessert neue Label-Popups; true, wenn eine Seite oder Karte hinzukam. */
+function scanAddedNode(reader: ReaderInstance, node: Node | null): boolean {
+  if (node?.nodeType !== 1) return false;
+  const el = node as Element;
+  const popup = el.classList?.contains("label-popup")
+    ? el
+    : el.querySelector?.(".label-popup");
+  if (popup) {
+    enhanceLabelPopup(reader, popup);
+  }
+  return WATCHED_CLASSES.some(
+    (c) => el.classList?.contains(c) || el.querySelector?.(`.${c}`),
+  );
+}
+
 /** Hängt einen MutationObserver an das Dokument des Reader-iFrames. */
 function attachObserver(reader: ReaderInstance, iframeWin: Window): void {
   const doc = iframeWin.document;
-  const watchedClasses = ["page", "preview", "annotation"];
   const observer = new iframeWin.MutationObserver(
     (mutations: MutationRecord[]) => {
       if (updatingLocators) {
@@ -388,23 +410,7 @@ function attachObserver(reader: ReaderInstance, iframeWin: Window): void {
         let hasPageOrCard = false;
         for (const mutation of mutations) {
           for (const node of mutation.addedNodes) {
-            if (node?.nodeType === 1) {
-              const el = node as Element;
-              const popup = el.classList?.contains("label-popup")
-                ? el
-                : el.querySelector?.(".label-popup");
-              if (popup) {
-                enhanceLabelPopup(reader, popup);
-              }
-              if (
-                watchedClasses.some(
-                  (c) =>
-                    el.classList?.contains(c) || el.querySelector?.(`.${c}`),
-                )
-              ) {
-                hasPageOrCard = true;
-              }
-            }
+            if (scanAddedNode(reader, node)) hasPageOrCard = true;
           }
         }
         if (hasPageOrCard) {
@@ -463,6 +469,20 @@ function getAnnotationItem(
   return item || null;
 }
 
+/** Sucht die Annotation im Reader-Speicher, dann in der übergebenen Annotation, dann im State. */
+function findReaderAnnotation(
+  reader: ReaderInstance,
+  key: string | undefined,
+  given: string | ReaderAnnotation,
+): ReaderAnnotation | null | undefined {
+  const am = getAnnotationManager(reader);
+  const fromManager = am && key ? am._getAnnotationByID(key) : null;
+  if (fromManager) return fromManager;
+  if (typeof given === "object" && given) return given;
+  const annotations = internals(reader)._state?.annotations;
+  return annotations && key ? annotations.find((a) => a.id === key) : null;
+}
+
 /**
  * Ermittelt den CSL-Locator einer Annotation (z. B. 'opus', 'paragraph', 'page').
  * Zuerst der Reader-Speicher, da er bei Änderungen sofort aktuell ist, bevor Zotero
@@ -477,13 +497,7 @@ function getAnnotationLocator(
       ? keyOrAnnotation
       : keyOrAnnotation?.id || keyOrAnnotation?.key;
   const r = internals(reader);
-  const am = getAnnotationManager(reader);
-  const readerAnn =
-    (am && key ? am._getAnnotationByID(key) : null) ||
-    (typeof keyOrAnnotation === "object" ? keyOrAnnotation : null) ||
-    (r._state?.annotations && key
-      ? r._state.annotations.find((a) => a.id === key)
-      : null);
+  const readerAnn = findReaderAnnotation(reader, key, keyOrAnnotation);
 
   const explicit = explicitLocatorFromTags(
     readerAnn?.tags || [],
@@ -532,59 +546,62 @@ function onSidebarAnnotationHeader(event: HeaderEvent): void {
   }
 }
 
+/** Setzt den Locator-Text des Elements, falls er sich geändert hat. */
+function setLocatorText(reader: ReaderInstance, el: Element, annId: string) {
+  const labelText = getLocatorLabel(getAnnotationLocator(reader, annId));
+  if (el.textContent !== labelText) {
+    el.textContent = labelText;
+  }
+}
+
+function updatePageElements(reader: ReaderInstance, doc: Document): void {
+  for (const pageEl of doc.querySelectorAll('.page[id^="page_"]')) {
+    if (pageEl.firstElementChild) {
+      setLocatorText(reader, pageEl.firstElementChild, pageEl.id.slice(5));
+    }
+  }
+}
+
+/** Auch über .annotation-Karten suchen (falls pageEl ohne id="page_" existiert). */
+function updateAnnotationCards(reader: ReaderInstance, doc: Document): void {
+  for (const card of doc.querySelectorAll(
+    ".annotation[data-id], .annotation[id]",
+  )) {
+    const annId = card.getAttribute("data-id") || card.id;
+    const pageEl = card.querySelector(".page");
+    if (pageEl?.firstElementChild) {
+      setLocatorText(reader, pageEl.firstElementChild, annId);
+    }
+  }
+}
+
+/** In-Page-Popup (.annotation-popup) ebenfalls aktualisieren. */
+function updatePopup(reader: ReaderInstance, doc: Document): void {
+  const popup = doc.querySelector(".annotation-popup");
+  if (!popup) return;
+  const editorNode = popup.querySelector(".editor[id], [data-id]");
+  const r = internals(reader);
+  const annId =
+    editorNode?.id ||
+    editorNode?.getAttribute("data-id") ||
+    r._state?.primaryViewAnnotationPopup?.annotation?.id ||
+    r._state?.secondaryViewAnnotationPopup?.annotation?.id;
+  const pageEl = popup.querySelector(".page");
+  if (annId && pageEl?.firstElementChild) {
+    setLocatorText(reader, pageEl.firstElementChild, annId);
+  }
+}
+
 /** Aktualisiert alle sichtbaren Annotation-Header (Sidebar und In-Page-Popup). */
 function updateAllLocators(reader: ReaderInstance, doc: Document): void {
   if (!reader || !doc) {
     return;
   }
-  const setLabel = (el: Element, annId: string) => {
-    const labelText = getLocatorLabel(getAnnotationLocator(reader, annId));
-    if (el.textContent !== labelText) {
-      el.textContent = labelText;
-    }
-  };
-
   updatingLocators = true;
   try {
-    const pageElements = doc.querySelectorAll('.page[id^="page_"]');
-    for (const pageEl of pageElements) {
-      const annId = pageEl.id.slice(5);
-      const labelText = getLocatorLabel(getAnnotationLocator(reader, annId));
-      if (
-        pageEl.firstElementChild &&
-        pageEl.firstElementChild.textContent !== labelText
-      ) {
-        pageEl.firstElementChild.textContent = labelText;
-      }
-    }
-
-    // Auch über .annotation-Karten suchen (falls pageEl ohne id="page_" existiert)
-    const annCards = doc.querySelectorAll(
-      ".annotation[data-id], .annotation[id]",
-    );
-    for (const card of annCards) {
-      const annId = card.getAttribute("data-id") || card.id;
-      const pageEl = card.querySelector(".page");
-      if (pageEl && pageEl.firstElementChild) {
-        setLabel(pageEl.firstElementChild, annId);
-      }
-    }
-
-    // In-Page-Popup (.annotation-popup) ebenfalls aktualisieren
-    const popup = doc.querySelector(".annotation-popup");
-    if (popup) {
-      const editorNode = popup.querySelector(".editor[id], [data-id]");
-      const r = internals(reader);
-      const annId =
-        editorNode?.id ||
-        editorNode?.getAttribute("data-id") ||
-        r._state?.primaryViewAnnotationPopup?.annotation?.id ||
-        r._state?.secondaryViewAnnotationPopup?.annotation?.id;
-      const pageEl = popup.querySelector(".page");
-      if (annId && pageEl && pageEl.firstElementChild) {
-        setLabel(pageEl.firstElementChild, annId);
-      }
-    }
+    updatePageElements(reader, doc);
+    updateAnnotationCards(reader, doc);
+    updatePopup(reader, doc);
   } finally {
     updatingLocators = false;
   }

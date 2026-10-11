@@ -74,6 +74,21 @@ const TAG =
   /<(\/?)([^\s/>!?]+)((?:\s+[^\s=/>]+\s*=\s*(?:"[^"]*"|'[^']*'))*)\s*(\/?)>/y;
 const ATTR = /([^\s=/>]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
 
+/** Position hinter dem Terminator; Dokumentende, wenn er fehlt. */
+function after(xml: string, term: string, from: number): number {
+  const e = xml.indexOf(term, from);
+  return e < 0 ? xml.length : e + term.length;
+}
+
+function tagToken(m: RegExpExecArray): Tok {
+  if (m[1]) return { t: "end", name: m[2], attrs: {} };
+  const attrs: Record<string, string> = {};
+  ATTR.lastIndex = 0;
+  for (let a = ATTR.exec(m[3]); a; a = ATTR.exec(m[3]))
+    attrs[a[1]] = decodeEntities(a[2] ?? a[3]);
+  return { t: m[4] ? "empty" : "start", name: m[2], attrs };
+}
+
 /** Tokenisiert XML grob: Tags, Text (dekodiert), Kommentare/PI/DOCTYPE werden verworfen. */
 function tokenize(xml: string): Tok[] {
   const out: Tok[] = [];
@@ -87,15 +102,13 @@ function tokenize(xml: string): Tok[] {
     if (lt < 0) break;
     i = lt;
     if (xml.startsWith("<!--", i)) {
-      const e = xml.indexOf("-->", i + 4);
-      i = e < 0 ? n : e + 3;
+      i = after(xml, "-->", i + 4);
     } else if (xml.startsWith("<![CDATA[", i)) {
       const e = xml.indexOf("]]>", i + 9);
       out.push({ t: "text", value: xml.slice(i + 9, e < 0 ? n : e) });
-      i = e < 0 ? n : e + 3;
+      i = after(xml, "]]>", i + 9);
     } else if (xml.startsWith("<?", i) || xml.startsWith("<!", i)) {
-      const e = xml.indexOf(">", i);
-      i = e < 0 ? n : e + 1;
+      i = after(xml, ">", i);
     } else {
       TAG.lastIndex = i;
       const m = TAG.exec(xml);
@@ -104,15 +117,7 @@ function tokenize(xml: string): Tok[] {
         continue;
       }
       i = TAG.lastIndex;
-      if (m[1]) {
-        out.push({ t: "end", name: m[2], attrs: {} });
-      } else {
-        const attrs: Record<string, string> = {};
-        ATTR.lastIndex = 0;
-        for (let a = ATTR.exec(m[3]); a; a = ATTR.exec(m[3]))
-          attrs[a[1]] = decodeEntities(a[2] ?? a[3]);
-        out.push({ t: m[4] ? "empty" : "start", name: m[2], attrs });
-      }
+      out.push(tagToken(m));
     }
   }
   return out;
@@ -153,37 +158,41 @@ function idLevel(id: string): number {
   return m ? Number(m[1]) : 0;
 }
 
+function applyStyleProp(
+  def: StyleDef,
+  name: string,
+  attrs: Record<string, string>,
+  inPPr: boolean,
+): void {
+  if (name === "w:name") def.name = attr(attrs, "val");
+  else if (name === "w:basedOn") def.basedOn = attr(attrs, "val");
+  else if (name === "w:outlineLvl" && inPPr)
+    def.outline = outlineToLevel(attr(attrs, "val"));
+}
+
 function parseStyles(xml: string): Map<string, StyleDef> {
   const map = new Map<string, StyleDef>();
   let id: string | undefined;
   let def: StyleDef = {};
   let inPPr = false;
+  const commit = () => {
+    if (id !== undefined) map.set(id, def);
+    id = undefined;
+  };
   for (const tk of tokenize(xml)) {
     if (tk.t === "text") continue;
     const { name, attrs } = tk;
     if (tk.t === "end") {
       if (name === "w:pPr") inPPr = false;
-      else if (name === "w:style" && id !== undefined) {
-        map.set(id, def);
-        id = undefined;
-      }
-      continue;
-    }
-    if (name === "w:style") {
+      else if (name === "w:style") commit();
+    } else if (name === "w:style") {
       id = attr(attrs, "styleId");
       def = {};
-      if (tk.t === "empty" && id !== undefined) {
-        map.set(id, def);
-        id = undefined;
-      }
-      continue;
+      if (tk.t === "empty") commit();
+    } else if (id !== undefined) {
+      if (name === "w:pPr") inPPr = tk.t === "start";
+      else applyStyleProp(def, name, attrs, inPPr);
     }
-    if (id === undefined) continue;
-    if (name === "w:pPr") inPPr = tk.t === "start";
-    else if (name === "w:name") def.name = attr(attrs, "val");
-    else if (name === "w:basedOn") def.basedOn = attr(attrs, "val");
-    else if (name === "w:outlineLvl" && inPPr)
-      def.outline = outlineToLevel(attr(attrs, "val"));
   }
   return map;
 }
@@ -211,6 +220,8 @@ interface Para {
   text: string;
 }
 
+const SPACE_TAGS = new Set(["w:tab", "w:br", "w:cr"]);
+
 /**
  * Ueberschriften aus document.xml (ggf. mit styles.xml fuer benutzerdefinierte
  * Stile). Text: w:t in Absaetzen; w:del/w:moveFrom und w:delText ausgeschlossen.
@@ -224,6 +235,7 @@ export function parseDocxHeadings(
   const stack: Para[] = [];
   let del = 0;
   let inT = false;
+  const isDel = (n: string) => n === "w:del" || n === "w:moveFrom";
 
   const pushHeading = (para: Para) => {
     const level =
@@ -236,50 +248,70 @@ export function parseDocxHeadings(
     if (level > 0 && text) out.push({ level, text });
   };
 
+  const onEnd = (name: string, top: Para | undefined) => {
+    if (name === "w:t") inT = false;
+    else if (isDel(name)) del = Math.max(0, del - 1);
+    else if (!top) return;
+    else if (name === "w:pPr") top.inPPr = false;
+    else if (name === "w:p") {
+      stack.pop();
+      pushHeading(top);
+    }
+  };
+
+  const onOpen = (
+    name: string,
+    isStart: boolean,
+    attrs: Record<string, string>,
+    top: Para | undefined,
+  ) => {
+    if (isStart) {
+      if (name === "w:p") stack.push({ inPPr: false, text: "" });
+      else if (name === "w:t") inT = true;
+      else if (isDel(name)) del++;
+      else if (name === "w:pPr" && top) top.inPPr = true;
+    }
+    if (!top) return;
+    if (top.inPPr) {
+      if (name === "w:pStyle") top.style = attr(attrs, "val");
+      else if (name === "w:outlineLvl")
+        top.outline = outlineToLevel(attr(attrs, "val"));
+    } else if (SPACE_TAGS.has(name) && del === 0) {
+      top.text += " ";
+    }
+  };
+
   for (const tk of tokenize(documentXml)) {
     const top = stack[stack.length - 1];
     if (tk.t === "text") {
       if (inT && del === 0 && top) top.text += tk.value;
-      continue;
-    }
-    const { name, attrs } = tk;
-    if (tk.t === "end") {
-      if (name === "w:t") inT = false;
-      else if (name === "w:del" || name === "w:moveFrom")
-        del = Math.max(0, del - 1);
-      else if (name === "w:pPr" && top) top.inPPr = false;
-      else if (name === "w:p" && top) {
-        stack.pop();
-        pushHeading(top);
-      }
-      continue;
-    }
-    const isStart = tk.t === "start";
-    if (name === "w:p") {
-      if (isStart) stack.push({ inPPr: false, text: "" });
-    } else if (name === "w:pPr") {
-      if (isStart && top) top.inPPr = true;
-    } else if (name === "w:t") {
-      if (isStart) inT = true;
-    } else if (name === "w:del" || name === "w:moveFrom") {
-      if (isStart) del++;
-    } else if (name === "w:pStyle" && top?.inPPr) {
-      top.style = attr(attrs, "val");
-    } else if (name === "w:outlineLvl" && top?.inPPr) {
-      top.outline = outlineToLevel(attr(attrs, "val"));
-    } else if (
-      (name === "w:tab" || name === "w:br" || name === "w:cr") &&
-      top &&
-      !top.inPPr &&
-      del === 0
-    ) {
-      top.text += " ";
-    }
+    } else if (tk.t === "end") onEnd(tk.name, top);
+    else onOpen(tk.name, tk.t === "start", tk.attrs, top);
   }
   return out;
 }
 
 // ── ODT ──────────────────────────────────────────────────────────────────────
+
+const ODT_SKIP_TAGS = new Set(["text:note", "text:deletion"]);
+
+const positiveInt = (v: string | undefined) =>
+  v && /^\d+$/.test(v) ? Number(v) : undefined;
+
+/** text:s c="n" -> n Leerzeichen (1..1000, Standard 1). */
+function odtSpaceCount(attrs: Record<string, string>): number {
+  const c = positiveInt(attr(attrs, "c"));
+  return c === undefined ? 1 : Math.min(Math.max(c, 1), 1000);
+}
+
+/** Text, den ein Inline-Element beisteuert (Leerzeichen, Tab, Zeilenumbruch). */
+function odtInlineText(name: string, attrs: Record<string, string>): string {
+  if (name === "text:s") return " ".repeat(odtSpaceCount(attrs));
+  return name === "text:tab" || name === "text:line-break" ? " " : "";
+}
+
+const odtLevel = (attrs: Record<string, string>) =>
+  Math.max(1, positiveInt(attr(attrs, "outline-level")) ?? 1);
 
 /**
  * Ueberschriften aus content.xml (text:h). Fussnoten (text:note) und geloeschte
@@ -295,34 +327,17 @@ export function parseOdtHeadings(contentXml: string): DocHeading[] {
       continue;
     }
     const { name, attrs } = tk;
-    if (tk.t === "end") {
-      if (name === "text:h" && cur) {
-        const text = squash(cur.text);
-        if (text) out.push({ level: cur.level, text });
-        cur = null;
-      } else if (name === "text:note" || name === "text:deletion") {
-        skip = Math.max(0, skip - 1);
-      }
-      continue;
-    }
-    if (name === "text:note" || name === "text:deletion") {
-      if (tk.t === "start") skip++;
-      continue;
-    }
-    if (name === "text:h" && tk.t === "start" && skip === 0) {
-      const lv = attr(attrs, "outline-level");
-      const level = lv && /^\d+$/.test(lv) && Number(lv) >= 1 ? Number(lv) : 1;
-      cur = { level, text: "" };
-      continue;
-    }
-    if (!cur || skip > 0) continue;
-    if (name === "text:s") {
-      const c = attr(attrs, "c");
-      const count =
-        c && /^\d+$/.test(c) ? Math.min(Math.max(Number(c), 1), 1000) : 1;
-      cur.text += " ".repeat(count);
-    } else if (name === "text:tab" || name === "text:line-break") {
-      cur.text += " ";
+    if (ODT_SKIP_TAGS.has(name)) {
+      if (tk.t === "end") skip = Math.max(0, skip - 1);
+      else if (tk.t === "start") skip++;
+    } else if (name === "text:h" && tk.t === "end" && cur) {
+      const text = squash(cur.text);
+      if (text) out.push({ level: cur.level, text });
+      cur = null;
+    } else if (name === "text:h" && tk.t === "start" && skip === 0) {
+      cur = { level: odtLevel(attrs), text: "" };
+    } else if (cur && skip === 0 && tk.t !== "end") {
+      cur.text += odtInlineText(name, attrs);
     }
   }
   return out;
