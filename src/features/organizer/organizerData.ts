@@ -221,6 +221,16 @@ export function listCollections(libraryID: number): ColNode[] {
   ).map((c) => ({ id: c.id, parentID: c.parentID, name: c.name }));
 }
 
+/**
+ * Stabiler collection key einer Sammlung (bleibt über Sync erhalten), oder
+ * null für die ganze Bibliothek.
+ */
+export function collectionKeyOf(collectionID: number | null): string | null {
+  if (collectionID === null) return null;
+  const col = Zotero.Collections.get(collectionID) as Zotero.Collection | false;
+  return col ? col.key : null;
+}
+
 export function collectionChoices(libraryID: number) {
   return collectionOptions(listCollections(libraryID));
 }

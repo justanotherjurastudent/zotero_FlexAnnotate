@@ -1,5 +1,7 @@
 pref("showWorksInAnnotationView", false);
 pref("dialogOutlineView", false);
+// Zitierdialog: Sammlung, aus der die Gliederung kommt (0 = gesamte Bibliothek)
+pref("dialogOutlineCollection", 0);
 pref("citedAnnotations", "");
 
 // Nur-Nachweis-Zitieren: false = vollständige Annotation, true = nur Nachweis mit Locator

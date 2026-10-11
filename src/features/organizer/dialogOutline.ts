@@ -27,9 +27,15 @@ import { activeIds } from "../../core/cited";
 import { buildDialogSections, nodeCounts } from "../../core/dialogView";
 import { applyClick, emptySelection } from "../../core/selection";
 import type { DialogInjector } from "../../shared/citationDialog";
+import type { OutlineNode } from "../../core/outline";
+import { topmostCollection } from "../../core/collections";
 import { OutlineModel } from "./outlineModel";
 import {
+  collectionKeyOf,
+  collectionChoices,
+  listCollections,
   loadAnnotationRows,
+  loadScopeWorkIDs,
   loadWorkRows,
   readShowWorks,
 } from "./organizerData";
@@ -56,6 +62,7 @@ import { tr } from "./strings";
 const PREF = "dialogOutlineView";
 const STYLE_ID = "flexannotate-dialog-style";
 const ROW_ID = "flexannotate-toggle-row";
+const PICKER_ID = "flexannotate-dialog-scope-picker";
 /** Native elements hidden while our three columns are shown. */
 const NATIVE_HIDE = [
   "zotero-collections-tree",
@@ -90,6 +97,30 @@ function readPref(): boolean {
     return Zotero.Prefs.get(prefKey(PREF), true) === true;
   } catch {
     return false;
+  }
+}
+
+/**
+ * Zitierdialog: Sammlung, aus der die Gliederung kommt (0 = gesamte
+ * Bibliothek). Letzte Wahl wird als Pref gemerkt, damit das nächste Zitieren
+ * dort weitermacht.
+ */
+const PREF_COLLECTION = "dialogOutlineCollection";
+
+function readCollectionID(): number {
+  try {
+    const v = Zotero.Prefs.get(prefKey(PREF_COLLECTION), true);
+    return typeof v === "number" && v ? v : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function writeCollectionID(id: number) {
+  try {
+    Zotero.Prefs.set(prefKey(PREF_COLLECTION), id, true);
+  } catch (e) {
+    ztoolkit.log("flexannotate dialog collection pref write failed:", e);
   }
 }
 
@@ -162,6 +193,7 @@ function detach(win: Window) {
     const doc = win.document;
     if (info?.enabled) restoreLayout(win);
     doc.getElementById(ROW_ID)?.remove();
+    doc.getElementById(PICKER_ID)?.remove();
   } catch (e) {
     ztoolkit.log("flexannotate dialog detach failed:", e);
   }
@@ -173,10 +205,21 @@ async function enable(win: Window, cb: HTMLInputElement) {
   if (!info) return;
   try {
     const libraryID = Zotero.Libraries.userLibraryID;
-    const { roots } = await OutlineModel.load(libraryID);
+    const collectionID = readCollectionID();
+    const roots = await loadRoots(libraryID, collectionID);
     const showWorks = readShowWorks();
-    const rows = await loadAnnotationRows(libraryID);
-    const works = showWorks ? await loadWorkRows(libraryID) : [];
+    // Einträge passend zur Sammlung: eine Annotation gehört zum Scope, wenn
+    // ihr Werk dazugehört (wie der Scope-Filter im Organizer-Fenster).
+    const scopeWorks = loadScopeWorkIDs(libraryID, {
+      collectionID: collectionID || null,
+      includeSub: true,
+    });
+    const rowsAll = await loadAnnotationRows(libraryID);
+    const rows = rowsAll.filter((r) => !scopeWorks || scopeWorks.has(r.workID));
+    const worksAll = showWorks ? await loadWorkRows(libraryID) : [];
+    const works = worksAll.filter(
+      (w) => !scopeWorks || scopeWorks.has(w.workID),
+    );
     const sections = buildDialogSections(
       roots,
       rows.map((r) => ({ id: r.id, tags: r.tags, workID: r.workID })),
@@ -200,11 +243,134 @@ async function enable(win: Window, cb: HTMLInputElement) {
     renderAll(win, view);
     addKeys(win, info);
     addSearchSync(win, info);
+    addPicker(win, info);
     cb.checked = true;
   } catch (e) {
     ztoolkit.log("flexannotate dialog enable failed:", e);
     info.enabled = false;
     restoreLayout(win);
+  }
+}
+
+/**
+ * Kategorienbaum der gewählten Sammlung (Untersammlung → Baum der
+ * Hauptsammlung, via topmostCollection); 0/null = Bibliotheksbaum.
+ */
+async function loadRoots(
+  libraryID: number,
+  collectionID: number,
+): Promise<OutlineNode[]> {
+  if (!collectionID) {
+    return (await OutlineModel.load(libraryID)).roots;
+  }
+  const top = topmostCollection(listCollections(libraryID), collectionID);
+  const key = top ? collectionKeyOf(top.id) : null;
+  return (await OutlineModel.load(libraryID, key)).roots;
+}
+
+/**
+ * Sammlungs-Auswahl über dem Kategorienbaum: macht klar, aus welcher
+ * Sammlung die Kategorien kommen. Ein plain <select> öffnet in diesem
+ * Dialogfenster kein Popup, deshalb das Custom-Drop-down wie im
+ * Organizer-Fenster (organizerTabs).
+ */
+function addPicker(win: Window, info: Attached) {
+  const doc = win.document;
+  const host = doc.getElementById("collections-tree-container");
+  if (!host || doc.getElementById(PICKER_ID)) return;
+  const libraryID = Zotero.Libraries.userLibraryID;
+  const wrap = doc.createElement("div");
+  wrap.id = PICKER_ID;
+  wrap.style.cssText =
+    "flex:none;display:flex;gap:6px;align-items:center;padding:6px 8px;border-bottom:1px solid var(--fill-quinary, rgba(128,128,128,0.25));";
+  const label = doc.createElement("span");
+  label.style.cssText = "font-size:12px;color:var(--fill-secondary,#777);";
+  label.textContent = tr("scope");
+  const choices = [
+    { id: 0, name: tr("scopeAll"), depth: 0 },
+    ...collectionChoices(libraryID),
+  ];
+  const current = readCollectionID();
+  const still = choices.find((c) => c.id === current) ?? choices[0];
+  const relPos = doc.createElement("div");
+  relPos.style.cssText = "position:relative;flex:1;min-width:0;";
+  const sel = doc.createElement("button");
+  sel.id = "flexannotate-dialog-scope";
+  sel.style.cssText =
+    "appearance:none;-moz-appearance:none;cursor:pointer;width:100%;max-width:100%;overflow:hidden;" +
+    "text-overflow:ellipsis;white-space:nowrap;text-align:start;padding:3px 8px;font-size:12px;";
+  sel.textContent = `${still.name}  ▾`;
+  const menu = doc.createElement("div");
+  menu.style.cssText =
+    "position:absolute;left:0;top:100%;margin-top:2px;z-index:60;display:none;min-width:220px;max-height:300px;overflow-y:auto;" +
+    "background:var(--material-background,#fff);border:1px solid var(--fill-quinary, rgba(128,128,128,0.35));border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.25);";
+  for (const c of choices) {
+    const o = doc.createElement("div");
+    o.style.cssText =
+      `padding:5px 10px 5px ${10 + c.depth * 14}px;cursor:pointer;white-space:nowrap;` +
+      (c.id === current ? "font-weight:600;" : "");
+    o.textContent = c.name;
+    o.addEventListener("mouseenter", () => {
+      o.style.background = "var(--material-states, rgba(128,128,128,0.12))";
+    });
+    o.addEventListener("mouseleave", () => {
+      o.style.background = "transparent";
+    });
+    o.addEventListener("click", () => {
+      menu.style.display = "none";
+      writeCollectionID(c.id);
+      void rebuildView(win, info);
+    });
+    menu.appendChild(o);
+  }
+  sel.addEventListener("click", () => {
+    menu.style.display = menu.style.display === "none" ? "block" : "none";
+  });
+  relPos.append(sel, menu);
+  wrap.append(label, relPos);
+  host.insertBefore(wrap, host.firstChild);
+}
+
+/** Ansicht nach Sammlungs-Wechsel neu bauen; Knoten-Auswahl geht auf "all". */
+async function rebuildView(win: Window, info: Attached) {
+  if (!info.enabled) return;
+  try {
+    const libraryID = Zotero.Libraries.userLibraryID;
+    const collectionID = readCollectionID();
+    const roots = await loadRoots(libraryID, collectionID);
+    const showWorks = readShowWorks();
+    const scopeWorks = loadScopeWorkIDs(libraryID, {
+      collectionID: collectionID || null,
+      includeSub: true,
+    });
+    const rowsAll = await loadAnnotationRows(libraryID);
+    const rows = rowsAll.filter((r) => !scopeWorks || scopeWorks.has(r.workID));
+    const worksAll = showWorks ? await loadWorkRows(libraryID) : [];
+    const works = worksAll.filter(
+      (w) => !scopeWorks || scopeWorks.has(w.workID),
+    );
+    const sections = buildDialogSections(
+      roots,
+      rows.map((r) => ({ id: r.id, tags: r.tags, workID: r.workID })),
+      new Map(works.map((w) => [w.id, w.tags])),
+      showWorks,
+    );
+    const citedWorks = await citedWorksOf(win);
+    const query = info.view?.query ?? bubbleText(win.document);
+    const view: View = {
+      roots,
+      sections,
+      counts: nodeCounts(roots, sections),
+      rows: new Map(rows.map((r) => [r.id, r])),
+      cited: activeIds(readCitedStore(), currentSessionId(), citedWorks),
+      node: "all",
+      query,
+      sel: emptySelection(),
+    };
+    info.view = view;
+    renderAll(win, view);
+  } catch (e) {
+    ztoolkit.log("flexannotate dialog rebuild failed:", e);
   }
 }
 
@@ -215,6 +381,7 @@ async function disable(win: Window, cb: HTMLInputElement) {
   info.view = null;
   cb.checked = false;
   restoreLayout(win);
+  win.document.getElementById(PICKER_ID)?.remove();
 }
 
 /**

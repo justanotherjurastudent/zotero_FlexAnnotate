@@ -9,6 +9,7 @@ declare namespace _ZoteroTypes {
     PluginPrefsMap: {
       "showWorksInAnnotationView": boolean;
       "dialogOutlineView": boolean;
+      "dialogOutlineCollection": number;
       "citedAnnotations": string;
       "citationOnly": boolean;
       "keepEmptyPlaceholders": boolean;

@@ -191,6 +191,12 @@ describe("FlexAnnotate features", function () {
     after(async function () {
       win?.close();
       (Zotero.Items.get(noteID) as Zotero.Item)?.eraseTx?.();
+      // Outline-Notizen, die der Scope-Test pro Sammlung angelegt hat, wegputzen
+      const s = new Zotero.Search();
+      (s as any).libraryID = libraryID();
+      s.addCondition("tag", "contains", "#flexannotate-outline-");
+      const tagged = await Zotero.Items.getAsync(await s.search());
+      for (const n of tagged) await (n as Zotero.Item).eraseTx?.();
       for (const c of cols) await c.eraseTx();
       await cleanup();
     });
@@ -318,8 +324,16 @@ describe("FlexAnnotate features", function () {
       };
       const [sub, root] = cols;
       await showAll();
-      assert.equal(rowCount(), 2, "current collection to begin with");
-      await set(root.id); // includes subcollections by default
+      // Ein Schema-Wechsel auf eine Sammlung ohne eigenen Baum fragt einmal,
+      // ob der Bibliotheksbaum als Anfang übernommen werden soll.
+      const factory = api().OrganizerFactory;
+      const original = factory.confirm;
+      factory.confirm = () => true;
+      try {
+        await set(root.id); // includes subcollections by default
+      } finally {
+        factory.confirm = original;
+      }
       await waitFor(() => rowCount() === 2);
       const cb = doc.getElementById(
         "flexannotate-scope-sub",

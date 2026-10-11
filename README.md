@@ -29,6 +29,7 @@ FlexAnnotate füllt diese Lücken und bringt einen Organizer mit, der Annotation
 #### Organizer
 
 - **Gliederung:** Überschriften (beliebig verschachtelt, Dezimalnummern nur zur Anzeige) ordnen Annotationen und Werke per Drag and Drop oder Zuweisungsleiste. Tabs „Wissen“ (Annotationen) und „Titel“ (Werke), Auswahl der Sammlung, Bearbeiten von Zitattext, Kommentar, Zitatstelle und Locator, Tastaturbedienung. Der Organizer öffnet sich über den Toolbar-Button (zweites Symbol von rechts, vor dem Sync-Button).
+- **Kategorienbaum pro Sammlung:** Jede Sammlung auf oberster Ebene kann einen eigenen Gliederungsbaum haben. Das Sammlungs-Drop-down im Organizer wechselt Baum und Eintrags-Filter gleichzeitig: Bei einer Untersammlung zeigt der Baum der Hauptsammlung, aber nur deren Einträge. Rechtsklick auf eine Sammlung im Zotero-Fenster (_FlexAnnotate: Organizer für diese Sammlung_) öffnet den Organizer direkt dafür. Beim ersten Öffnen einer Sammlung ohne eigenen Baum fragt der Organizer einmal, ob der bestehende Bibliotheksbaum als Anfang übernommen werden soll.
 - **Export:** „Als Notiz exportieren“ legt eine Zotero-Notiz mit der Gliederung und den zugeordneten Zitaten an. „Zitatstelle öffnen“ springt zur Annotation im Reader.
 
 ![Organizer mit Gliederung, Annotationsliste und Detailbereich](docs/img/organizer.png)
@@ -162,7 +163,7 @@ Nutzerdaten der Version 1.x gelten unverändert weiter; die Preference-Schlüsse
 - `#flexannotate-default-locator-<typ>`: Standard-Locator eines Anhangs für künftige Annotationen.
 - `#flexannotate-placeholder`: kennzeichnet den Platzhalter-Anhang der Print-Annotationen.
 - `§Titel`: Überschrift der Gliederung als Tag an zugeordneten Annotationen und Werken (Lattice-kompatibel).
-- `★outline` und `LATTICE-OUTLINE-V1`: Notiz mit dem Gliederungsbaum als JSON (Lattice-kompatibel).
+- `★outline` und `LATTICE-OUTLINE-V1`: Notiz mit dem Gliederungsbaum als JSON (Lattice-kompatibel); mit dem zusätzlichen Tag `#flexannotate-outline-<collectionKey>` gehört die Notiz zum Baum der jeweiligen Sammlung.
 
 Die alte Version 1.2.0 ist über den Git-Tag `pre-merge` erreichbar.
 

@@ -9,6 +9,8 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 ### Added
 
 - Organizer (Gliederung, Zitierdialog-Ansicht, Notiz-Export) aus Annotree als Teil von FlexAnnotate.
+- Kategorienbaum pro Hauptsammlung: Jede Sammlung auf oberster Ebene kann einen eigenen Gliederungsbaum haben. Wechsel über das Sammlungs-Drop-down im Organizer (Untersammlung zeigt den Baum der Hauptsammlung, aber nur deren Einträge) oder über den neuen Eintrag _Rechtsklick auf Sammlung → FlexAnnotate: Organizer für diese Sammlung_. Beim ersten Öffnen einer Sammlung ohne eigenen Baum fragt der Organizer einmal, ob der bestehende Bibliotheksbaum als Anfang übernommen werden soll; die Zuordnung Notiz→Sammlung liegt im Tag `#flexannotate-outline-<collectionKey>` (`core/collections.ts`, `features/organizer/outlineModel.ts`, `organizerState.ts`, `collectionMenu.ts`).
+- Zitierdialog aus Word: Das Gliederungs-Drop-down über dem Kategorienbaum wählt, aus welcher Sammlung die Kategorien kommen (Gesamte Bibliothek oder Hauptsammlung); die Liste wird passend gefiltert und die letzte Wahl als Pref `dialogOutlineCollection` gemerkt (`features/organizer/dialogOutline.ts`).
 - Toolbar-Button oben rechts neben dem Sync-Button, der den Organizer öffnet; Eintrag _Werkzeuge → FlexAnnotate: Organizer_.
 - Icons in den Menüs (Hinzufügen, Bearbeiten, Löschen, Organizer).
 - Zotero 7.x ohne `Zotero.MenuManager`: Eintrag _Werkzeuge → FlexAnnotate: Organizer_ direkt im Werkzeugmenü (`features/organizer/toolsMenuFallback.ts`).

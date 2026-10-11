@@ -26,7 +26,7 @@ import {
   readShowWorks,
 } from "./organizerData";
 import { emptySelection } from "../../core/selection";
-import { applyScope, State } from "./organizerState";
+import { applyScope, Ctx, State, loadScope } from "./organizerState";
 import { onKey } from "./organizerKeys";
 import { makeCtx, renderAll } from "./organizerView";
 import { getTheme } from "./theme";
@@ -37,6 +37,16 @@ import { tr } from "./strings";
 export class OrganizerFactory {
   /** State of the most recently opened window (for tests and debugging). */
   static lastState: State | null = null;
+
+  /**
+   * Ctx of each open organizer window (je Fenster über WeakMap, nicht am
+   * Modulobjekt — docs/architecture.md, Fallstrick 11), damit "für Sammlung X
+   * öffnen" das laufende Fenster umschalten kann.
+   */
+  private static readonly windowCtx = new WeakMap<Window, Ctx>();
+
+  /** Sammlung, die das nächstgeöffnete Fenster beim Start laden soll. */
+  private static pendingCollectionID: number | null | undefined;
 
   /** Yes/no question to the user; replaceable so tests can answer it. */
   static confirm: (win: unknown, title: string, text: string) => boolean = (
@@ -100,7 +110,9 @@ export class OrganizerFactory {
     }
   }
 
-  static async open(): Promise<Window> {
+  static async open(
+    opts: { collectionID?: number | null } = {},
+  ): Promise<Window> {
     const existing = this.getOpenWindow();
     if (existing) {
       try {
@@ -119,8 +131,21 @@ export class OrganizerFactory {
       } catch (e) {
         ztoolkit.log("flexannotate organizer focus failed:", e);
       }
+      // Fenster läuft schon: auf die gewünschte Sammlung umschalten statt
+      // ein zweites Fenster zu öffnen.
+      if (opts.collectionID !== undefined) {
+        const ctx = this.windowCtx.get(existing);
+        if (ctx) {
+          void loadScope(
+            ctx,
+            opts.collectionID ?? null,
+            this.confirmOpts(existing),
+          );
+        }
+      }
       return existing;
     }
+    this.pendingCollectionID = opts.collectionID;
 
     const dialog = new ztoolkit.Dialog(1, 1).addCell(0, 0, {
       tag: "div",
@@ -175,6 +200,7 @@ export class OrganizerFactory {
       libraryID,
       noteID: loaded.noteID,
       roots: loaded.roots,
+      collectionKey: null,
       tab: "wissen",
       allRows: await loadAnnotationRows(libraryID),
       rows: [],
@@ -201,6 +227,9 @@ export class OrganizerFactory {
     const ctx = makeCtx(doc, root, state, (w, t, x) =>
       OrganizerFactory.confirm(w, t, x),
     );
+    // Je Fenster verdrahten, damit openForCollection das Fenster umschalten kann.
+    const win = doc.defaultView;
+    if (win) this.windowCtx.set(win, ctx);
     // Keyboard and focus tracking live on the document, so they survive the
     // re-renders that rebuild all columns.
     doc.addEventListener("keydown", (e) => onKey(ctx, e as KeyboardEvent));
@@ -228,5 +257,39 @@ export class OrganizerFactory {
       true,
     );
     renderAll(ctx);
+    // Start-Scope: Sammlung aus Kontextmenü/Toolbar oder aus dem Hauptfenster.
+    // Dieselbe Logik wie das Scope-Drop-down: Baum der Hauptsammlung laden.
+    // Der Erstöffnungs-Dialog (Bibliotheksbaum kopieren?) fragt nur, wenn der
+    // Nutzer die Sammlung explizit gewählt hat (Kontextmenü) — nicht beim
+    // impliziten Start mit der gerade markierten Sammlung des Hauptfensters.
+    const explicit = this.pendingCollectionID !== undefined;
+    const collectionID = explicit
+      ? this.pendingCollectionID!
+      : scope.collectionID;
+    this.pendingCollectionID = undefined;
+    // Nur bei explizit gewählter Sammlung (Kontextmenü) den Baum am Fensterstart
+    // umschalten und den Erstöffnungs-Dialog stellen; beim impliziten Start mit
+    // der gerade markierten Sammlung des Hauptfensters bleibt der Bibliotheksbaum.
+    if (explicit && collectionID !== null) {
+      await loadScope(ctx, collectionID, {
+        confirm: (title, text) => OrganizerFactory.confirm(win, title, text),
+      });
+    }
+  }
+
+  /** Öffnet den Organizer für eine Sammlung (Kontextmenü im Zotero-Fenster). */
+  static openForCollection(collectionID: number): void {
+    void this.open({ collectionID }).catch((e) =>
+      ztoolkit.log("flexannotate organizer openForCollection failed:", e),
+    );
+  }
+
+  /** Confirm-Drahtung für loadScope je Fenster (tests ersetzen the composite). */
+  private static confirmOpts(win: Window): {
+    confirm: (title: string, text: string) => boolean;
+  } {
+    return {
+      confirm: (title, text) => OrganizerFactory.confirm(win, title, text),
+    };
   }
 }

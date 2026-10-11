@@ -16,6 +16,7 @@ export type FluentMessageId =
   | 'field-default-locator'
   | 'field-text'
   | 'field-type'
+  | 'outline-collectionmenu-label'
   | 'outline-menu-label'
   | 'outline-toolbar-button'
   | 'outline-window-title'

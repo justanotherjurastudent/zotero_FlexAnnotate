@@ -6,7 +6,7 @@
 import { emptySelection } from "../../core/selection";
 import { collectionChoices } from "./organizerData";
 import { el } from "./organizerDom";
-import { applyScope, Ctx, reload, Tab } from "./organizerState";
+import { applyScope, Ctx, loadScope, reload, Tab } from "./organizerState";
 import { Palette } from "./theme";
 import { tr } from "./strings";
 
@@ -92,10 +92,12 @@ export function tabBar(ctx: Ctx, t: Palette): HTMLElement {
       () => (o.style.background = "transparent"),
     );
     o.addEventListener("click", () => {
+      // Wechselt Kategorienbaum und Eintrags-Filter: Hauptsammlung → eigener
+      // Baum, Untersammlung → Baum der Hauptsammlung, nur deren Einträge.
       s.scope = { ...s.scope, collectionID: c.id || null };
-      applyScope(s);
-      s.sel = emptySelection();
-      ctx.render();
+      void loadScope(ctx, c.id || null, {
+        confirm: (title, text) => ctx.confirm(ctx.doc.defaultView, title, text),
+      });
     });
     menu.appendChild(o);
   }

@@ -31,6 +31,7 @@ import { linkContributions } from "./features/citavi/citaviLinks";
 import { importPrintQuotes } from "./features/citavi/citaviPrintQuotes";
 
 import { organizerToolbarButton } from "./features/organizer/toolbarButton";
+import { collectionMenu } from "./features/organizer/collectionMenu";
 import { toolsMenuFallback } from "./features/organizer/toolsMenuFallback";
 import { unregisterAllPluginMenus } from "./utils/menu";
 import {
@@ -64,6 +65,7 @@ const features: Feature[] = [
   },
   organizerToolbarButton,
   toolsMenuFallback,
+  collectionMenu,
   {
     name: "citationDialog",
     start: () => citationDialog.start(),

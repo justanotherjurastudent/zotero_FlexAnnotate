@@ -95,39 +95,39 @@ export class OutlineModel {
   }
 
   /** Load the outline tree for a library (empty tree if none exists yet). */
-/** Load the outline tree for a library (empty tree if none exists yet).
- *
- * `collectionKey` wählt den Baum: `null` = Bibliotheksbaum (Notiz ohne
- * Zuordnungs-Tag), sonst die Notiz mit dem passenden Zusatz-Tag.
- */
-static async load(
-  libraryID: number,
-  collectionKey: string | null = null,
-): Promise<{ noteID: number | null; roots: OutlineNode[] }> {
-  const note = await this.findNote(libraryID, collectionKey);
-  if (!note) return { noteID: null, roots: [] };
-  return { noteID: note.id, roots: parseOutline(note.getNote()) };
-}
+  /** Load the outline tree for a library (empty tree if none exists yet).
+   *
+   * `collectionKey` wählt den Baum: `null` = Bibliotheksbaum (Notiz ohne
+   * Zuordnungs-Tag), sonst die Notiz mit dem passenden Zusatz-Tag.
+   */
+  static async load(
+    libraryID: number,
+    collectionKey: string | null = null,
+  ): Promise<{ noteID: number | null; roots: OutlineNode[] }> {
+    const note = await this.findNote(libraryID, collectionKey);
+    if (!note) return { noteID: null, roots: [] };
+    return { noteID: note.id, roots: parseOutline(note.getNote()) };
+  }
 
-/**
- * Persist the tree. Creates the storage note on first save, updates it after.
- * Returns the note id so the caller can keep saving to the same note.
- * `collectionKey` (Sammlungsbaum) wird bei der Neuanlage als Zusatz-Tag gesetzt.
- */
-static async save(
-  libraryID: number,
-  noteID: number | null,
-  roots: OutlineNode[],
-  collectionKey: string | null = null,
-): Promise<number> {
-  const html = serializeOutline(roots);
-  let note = noteID ? (Zotero.Items.get(noteID) as Zotero.Item) : null;
-  if (!note || !note.isNote?.()) {
-    note = new Zotero.Item("note");
-    note.libraryID = libraryID;
-    note.setNote(html);
-    note.addTag(OUTLINE_TAG);
-    if (collectionKey) note.addTag(outlineCollectionTag(collectionKey));
+  /**
+   * Persist the tree. Creates the storage note on first save, updates it after.
+   * Returns the note id so the caller can keep saving to the same note.
+   * `collectionKey` (Sammlungsbaum) wird bei der Neuanlage als Zusatz-Tag gesetzt.
+   */
+  static async save(
+    libraryID: number,
+    noteID: number | null,
+    roots: OutlineNode[],
+    collectionKey: string | null = null,
+  ): Promise<number> {
+    const html = serializeOutline(roots);
+    let note = noteID ? (Zotero.Items.get(noteID) as Zotero.Item) : null;
+    if (!note || !note.isNote?.()) {
+      note = new Zotero.Item("note");
+      note.libraryID = libraryID;
+      note.setNote(html);
+      note.addTag(OUTLINE_TAG);
+      if (collectionKey) note.addTag(outlineCollectionTag(collectionKey));
       // skipSelect: a selected note opens in Zotero's note editor, which later
       // writes its own (older) copy over our saves.
       await note.saveTx({ skipSelect: true });

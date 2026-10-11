@@ -52,6 +52,9 @@ const de = {
   scope: "Sammlung:",
   scopeAll: "Gesamte Bibliothek",
   scopeSub: "inkl. Untersammlungen",
+  collectFirstTitle: "Kategorienbaum für diese Sammlung",
+  collectFirstText:
+    "Für diese Sammlung gibt es noch keinen eigenen Kategorienbaum. Soll der bestehende Baum der gesamten Bibliothek als Anfang übernommen werden?",
   edit: "Bearbeiten",
   save: "Speichern",
   cancel: "Abbrechen",
@@ -152,6 +155,9 @@ const en: Record<Key, string> = {
   scope: "Collection:",
   scopeAll: "Whole library",
   scopeSub: "incl. subcollections",
+  collectFirstTitle: "Outline tree for this collection",
+  collectFirstText:
+    "This collection has no outline tree of its own yet. Should the existing tree of the whole library be used as the starting point?",
   edit: "Edit",
   save: "Save",
   cancel: "Cancel",

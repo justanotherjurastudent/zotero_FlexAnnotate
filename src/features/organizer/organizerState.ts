@@ -97,6 +97,7 @@ export function applyScope(s: State) {
  * `opts.confirm` wird beim ersten Öffnen einer Sammlung ohne eigenen Baum
  * gefragt: Bibliotheksbaum als Anfang übernehmen?
  */
+// lean-ctx: doc update — caller sets s.scope before calling; rows recomputed here
 export async function loadScope(
   ctx: Ctx,
   collectionID: number | null,
@@ -104,14 +105,17 @@ export async function loadScope(
 ): Promise<void> {
   const { s } = ctx;
   await s.saveChain;
-  const top = collectionID === null
-    ? null
-    : topmostCollection(listCollections(s.libraryID), collectionID);
-  const collectionKey =
+  const top =
+    collectionID === null
+      ? null
+      : topmostCollection(listCollections(s.libraryID), collectionID);
+  // Zotero.Collections.get liefert false/null, wenn die id nicht mehr existiert
+  const topCol =
     top && typeof top.id === "number"
-      ? ((Zotero.Collections.get(top.id) as Zotero.Collection | false)?.key ??
-        null)
+      ? (Zotero.Collections.get(top.id) as Zotero.Collection | false | null)
       : null;
+  const collectionKey =
+    topCol && typeof topCol === "object" ? topCol.key : null;
 
   // Erstöffnung: keine eigene Notiz für den Baum der Sammlung → einmal fragen,
   // ob der bestehende Bibliotheksbaum als Anfang kopiert werden soll. In beiden
@@ -127,12 +131,7 @@ export async function loadScope(
   }
   // Neue Notiz anlegen (nur für Sammlungsbäume), damit die Entscheidung fix ist.
   if (collectionKey !== null && loaded.noteID === null) {
-    s.noteID = await OutlineModel.save(
-      s.libraryID,
-      null,
-      roots,
-      collectionKey,
-    );
+    s.noteID = await OutlineModel.save(s.libraryID, null, roots, collectionKey);
   } else {
     s.noteID = loaded.noteID;
   }
@@ -140,6 +139,7 @@ export async function loadScope(
   s.collectionKey = collectionKey;
   s.roots = roots;
   s.node = "all";
+  applyScope(s);
   s.sel = emptySelection();
   s.renaming = null;
   s.editing = null;
