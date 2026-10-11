@@ -4,6 +4,7 @@ import {
   collectionOptions,
   descendantIds,
   scopeCollectionIDs,
+  topmostCollection,
 } from "../src/core/collections.ts";
 import { activeIds, parseStore, record, unrecord } from "../src/core/cited.ts";
 import { makeNode, neighborId } from "../src/core/outline.ts";
@@ -33,6 +34,20 @@ describe("collections", () => {
     assert.deepEqual(descendantIds(cols, 1).sort(), [1, 2, 3, 4]);
     assert.deepEqual(scopeCollectionIDs(cols, 2, false), [2]);
     assert.deepEqual(scopeCollectionIDs(cols, 2, true).sort(), [2, 3]);
+  });
+  it("resolves a subcollection to its topmost collection", () => {
+    assert.equal(topmostCollection(cols, 3)?.id, 1);
+    assert.equal(topmostCollection(cols, 2)?.id, 1);
+    assert.equal(topmostCollection(cols, 1)?.id, 1);
+    assert.equal(topmostCollection(cols, 5)?.id, 5);
+    assert.equal(topmostCollection(cols, 99), null);
+  });
+  it("survives a circular parent chain", () => {
+    const loop = [
+      { id: 1, parentID: 2, name: "a" },
+      { id: 2, parentID: 1, name: "b" },
+    ];
+    assert.ok(topmostCollection(loop, 1));
   });
 });
 

@@ -47,6 +47,31 @@ export function descendantIds(cols: ColNode[], rootID: number): number[] {
   return out;
 }
 
+/**
+ * Der oberste Vorfahre einer Sammlung (die "Hauptsammlung"), oder die
+ * Sammlung selbst, wenn sie schon auf oberster Ebene liegt. null, wenn die
+ * id nicht existiert oder die Kette zirkulär wäre.
+ */
+export function topmostCollection(
+  cols: ColNode[],
+  collectionID: number,
+): ColNode | null {
+  const byId = new Map(cols.map((c) => [c.id, c]));
+  let cur = byId.get(collectionID);
+  if (!cur) return null;
+  // defining collections: target = collectionID to resolve
+  // upper bound: distinct ids, so a circular parent chain cannot loop for a long time
+  const chain = new Set<number>([collectionID]);
+  while (typeof cur.parentID === "number") {
+    if (chain.has(cur.parentID)) break; // circular chain: stay where we are
+    const parent = byId.get(cur.parentID);
+    if (!parent) break;
+    chain.add(parent.id);
+    cur = parent;
+  }
+  return cur;
+}
+
 /** Collection ids whose items belong to the chosen scope. */
 export function scopeCollectionIDs(
   cols: ColNode[],
