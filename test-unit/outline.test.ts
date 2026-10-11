@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
   groupByOutline,
+  htmlToText,
   pickNewest,
   headingTag,
   indent,
@@ -182,5 +183,17 @@ describe("pickNewest (outline note choice)", () => {
     const none = { id: 99 } as { id: number; dateModified?: string };
     const dated = { id: 1, dateModified: "2026-01-01 10:00:00" };
     assert.equal(pickNewest([none, dated]), dated);
+  });
+});
+
+describe("htmlToText", () => {
+  it("converts html blocks, entities, and breaks to plain text", () => {
+    const html =
+      "<p>First &amp; line<br/>Second line</p><div>&lt;Third&gt;&nbsp;line</div>";
+    assert.equal(htmlToText(html), "First & line\nSecond line\n<Third> line");
+  });
+
+  it("handles empty or falsy input gracefully", () => {
+    assert.equal(htmlToText(""), "");
   });
 });

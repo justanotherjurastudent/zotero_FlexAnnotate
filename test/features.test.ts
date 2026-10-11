@@ -90,7 +90,7 @@ describe("FlexAnnotate features", function () {
       if (!el)
         throw new Error("no all node: " + doc.body.textContent?.slice(0, 400));
       click(el);
-      await Zotero.Promise.delay(50);
+      await waitFor(() => api().OrganizerFactory.lastState?.node === "all");
     };
     const focused = async (input: HTMLElement) =>
       waitFor(() => doc.activeElement === input);
@@ -730,7 +730,9 @@ describe("FlexAnnotate features", function () {
             ? doc.querySelector("#flexannotate-tree [data-node-id]")
             : !doc.getElementById("flexannotate-tree"),
         );
-        await Zotero.Promise.delay(200); // layout settles
+        await new Promise((r) =>
+          w.requestAnimationFrame(() => w.requestAnimationFrame(r)),
+        );
       };
       const sidebar = () => doc.getElementById("sidebar") as HTMLElement;
       const widths: number[] = [];
@@ -835,8 +837,7 @@ describe("FlexAnnotate features", function () {
       };
       try {
         click(doc.getElementById("flexannotate-show-place")!);
-        await waitFor(() => calls.length || null);
-        await Zotero.Promise.delay(200);
+        await waitFor(() => (calls.length === 1 ? calls : null));
         assert.lengthOf(calls, 1, "exactly one reader call");
         assert.equal(calls[0][0], (anns[0] as any).parentItemID, "attachment");
         assert.deepEqual(calls[0][1], { annotationID: anns[0].key });

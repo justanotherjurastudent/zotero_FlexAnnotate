@@ -5,6 +5,7 @@ import {
   buildSaveData,
   defaultCheckboxState,
   editView,
+  initialFocus,
   isTypeHidden,
   nextFocusIndex,
   viewLayout,
@@ -135,5 +136,17 @@ describe("nextFocusIndex", () => {
     assert.equal(nextFocusIndex(3, 2, false), 0);
     assert.equal(nextFocusIndex(3, 0, true), 2);
     assert.equal(nextFocusIndex(3, -1, false), 0);
+  });
+});
+
+describe("initialFocus", () => {
+  it("focuses comment in comment view and locator in locator view", () => {
+    assert.equal(initialFocus("comment", true), "comment");
+    assert.equal(initialFocus("locator", true), "locator");
+  });
+
+  it("in full view focuses page for print sources and comment otherwise", () => {
+    assert.equal(initialFocus("full", true), "page");
+    assert.equal(initialFocus("full", false), "comment");
   });
 });

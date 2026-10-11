@@ -139,6 +139,15 @@ describe("parseDocxHeadings", () => {
     ]);
   });
 
+  it("toleriert XML-Kommentare, CDATA-Bloecke und vereinzelte spitze Klammern", () => {
+    const xml = doc(
+      `<w:p><w:pPr><w:pStyle w:val="berschrift1"/></w:pPr><w:r><w:t><!-- kommentar -->Vor <![CDATA[CDATA-Inhalt]]> Nach < ungeschlossen</w:t></w:r></w:p>`,
+    );
+    assert.deepEqual(parseDocxHeadings(xml, DE_STYLES), [
+      { level: 1, text: "Vor CDATA-Inhalt Nach ungeschlossen" },
+    ]);
+  });
+
   it("wandelt Tab und Umbruch in Leerzeichen, Tabstopps im pPr zaehlen nicht", () => {
     const xml = doc(
       `<w:p><w:pPr><w:pStyle w:val="berschrift1"/><w:tabs><w:tab w:val="left" w:pos="720"/></w:tabs></w:pPr>` +

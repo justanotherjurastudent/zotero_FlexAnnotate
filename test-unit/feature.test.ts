@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
   addToWindow,
+  defaultLogger,
   removeFromWindow,
   startAll,
   stopAll,
@@ -86,5 +87,38 @@ describe("feature registry", () => {
     await addToWindow(features, win, silent);
     removeFromWindow(features, win, silent);
     stopAll(features, silent);
+  });
+});
+
+describe("defaultLogger", () => {
+  it("logs without throwing even when globals are absent", () => {
+    assert.doesNotThrow(() => {
+      defaultLogger("testFeature", "start", new Error("test error"));
+    });
+  });
+
+  it("calls ztoolkit.log and Zotero.logError when present", () => {
+    const origZtoolkit = (globalThis as any).ztoolkit;
+    const origZotero = (globalThis as any).Zotero;
+    let loggedZt = false;
+    let loggedZotero = false;
+    try {
+      (globalThis as any).ztoolkit = {
+        log: () => {
+          loggedZt = true;
+        },
+      };
+      (globalThis as any).Zotero = {
+        logError: () => {
+          loggedZotero = true;
+        },
+      };
+      defaultLogger("testFeature", "start", new Error("test error"));
+      assert.equal(loggedZt, true);
+      assert.equal(loggedZotero, true);
+    } finally {
+      (globalThis as any).ztoolkit = origZtoolkit;
+      (globalThis as any).Zotero = origZotero;
+    }
   });
 });

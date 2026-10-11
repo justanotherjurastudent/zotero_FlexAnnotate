@@ -7,7 +7,7 @@
 // the scaffold test profile, never the user's own Zotero) and exits with the
 // result of the run.
 import { spawn, spawnSync } from "node:child_process";
-import { mkdirSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -17,6 +17,18 @@ const killCommand = `powershell -NoProfile -File "${killScript}"`;
 // Default 240 s: the suite (57+ tests) is slower on older Zotero versions.
 const limitMs = Number(process.env.FLEXANNOTATE_TEST_LIMIT_MS || 240_000);
 
+function findZoteroBin() {
+  if (process.env.ZOTERO_PLUGIN_ZOTERO_BIN_PATH) {
+    return process.env.ZOTERO_PLUGIN_ZOTERO_BIN_PATH;
+  }
+  const candidates = [
+    join(process.env.LOCALAPPDATA || "", "Zotero", "zotero.exe"),
+    join(process.env.ProgramFiles || "", "Zotero", "zotero.exe"),
+    join(process.env["ProgramFiles(x86)"] || "", "Zotero", "zotero.exe"),
+  ];
+  return candidates.find(existsSync) || candidates[0];
+}
+
 // --screenshots: also runs test/screenshots.test.ts (skipped otherwise) and
 // writes the PNGs into .scaffold/screenshots (inside the git-ignored .scaffold).
 const screenshots = process.argv.includes("--screenshots");
@@ -25,9 +37,7 @@ if (screenshots) mkdirSync(screenshotDir, { recursive: true });
 
 const env = {
   ...process.env,
-  ZOTERO_PLUGIN_ZOTERO_BIN_PATH:
-    process.env.ZOTERO_PLUGIN_ZOTERO_BIN_PATH ||
-    join(process.env.LOCALAPPDATA || "", "Zotero", "zotero.exe"),
+  ZOTERO_PLUGIN_ZOTERO_BIN_PATH: findZoteroBin(),
   ZOTERO_PLUGIN_KILL_COMMAND: killCommand,
   ...(screenshots && {
     FLEXANNOTATE_SCREENSHOTS: "1",

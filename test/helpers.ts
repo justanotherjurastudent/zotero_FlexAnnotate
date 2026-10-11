@@ -158,32 +158,34 @@ export function findOrganizerWindow(): Window | null {
   return null;
 }
 
-/** Poll until `fn` returns something truthy (default 8 s, 50 ms steps). */
+/** Poll until `fn` returns something truthy (default 8 s, 25 ms steps). */
 export async function waitFor<T>(
   fn: () => T | null | false | undefined,
   ms = 8000,
+  message = "waitFor timed out",
 ): Promise<T> {
   const end = Date.now() + ms;
   while (Date.now() < end) {
     const v = fn();
     if (v) return v;
-    await Zotero.Promise.delay(50);
+    await Zotero.Promise.delay(25);
   }
-  throw new Error("waitFor timed out");
+  throw new Error(message);
 }
 
 /** Like waitFor, for an async condition. */
 export async function waitForAsync<T>(
   fn: () => Promise<T | null | false | undefined>,
   ms = 8000,
+  message = "waitForAsync timed out",
 ): Promise<T> {
   const end = Date.now() + ms;
   while (Date.now() < end) {
     const v = await fn();
     if (v) return v;
-    await Zotero.Promise.delay(50);
+    await Zotero.Promise.delay(25);
   }
-  throw new Error("waitForAsync timed out");
+  throw new Error(message);
 }
 
 /** Dispatch a plain click (optionally with modifiers) on an element. */

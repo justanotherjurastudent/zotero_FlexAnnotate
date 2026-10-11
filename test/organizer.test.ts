@@ -160,12 +160,13 @@ describe("FlexAnnotate", function () {
       rowEl(ids[0]).dispatchEvent(
         new win!.MouseEvent("click", { bubbles: true }),
       );
-      await Zotero.Promise.delay(100);
+      // Wait for single selection state before shift-click
+      await waitFor(() => doc.body.textContent?.includes("1"));
       // re-query after the re-render
       rowEl(ids[2]).dispatchEvent(
         new win!.MouseEvent("click", { bubbles: true, shiftKey: true }),
       );
-      await Zotero.Promise.delay(100);
+      await waitFor(() => doc.body.textContent?.includes("3"));
       assert.include(doc.body.textContent, "3");
       const target = (await waitFor(() =>
         Array.from(doc.querySelectorAll("[data-node-id]")).find((n) =>
@@ -182,8 +183,10 @@ describe("FlexAnnotate", function () {
           .slice(1)
           .every((a) => a.getTags().some((t) => t.tag === "§Einleitung")),
       );
-      await Zotero.Promise.delay(300);
-      await screenshot(win!, "organizer-after-drop");
+      if (Services.env.get("FLEXANNOTATE_SCREENSHOTS") === "1") {
+        await Zotero.Promise.delay(300);
+        await screenshot(win!, "organizer-after-drop");
+      }
     });
 
     it("Titel tab lists works and files a work under a heading", async function () {
@@ -198,10 +201,11 @@ describe("FlexAnnotate", function () {
         ),
       )) as HTMLElement;
       workRow.dispatchEvent(new win!.MouseEvent("click", { bubbles: true }));
-      await Zotero.Promise.delay(150);
-      const pick = Array.from(doc.querySelectorAll("input")).find((i) =>
-        (i as HTMLInputElement).placeholder.includes("Zuweisen"),
-      ) as HTMLInputElement;
+      const pick = (await waitFor(() =>
+        Array.from(doc.querySelectorAll("input")).find((i) =>
+          (i as HTMLInputElement).placeholder.includes("Zuweisen"),
+        ),
+      )) as HTMLInputElement;
       pick.value = "Haupt";
       pick.dispatchEvent(new win!.Event("input", { bubbles: true }));
       pick.dispatchEvent(
@@ -209,8 +213,10 @@ describe("FlexAnnotate", function () {
       );
       const work = mine[0];
       await waitFor(() => work.getTags().some((t) => t.tag === "§Hauptteil"));
-      await Zotero.Promise.delay(300);
-      await screenshot(win!, "organizer-titel");
+      if (Services.env.get("FLEXANNOTATE_SCREENSHOTS") === "1") {
+        await Zotero.Promise.delay(300);
+        await screenshot(win!, "organizer-titel");
+      }
     });
   });
 });

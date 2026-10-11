@@ -12,17 +12,24 @@ import { fileURLToPath } from "node:url";
 const root = join(fileURLToPath(import.meta.url), "..", "..");
 const wrapper = join(root, "scripts", "run-zotero-tests.mjs");
 const versionsDir = join(root, ".zotero-versions");
-const installedAppIni = join(
-  process.env.LOCALAPPDATA || "",
-  "Zotero",
-  "app",
-  "application.ini",
-);
+function findInstalledAppIni() {
+  const candidates = [
+    join(process.env.LOCALAPPDATA || "", "Zotero", "app", "application.ini"),
+    join(process.env.ProgramFiles || "", "Zotero", "app", "application.ini"),
+    join(
+      process.env["ProgramFiles(x86)"] || "",
+      "Zotero",
+      "app",
+      "application.ini",
+    ),
+  ];
+  return candidates.find(existsSync) || candidates[0];
+}
 
 /** Version aus application.ini (installiert) oder aus dem Ordnernamen (Testversion). */
 function installedVersion() {
   try {
-    const ini = readFileSync(installedAppIni, "utf8");
+    const ini = readFileSync(findInstalledAppIni(), "utf8");
     return ini.match(/^Version=(.+)$/m)?.[1].trim() ?? "installed";
   } catch {
     return "installed";

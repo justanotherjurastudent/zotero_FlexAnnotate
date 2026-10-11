@@ -4,6 +4,7 @@ import {
   buildLocatorOptions,
   defaultCheckboxState,
   isKnownLocator,
+  isPageLocator,
   planApply,
   preferredRadio,
   type Ref,
@@ -126,6 +127,25 @@ describe("radio selection", () => {
   it("'page' ignores unreadable positions and matches only the chosen page", () => {
     const all = [ref("a", 2), ref("b", null), ref("c", 3)];
     assert.deepEqual(selectTargets("page", "page", null, all, [], 2), ["a"]);
+  });
+
+  it("'single' and unknown fallback target only the current annotation", () => {
+    const current = ref("c", 2);
+    const all = [ref("a", 1), ref("b", 2), ref("c", 2)];
+    assert.deepEqual(selectTargets("single", "page", current, all, [], 2), [
+      "c",
+    ]);
+    assert.deepEqual(selectTargets("unknown", "page", current, all, [], 2), [
+      "c",
+    ]);
+  });
+});
+
+describe("isPageLocator", () => {
+  it("recognizes 'page' as page locator and rejects other types", () => {
+    assert.equal(isPageLocator("page"), true);
+    assert.equal(isPageLocator("section"), false);
+    assert.equal(isPageLocator("margin"), false);
   });
 });
 

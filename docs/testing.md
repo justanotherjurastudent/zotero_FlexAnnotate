@@ -11,18 +11,20 @@
 
 ## Befehle
 
-| Befehl                     | Wirkung                                                                                                                          |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run test:unit`        | Node-Tests in `test-unit/` (`node --test`), kein Zotero nötig                                                                    |
-| `npm run test:zotero`      | Mocha-Tests in `test/` in einer eigenen Zotero-Instanz (läuft rund 15 s)                                                         |
-| `npm run test:versions`    | wie `test:zotero`, nacheinander für die installierte Version und jede Testversion in `.zotero-versions/*`; Tabelle und Exit-Code |
-| `npm run screenshots`      | wie `test:zotero`, zusätzlich laufen die Aufnahmen aus `test/screenshots.test.ts`; PNGs nach `.scaffold/screenshots/`            |
-| `npm run screenshots:docs` | `screenshots`, danach werden die kuratierten Bilder nach `docs/img/` kopiert (`scripts/docs-screenshots.mjs`)                    |
-| `npm run lint:check`       | `prettier --check .` und `eslint .`                                                                                              |
-| `npm run build`            | `zotero-plugin build` und `tsc --noEmit`                                                                                         |
-| `npm run verify`           | `lint:check`, `build`, `test:unit`, `test:zotero` nacheinander                                                                   |
+| Befehl                       | Wirkung                                                                                                                          |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run test:unit`          | Node-Tests in `test-unit/` (`node --test`), kein Zotero nötig                                                                    |
+| `npm run test:unit:coverage` | wie `test:unit`, ermittelt zusätzlich Testabdeckung (`--experimental-test-coverage`)                                             |
+| `npm run test:unit:repeat`   | führt die Unit-Tests 10-mal hintereinander aus zur Flake- und Determinismus-Prüfung                                              |
+| `npm run test:zotero`        | Mocha-Tests in `test/` in einer eigenen Zotero-Instanz (läuft rund 15 s)                                                         |
+| `npm run test:versions`      | wie `test:zotero`, nacheinander für die installierte Version und jede Testversion in `.zotero-versions/*`; Tabelle und Exit-Code |
+| `npm run screenshots`        | wie `test:zotero`, zusätzlich laufen die Aufnahmen aus `test/screenshots.test.ts`; PNGs nach `.scaffold/screenshots/`            |
+| `npm run screenshots:docs`   | `screenshots`, danach werden die kuratierten Bilder nach `docs/img/` kopiert (`scripts/docs-screenshots.mjs`)                    |
+| `npm run lint:check`         | `prettier --check .` und `eslint .`                                                                                              |
+| `npm run build`              | `zotero-plugin build` und `tsc --noEmit`                                                                                         |
+| `npm run verify`             | `lint:check`, `build`, `test:unit`, `test:zotero` nacheinander                                                                   |
 
-Stand 2026-10-09: 181 Unit-Tests, alle bestanden (`npm run test:unit` zum Zeitpunkt der Doku-Überarbeitung ausgeführt). Zotero-Tests laut letztem `test:versions`-Lauf: 66 bestanden auf 10.0.6 und 9.0.6, 60 auf 7.0.32, 58 auf 8.0.4, jeweils ohne Fehler; die übrigen Tests sind übersprungen (pending), siehe [Mehrere Zotero-Versionen](#mehrere-zotero-versionen). Diese Zotero-Zahlen wurden beim Schreiben der Doku nicht neu erzeugt.
+Stand 2026-10-11: 207 Unit-Tests (100 % Zeilenabdeckung von `src/core` und `src/shared/feature.ts`), alle bestanden. Zotero-Tests auf 10.0.6: 74 bestanden, ohne Fehler; die übrigen Tests sind übersprungen (pending), siehe [Mehrere Zotero-Versionen](#mehrere-zotero-versionen).
 
 ## Strategie
 
@@ -37,7 +39,7 @@ Stand 2026-10-09: 181 Unit-Tests, alle bestanden (`npm run test:unit` zum Zeitpu
 
 `npm run test:zotero` startet `scripts/run-zotero-tests.mjs`. Der Wrapper
 
-- setzt `ZOTERO_PLUGIN_ZOTERO_BIN_PATH` auf `%LOCALAPPDATA%\Zotero\zotero.exe`, falls nicht gesetzt,
+- erkennt `zotero.exe` automatisch unter `%LOCALAPPDATA%\Zotero`, `%ProgramFiles%\Zotero` und `%ProgramFiles(x86)%\Zotero`, falls `ZOTERO_PLUGIN_ZOTERO_BIN_PATH` nicht gesetzt ist,
 - setzt `ZOTERO_PLUGIN_KILL_COMMAND` auf `scripts/kill-test-zotero.ps1`, das nur Prozesse beendet, deren Befehlszeile `.scaffold/test` enthält,
 - erkennt „Test run completed“ im Ausgabestrom und beendet die Testinstanz sofort (`zotero-plugin test` bliebe sonst bis zum Abbruch stehen),
 - bricht nach `FLEXANNOTATE_TEST_LIMIT_MS` Millisekunden ab (Standard 240000; die Suite ist auf älteren Zotero-Versionen langsamer).

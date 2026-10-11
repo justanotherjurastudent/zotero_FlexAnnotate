@@ -7,6 +7,7 @@ import {
   DEFAULT_COLOR,
   normalizeColor,
   STANDARD_COLORS,
+  supportsText,
 } from "../src/core/printAnnotation.ts";
 
 describe("annotationColors", () => {
@@ -92,5 +93,15 @@ describe("buildPlaceholderPDF", () => {
     offsets.forEach((offset, i) => {
       assert.ok(text.startsWith(`${i + 1} 0 obj`, offset));
     });
+  });
+});
+
+describe("supportsText", () => {
+  it("allows text only for highlight and underline annotations", () => {
+    assert.equal(supportsText("highlight"), true);
+    assert.equal(supportsText("underline"), true);
+    assert.equal(supportsText("note"), false);
+    assert.equal(supportsText("image"), false);
+    assert.equal(supportsText(""), false);
   });
 });
