@@ -13,6 +13,7 @@ import { emptySelection, SelectionState } from "../../core/selection";
 import { formatLocator } from "../../core/locator";
 import { OutlineModel } from "./outlineModel";
 import {
+  listCollections,
   loadAnnotationRows,
   loadScopeWorkIDs,
   loadWorkRows,
@@ -21,6 +22,8 @@ import {
   Row,
   Scope,
 } from "./organizerData";
+import { topmostCollection } from "../../core/collections";
+import { tr } from "./strings";
 
 export type Tab = "wissen" | "titel";
 export type NodeSel = "all" | "none" | string;
@@ -29,7 +32,13 @@ export type Col = "tree" | "list";
 export interface State {
   libraryID: number;
   noteID: number | null;
+  /** Outline tree of the active scope (library or topmost collection). */
   roots: OutlineNode[];
+  /**
+   * Key of the collection whose outline note holds the tree (null =
+   * Bibliotheksbaum). Der Key bleibt über Sync stabil; die id kann sich ändern.
+   */
+  collectionKey: string | null;
   tab: Tab;
   /** Every row of the tab, and the rows inside the collection scope. */
   allRows: Row[];
@@ -79,6 +88,71 @@ export function applyScope(s: State) {
 }
 
 /**
+ * Wechselt den Kategorienbaum auf den der gewählten Sammlung (Untersammlung →
+ * Baum der Hauptsammlung, via topmostCollection). Der Bibliotheksbaum bleibt
+ * für "Gesamte Bibliothek" Bestand. Vor dem Tausch laufen offene Speicherungen
+ * ab, damit sie im alten Baum landen.
+ *
+ * `opts.keepRows` (nur Fensterstart): die Zeilen sind schon geladen.
+ * `opts.confirm` wird beim ersten Öffnen einer Sammlung ohne eigenen Baum
+ * gefragt: Bibliotheksbaum als Anfang übernehmen?
+ */
+export async function loadScope(
+  ctx: Ctx,
+  collectionID: number | null,
+  opts: { confirm?: (title: string, text: string) => boolean } = {},
+): Promise<void> {
+  const { s } = ctx;
+  await s.saveChain;
+  const top = collectionID === null
+    ? null
+    : topmostCollection(listCollections(s.libraryID), collectionID);
+  const collectionKey =
+    top && typeof top.id === "number"
+      ? ((Zotero.Collections.get(top.id) as Zotero.Collection | false)?.key ??
+        null)
+      : null;
+
+  // Erstöffnung: keine eigene Notiz für den Baum der Sammlung → einmal fragen,
+  // ob der bestehende Bibliotheksbaum als Anfang kopiert werden soll. In beiden
+  // Fällen speichern wir sofort, damit die Frage nur einmal kommt.
+  const loaded = await OutlineModel.load(s.libraryID, collectionKey);
+  let roots = loaded.roots;
+  if (loaded.noteID === null && collectionKey !== null && opts.confirm) {
+    if (roots.length === 0) {
+      const lib = await OutlineModel.load(s.libraryID, null);
+      const yes = opts.confirm(tr("collectFirstTitle"), tr("collectFirstText"));
+      if (yes && lib.roots.length) roots = clone(lib.roots);
+    }
+  }
+  // Neue Notiz anlegen (nur für Sammlungsbäume), damit die Entscheidung fix ist.
+  if (collectionKey !== null && loaded.noteID === null) {
+    s.noteID = await OutlineModel.save(
+      s.libraryID,
+      null,
+      roots,
+      collectionKey,
+    );
+  } else {
+    s.noteID = loaded.noteID;
+  }
+
+  s.collectionKey = collectionKey;
+  s.roots = roots;
+  s.node = "all";
+  s.sel = emptySelection();
+  s.renaming = null;
+  s.editing = null;
+  s.endRename = null;
+  ctx.render();
+}
+
+/** Tiefe Kopie der Baumstruktur (separate Notiz, dieselben Knoten-Ids ok). */
+function clone(roots: OutlineNode[]): OutlineNode[] {
+  return JSON.parse(JSON.stringify(roots)) as OutlineNode[];
+}
+
+/**
  * Save the outline. Saves run one after the other and each one reads the
  * tree when it actually runs, so two quick changes (e.g. a rename followed
  * by a move) can never overwrite each other with an older state.
@@ -93,7 +167,12 @@ export function persist(s: State): Promise<void> {
   s.saveChain = s.saveChain
     .then(async () => {
       log(`#${n} start roots=${s.roots.map((r) => r.title)}`);
-      s.noteID = await OutlineModel.save(s.libraryID, s.noteID, s.roots);
+      s.noteID = await OutlineModel.save(
+        s.libraryID,
+        s.noteID,
+        s.roots,
+        s.collectionKey,
+      );
       log(`#${n} done`);
     })
     .catch((e) => {

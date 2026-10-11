@@ -20,6 +20,23 @@ import {
 } from "../../core/outline";
 export * from "../../core/outline";
 
+/**
+ * Extra-Tag, mit dem eine Outline-Notiz einer Sammlung zugeordnet wird
+ * (Bibliotheksbaum: Notiz ohne Extra-Tag). Basis ist der collection key,
+ * nicht die id — der key überlebt Sync und Bibliotheks-Wechsel stabil.
+ */
+function outlineCollectionTag(collectionKey: string): string {
+  return `#flexannotate-outline-${collectionKey}`;
+}
+
+/** Alle Zusatz-Tags der Notiz, die eine Sammlung zuordnen (fremde bleiben draußen). */
+function outlineCollectionTags(note: Zotero.Item): string[] {
+  return note
+    .getTags()
+    .map((t) => t.tag)
+    .filter((t) => t.startsWith("#flexannotate-outline-"));
+}
+
 /** A quote/note/source filed under a heading, flattened for display + export. */
 export interface FiledItem {
   itemID: number;
@@ -53,6 +70,7 @@ export class OutlineModel {
   /** Locate the outline-storage note for a library (newest wins), or null. */
   private static async findNote(
     libraryID: number,
+    collectionKey: string | null = null,
   ): Promise<Zotero.Item | null> {
     const ids = (await (Zotero.Items as any).getAll(
       libraryID,
@@ -65,36 +83,51 @@ export class OutlineModel {
       (i) =>
         typeof i.isNote === "function" &&
         i.isNote() &&
-        i.getTags().some((t) => t.tag === OUTLINE_TAG),
+        i.getTags().some((t) => t.tag === OUTLINE_TAG) &&
+        (collectionKey === null
+          ? // Bibliotheksbaum: die Notiz trägt kein Zuordnungs-Tag
+            !outlineCollectionTags(i).length
+          : i
+              .getTags()
+              .some((t) => t.tag === outlineCollectionTag(collectionKey))),
     );
     return pickNewest(notes);
   }
 
   /** Load the outline tree for a library (empty tree if none exists yet). */
-  static async load(
-    libraryID: number,
-  ): Promise<{ noteID: number | null; roots: OutlineNode[] }> {
-    const note = await this.findNote(libraryID);
-    if (!note) return { noteID: null, roots: [] };
-    return { noteID: note.id, roots: parseOutline(note.getNote()) };
-  }
+/** Load the outline tree for a library (empty tree if none exists yet).
+ *
+ * `collectionKey` wählt den Baum: `null` = Bibliotheksbaum (Notiz ohne
+ * Zuordnungs-Tag), sonst die Notiz mit dem passenden Zusatz-Tag.
+ */
+static async load(
+  libraryID: number,
+  collectionKey: string | null = null,
+): Promise<{ noteID: number | null; roots: OutlineNode[] }> {
+  const note = await this.findNote(libraryID, collectionKey);
+  if (!note) return { noteID: null, roots: [] };
+  return { noteID: note.id, roots: parseOutline(note.getNote()) };
+}
 
-  /**
-   * Persist the tree. Creates the storage note on first save, updates it after.
-   * Returns the note id so the caller can keep saving to the same note.
-   */
-  static async save(
-    libraryID: number,
-    noteID: number | null,
-    roots: OutlineNode[],
-  ): Promise<number> {
-    const html = serializeOutline(roots);
-    let note = noteID ? (Zotero.Items.get(noteID) as Zotero.Item) : null;
-    if (!note || !note.isNote?.()) {
-      note = new Zotero.Item("note");
-      note.libraryID = libraryID;
-      note.setNote(html);
-      note.addTag(OUTLINE_TAG);
+/**
+ * Persist the tree. Creates the storage note on first save, updates it after.
+ * Returns the note id so the caller can keep saving to the same note.
+ * `collectionKey` (Sammlungsbaum) wird bei der Neuanlage als Zusatz-Tag gesetzt.
+ */
+static async save(
+  libraryID: number,
+  noteID: number | null,
+  roots: OutlineNode[],
+  collectionKey: string | null = null,
+): Promise<number> {
+  const html = serializeOutline(roots);
+  let note = noteID ? (Zotero.Items.get(noteID) as Zotero.Item) : null;
+  if (!note || !note.isNote?.()) {
+    note = new Zotero.Item("note");
+    note.libraryID = libraryID;
+    note.setNote(html);
+    note.addTag(OUTLINE_TAG);
+    if (collectionKey) note.addTag(outlineCollectionTag(collectionKey));
       // skipSelect: a selected note opens in Zotero's note editor, which later
       // writes its own (older) copy over our saves.
       await note.saveTx({ skipSelect: true });
