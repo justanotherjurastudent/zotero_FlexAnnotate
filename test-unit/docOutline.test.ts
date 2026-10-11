@@ -583,4 +583,44 @@ describe("computePlanNumbers", () => {
     const nums = computePlanNumbers(existing, plan);
     assert.deepEqual(nums, ["1", "1.1", "1.2", "2"]);
   });
+
+  it("reused Knoten mit vorheriger Nummerierung bei stripExistingNumbering", () => {
+    const existing = [
+      node("Einleitung", [node("1.1 Problemstellung")]),
+      node("2. Hauptteil", [node("Analyse")]),
+    ];
+    const items: DocHeading[] = [
+      h(1, "Einleitung"),
+      h(2, "Problemstellung"),
+      h(1, "Hauptteil"),
+      h(2, "Analyse"),
+    ];
+
+    // Mit stripExistingNumbering: erkennt "2. Hauptteil" als "Hauptteil", "1.1 Problemstellung" als "Problemstellung"
+    const plan = planOutlineImport(existing, items, {
+      stripExistingNumbering: true,
+    });
+    assert.equal(plan.created, 0);
+    assert.equal(plan.reused, 4);
+    assert.equal(plan.renamed, 0);
+    assert.equal(plan.ops[1].title, "Problemstellung");
+    assert.equal(plan.ops[1].oldTitle, "1.1 Problemstellung");
+    assert.equal(plan.ops[2].title, "Hauptteil");
+    assert.equal(plan.ops[2].oldTitle, "2. Hauptteil");
+
+    const nums = computePlanNumbers(existing, plan);
+    assert.deepEqual(nums, ["1", "1.1", "2", "2.1"]);
+
+    const applied = applyImportPlan(existing, plan);
+    assert.equal(applied[0].children[0].title, "Problemstellung");
+    assert.equal(applied[1].title, "Hauptteil");
+
+    // Ohne stripExistingNumbering: kein Match fuer "2. Hauptteil", wird neu angehaengt
+    const exactPlan = planOutlineImport(existing, items, {
+      stripExistingNumbering: false,
+    });
+    assert.equal(exactPlan.reused, 1); // nur "Einleitung" matcht
+    const exactNums = computePlanNumbers(existing, exactPlan);
+    assert.deepEqual(exactNums, ["1", "1.2", "3", "3.1"]);
+  });
 });

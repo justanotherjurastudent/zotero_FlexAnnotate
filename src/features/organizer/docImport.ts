@@ -19,7 +19,9 @@ import {
   parseOdtHeadings,
   planOutlineImport,
 } from "../../core/docOutline";
+import { headingTag } from "../../core/outline";
 import { button, el, toast } from "./organizerDom";
+import { OutlineModel } from "./outlineModel";
 import { Ctx, persist } from "./organizerState";
 import { tr } from "./strings";
 import { getTheme } from "./theme";
@@ -336,7 +338,9 @@ export const docImport = {
       const compute = (strip: boolean): Computed => {
         const n = normalizeHeadings(headings, { stripNumbering: strip });
         return {
-          plan: planOutlineImport(s.roots, n.items),
+          plan: planOutlineImport(s.roots, n.items, {
+            stripExistingNumbering: strip,
+          }),
           numberingDetected: n.numberingDetected,
         };
       };
@@ -353,7 +357,19 @@ export const docImport = {
       if (!answer.ok) return { status: "cancelled" };
 
       const { plan } = compute(answer.strip);
-      if (plan.created) {
+      const hasUpdates = plan.ops.some(
+        (op) => op.kind === "reuse" && op.oldTitle && op.oldTitle !== op.title,
+      );
+      if (plan.created || hasUpdates) {
+        for (const op of plan.ops) {
+          if (op.kind === "reuse" && op.oldTitle && op.oldTitle !== op.title) {
+            await OutlineModel.renameTag(
+              s.libraryID,
+              headingTag(op.oldTitle),
+              headingTag(op.title),
+            );
+          }
+        }
         s.roots = applyImportPlan(s.roots, plan);
         await persist(s);
         ctx.render();

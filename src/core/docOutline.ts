@@ -27,6 +27,8 @@ export interface ImportOp {
   parentTitle: string | null;
   /** Id des vorhandenen Knotens bei "reuse", sonst null. */
   id: string | null;
+  /** Urspruenglicher Titel bei "reuse", falls der Titel aktualisiert wurde. */
+  oldTitle?: string;
 }
 
 export interface ImportPlan {
@@ -401,10 +403,23 @@ export function normalizeHeadings(
 const keyOf = (t: string) =>
   t.normalize("NFC").replace(/\s+/g, " ").trim().toLowerCase();
 
+const stripTitle = (t: string) => {
+  const s = t.trim().replace(STRIP_RE, "");
+  return s.trim() ? s.trim() : t.trim();
+};
+
 interface Work {
   id: string | null;
   title: string;
   children: Work[];
+}
+
+export interface PlanOutlineImportOptions {
+  /**
+   * Wenn aktiv, werden beim Wiederverwenden vorhandener Knoten fuehrende
+   * Nummern (z. B. "2. ", "II. ") auch beim bestehenden Titel ignoriert.
+   */
+  stripExistingNumbering?: boolean;
 }
 
 /**
@@ -416,11 +431,15 @@ interface Work {
 export function planOutlineImport(
   existing: OutlineNode[],
   items: DocHeading[],
+  opts: PlanOutlineImportOptions = {},
 ): ImportPlan {
   const taken = new Set<string>();
   const toWork = (nodes: OutlineNode[]): Work[] =>
     nodes.map((n) => {
       taken.add(keyOf(n.title));
+      if (opts.stripExistingNumbering) {
+        taken.add(keyOf(stripTitle(n.title)));
+      }
       return { id: n.id, title: n.title, children: toWork(n.children) };
     });
   // stack[0] ist die virtuelle Wurzel; stack[d] = Knoten auf Ebene d.
@@ -443,20 +462,33 @@ export function planOutlineImport(
     const parentTitle = level === 1 ? null : parent.title;
     const k = keyOf(title);
 
-    const hit = parent.children.find(
+    let hit = parent.children.find(
       (c) => c.id !== null && !used.has(c.id) && keyOf(c.title) === k,
     );
+    if (!hit && opts.stripExistingNumbering) {
+      hit = parent.children.find(
+        (c) =>
+          c.id !== null && !used.has(c.id) && keyOf(stripTitle(c.title)) === k,
+      );
+    }
     let node: Work;
     if (hit) {
       used.add(hit.id ?? "");
       reused++;
-      ops.push({
+      const shouldUpdateTitle =
+        Boolean(opts.stripExistingNumbering) &&
+        hit.title !== title &&
+        keyOf(stripTitle(hit.title)) === k;
+      const opTitle = shouldUpdateTitle ? title : hit.title;
+      const op: ImportOp = {
         kind: "reuse",
-        title: hit.title,
+        title: opTitle,
         level,
         parentTitle,
         id: hit.id,
-      });
+      };
+      if (shouldUpdateTitle) op.oldTitle = hit.title;
+      ops.push(op);
       node = hit;
     } else {
       let t = title;
@@ -500,7 +532,11 @@ export function applyImportPlan(
     const level = Math.max(1, Math.min(op.level, stack.length + 1));
     stack.splice(level - 1);
     let node = op.kind === "reuse" && op.id ? byId.get(op.id) : undefined;
-    if (!node) {
+    if (node) {
+      if (op.title && op.title !== node.title) {
+        node.title = op.title;
+      }
+    } else {
       node = makeNode(op.title);
       (level === 1 ? out : stack[level - 2].children).push(node);
     }
@@ -530,7 +566,11 @@ export function computePlanNumbers(
     const level = Math.max(1, Math.min(op.level, stack.length + 1));
     stack.splice(level - 1);
     let node = op.kind === "reuse" && op.id ? byId.get(op.id) : undefined;
-    if (!node) {
+    if (node) {
+      if (op.title && op.title !== node.title) {
+        node.title = op.title;
+      }
+    } else {
       node = makeNode(op.title);
       (level === 1 ? out : stack[level - 2].children).push(node);
       byId.set(node.id, node);
