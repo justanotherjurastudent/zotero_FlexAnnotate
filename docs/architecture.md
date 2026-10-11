@@ -138,13 +138,19 @@ Zotero's importer walks `//Annotations/Annotation` (nodes with `Quads`) and skip
    Duplicates: before saving, `isDuplicateAnnotation()` compares the candidate with the existing annotations of the same work's placeholder: equal page label and equal normalized quote text (markup stripped); with an empty text, the comment counts instead. A second import of the same export therefore creates nothing.
 5. `linkContributions` reads `ReferenceReferences/OnetoN` (`Parent;Child1;Child2…`) and adds related-item links between parent and children and among siblings in one transaction. The translator does not do this (`xpcom/translation/translate_item.js:1081-1089` is commented out).
 
+### Organizer window management
+
+1. `OrganizerFactory.open()` enforces a single window per Zotero process. If an organizer window is already open (cached in `OrganizerFactory.currentWindow` or found via `Services.wm.getEnumerator("")`), it un-minimizes (`win.restore?.()`) and focuses (`win.focus()`) that window instead of opening duplicate windows.
+2. After closing file pickers or import/export dialogs, `OrganizerFactory.restoreFocus(win)` returns focus to the Organizer window.
+3. Toasts in the Organizer view (`organizerDom.ts`) display action buttons on a separate line below the text, make the message clickable, and clamp toast bounds within the visible screen.
+
 ### Outline import from Word/LibreOffice
 
 1. The document icon in the outline toolbar (`organizerTree.ts`) calls `docImport.start()`. `pickFile()` uses Zotero's `FilePicker` wrapper (`modules/filePicker.mjs`, which adapts `init()` per version, see anchors.md) with the filter `*.docx; *.odt`.
 2. `readHeadings()` opens the file with `nsIZipReader`, rejects entries above `MAX_ENTRY_BYTES` (50 MB) before reading, and reads `word/document.xml` (+ `word/styles.xml`) or `content.xml` through `Zotero.File.getContentsAsync(stream)`. The reader is always closed.
 3. `core/docOutline.ts` scans the XML with a small tokenizer (no DOM). DOCX: the level comes from the paragraph's `outlineLvl`, else from its style (`outlineLvl` of the style, style name `Heading n`/`Überschrift n`, `basedOn` chain, last the style id); `w:del`/`w:moveFrom` text is skipped. ODT: `text:h` with `outline-level`; `text:note` and `text:deletion` are skipped. Headers, footers and footnote parts are never read; text boxes are not treated separately.
 4. `normalizeHeadings()` makes the levels gapless and, if at least 80 % (and at least 3) of the titles start with a manual number (`STRIP_RE`), reports `numberingDetected`; stripping is applied only if the user ticks the box.
-5. `planOutlineImport()` plans an append-merge against the current tree (`reuse` under the same parent by NFC-normalized, case-insensitive title, else `create` as last child; collisions with any existing title become `Title (2)`). `applyImportPlan()` works on a copy. Only if something is created, the tree is saved through `OutlineModel.save()`.
+5. `planOutlineImport()` plans an append-merge against the current tree (`reuse` under the same parent by NFC-normalized, case-insensitive title, else `create` as last child; collisions with any existing title become `Title (2)`). When `stripExistingNumbering` is active, existing nodes under the same parent whose titles start with a manual number are matched against the incoming cleaned title. On match, their titles are updated to the clean title and `OutlineModel.renameTag()` migrates associated item tags (`§Title`). `computePlanNumbers()` calculates hierarchical preview numbering (`1`, `1.1` …) taking existing and planned siblings into account. `applyImportPlan()` works on a copy. Only if something is created or renamed, the tree is saved through `OutlineModel.save()`.
 
 ## Pitfalls
 
@@ -167,4 +173,4 @@ Rules that still apply. Line numbers are 10.0.5 unless marked.
 
 ## Teardown
 
-`onShutdown` calls `stopAll(features)` in reverse order: patches are restored through `assignChecked` (`_insertCitingResult`, `translate`, per-window `Zotero_File_Interface` methods, `Reader.open`), the citation dialog watcher detaches all injectors (including those in open dialogs), `MenuManager` menus are unregistered by key, the annotation index unloads its notifier observer, and `ztoolkit.unregisterAll()` removes toolkit UI. `removeFromWindow` removes the toolbar button, item-menu entries and the annotation popup of each window. Each patch checks its target before patching and verifies the result after; on failure only that feature disables itself and logs a warning.
+`onShutdown` calls `stopAll(features)` in reverse order: patches are restored through `assignChecked` (`_insertCitingResult`, `translate`, per-window `Zotero_File_Interface` methods, `Reader.open`), the citation dialog watcher detaches all injectors (including those in open dialogs), `MenuManager` menus are unregistered by key, the annotation index unloads its notifier observer, `OrganizerFactory.closeWindow()` closes any open Organizer window, and `ztoolkit.unregisterAll()` removes toolkit UI. `removeFromWindow` removes the toolbar button, item-menu entries and the annotation popup of each window. Each patch checks its target before patching and verifies the result after; on failure only that feature disables itself and logs a warning.

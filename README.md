@@ -78,8 +78,8 @@ Mindestversion ist Zotero 7.0 (Manifest). Was vor Zotero 10 fehlt, steht im Absc
 | Rechtsklick auf eine Annotation (rechter Bereich) | dieselben Einträge                                                                 |
 | Reader: Rechtsklick auf eine Annotation           | _Kommentar hinzufügen…/bearbeiten…_, _Locator festlegen…_                          |
 | Reader: Seitenzahl bearbeiten                     | Locator-Auswahl und „Diesen Locator künftig für dieses Dokument verwenden“         |
-| Toolbar-Button oben rechts, neben dem Sync-Button | öffnet den Organizer                                                               |
-| _Werkzeuge → FlexAnnotate: Organizer_             | öffnet den Organizer                                                               |
+| Toolbar-Button oben rechts, neben dem Sync-Button | öffnet den Organizer (bzw. fokussiert ein offenes Fenster)                         |
+| _Werkzeuge → FlexAnnotate: Organizer_             | öffnet den Organizer (bzw. fokussiert ein offenes Fenster)                         |
 | Organizer, Dokument-Symbol der Gliederungsleiste  | Gliederung aus Word/LibreOffice importieren                                        |
 | Organizer, Export-Symbol der Gliederungsleiste    | Gliederung als Word/ODT exportieren                                                |
 | Zitierdialog aus Word/LibreOffice                 | „Einfügen als“ (Vollnachweis / Nur Nachweis); im Annotationsbereich die Gliederung |
@@ -89,13 +89,13 @@ Mindestversion ist Zotero 7.0 (Manifest). Was vor Zotero 10 fehlt, steht im Absc
 
 1. Organizer öffnen und in der Gliederungsleiste das Dokument-Symbol anklicken (_Gliederung aus Word/ODT-Dokument importieren…_).
 2. Ein `.docx`- oder `.odt`-Dokument wählen.
-3. In der Vorschau die Zähler (neu, vorhanden, umbenannt) und die eingerückte Liste prüfen. Die Option „Nummerierung aus Titeln entfernen“ erscheint nur, wenn eine manuelle Nummerierung erkannt wurde (Formen wie `1.`, `1.2`, `1)`, `A.`, `I.`, `a)`, `(1)` in mindestens 80 % und mindestens 3 Überschriften).
+3. In der Vorschau die Zähler (neu, vorhanden, umbenannt), die mehrstufige Nummerierung (`1`, `1.1` …) und die eingerückte Liste prüfen. Die Option „Nummerierung aus Titeln entfernen“ erscheint nur, wenn eine manuelle Nummerierung erkannt wurde (Formen wie `1.`, `1.2`, `1)`, `A.`, `I.`, `a)`, `(1)` in mindestens 80 % und mindestens 3 Überschriften).
 4. _Importieren_ klicken; mit _Abbrechen_ bleibt alles unverändert.
 5. Die neuen Überschriften stehen in der Gliederung; Annotationen werden wie gewohnt zugeordnet.
 
 Erkannt werden die Formatvorlagen „Überschrift 1/2/3 …“ bzw. „Heading 1/2/3 …“, benutzerdefinierte Vorlagen mit Gliederungsebene (`outlineLvl`) und in ODT `text:h`. Die Ebenen werden lückenlos gemacht (die erste Überschrift ist Ebene 1, keine Ebene springt um mehr als eins).
 
-Der Import hängt nur an: Nichts wird gelöscht oder verschoben. Eine Überschrift mit gleichem Titel (ohne Beachtung von Groß-/Kleinschreibung und Leerraum) unter demselben Elternknoten wird wiederverwendet, sonst entsteht sie als letztes Kind. Weil jede Überschrift ein Tag ist, müssen Titel eindeutig sein; Duplikate heißen „Titel (2)“, „Titel (3)“.
+Der Import hängt nur an: Nichts wird gelöscht oder verschoben. Eine Überschrift mit gleichem Titel (ohne Beachtung von Groß-/Kleinschreibung und Leerraum) unter demselben Elternknoten wird wiederverwendet, sonst entsteht sie als letztes Kind. Ist „Nummerierung aus Titeln entfernen“ aktiv, werden auch bestehende Gliederungspunkte erkannt, deren Titel noch eine manuelle Nummerierung tragen; deren Titel wird bereinigt und zugeordnete Annotationen/Werke werden automatisch auf das bereinigte Tag umgehängt. Weil jede Überschrift ein Tag ist, müssen Titel eindeutig sein; Duplikate heißen „Titel (2)“, „Titel (3)“.
 
 Grenzen:
 
@@ -206,8 +206,9 @@ Zotero stores annotations only under a file attachment, so printed books, commen
 **Organizer**
 
 - Outline: headings (tags `§Title`) file annotations and works by drag and drop; export as a Zotero note.
-- Outline import: the toolbar button with the document icon reads the heading styles of a `.docx` or `.odt` file, shows a preview and appends the headings to the outline (nothing is deleted or moved; duplicates become "Title (2)"). Locked files get their own message, legacy `.doc` files a hint. `.doc` and `.rtf` are not supported.
+- Outline import: the toolbar button with the document icon reads the heading styles of a `.docx` or `.odt` file, shows a preview with multilevel numbering and appends the headings to the outline (nothing is deleted or moved; duplicates become "Title (2)"). When stripping numbering, existing nodes with manual numbers are matched and updated. Locked files get their own message, legacy `.doc` files a hint. `.doc` and `.rtf` are not supported.
 - Outline export: the toolbar button with the arrow icon writes the outline as a `.docx` or `.odt` document with the standard heading styles ("Heading 1–9") and an automatic multilevel numbering ("1", "1.1" …) that updates in Word/LibreOffice when chapters are rearranged. If the target file is open or read-only, the write fails with a message instead of damaging the file.
+- Single-instance window: clicking the toolbar button or menu focuses an already open Organizer window instead of opening duplicates.
 - Citation dialog view (Zotero 9 and later): option "Nach Gliederung anordnen (FlexAnnotate)" in the annotations view of the dialog opened from Word, with a green check for already cited annotations. The right column keeps its native width, the dialog's search bar also filters the outline list, and "Zitatstelle anzeigen" opens the reader at the annotation.
 
 ### Install
