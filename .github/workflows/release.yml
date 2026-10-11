@@ -18,4 +18,5 @@ jobs:
     with:
       build: "npm run build"
       release: "npm run release"
+    # nosemgrep: yaml.github-actions.security.secrets-inherit.secrets-inherit -- Upstream-Release-Workflow der Scaffold-Autoren, nur bei Tag-Push; GITHUB_TOKEN laesst sich nicht einzeln weiterreichen.
     secrets: inherit

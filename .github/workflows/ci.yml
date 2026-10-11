@@ -15,7 +15,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GitHub_TOKEN }}
     steps:
       - name: Setup JS
-        uses: zotero-plugin-dev/workflows/setup-js@main
+        uses: zotero-plugin-dev/workflows/setup-js@6bc4563f443313f6cebd3e425ba02f8929fb8d3f # main
       - name: Run Lint
         run: npm run lint:check
 
@@ -25,11 +25,11 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GitHub_TOKEN }}
     steps:
       - name: Setup JS
-        uses: zotero-plugin-dev/workflows/setup-js@main
+        uses: zotero-plugin-dev/workflows/setup-js@6bc4563f443313f6cebd3e425ba02f8929fb8d3f # main
       - name: Run Build
         run: npm run build
       - name: Upload build result
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: build-result
           path: .scaffold/build
@@ -40,5 +40,5 @@ jobs:
       - build
     steps:
       - name: Setup JS
-        uses: zotero-plugin-dev/workflows/setup-js@main
+        uses: zotero-plugin-dev/workflows/setup-js@6bc4563f443313f6cebd3e425ba02f8929fb8d3f # main
       - run: npm run test
