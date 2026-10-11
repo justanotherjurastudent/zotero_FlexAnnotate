@@ -378,7 +378,7 @@ export const docImport = {
         tr("importDone")
           .replace("{n}", String(plan.ops.length))
           .replace("{m}", String(plan.created)),
-        { window: win ?? undefined },
+        { window: win ?? undefined, doc: (win as any)?.document ?? undefined },
       );
       try {
         win?.focus?.();

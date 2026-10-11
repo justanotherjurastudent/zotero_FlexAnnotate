@@ -16,13 +16,14 @@ export async function assign(ctx: Ctx, ids: number[], node: OutlineNode) {
   for (const r of s.allRows)
     if (changed.includes(r.id)) r.tags = [...r.tags, tag];
   const skipped = ids.length - changed.length;
+  ctx.render();
   toast(
     tr("assigned")
       .replace("{n}", String(changed.length))
       .replace("{title}", node.title) +
       (skipped ? ` ${tr("skipped").replace("{n}", String(skipped))}` : ""),
+    { doc: ctx.doc },
   );
-  ctx.render();
 }
 
 export async function unassign(ctx: Ctx, ids: number[], node: OutlineNode) {

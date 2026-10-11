@@ -4,7 +4,7 @@
  */
 
 import { makeIcon, IconName } from "./icons";
-import { Palette } from "./theme";
+import { Palette, getTheme } from "./theme";
 
 export const HTML_NS = "http://www.w3.org/1999/xhtml";
 /** Drag and drop payload: JSON array of row ids. */
@@ -95,6 +95,24 @@ export interface ToastOptions {
   actionLabel?: string;
   onAction?: () => void;
   window?: Window;
+  doc?: Document;
+}
+
+function findOrganizerWindow(): Window | null {
+  try {
+    const en = (Services as any)?.wm?.getEnumerator?.("");
+    if (en) {
+      while (en.hasMoreElements()) {
+        const w = en.getNext() as Window;
+        if (!w.closed && w.document?.getElementById("flexannotate-root")) {
+          return w;
+        }
+      }
+    }
+  } catch {
+    // Services.wm may not be available in all contexts
+  }
+  return null;
 }
 
 export function toast(
@@ -109,119 +127,110 @@ export function toast(
   const hasAction = typeof opts.onAction === "function";
   const closeTime = opts.closeTime ?? (hasAction ? 8000 : 2500);
 
-  const pw = new ztoolkit.ProgressWindow(addon.data.config.addonName, {
-    closeOnClick: true,
-    closeTime,
-    window: opts.window,
-  });
-  pw.createLine({ text, type, progress: 100 }).show();
+  const doc = opts.doc ?? (opts.window ?? findOrganizerWindow())?.document;
+
+  if (!doc) {
+    try {
+      const pw = new ztoolkit.ProgressWindow(addon.data.config.addonName, {
+        closeOnClick: true,
+        closeTime,
+      });
+      pw.createLine({ text, type, progress: 100 }).show();
+    } catch (e) {
+      ztoolkit.log("flexannotate toast fallback failed:", e);
+    }
+    return;
+  }
+
+  const t = getTheme(doc);
+  let container = doc.getElementById(
+    "flexannotate-toast-container",
+  ) as HTMLElement | null;
+  if (!container) {
+    container = el(
+      doc,
+      "div",
+      "position:fixed;bottom:20px;right:24px;z-index:99999;display:flex;" +
+        "flex-direction:column;gap:8px;pointer-events:none;max-width:420px;",
+    );
+    container.id = "flexannotate-toast-container";
+    const root =
+      (doc.getElementById("flexannotate-root") as HTMLElement | null) ??
+      doc.body ??
+      doc.documentElement;
+    if (root) root.appendChild(container);
+  }
+
+  const toastEl = el(
+    doc,
+    "div",
+    `pointer-events:auto;background:${t.panel};color:${t.text};border:1px solid ${t.border};` +
+      `border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,0.2);padding:8px 12px;` +
+      "font-size:12px;line-height:1.4;display:flex;align-items:center;gap:10px;" +
+      "transition:opacity 0.2s ease, transform 0.2s ease;opacity:0;transform:translateY(6px);cursor:default;",
+  );
+
+  const indicator = el(
+    doc,
+    "span",
+    `flex:none;width:8px;height:8px;border-radius:50%;background:${
+      type === "error" ? "#e03131" : type === "warning" ? "#f59f00" : "#2f9e44"
+    };`,
+  );
+  toastEl.appendChild(indicator);
+
+  const msg = el(
+    doc,
+    "span",
+    "flex:1;min-width:0;word-break:break-word;",
+    text,
+  );
+  toastEl.appendChild(msg);
+
+  let timer: any = null;
+  const dismiss = () => {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    toastEl.style.opacity = "0";
+    toastEl.style.transform = "translateY(6px)";
+    setTimeout(() => {
+      try {
+        toastEl.remove();
+        if (container && !container.hasChildNodes()) {
+          container.remove();
+        }
+      } catch {
+        // already removed
+      }
+    }, 200);
+  };
 
   if (hasAction && opts.onAction) {
     const onAction = opts.onAction;
-    const actionLabel = opts.actionLabel;
-    let handled = false;
-    const trigger = () => {
-      if (handled) return;
-      handled = true;
-      try {
-        pw.win.close();
-      } catch {
-        // window may already be closed
-      }
+    const btn = button(doc, t, opts.actionLabel ?? "Open", "", () => {
+      dismiss();
       try {
         onAction();
       } catch (e) {
         ztoolkit.log("flexannotate toast action failed:", e);
       }
-    };
+    });
+    btn.style.padding = "2px 8px";
+    btn.style.fontSize = "11px";
+    toastEl.appendChild(btn);
+  }
 
-    let retries = 20;
-    const checkLine = () => {
-      const line = (pw as any).lines?.[0];
-      const hbox = line?._hbox as HTMLElement | undefined;
-      if (hbox && hbox.ownerDocument) {
-        const doc = hbox.ownerDocument;
-        const win = doc.defaultView as
-          (Window & { sizeToContent?: () => void }) | null;
+  toastEl.addEventListener("click", () => dismiss());
 
-        // Nachrichtenzeile selbst ebenfalls klickbar machen
-        hbox.style.cursor = "pointer";
-        hbox.addEventListener("mouseup", (e) => e.stopPropagation());
-        hbox.addEventListener("click", (e) => {
-          e.stopPropagation();
-          trigger();
-        });
+  container.appendChild(toastEl);
+  setTimeout(() => {
+    toastEl.style.opacity = "1";
+    toastEl.style.transform = "translateY(0)";
+  }, 10);
 
-        if (actionLabel) {
-          const actionRow = doc.createElement("div");
-          actionRow.style.display = "flex";
-          actionRow.style.marginTop = "6px";
-          actionRow.style.marginLeft = "22px";
-
-          const btn = doc.createElement("button");
-          btn.textContent = actionLabel;
-          btn.setAttribute("type", "button");
-          btn.style.padding = "2px 8px";
-          btn.style.fontSize = "11px";
-          btn.style.lineHeight = "16px";
-          btn.style.cursor = "pointer";
-          btn.style.borderRadius = "3px";
-          btn.style.border = "1px solid var(--color-border, #ccc)";
-          btn.style.background = "var(--material-button, #f0f0f0)";
-          btn.style.color = "var(--fill-primary, inherit)";
-          btn.addEventListener("mouseup", (e) => e.stopPropagation());
-          btn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            trigger();
-          });
-          actionRow.appendChild(btn);
-
-          if (hbox.nextSibling) {
-            hbox.parentElement?.insertBefore(actionRow, hbox.nextSibling);
-          } else {
-            hbox.parentElement?.appendChild(actionRow);
-          }
-        }
-
-        if (win) {
-          try {
-            win.sizeToContent?.();
-          } catch {
-            // sizeToContent may not be available on all window types
-          }
-          try {
-            (Zotero as any).ProgressWindowSet?.tile(win);
-          } catch {
-            // tile may fail if not registered
-          }
-          try {
-            const margin = 24;
-            const availLeft = win.screen.availLeft ?? 0;
-            const availTop = win.screen.availTop ?? 0;
-            const maxRight = availLeft + win.screen.availWidth - margin;
-            const maxBottom = availTop + win.screen.availHeight - margin;
-            let targetX = win.screenX;
-            let targetY = win.screenY;
-            if (targetX + win.outerWidth > maxRight) {
-              targetX = maxRight - win.outerWidth;
-            }
-            if (targetY + win.outerHeight > maxBottom) {
-              targetY = maxBottom - win.outerHeight;
-            }
-            if (targetX !== win.screenX || targetY !== win.screenY) {
-              win.moveTo(
-                Math.max(availLeft + margin, targetX),
-                Math.max(availTop + margin, targetY),
-              );
-            }
-          } catch {
-            // best effort position clamping
-          }
-        }
-      } else if (retries-- > 0) {
-        setTimeout(checkLine, 50);
-      }
-    };
-    checkLine();
+  if (closeTime > 0) {
+    timer = setTimeout(dismiss, closeTime);
   }
 }

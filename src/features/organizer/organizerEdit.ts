@@ -110,7 +110,7 @@ export function renderEditForm(ctx: Ctx, box: HTMLElement, t: Palette, r: Row) {
       };
       const ok = await saveAnnotation(r.id, patch);
       if (!ok) {
-        toast(tr("saveFailed"), "error");
+        toast(tr("saveFailed"), { type: "error", doc: ctx.doc });
         return;
       }
       for (const row of s.allRows) {
@@ -121,8 +121,8 @@ export function renderEditForm(ctx: Ctx, box: HTMLElement, t: Palette, r: Row) {
         row.locator = patch.locator;
       }
       s.editing = null;
-      toast(tr("saved"));
       ctx.render();
+      toast(tr("saved"), { doc: ctx.doc });
     })();
   });
   saveBtn.id = "flexannotate-edit-save";

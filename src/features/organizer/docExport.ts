@@ -156,6 +156,7 @@ export const docExport = {
         actionLabel: tr("exportOpenDoc"),
         onAction: () => docExport.openDocument(pick.path),
         window: (win as Window) ?? undefined,
+        doc: (win as any)?.document ?? undefined,
       });
       try {
         (win as Window)?.focus?.();

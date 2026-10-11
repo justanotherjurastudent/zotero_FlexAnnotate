@@ -136,7 +136,7 @@ export function renderDetails(
         .filter(Boolean)
         .join("\n");
       new ztoolkit.Clipboard().addText(text, "text/unicode").copy();
-      toast(tr("copied"));
+      toast(tr("copied"), { doc: ctx.doc });
     }),
   );
   if (r.kind === "annotation" && !r.readOnly) {

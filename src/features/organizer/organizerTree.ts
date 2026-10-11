@@ -271,7 +271,7 @@ function renameRow(
     if (changed) {
       const err = titleError(s.roots, next, node.id);
       if (err) {
-        toast(err, "error");
+        toast(err, { type: "error", doc: ctx.doc });
         changed = false;
       }
     }

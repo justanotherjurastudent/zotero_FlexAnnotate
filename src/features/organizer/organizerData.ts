@@ -197,8 +197,17 @@ export function defaultScope(): { libraryID: number; scope: Scope } {
   let libraryID = Zotero.Libraries.userLibraryID;
   let collectionID: number | null = null;
   try {
-    libraryID = pane?.getSelectedLibraryID?.() ?? libraryID;
-    const col = pane?.getSelectedCollection?.();
+    const libIDs = pane?.getSelectedLibraryIDs?.();
+    if (Array.isArray(libIDs) && libIDs.length > 0) {
+      libraryID = libIDs[0];
+    } else if (typeof pane?.getSelectedLibraryID === "function") {
+      libraryID = pane.getSelectedLibraryID() ?? libraryID;
+    }
+    const cols = pane?.getSelectedCollections?.();
+    const col =
+      Array.isArray(cols) && cols.length > 0
+        ? cols[0]
+        : pane?.getSelectedCollection?.();
     if (col && col.libraryID === libraryID) collectionID = col.id;
   } catch (e) {
     ztoolkit.log("flexannotate default scope failed:", e);
