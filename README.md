@@ -42,9 +42,13 @@ FlexAnnotate füllt diese Lücken und bringt einen Organizer mit, der Annotation
 
 #### Zitierdialog aus Word und LibreOffice
 
-Im Annotationsbereich des Zitierdialogs (ab Zotero 9) ergänzt FlexAnnotate die Option „Nach Gliederung anordnen (FlexAnnotate)“. Sie zeigt drei Spalten: Überschriften mit Anzahl, Annotationen, Vorschau. Ein grüner Haken markiert bereits zitierte Annotationen.
+Im Annotationsbereich des Zitierdialogs (ab Zotero 9) ergänzt FlexAnnotate die Option „Nach Gliederung anordnen (FlexAnnotate)“. Sie zeigt die Gliederung mit Anzahl der Annotationen, die zugehörigen Annotationen und eine Detailvorschau. Ein grüner Haken markiert bereits zitierte Annotationen.
 
-- Die rechte Spalte hat mit und ohne Gliederungsansicht dieselbe, native Breite.
+- **Dauerhafte Aufgabenleiste (Begleitfenster):** Mit der Option „Als Aufgabenleiste geöffnet halten“ (im Dialog und in den Plugin-Einstellungen) bleibt das Fenster nach dem Einfügen geöffnet. Bei nachfolgenden Zitiervorgängen aus Word oder LibreOffice wird dasselbe Fenster wiederverwendet, statt ein neues zu öffnen.
+- **Responsives Layout:**
+  - **Schmal (neben Word gesnappt, $\le 750\text{ px}$):** zweizeilig angeordnet — oben zweispaltig (Gliederung links, Annotationsliste rechts), unten einspaltig in voller Breite (Vorschau und Aktionsschaltflächen). Die Gliederungseinrückung ist platzsparend komprimiert.
+  - **Breit (unter Word gesnappt oder breiter Bildschirm, $> 750\text{ px}$):** gewohnte dreispaltige Ansicht nebeneinander.
+- Die rechte Spalte hat mit und ohne Gliederungsansicht dieselbe native Breite.
 - Die Suchleiste oben im Dialog filtert die Gliederungsliste mit. Der Text wird ins Filterfeld des Plugins gespiegelt, nicht umgekehrt.
 - Bei genau einer markierten Annotation öffnet „Zitatstelle anzeigen“ den Reader an der Annotation und holt Zotero nach vorn. Der Dialog bleibt offen.
 
@@ -121,15 +125,16 @@ Schlüssel liegen unter `extensions.flexannotate.`.
 
 ![Einstellungsfenster „FlexAnnotate“](docs/img/preferences.png)
 
-| Option                                                                       | Wirkung                                                                  | Standard                                                                               |
-| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| Standardmäßig nur den Nachweis einfügen (`citationOnly`)                     | Annotationen werden nur als Zitation mit Seitenangabe eingefügt          | aus                                                                                    |
-| Leere Platzhalter-Anhänge behalten (`keepEmptyPlaceholders`)                 | Platzhalter bleibt, auch wenn keine Annotation mehr daran hängt          | aus                                                                                    |
-| Werke hinter den Annotationen mitanzeigen (`showWorksInAnnotationView`)      | Organizer: Annotationsansicht zeigt auch die Werke                       | aus                                                                                    |
-| Zitate ohne Dateianhang als Print-Annotationen übernehmen (`citaviImport`)   | Citavi-Import legt Print-Annotationen für Zitate an, die Zotero verwirft | an                                                                                     |
-| Notiz zum Zitat behalten (`citaviKeepNotes`)                                 | Aus: die Notiz, die Zoteros Übersetzer zum Zitat anlegt, wird entfernt   | aus                                                                                    |
-| Beiträge mit ihrem Hauptwerk verknüpfen (`citaviLinkContributions`)          | Citavi-Import legt „Verwandte“-Verknüpfungen an                          | an                                                                                     |
-| Fundstellen zitieren als (`citaviLocatorPage/Column/Paragraph/Margin/Other`) | CSL-Locator je Citavi-Seitentyp                                          | Seite: page, Spalte: column, Paragraph: paragraph, Randnummer: paragraph, Andere: page |
+| Option                                                                       | Wirkung                                                                     | Standard                                                                               |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Standardmäßig nur den Nachweis einfügen (`citationOnly`)                     | Annotationen werden nur als Zitation mit Seitenangabe eingefügt             | aus                                                                                    |
+| Zitierdialog als Aufgabenleiste geöffnet halten (`persistentCitationDialog`) | Der Zitierdialog bleibt nach dem Einfügen geöffnet und wird wiederverwendet | aus                                                                                    |
+| Leere Platzhalter-Anhänge behalten (`keepEmptyPlaceholders`)                 | Platzhalter bleibt, auch wenn keine Annotation mehr daran hängt             | aus                                                                                    |
+| Werke hinter den Annotationen mitanzeigen (`showWorksInAnnotationView`)      | Organizer: Annotationsansicht zeigt auch die Werke                          | aus                                                                                    |
+| Zitate ohne Dateianhang als Print-Annotationen übernehmen (`citaviImport`)   | Citavi-Import legt Print-Annotationen für Zitate an, die Zotero verwirft    | an                                                                                     |
+| Notiz zum Zitat behalten (`citaviKeepNotes`)                                 | Aus: die Notiz, die Zoteros Übersetzer zum Zitat anlegt, wird entfernt      | aus                                                                                    |
+| Beiträge mit ihrem Hauptwerk verknüpfen (`citaviLinkContributions`)          | Citavi-Import legt „Verwandte“-Verknüpfungen an                             | an                                                                                     |
+| Fundstellen zitieren als (`citaviLocatorPage/Column/Paragraph/Margin/Other`) | CSL-Locator je Citavi-Seitentyp                                             | Seite: page, Spalte: column, Paragraph: paragraph, Randnummer: paragraph, Andere: page |
 
 Intern, ohne Oberfläche: `dialogOutlineView` (Zustand der Gliederungsoption im Zitierdialog), `citedAnnotations` (zitierte Annotationen je Dokument).
 
@@ -210,6 +215,8 @@ Zotero stores annotations only under a file attachment, so printed books, commen
 - Outline export: the toolbar button with the arrow icon writes the outline as a `.docx` or `.odt` document with the standard heading styles ("Heading 1–9") and an automatic multilevel numbering ("1", "1.1" …) that updates in Word/LibreOffice when chapters are rearranged. If the target file is open or read-only, the write fails with a message instead of damaging the file.
 - Single-instance window: clicking the toolbar button or menu focuses an already open Organizer window instead of opening duplicates.
 - Citation dialog view (Zotero 9 and later): option "Nach Gliederung anordnen (FlexAnnotate)" in the annotations view of the dialog opened from Word, with a green check for already cited annotations. The right column keeps its native width, the dialog's search bar also filters the outline list, and "Zitatstelle anzeigen" opens the reader at the annotation.
+- Persistent task pane companion window: option "Als Aufgabenleiste geöffnet halten" (keep open as task pane) keeps the citation window open after inserting, reusing it on subsequent citations from Word or LibreOffice.
+- Responsive layout: narrow mode ($\le 750\text{px}$, snapped vertically alongside Word) arranges items into two rows (top: 2-column outline & list, bottom: full-width preview & actions); wide mode ($> 750\text{px}$) uses the standard 3-column side-by-side layout.
 
 ### Install
 

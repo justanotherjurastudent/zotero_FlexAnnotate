@@ -73,7 +73,7 @@ function renderTree(win: Window, v: View) {
       doc,
       "div",
       `display:flex;justify-content:space-between;gap:8px;cursor:pointer;` +
-        `padding:5px 10px 5px ${10 + depth * 14}px;` +
+        `padding:5px 8px 5px ${8 + depth * 10}px;` +
         `background:${on ? SELECTED : "transparent"};font-weight:${on ? 600 : 400};`,
     );
     d.dataset.nodeId = id;

@@ -62,6 +62,7 @@ const de = {
   saved: "Gespeichert.",
   saveFailed: "Nicht gespeichert (schreibgeschützt).",
   dialogOutline: "Nach Gliederung anordnen (FlexAnnotate)",
+  dialogPersistent: "Als Aufgabenleiste geöffnet halten",
   dialogEmpty:
     "FlexAnnotate: Noch keine Annotationen einer Gliederung zugeordnet.",
   dialogFilter: "Annotationen filtern …",
@@ -162,6 +163,7 @@ const en: Record<Key, string> = {
   saved: "Saved.",
   saveFailed: "Not saved (read-only).",
   dialogOutline: "Arrange by outline (FlexAnnotate)",
+  dialogPersistent: "Keep open as task pane",
   dialogEmpty: "FlexAnnotate: No annotations assigned to an outline yet.",
   dialogFilter: "Filter annotations …",
   dialogInsert: "Insert into the citation",

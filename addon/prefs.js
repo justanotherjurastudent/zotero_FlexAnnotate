@@ -1,5 +1,6 @@
 pref("showWorksInAnnotationView", false);
 pref("dialogOutlineView", false);
+pref("persistentCitationDialog", false);
 pref("citedAnnotations", "");
 
 // Nur-Nachweis-Zitieren: false = vollständige Annotation, true = nur Nachweis mit Locator

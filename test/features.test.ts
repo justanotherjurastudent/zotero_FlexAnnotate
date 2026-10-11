@@ -474,6 +474,7 @@ describe("FlexAnnotate features", function () {
       let w: Window | null;
       while ((w = findWindowByUrl(DIALOG_URL))) {
         const old = w;
+        (old as any).__flexannotateUserClose = true;
         old.close();
         await waitFor(() => findWindowByUrl(DIALOG_URL) !== old);
       }
@@ -848,6 +849,71 @@ describe("FlexAnnotate features", function () {
         !!doc.getElementById("flexannotate-show-place"),
         "dialog stays open",
       );
+    });
+
+    it("supports persistent companion window mode and window reuse", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const origPref = api().persistentDialog.readPref();
+      api().persistentDialog.writePref(true);
+      try {
+        const { w } = await openDialog();
+        win = w;
+        const doc = w.document;
+        const persistentToggle = (await waitFor(() =>
+          doc.getElementById("flexannotate-persistent-toggle"),
+        )) as HTMLInputElement;
+        assert.isDefined(persistentToggle, "persistent toggle rendered");
+        assert.isTrue(
+          persistentToggle.checked,
+          "toggle is checked when pref is on",
+        );
+
+        await (w as any).accept();
+        assert.isFalse(w.closed, "persistent window stays open on accept");
+
+        let reused = false;
+        w.addEventListener("flexannotate-reuse-dialog", () => {
+          reused = true;
+        });
+
+        await (Zotero.Integration as any).displayDialog(
+          DIALOG_URL,
+          "",
+          { isAddingAnnotations: true, promise: Promise.resolve() },
+          "citation",
+        );
+        assert.isTrue(
+          reused,
+          "flexannotate-reuse-dialog event received on reuse",
+        );
+        const normalized = api().persistentDialog.normalizeOptions(
+          "chrome,centerscreen,resizable=true,popup",
+        );
+        assert.include(
+          normalized,
+          "dialog=no",
+          "dialog=no added for Aero Snap",
+        );
+        assert.notInclude(normalized, "popup", "popup removed for Aero Snap");
+        assert.notInclude(normalized, "alwaysRaised", "alwaysRaised removed");
+
+        const progress = new (Zotero.Integration as any).Progress(4, false);
+        (Zotero as any).Integration.currentDoc = false;
+        progress.show();
+        assert.isUndefined(
+          progress.window,
+          "orphan progressBar.show was suppressed",
+        );
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        if (win) {
+          (win as any).__flexannotateUserClose = true;
+          win.close();
+        }
+      }
     });
   });
 });

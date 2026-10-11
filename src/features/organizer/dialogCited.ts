@@ -70,6 +70,8 @@ function recordCited(io: any) {
   writeCitedStore(record(readCitedStore(), currentSessionId(), entries));
 }
 
+import { readPersistentPref } from "./dialogPersistent";
+
 /** Wraps io.accept once per dialog so that the accepted citation is remembered. */
 export function hookAccept(win: Window): void {
   const io = (win as any).io;
@@ -81,7 +83,30 @@ export function hookAccept(win: Window): void {
       } catch (e) {
         ztoolkit.log("flexannotate record cited failed:", e);
       }
-      return original.apply(this, args);
+      const res = original.apply(this, args);
+      if (readPersistentPref()) {
+        win.setTimeout(() => {
+          try {
+            const doc = win.document;
+            const setHidden = (id: string, val: boolean) => {
+              const el = doc.getElementById(id) as HTMLElement | null;
+              if (el) el.hidden = val;
+            };
+            setHidden("library-layout", false);
+            setHidden("list-layout", true);
+            setHidden("bottom-area", false);
+            setHidden("bubble-input", false);
+            setHidden("progress", true);
+            (win as any).accepted = false;
+            win.dispatchEvent(
+              new (win as any).CustomEvent("flexannotate-reuse-dialog"),
+            );
+          } catch (e) {
+            ztoolkit.log("flexannotate persistent refresh failed:", e);
+          }
+        }, 100);
+      }
+      return res;
     };
     io.__flexannotateHooked = true;
   }

@@ -11,6 +11,14 @@ import {
 } from "./features/citeOnly/integrationPatch";
 import { docImport } from "./features/organizer/docImport";
 import { docExport } from "./features/organizer/docExport";
+import {
+  persistentDialogPatch,
+  readPersistentPref,
+  writePersistentPref,
+  getPersistentWindow,
+  setPersistentWindow,
+  normalizePersistentOptions,
+} from "./features/organizer/dialogPersistent";
 import * as openTarget from "./features/organizer/openTarget";
 import * as docOutlineCore from "./core/docOutline";
 import * as citedCore from "./core/cited";
@@ -69,6 +77,7 @@ const features: Feature[] = [
     start: () => citationDialog.start(),
     stop: () => citationDialog.stop(),
   },
+  persistentDialogPatch,
   citeOnlyPatch,
   readerMenuModule.readerMenu,
   citaviImport,
@@ -106,6 +115,14 @@ async function onStartup() {
     openTarget,
     cited: citedCore,
     CitationDialogPatch: { viewOf: outlineView.viewOf },
+    persistentDialog: {
+      feature: persistentDialogPatch,
+      readPref: readPersistentPref,
+      writePref: writePersistentPref,
+      getWindow: getPersistentWindow,
+      setWindow: setPersistentWindow,
+      normalizeOptions: normalizePersistentOptions,
+    },
     modeSelector,
     citeOnly: { patch: citeOnlyPatch, isPatched: citeOnlyIsPatched },
     reader: { readerMenu: readerMenuModule },

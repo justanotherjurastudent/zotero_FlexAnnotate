@@ -9,6 +9,11 @@ prefs-citation-only =
 prefs-citation-only-description =
     When inserting annotations, insert only the citation with its page locator — without
     the quoted text and comment.
+prefs-persistent-citation-dialog =
+    .label = Keep citation window open as a persistent task pane
+prefs-persistent-citation-dialog-description =
+    Keeps the citation dialog open after inserting so you can cite continuously as if
+    using a task pane without reopening the window.
 
 prefs-print-heading = Print annotations
 prefs-keep-placeholders =

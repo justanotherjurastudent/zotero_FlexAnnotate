@@ -40,6 +40,12 @@ import {
   readCitedStore,
 } from "./dialogCited";
 import {
+  readPersistentPref,
+  setPersistentWindow,
+  setupPersistentClose,
+  writePersistentPref,
+} from "./dialogPersistent";
+import {
   LIST_ID,
   NATIVE_ID,
   PREVIEW_ID,
@@ -66,10 +72,24 @@ const NATIVE_HIDE = [
 ];
 /** A min-width chain is what makes long one-line rows push the layout wider. */
 const LAYOUT_CSS =
+  "html#citation-dialog,body{min-width:320px !important;}" +
   "#library-trees{overflow:hidden !important;min-width:0 !important;}" +
   "#item-tree-container{flex:1 1 0 !important;min-width:0 !important;overflow:hidden !important;}" +
   "#flexannotate-list-pane,#flexannotate-list-pane *{min-width:0;}" +
-  "#flexannotate-preview{min-width:0;overflow-x:hidden;overflow-wrap:anywhere;}";
+  "#flexannotate-preview{min-width:0;overflow-x:hidden;overflow-wrap:anywhere;}" +
+  "#flexannotate-toggle-row{flex-wrap:wrap !important;}" +
+  "@media (max-width: 750px) {" +
+  "#library-trees{display:grid !important;grid-template-columns:minmax(120px, 1fr) minmax(150px, 1.2fr) !important;grid-template-rows:minmax(100px, 1.2fr) minmax(90px, 1fr) !important;height:100% !important;}" +
+  "#collections-tree-divider{display:none !important;}" +
+  "#collections-tree-container{grid-column:1 / 2 !important;grid-row:1 / 2 !important;min-width:0 !important;min-height:0 !important;border-right:1px solid var(--material-sidepane-border, #e0e0e0) !important;border-bottom:1px solid var(--material-sidepane-border, #e0e0e0) !important;}" +
+  "#item-tree-container{grid-column:2 / 3 !important;grid-row:1 / 2 !important;min-width:0 !important;min-height:0 !important;border-bottom:1px solid var(--material-sidepane-border, #e0e0e0) !important;}" +
+  "#sidebar{grid-column:1 / 3 !important;grid-row:2 / 3 !important;width:100% !important;min-width:0 !important;min-height:0 !important;}" +
+  "#sidebar #annotations-sidebar{height:100% !important;}" +
+  "#flexannotate-preview{max-height:100% !important;}" +
+  "#bottom-area-wrapper{flex-wrap:wrap !important;gap:4px !important;}" +
+  "#search-row{min-width:0 !important;}" +
+  "#bubble-input{min-width:80px !important;}" +
+  "}";
 
 interface Attached {
   observer: MutationObserver | null;
@@ -77,6 +97,7 @@ interface Attached {
   view: View | null;
   keyHandler: ((e: Event) => void) | null;
   searchHandler: ((e: Event) => void) | null;
+  reuseHandler: (() => void) | null;
 }
 
 const attached = new Map<Window, Attached>();
@@ -111,22 +132,49 @@ function inject(win: Window) {
     view: null,
     keyHandler: null,
     searchHandler: null,
+    reuseHandler: null,
   };
   attached.set(win, info);
 
   hookAccept(win);
+  setupPersistentClose(win);
 
   const row = doc.createElement("div");
   row.id = ROW_ID;
   row.style.cssText =
-    "display:flex;gap:6px;align-items:center;padding:6px 8px;flex:none;";
+    "display:flex;gap:12px;align-items:center;padding:6px 8px;flex:none;flex-wrap:wrap;";
+
+  const group1 = doc.createElement("div");
+  group1.style.cssText = "display:flex;gap:4px;align-items:center;";
   const cb = doc.createElement("input");
   cb.type = "checkbox";
   cb.id = "flexannotate-toggle";
   const label = doc.createElement("label");
   label.htmlFor = "flexannotate-toggle";
   label.textContent = tr("dialogOutline");
-  row.append(cb, label);
+  label.style.cursor = "pointer";
+  group1.append(cb, label);
+
+  const group2 = doc.createElement("div");
+  group2.style.cssText = "display:flex;gap:4px;align-items:center;";
+  const pcb = doc.createElement("input");
+  pcb.type = "checkbox";
+  pcb.id = "flexannotate-persistent-toggle";
+  pcb.checked = readPersistentPref();
+  const plabel = doc.createElement("label");
+  plabel.htmlFor = "flexannotate-persistent-toggle";
+  plabel.textContent = tr("dialogPersistent");
+  plabel.style.cursor = "pointer";
+  group2.append(pcb, plabel);
+
+  pcb.addEventListener("change", () => {
+    writePersistentPref(pcb.checked);
+    if (pcb.checked) {
+      setPersistentWindow(win);
+    }
+  });
+
+  row.append(group1, group2);
   sidebar.insertBefore(row, sidebar.firstChild);
 
   const root = doc.documentElement as Element;
@@ -149,6 +197,15 @@ function inject(win: Window) {
     else void disable(win, cb);
   });
 
+  const reuseHandler = () => {
+    pcb.checked = readPersistentPref();
+    if (info.enabled) {
+      void enable(win, cb);
+    }
+  };
+  info.reuseHandler = reuseHandler;
+  win.addEventListener("flexannotate-reuse-dialog", reuseHandler);
+
   if (readPref() && root.getAttribute("dialog-type") === "annotations") {
     cb.checked = true;
     void enable(win, cb);
@@ -159,6 +216,10 @@ function detach(win: Window) {
   const info = attached.get(win);
   try {
     info?.observer?.disconnect();
+    if (info?.reuseHandler) {
+      win.removeEventListener("flexannotate-reuse-dialog", info.reuseHandler);
+      info.reuseHandler = null;
+    }
     const doc = win.document;
     if (info?.enabled) restoreLayout(win);
     doc.getElementById(ROW_ID)?.remove();
@@ -184,13 +245,14 @@ async function enable(win: Window, cb: HTMLInputElement) {
       showWorks,
     );
     const citedWorks = await citedWorksOf(win);
+    const prevNode = info.view?.node ?? "all";
     const view: View = {
       roots,
       sections,
       counts: nodeCounts(roots, sections),
       rows: new Map(rows.map((r) => [r.id, r])),
       cited: activeIds(readCitedStore(), currentSessionId(), citedWorks),
-      node: "all",
+      node: prevNode,
       query: bubbleText(win.document),
       sel: emptySelection(),
     };

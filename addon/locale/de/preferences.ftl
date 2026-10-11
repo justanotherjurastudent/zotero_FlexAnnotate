@@ -9,6 +9,11 @@ prefs-citation-only =
 prefs-citation-only-description =
     Beim Einfügen von Annotationen wird nur die Zitation mit Seitenangabe gesetzt — ohne
     Zitattext und Kommentar.
+prefs-persistent-citation-dialog =
+    .label = Zitierfenster als persistente Aufgabenleiste geöffnet halten
+prefs-persistent-citation-dialog-description =
+    Hält das Zitierfenster nach dem Einfügen geöffnet, sodass Sie wie mit einer Aufgabenleiste
+    fortlaufend zitieren können, ohne das Fenster erneut aufzurufen.
 
 prefs-print-heading = Print-Annotationen
 prefs-keep-placeholders =
