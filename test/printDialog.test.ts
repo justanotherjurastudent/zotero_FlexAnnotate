@@ -27,7 +27,7 @@ function committed(
           if (
             event === kind &&
             type === "item" &&
-            Zotero.Items.get(ids).some(matches)
+            Zotero.Items.get(ids as number[]).some(matches)
           ) {
             Zotero.Notifier.unregisterObserver(observerID);
             resolve();

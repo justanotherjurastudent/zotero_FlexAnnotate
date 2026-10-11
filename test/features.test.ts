@@ -568,10 +568,10 @@ describe("FlexAnnotate features", function () {
             .length === 2,
       );
       // left column keeps showing categories, native trees are hidden
-      assert.equal(
-        w.getComputedStyle(doc.getElementById("zotero-items-tree")!).display,
-        "none",
-      );
+      if (!w || !doc) throw new Error("Kein Document im Testfenster");
+      const itemsTree = doc.getElementById("zotero-items-tree");
+      if (!itemsTree) throw new Error("#zotero-items-tree nicht gefunden");
+      assert.equal(w.getComputedStyle(itemsTree)!.display, "none");
 
       // preview shows the quote of the clicked annotation
       click(doc.querySelector(`[data-ann-id="${anns[0].id}"]`)!);

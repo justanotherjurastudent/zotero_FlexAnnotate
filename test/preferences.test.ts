@@ -12,9 +12,11 @@ describe("preferences pane", function () {
   it("is registered with its markup and fill script", async function () {
     const pane = findPane();
     assert.isDefined(pane, "pane registered");
-    assert.equal(pane?.rawLabel, config.addonName);
+    assert.equal((pane as any)?.rawLabel, config.addonName);
     assert.lengthOf(pane?.scripts ?? [], 1);
-    const script = await Zotero.File.getContentsFromURL(pane!.scripts[0]);
+    const scriptUrl = pane?.scripts?.[0];
+    assert.isDefined(scriptUrl, "script url defined");
+    const script = await Zotero.File.getContentsFromURL(scriptUrl!);
     assert.isNotEmpty(script);
   });
 

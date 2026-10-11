@@ -16,6 +16,8 @@ import { screenshot } from "./screenshot";
  * dataDir). All data is synthetic and removed again in `after`.
  */
 
+const api = () => (Zotero as any)[config.addonInstance].api;
+
 describe("FlexAnnotate", function () {
   describe("organizer data and filing", function () {
     this.timeout(60000);
@@ -45,8 +47,7 @@ describe("FlexAnnotate", function () {
     });
 
     it("lists the annotations as rows with page and work", async function () {
-      const { loadAnnotationRows } =
-        Zotero[config.addonInstance].api.organizerData;
+      const { loadAnnotationRows } = api().organizerData;
       const rows = await loadAnnotationRows(libraryID);
       const mine = rows.filter((r: any) => r.workID === work.id);
       assert.lengthOf(mine, 3);
@@ -59,32 +60,32 @@ describe("FlexAnnotate", function () {
     });
 
     it("files several annotations under one heading in one go", async function () {
-      const api = Zotero[config.addonInstance].api.organizerData;
+      const dataApi = api().organizerData;
       const ids = annotations.map((a) => a.id);
-      const changed = await api.fileMany(ids, "§Teststelle");
+      const changed = await dataApi.fileMany(ids, "§Teststelle");
       assert.sameMembers(changed, ids);
       for (const a of annotations) {
         assert.isTrue(a.getTags().some((t) => t.tag === "§Teststelle"));
       }
       // idempotent: second run changes nothing
-      assert.lengthOf(await api.fileMany(ids, "§Teststelle"), 0);
-      const removed = await api.unfileMany([ids[0]], "§Teststelle");
+      assert.lengthOf(await dataApi.fileMany(ids, "§Teststelle"), 0);
+      const removed = await dataApi.unfileMany([ids[0]], "§Teststelle");
       assert.deepEqual(removed, [ids[0]]);
     });
 
     it("also files whole works (Titel tab)", async function () {
-      const api = Zotero[config.addonInstance].api.organizerData;
-      const rows = await api.loadWorkRows(libraryID);
+      const dataApi = api().organizerData;
+      const rows = await dataApi.loadWorkRows(libraryID);
       const row = rows.find((r: any) => r.id === work.id);
       assert.ok(row);
       assert.equal(row.kind, "work");
-      await api.fileMany([work.id], "§Teststelle");
+      await dataApi.fileMany([work.id], "§Teststelle");
       assert.isTrue(work.getTags().some((t) => t.tag === "§Teststelle"));
     });
 
     it("round-trips the outline note", async function () {
-      const model = Zotero[config.addonInstance].api.outlineModel;
-      const core = Zotero[config.addonInstance].api.outline;
+      const model = api().outlineModel;
+      const core = api().outline;
       const roots = [core.makeNode("Einleitung"), core.makeNode("Hauptteil")];
       roots[1].children.push(core.makeNode("Begriff"));
       const noteID = await model.OutlineModel.save(libraryID, null, roots);
@@ -110,11 +111,13 @@ describe("FlexAnnotate", function () {
       for (let i = 0; i < 3; i++) {
         mine.push(await makeAnnotation(att, `Fensterzitat ${i}`, `${i}`, i));
       }
-      const core = Zotero[config.addonInstance].api.outline;
+      const core = api().outline;
       const roots = [core.makeNode("Einleitung"), core.makeNode("Hauptteil")];
-      noteID = await Zotero[
-        config.addonInstance
-      ].api.outlineModel.OutlineModel.save(libraryID, null, roots);
+      noteID = await api().outlineModel.OutlineModel.save(
+        libraryID,
+        null,
+        roots,
+      );
     });
 
     after(async function () {
@@ -130,7 +133,7 @@ describe("FlexAnnotate", function () {
     });
 
     it("opens with three columns and a search bar outside the scroll area", async function () {
-      await Zotero[config.addonInstance].api.OrganizerFactory.open();
+      await api().OrganizerFactory.open();
       win = await waitFor(findOrganizerWindow);
       const doc = win.document;
       const rows = await waitFor(() => {

@@ -399,7 +399,7 @@ export function enhanceLabelPopup(
   // Klick auf "Aktualisieren" (Delegation, damit sie nach Re-Renders wirkt)
   popup.addEventListener(
     "click",
-    (event: MouseEvent) => {
+    (event: Event) => {
       const target = event.target as Element | null;
       if (target?.closest?.(".row.buttons button")) {
         void onApply();
@@ -412,8 +412,9 @@ export function enhanceLabelPopup(
   // daher kein preventDefault. Sonst (Select, Checkbox) den Button auslösen.
   popup.addEventListener(
     "keydown",
-    (event: KeyboardEvent) => {
-      if (event.key !== "Enter") {
+    (event: Event) => {
+      const kbEvent = event as KeyboardEvent;
+      if (kbEvent.key !== "Enter") {
         return;
       }
       const pageInput = popup.querySelector<HTMLInputElement>(

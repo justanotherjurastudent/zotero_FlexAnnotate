@@ -185,13 +185,20 @@ describe("screenshots", function () {
 
   after(async function () {
     if (!enabled()) return;
-    Zotero.Prefs.set(outlinePrefKey(), outlinePref, true); // Gliederungsschalter zurück
+    Zotero.Prefs.set(outlinePrefKey(), outlinePref as any, true); // Gliederungsschalter zurück
     organizer?.close();
     dialog?.close();
     prefs?.close();
     await closeDialogs();
     (Zotero as any).Integration.currentSession = undefined;
-    (Zotero.Items.get(noteID) as Zotero.Item | false)?.eraseTx?.();
+    const noteItem = Zotero.Items.get(noteID);
+    if (noteItem) {
+      try {
+        await noteItem.eraseTx();
+      } catch {
+        // already gone
+      }
+    }
     await cleanup(); // Buch mit Print-Annotationen und Platzhalter
     if (failed.length) {
       Zotero.debug(`screenshots: ${failed.length} step(s) failed`);
@@ -241,7 +248,7 @@ describe("screenshots", function () {
       await done;
       return path;
     });
-    organizer?.close();
+    (organizer as Window | null)?.close();
     organizer = null;
     for (const f of files) await IOUtils.remove(f, { ignoreAbsent: true });
 
@@ -299,7 +306,7 @@ describe("screenshots", function () {
         (p: any) => p.pluginID === config.addonID,
       );
       if (!pane) throw new Error("plugin pane not registered");
-      Zotero.Utilities.Internal.openPreferences(pane.id);
+      Zotero.Utilities.Internal.openPreferences(pane.id!);
       prefs = await waitFor(() => {
         const en = Services.wm.getEnumerator("zotero:pref");
         return en.hasMoreElements() ? (en.getNext() as Window) : null;

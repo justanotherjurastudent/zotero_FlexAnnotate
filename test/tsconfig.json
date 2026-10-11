@@ -1,3 +1,10 @@
 {
-  "extends": "../tsconfig.json"
+  "extends": "zotero-types/entries/mainWindow/",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "types": ["zotero-types/entries/mainWindow", "mocha", "node"]
+  },
+  "include": ["../typings", "../src", "."]
 }

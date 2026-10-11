@@ -66,7 +66,7 @@ export const makeZip = (name: string, entries: Record<string, string>) => {
       `flexannotate-test-${Date.now()}-${files.length}`,
     ),
   );
-  dir.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, 0o755);
+  dir.create(Components.interfaces.nsIFile.DIRECTORY_TYPE ?? 1, 0o755);
   const path = PathUtils.join(dir.path, name);
   files.push(path, dir.path); // Datei vor Verzeichnis: Aufräumen in Reihenfolge
   const zw = (Components.classes as any)[
