@@ -8,9 +8,9 @@
 
 **Deutsch · [English](#english)**
 
-Annotationen in Zotero auf das nächste Level. FlexAnnotate überarbeitet den Umgang mit Annotationen von Grund auf: Locator, Seitenzahl und Kommentar lassen sich nachträglich ändern, ein Organizer ordnet alle Annotationen in einer Gliederung, der Zitierdialog aus Word arbeitet mit dieser Gliederung, und auch Bücher ohne Datei bekommen Annotationen. Läuft mit Zotero 7.0 bis 10, Version 2.0.0.
+FlexAnnotate bringt Annotationen in Zotero auf das nächste Level. FlexAnnotate überarbeitet den Umgang mit Annotationen von Grund auf: Locator, Seitenzahl und Kommentar lassen sich beim Anlegen und nachträglich ändern, ein Organizer ordnet alle Annotationen in einer Gliederung, der Zitierdialog aus Word arbeitet mit dieser Gliederung, und auch Bücher ohne Datei bekommen Annotationen. Läuft mit Zotero 7.0 bis 10.
 
-_Annotations in Zotero, taken to the next level: edit locators and comments afterwards, organise every annotation in an outline, cite from Word by that outline, and annotate books without a file. Works with Zotero 7.0 to 10, version 2.0.0._
+_Annotations in Zotero, taken to the next level: edit locators and comments afterwards, organise every annotation in an outline, cite from Word by that outline, and annotate books without a file. Works with Zotero 7.0 to 10_
 
 ![Hauptfenster: ein Buch ohne Datei, darunter die Print-Annotationen](docs/img/main-window.png)
 
@@ -53,7 +53,7 @@ Rechtsklick auf einen Titel, _Print-Annotation hinzufügen…_, Text, Kommentar 
 
 **Außerdem: Citavi-Import**
 
-Zitate ohne Dateianhang, die Zoteros Citavi-Import verwirft, bleiben erhalten und werden zu Print-Annotationen. Ein zweiter Import desselben Exports legt keine Doubletten an.
+Zitate ohne Dateianhang, die Zoteros Citavi-Import verwirft, bleiben erhalten und werden zu Print-Annotationen. Zudem kann man festlegen, wie die verschiedenen Locator‑Typen aus Citavi auf die Locator‑Typen von Soteros abgebildet werden, sodass beispielsweise Randnummern aus Citavi in Zotero zum Opus‑Locator werden.
 
 ### Installation
 
