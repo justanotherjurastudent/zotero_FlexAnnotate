@@ -84,6 +84,7 @@ npm run build    # Ergebnis: .scaffold/build/flex-annotate.xpi
 2. **Organizer öffnen:** der grüne Button links neben dem Sync-Button oben rechts, oder _Werkzeuge → FlexAnnotate: Organizer_.
 3. **Gliederung füllen:** im Organizer mit dem Plus-Symbol Überschriften anlegen, dann Annotationen darauf ziehen.
 4. **Aus Word zitieren:** in Word auf _Anmerkung hinzufügen_ klicken. Im Zitierdialog „Einfügen als“ wählen, wenn nur der Nachweis erscheinen soll.
+5. **Nach Gliederung zitieren:** Im Annotationsbereich des Zitierdialogs den Schalter „Nach Gliederung anordnen“ umlegen. Dann zeigt der Dialog die Überschriften aus dem Organizer mit ihren Annotationen statt der normalen Liste. Schalter wieder aus, und die gewohnte Ansicht ist zurück. (Ab Zotero 9.)
 
 Eine Gliederung aus einer Word-Datei zu holen ist ebenfalls kurz:
 
@@ -179,6 +180,7 @@ npm run build    # result: .scaffold/build/flex-annotate.xpi
 2. **Open the Organizer:** the green button left of the Sync button at the top right, or _Tools → FlexAnnotate: Organizer_.
 3. **Build an outline:** add headings with the plus icon, then drag annotations onto them.
 4. **Cite from Word:** click _Add Note_ in Word. In the citation dialog pick "Insert as" if you want only the citation.
+5. **Cite by outline:** in the annotations view of the citation dialog, switch on "Nach Gliederung anordnen" (arrange by outline). The dialog then shows the headings from the Organizer with their annotations instead of the normal list. Switch it off and the usual view is back. (Zotero 9 and later.)
 
 Getting an outline out of a Word file is short too. Click the document icon in the Organizer, choose the file, check the preview and press _Import_. It only appends and deletes nothing.
 
