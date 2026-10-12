@@ -208,7 +208,7 @@ describe("FlexAnnotate", function () {
       workRow.dispatchEvent(new win!.MouseEvent("click", { bubbles: true }));
       const pick = (await waitFor(() =>
         Array.from(doc.querySelectorAll("input")).find((i) =>
-          (i as HTMLInputElement).placeholder.includes("Zuweisen"),
+          /Zuweisen|Assign to/.test((i as HTMLInputElement).placeholder),
         ),
       )) as HTMLInputElement;
       pick.value = "Haupt";
