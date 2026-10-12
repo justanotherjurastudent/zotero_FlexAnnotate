@@ -25,8 +25,10 @@ export * from "../../core/outline";
  * (Bibliotheksbaum: Notiz ohne Extra-Tag). Basis ist der collection key,
  * nicht die id — der key überlebt Sync und Bibliotheks-Wechsel stabil.
  */
+const COLLECTION_TAG_PREFIX = "#flexannotate-outline-";
+
 function outlineCollectionTag(collectionKey: string): string {
-  return `#flexannotate-outline-${collectionKey}`;
+  return `${COLLECTION_TAG_PREFIX}${collectionKey}`;
 }
 
 /** Alle Zusatz-Tags der Notiz, die eine Sammlung zuordnen (fremde bleiben draußen). */
@@ -34,8 +36,29 @@ function outlineCollectionTags(note: Zotero.Item): string[] {
   return note
     .getTags()
     .map((t) => t.tag)
-    .filter((t) => t.startsWith("#flexannotate-outline-"));
+    .filter((t) => t.startsWith(COLLECTION_TAG_PREFIX));
 }
+
+/**
+ * Arbeit (Werk) eines Items: Annotation → Eltern des Anhangs, Notiz/Anhang →
+ * Elternitem, sonst das Item selbst. Gleiche Zuordnung wie `Row.workID`.
+ */
+function workOf(item: Zotero.Item): number {
+  if (isAnnotation(item)) {
+    const att = Zotero.Items.get(item.parentItemID as number) as
+      Zotero.Item | false;
+    return (att && (att.parentItemID || att.id)) || item.id;
+  }
+  return item.parentItemID || item.id;
+}
+
+/**
+ * Wirkungsbereich einer Überschrift: Werk-IDs der Hauptsammlung des Baums
+ * (null = Bibliotheksbaum, keine Einschränkung). Die `§`-Tags sind
+ * bibliotheksweit; ohne Eingrenzung würde Umbenennen oder Löschen in einem
+ * Baum die gleichnamige Überschrift in einem anderen Baum mitändern.
+ */
+export type TagScope = Set<number> | null;
 
 /** A quote/note/source filed under a heading, flattened for display + export. */
 export interface FiledItem {
@@ -67,34 +90,54 @@ function isAnnotation(item: Zotero.Item): boolean {
 }
 
 export class OutlineModel {
+  /** Alle Outline-Notizen der Bibliothek (Tag-Suche statt alle Items laden). */
+  private static async outlineNotes(libraryID: number): Promise<Zotero.Item[]> {
+    const search = new Zotero.Search();
+    (search as any).libraryID = libraryID;
+    search.addCondition("tag", "is", OUTLINE_TAG);
+    const ids = (await search.search()) as number[];
+    return ((await Zotero.Items.getAsync(ids)) as Zotero.Item[]).filter(
+      (i) => typeof i.isNote === "function" && i.isNote(),
+    );
+  }
+
   /** Locate the outline-storage note for a library (newest wins), or null. */
   private static async findNote(
     libraryID: number,
     collectionKey: string | null = null,
   ): Promise<Zotero.Item | null> {
-    const ids = (await (Zotero.Items as any).getAll(
-      libraryID,
-      false,
-      false,
-      true,
-    )) as number[] | undefined;
-    const items = (await Zotero.Items.getAsync(ids || [])) as Zotero.Item[];
-    const notes = items.filter(
-      (i) =>
-        typeof i.isNote === "function" &&
-        i.isNote() &&
-        i.getTags().some((t) => t.tag === OUTLINE_TAG) &&
-        (collectionKey === null
-          ? // Bibliotheksbaum: die Notiz trägt kein Zuordnungs-Tag
-            !outlineCollectionTags(i).length
-          : i
-              .getTags()
-              .some((t) => t.tag === outlineCollectionTag(collectionKey))),
+    const notes = (await this.outlineNotes(libraryID)).filter((i) =>
+      collectionKey === null
+        ? // Bibliotheksbaum: die Notiz trägt kein Zuordnungs-Tag
+          !outlineCollectionTags(i).length
+        : i
+            .getTags()
+            .some((t) => t.tag === outlineCollectionTag(collectionKey)),
     );
     return pickNewest(notes);
   }
 
-  /** Load the outline tree for a library (empty tree if none exists yet). */
+  /** Newest outline tree of every collection (key → roots), in one pass. */
+  static async loadCollectionTrees(
+    libraryID: number,
+  ): Promise<Map<string, OutlineNode[]>> {
+    const items = await this.outlineNotes(libraryID);
+    const byKey = new Map<string, Zotero.Item[]>();
+    for (const i of items) {
+      const tags = i.getTags().map((t) => t.tag);
+      for (const t of tags.filter((x) => x.startsWith(COLLECTION_TAG_PREFIX))) {
+        const key = t.slice(COLLECTION_TAG_PREFIX.length);
+        byKey.set(key, [...(byKey.get(key) ?? []), i]);
+      }
+    }
+    const out = new Map<string, OutlineNode[]>();
+    for (const [key, notes] of byKey) {
+      const note = pickNewest(notes);
+      if (note) out.set(key, parseOutline(note.getNote()));
+    }
+    return out;
+  }
+
   /** Load the outline tree for a library (empty tree if none exists yet).
    *
    * `collectionKey` wählt den Baum: `null` = Bibliotheksbaum (Notiz ohne
@@ -149,7 +192,13 @@ export class OutlineModel {
       const search = new Zotero.Search();
       (search as any).libraryID = libraryID;
       search.addCondition("tag", "is", tag);
-      return (await search.search()) as number[];
+      const ids = (await search.search()) as number[];
+      // Zotero 7 lässt Annotationen in Suchergebnissen aus: aus dem Index ergänzen
+      await AnnotationIndex.ensureBuilt(libraryID);
+      for (const rec of AnnotationIndex.filter({ tags: [tag] }))
+        if (rec.libraryID === libraryID && !ids.includes(rec.id))
+          ids.push(rec.id);
+      return ids;
     } catch (e) {
       ztoolkit.log("outlineModel itemsWithTag search failed:", e);
       return [];
@@ -181,10 +230,13 @@ export class OutlineModel {
     libraryID: number,
     oldTag: string,
     newTag: string,
+    scope: TagScope = null,
   ): Promise<void> {
     if (oldTag === newTag) return;
     const ids = await this.itemsWithTag(libraryID, oldTag);
-    const items = (await Zotero.Items.getAsync(ids)) as Zotero.Item[];
+    const items = ((await Zotero.Items.getAsync(ids)) as Zotero.Item[]).filter(
+      (i) => !scope || scope.has(workOf(i)),
+    );
     for (const item of items) {
       try {
         item.removeTag(oldTag);
@@ -197,9 +249,15 @@ export class OutlineModel {
   }
 
   /** Strip a heading's tag from every item (used when deleting a heading). */
-  static async purgeTag(libraryID: number, tag: string): Promise<void> {
+  static async purgeTag(
+    libraryID: number,
+    tag: string,
+    scope: TagScope = null,
+  ): Promise<void> {
     const ids = await this.itemsWithTag(libraryID, tag);
-    const items = (await Zotero.Items.getAsync(ids)) as Zotero.Item[];
+    const items = ((await Zotero.Items.getAsync(ids)) as Zotero.Item[]).filter(
+      (i) => !scope || scope.has(workOf(i)),
+    );
     for (const item of items) {
       try {
         item.removeTag(tag);
@@ -273,7 +331,11 @@ export class OutlineModel {
   }
 
   /** Everything filed under a heading: quotes, notes and whole papers. */
-  static async gather(libraryID: number, tag: string): Promise<FiledItem[]> {
+  static async gather(
+    libraryID: number,
+    tag: string,
+    scope: TagScope = null,
+  ): Promise<FiledItem[]> {
     const out: FiledItem[] = [];
     const seen = new Set<number>();
 
@@ -281,6 +343,7 @@ export class OutlineModel {
     await AnnotationIndex.ensureBuilt(libraryID);
     for (const rec of AnnotationIndex.filter({ tags: [tag] })) {
       if (rec.libraryID !== libraryID) continue;
+      if (scope && !scope.has(rec.parentItemID)) continue;
       if (seen.has(rec.id)) continue;
       seen.add(rec.id);
       out.push(this.annotationToFiled(rec));
@@ -293,6 +356,7 @@ export class OutlineModel {
     for (const item of items) {
       if (!item || seen.has(item.id)) continue;
       if (isAnnotation(item)) continue;
+      if (scope && !scope.has(workOf(item))) continue;
       seen.add(item.id);
       if (item.isNote?.()) out.push(this.noteToFiled(item));
       else if (item.isRegularItem?.()) out.push(this.sourceToFiled(item));
@@ -305,13 +369,17 @@ export class OutlineModel {
    * library. One index pass + one tag search, so the tree can show live badges
    * without gathering each heading separately.
    */
-  static async buildCountMap(libraryID: number): Promise<Map<string, number>> {
+  static async buildCountMap(
+    libraryID: number,
+    scope: TagScope = null,
+  ): Promise<Map<string, number>> {
     const counts = new Map<string, number>();
     const bump = (tag: string) => counts.set(tag, (counts.get(tag) || 0) + 1);
 
     await AnnotationIndex.ensureBuilt(libraryID);
     for (const rec of AnnotationIndex.all()) {
       if (rec.libraryID !== libraryID) continue;
+      if (scope && !scope.has(rec.parentItemID)) continue;
       for (const t of rec.tags) if (t.startsWith(HEADING_PREFIX)) bump(t);
     }
 
@@ -324,6 +392,7 @@ export class OutlineModel {
       const items = (await Zotero.Items.getAsync(ids)) as Zotero.Item[];
       for (const item of items) {
         if (!item || isAnnotation(item)) continue;
+        if (scope && !scope.has(workOf(item))) continue;
         for (const t of item.getTags())
           if (t.tag.startsWith(HEADING_PREFIX)) bump(t.tag);
       }

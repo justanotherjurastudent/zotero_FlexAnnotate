@@ -12,7 +12,13 @@
  * library-touching gather + note materialisation live at the bottom.
  */
 
-import { flatten, headingTag, OutlineModel, OutlineNode } from "./outlineModel";
+import {
+  flatten,
+  headingTag,
+  OutlineModel,
+  OutlineNode,
+  TagScope,
+} from "./outlineModel";
 import type { FiledItem } from "./outlineModel";
 
 /** id → the items filed under that heading, in the order they should render. */
@@ -134,12 +140,13 @@ export function outlineToHtml(
 export async function gatherAll(
   libraryID: number,
   roots: OutlineNode[],
+  scope: TagScope = null,
 ): Promise<GatherMap> {
   const map: GatherMap = new Map();
   for (const { node } of flatten(roots)) {
     map.set(
       node.id,
-      await OutlineModel.gather(libraryID, headingTag(node.title)),
+      await OutlineModel.gather(libraryID, headingTag(node.title), scope),
     );
   }
   return map;

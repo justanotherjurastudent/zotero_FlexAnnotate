@@ -324,6 +324,20 @@ export function subtreeTags(node: OutlineNode): string[] {
 }
 
 /** The heading tags among a list of tags (anything starting with the prefix). */
+/**
+ * `§`-Tags ohne passende Überschrift im Baum (z. B. nach einer Umbenennung auf
+ * einem Rechner ohne Plugin). Sortiert, ohne Doppelte.
+ */
+export function orphanHeadingTags(
+  tags: Iterable<string>,
+  roots: OutlineNode[],
+): string[] {
+  const known = tagIndex(roots);
+  return [...new Set(tags)]
+    .filter((t) => t.startsWith(HEADING_PREFIX) && !known.has(t))
+    .sort();
+}
+
 export function headingTagsOf(tags: string[]): string[] {
   return tags.filter((t) => t.startsWith(HEADING_PREFIX));
 }

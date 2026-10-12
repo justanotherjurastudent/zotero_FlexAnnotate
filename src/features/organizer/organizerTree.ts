@@ -21,6 +21,7 @@ import {
   unassignedItems,
 } from "../../core/outline";
 import { OutlineModel } from "./outlineModel";
+import { treeWorkIDs } from "./organizerData";
 import { exportNote } from "./organizerExport";
 import { assign } from "./organizerFiling";
 import { button, DND_TYPE, el, iconButton, input, toast } from "./organizerDom";
@@ -117,6 +118,20 @@ export function renderTree(ctx: Ctx, c: HTMLElement, t: Palette) {
     ),
     el(doc, "span", `font-size:11px;color:${t.sub};`, tr("exportHint")),
   );
+  if (s.orphans.length) {
+    const b = button(
+      doc,
+      t,
+      tr("orphanButton").replace("{n}", String(s.orphans.length)),
+      tr("orphanTitle"),
+      () => {
+        s.orphanOpen = true;
+        rerender();
+      },
+    );
+    b.id = "flexannotate-orphans-open";
+    foot.prepend(b);
+  }
   c.appendChild(foot);
 }
 
@@ -279,7 +294,12 @@ function renameRow(
     if (changed) {
       const old = headingTag(node.title);
       node.title = next;
-      await OutlineModel.renameTag(s.libraryID, old, headingTag(next));
+      await OutlineModel.renameTag(
+        s.libraryID,
+        old,
+        headingTag(next),
+        treeWorkIDs(s.libraryID, s.collectionKey),
+      );
       await persist(s);
       await reload(ctx);
     } else if (mode === "blur") {
@@ -316,7 +336,8 @@ export async function deleteNode(ctx: Ctx) {
       .replace("{title}", loc.node.title),
   );
   if (!ok) return;
-  for (const tag of tags) await OutlineModel.purgeTag(s.libraryID, tag);
+  const scope = treeWorkIDs(s.libraryID, s.collectionKey);
+  for (const tag of tags) await OutlineModel.purgeTag(s.libraryID, tag, scope);
   removeNode(s.roots, s.node);
   s.node = "all";
   await persist(s);

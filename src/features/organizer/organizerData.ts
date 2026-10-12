@@ -8,7 +8,11 @@
 
 import { AnnotationIndex } from "./annotationIndex";
 import { citationFor } from "./annotationExport";
-import { collectionOptions, scopeCollectionIDs } from "../../core/collections";
+import {
+  collectionOptions,
+  scopeCollectionIDs,
+  topmostCollection,
+} from "../../core/collections";
 import type { ColNode } from "../../core/collections";
 import {
   FALLBACK_LOCATORS,
@@ -229,6 +233,38 @@ export function collectionKeyOf(collectionID: number | null): string | null {
   if (collectionID === null) return null;
   const col = Zotero.Collections.get(collectionID) as Zotero.Collection | false;
   return col ? col.key : null;
+}
+
+/**
+ * Werk-IDs, auf die sich die Überschriften eines Baums erstrecken: die
+ * Hauptsammlung samt Untersammlungen. null = Bibliotheksbaum (alles).
+ */
+export function treeWorkIDs(
+  libraryID: number,
+  collectionKey: string | null,
+): Set<number> | null {
+  if (!collectionKey) return null;
+  const col = Zotero.Collections.getByLibraryAndKey(
+    libraryID,
+    collectionKey,
+  ) as Zotero.Collection | false;
+  return col
+    ? loadScopeWorkIDs(libraryID, { collectionID: col.id, includeSub: true })
+    : new Set();
+}
+
+/** Keys der Hauptsammlungen, in denen ein Werk (auch über Untersammlungen) liegt. */
+export function workTreeKeys(libraryID: number, workID: number): Set<string> {
+  const work = Zotero.Items.get(workID) as Zotero.Item | false;
+  const out = new Set<string>();
+  if (!work) return out;
+  const cols = listCollections(libraryID);
+  for (const id of work.getCollections() as number[]) {
+    const top = topmostCollection(cols, id);
+    const key = top ? collectionKeyOf(top.id) : null;
+    if (key) out.add(key);
+  }
+  return out;
 }
 
 export function collectionChoices(libraryID: number) {

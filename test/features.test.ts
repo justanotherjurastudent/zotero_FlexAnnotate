@@ -169,9 +169,18 @@ describe("FlexAnnotate features", function () {
       work1.addToCollection(sub.id);
       await work1.saveTx();
 
-      await api().OrganizerFactory.open();
-      win = await waitFor(findOrganizerWindow);
-      doc = win.document;
+      // Der Start mit einer Sammlung fragt einmal nach dem Bibliotheksbaum.
+      const factory = api().OrganizerFactory;
+      const originalConfirm = factory.confirm;
+      factory.confirm = () => true;
+      try {
+        await factory.open();
+        win = await waitFor(findOrganizerWindow);
+        doc = win.document;
+        await waitFor(() => factory.lastState?.collectionKey);
+      } finally {
+        factory.confirm = originalConfirm;
+      }
       // Zotero selects a new collection in its main window, so the organizer
       // starts with that collection (the default scope) and its sub: 2 rows.
       await waitFor(() => rowCount() === 2);
@@ -345,6 +354,144 @@ describe("FlexAnnotate features", function () {
       await waitFor(() => rowCount() === 2);
       await set(0);
       await waitFor(() => rowCount() === 3);
+    });
+
+    it("keeps scope and tree in step when opened for another collection", async function () {
+      const [sub, root] = cols;
+      const factory = api().OrganizerFactory;
+      const original = factory.confirm;
+      factory.confirm = () => true;
+      try {
+        await factory.open({ collectionID: sub.id });
+        await waitFor(
+          () =>
+            doc.getElementById("flexannotate-scope")?.dataset.value ===
+            String(sub.id),
+        );
+        await waitFor(() => rowCount() === 2);
+        // Untersammlung → Baum der Hauptsammlung
+        assert.equal(factory.lastState!.collectionKey, root.key);
+        await factory.open({ collectionID: null });
+        await waitFor(() => rowCount() === 3);
+        assert.isNull(factory.lastState!.collectionKey);
+      } finally {
+        factory.confirm = original;
+      }
+    });
+
+    it("renames a heading tag only within the tree's works", async function () {
+      const model = api().outlineModel.OutlineModel;
+      const tagsOf = (id: number) =>
+        (Zotero.Items.get(id) as Zotero.Item).getTags().map((t) => t.tag);
+      for (const a of [anns[0], anns[2]]) {
+        a.addTag("§Zzz");
+        await a.saveTx();
+      }
+      // scope = works of one tree (work1 only): work2's tag must stay
+      await model.renameTag(libraryID(), "§Zzz", "§Yyy", new Set([work1.id]));
+      assert.include(tagsOf(anns[0].id), "§Yyy");
+      assert.include(tagsOf(anns[2].id), "§Zzz");
+      assert.notInclude(tagsOf(anns[2].id), "§Yyy");
+      await model.purgeTag(libraryID(), "§Zzz", new Set([work1.id]));
+      assert.include(tagsOf(anns[2].id), "§Zzz", "purge stays in scope");
+      await model.purgeTag(libraryID(), "§Zzz");
+      await model.purgeTag(libraryID(), "§Yyy");
+    });
+
+    it("assigns an orphaned heading tag to a heading", async function () {
+      const tagsOf = () =>
+        (Zotero.Items.get(anns[2].id) as Zotero.Item)
+          .getTags()
+          .map((x) => x.tag);
+      const st = () => api().OrganizerFactory.lastState;
+      const tabEl = (re: RegExp) =>
+        Array.from(doc.querySelectorAll("div")).find(
+          (d) => d.children.length === 0 && re.test(d.textContent || ""),
+        ) as HTMLElement;
+      anns[2].addTag("§Verwaist");
+      await anns[2].saveTx();
+      // a tab switch reloads the rows and recounts the orphans
+      click(tabEl(/^(Titel|Titles)$/));
+      await waitFor(() => st().tab === "titel");
+      click(tabEl(/^(Wissen|Knowledge)$/));
+      await waitFor(() => st().orphans.some((o: any) => o.tag === "§Verwaist"));
+      click(
+        (await waitFor(() =>
+          doc.getElementById("flexannotate-orphans-open"),
+        )) as HTMLElement,
+      );
+      const row = (await waitFor(() =>
+        doc.querySelector('#flexannotate-orphans [data-orphan="§Verwaist"]'),
+      )) as HTMLElement;
+      click(row.querySelector("button")!); // opens the heading list
+      click(row.querySelector("[data-menu] [data-value]")!); // first heading
+      click(row.querySelector('[data-action="assign"]')!);
+      await waitFor(() => tagsOf().includes("§Alpha"));
+      await waitFor(() => !st().orphans.length);
+      assert.notInclude(tagsOf(), "§Verwaist");
+      await waitFor(() => !doc.getElementById("flexannotate-orphans"));
+      anns[2].removeTag("§Alpha");
+      await anns[2].saveTx();
+    });
+
+    it("shows which other tree a shared heading also belongs to", async function () {
+      const factory = api().OrganizerFactory;
+      const model = api().outlineModel.OutlineModel;
+      const root = cols[1];
+      const other = new Zotero.Collection({
+        name: "ScopeOther",
+        libraryID: libraryID(),
+      } as any);
+      await other.saveTx();
+      cols.push(other);
+      work1.addToCollection(other.id); // work1 now lives in two main collections
+      await work1.saveTx();
+      const tree = () => [api().outline.makeNode("Dup")];
+      await model.save(libraryID(), null, tree(), root.key);
+      await model.save(libraryID(), null, tree(), other.key);
+      anns[0].addTag("§Dup");
+      await anns[0].saveTx();
+      const original = factory.confirm;
+      factory.confirm = () => true;
+      try {
+        await factory.open({ collectionID: root.id });
+        const step = async (what: string, f: () => unknown) => {
+          try {
+            return await waitFor(f);
+          } catch (e) {
+            const st = factory.lastState;
+            throw new Error(
+              `${what}: key=${st?.collectionKey} other=${[...(st?.otherTrees?.keys() ?? [])]} rows=${doc.querySelectorAll("[data-row-id]").length} scope=${JSON.stringify(st?.scope)} node=${st?.node} tab=${st?.tab} all=${st?.allRows.length} srows=${st?.rows.length} roots=${st?.roots.length}`,
+              { cause: e },
+            );
+          }
+        };
+        await step("key", () => factory.lastState?.collectionKey === root.key);
+        await step("other", () =>
+          factory.lastState?.otherTrees?.has(other.key),
+        );
+        // like assign() does: the cached row carries the tag
+        factory
+          .lastState!.allRows.find((r: any) => r.id === anns[0].id)!
+          .tags.push("§Dup");
+        if (!factory.lastState!.scope.includeSub)
+          click(doc.getElementById("flexannotate-scope-sub")!);
+        const row = (await step("row", () =>
+          doc.querySelector(`[data-row-id="${anns[0].id}"]`),
+        )) as HTMLElement;
+        click(row);
+        await step("hint", () =>
+          /(auch in Baum|also in tree).*ScopeOther/.test(
+            doc.body.textContent || "",
+          ),
+        );
+      } finally {
+        await factory.open({ collectionID: null }); // back to the whole library
+        await waitFor(() => factory.lastState?.scope.collectionID === null);
+        factory.confirm = original;
+        anns[0].removeTag("§Dup");
+        await anns[0].saveTx();
+      }
     });
 
     it("edits quote, comment, place and place type", async function () {

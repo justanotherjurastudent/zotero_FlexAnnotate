@@ -6,13 +6,16 @@
 import {
   itemsUnder,
   locate,
+  orphanHeadingTags,
   OutlineNode,
+  tagIndex,
   unassignedItems,
 } from "../../core/outline";
 import { emptySelection, SelectionState } from "../../core/selection";
 import { formatLocator } from "../../core/locator";
 import { OutlineModel } from "./outlineModel";
 import {
+  collectionKeyOf,
   listCollections,
   loadAnnotationRows,
   loadScopeWorkIDs,
@@ -21,6 +24,7 @@ import {
   readShowWorks,
   Row,
   Scope,
+  treeWorkIDs,
 } from "./organizerData";
 import { topmostCollection } from "../../core/collections";
 import { tr } from "./strings";
@@ -64,6 +68,14 @@ export interface State {
   lastTreeClick: { id: string; t: number } | null;
   /** Re-focus the search box after a re-render. */
   focusSearch: boolean;
+  /** `§`-Tags im Bereich des Baums ohne passende Überschrift (mit Anzahl). */
+  orphans: { tag: string; count: number }[];
+  orphanOpen: boolean;
+  /**
+   * Überschriften-Tags der übrigen Sammlungsbäume (key → Name, Tags); null =
+   * noch nicht geladen. Nur für den "auch in Baum"-Hinweis.
+   */
+  otherTrees: Map<string, { name: string; tags: Set<string> }> | null;
 }
 
 /** What a panel gets: the window, its state, and the two actions it needs. */
@@ -88,63 +100,68 @@ export function applyScope(s: State) {
 }
 
 /**
- * Wechselt den Kategorienbaum auf den der gewählten Sammlung (Untersammlung →
- * Baum der Hauptsammlung, via topmostCollection). Der Bibliotheksbaum bleibt
- * für "Gesamte Bibliothek" Bestand. Vor dem Tausch laufen offene Speicherungen
- * ab, damit sie im alten Baum landen.
+ * Wechselt Scope und Kategorienbaum auf die gewählte Sammlung (Untersammlung →
+ * Baum der Hauptsammlung, via topmostCollection). null = Bibliotheksbaum.
+ * Läuft in der saveChain: offene Speicherungen landen noch im alten Baum, und
+ * zwei schnelle Wechsel legen keine doppelte Notiz an (der letzte gewinnt).
  *
- * `opts.keepRows` (nur Fensterstart): die Zeilen sind schon geladen.
  * `opts.confirm` wird beim ersten Öffnen einer Sammlung ohne eigenen Baum
- * gefragt: Bibliotheksbaum als Anfang übernehmen?
+ * gefragt: Bibliotheksbaum als Anfang übernehmen? Ohne `confirm` startet der
+ * Baum leer.
  */
-// lean-ctx: doc update — caller sets s.scope before calling; rows recomputed here
-export async function loadScope(
+export function loadScope(
   ctx: Ctx,
   collectionID: number | null,
   opts: { confirm?: (title: string, text: string) => boolean } = {},
 ): Promise<void> {
   const { s } = ctx;
-  await s.saveChain;
-  const top =
-    collectionID === null
-      ? null
-      : topmostCollection(listCollections(s.libraryID), collectionID);
-  // Zotero.Collections.get liefert false/null, wenn die id nicht mehr existiert
-  const topCol =
-    top && typeof top.id === "number"
-      ? (Zotero.Collections.get(top.id) as Zotero.Collection | false | null)
-      : null;
-  const collectionKey =
-    topCol && typeof topCol === "object" ? topCol.key : null;
+  const run = s.saveChain.then(async () => {
+    s.scope = { ...s.scope, collectionID };
+    const top =
+      collectionID === null
+        ? null
+        : topmostCollection(listCollections(s.libraryID), collectionID);
+    const collectionKey = top ? collectionKeyOf(top.id) : null;
 
-  // Erstöffnung: keine eigene Notiz für den Baum der Sammlung → einmal fragen,
-  // ob der bestehende Bibliotheksbaum als Anfang kopiert werden soll. In beiden
-  // Fällen speichern wir sofort, damit die Frage nur einmal kommt.
-  const loaded = await OutlineModel.load(s.libraryID, collectionKey);
-  let roots = loaded.roots;
-  if (loaded.noteID === null && collectionKey !== null && opts.confirm) {
-    if (roots.length === 0) {
-      const lib = await OutlineModel.load(s.libraryID, null);
-      const yes = opts.confirm(tr("collectFirstTitle"), tr("collectFirstText"));
-      if (yes && lib.roots.length) roots = clone(lib.roots);
-    }
-  }
-  // Neue Notiz anlegen (nur für Sammlungsbäume), damit die Entscheidung fix ist.
-  if (collectionKey !== null && loaded.noteID === null) {
-    s.noteID = await OutlineModel.save(s.libraryID, null, roots, collectionKey);
-  } else {
+    const loaded = await OutlineModel.load(s.libraryID, collectionKey);
+    let roots = loaded.roots;
     s.noteID = loaded.noteID;
-  }
+    // Erstöffnung: keine eigene Notiz → einmal fragen, ob der Bibliotheksbaum
+    // als Anfang kopiert wird. Die Notiz sofort anlegen, damit die Frage nur
+    // einmal kommt.
+    if (collectionKey !== null && loaded.noteID === null) {
+      if (opts.confirm) {
+        const lib = await OutlineModel.load(s.libraryID, null);
+        const yes = opts.confirm(
+          tr("collectFirstTitle"),
+          tr("collectFirstText"),
+        );
+        if (yes) roots = clone(lib.roots);
+        s.noteID = await OutlineModel.save(
+          s.libraryID,
+          null,
+          roots,
+          collectionKey,
+        );
+      }
+    }
 
-  s.collectionKey = collectionKey;
-  s.roots = roots;
-  s.node = "all";
-  applyScope(s);
-  s.sel = emptySelection();
-  s.renaming = null;
-  s.editing = null;
-  s.endRename = null;
-  ctx.render();
+    s.collectionKey = collectionKey;
+    s.roots = roots;
+    s.node = "all";
+    applyScope(s);
+    s.sel = emptySelection();
+    s.renaming = null;
+    s.editing = null;
+    s.endRename = null;
+    s.otherTrees = null;
+    ctx.render();
+    void refreshOrphans(ctx);
+  });
+  s.saveChain = run.catch((e) =>
+    ztoolkit.log("flexannotate loadScope failed:", e),
+  );
+  return s.saveChain;
 }
 
 /** Tiefe Kopie der Baumstruktur (separate Notiz, dieselben Knoten-Ids ok). */
@@ -216,4 +233,49 @@ export async function reload(ctx: Ctx) {
   s.editing = null;
   s.showWorks = readShowWorks();
   ctx.render();
+  void refreshOrphans(ctx);
+}
+
+/**
+ * Verwaiste `§`-Tags des aktiven Baums und die Tags der anderen Bäume neu
+ * bestimmen (eigene Suche, darum nicht bei jedem Render) und bei Änderung
+ * neu zeichnen.
+ */
+export async function refreshOrphans(ctx: Ctx) {
+  const { s } = ctx;
+  try {
+    const key = s.collectionKey;
+    const counts = await OutlineModel.buildCountMap(
+      s.libraryID,
+      treeWorkIDs(s.libraryID, key),
+    );
+    if (s.collectionKey !== key) return; // Baum wurde inzwischen gewechselt
+    const orphans = orphanHeadingTags(counts.keys(), s.roots).map((tag) => ({
+      tag,
+      count: counts.get(tag) ?? 0,
+    }));
+    let changed = JSON.stringify(orphans) !== JSON.stringify(s.orphans);
+    s.orphans = orphans;
+    if (!orphans.length && s.orphanOpen) {
+      s.orphanOpen = false;
+      changed = true;
+    }
+    if (!s.otherTrees) {
+      s.otherTrees = new Map();
+      for (const [k, roots] of await OutlineModel.loadCollectionTrees(
+        s.libraryID,
+      )) {
+        const col = Zotero.Collections.getByLibraryAndKey(s.libraryID, k);
+        if (col)
+          s.otherTrees.set(k, {
+            name: col.name,
+            tags: new Set(tagIndex(roots).keys()),
+          });
+      }
+      changed = true;
+    }
+    if (changed && !ctx.doc.defaultView?.closed) ctx.render();
+  } catch (e) {
+    ztoolkit.log("flexannotate refreshOrphans failed:", e);
+  }
 }

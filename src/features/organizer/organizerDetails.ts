@@ -6,7 +6,7 @@
 import { HEADING_PREFIX, numbering, tagIndex } from "../../core/outline";
 import { selectAll } from "../../core/selection";
 import { openRow } from "./openTarget";
-import { citationOfRow, Row } from "./organizerData";
+import { citationOfRow, Row, workTreeKeys } from "./organizerData";
 import { button, el, toast } from "./organizerDom";
 import { unassign } from "./organizerFiling";
 import { renderEditForm } from "./organizerEdit";
@@ -103,6 +103,14 @@ export function renderDetails(
   const nums = numbering(s.roots);
   const known = tagIndex(s.roots);
   const cats = el(doc, "div", "display:flex;flex-wrap:wrap;gap:4px;");
+  // Werk in mehreren Hauptsammlungen: § Tags sind gemeinsam, darum zeigen wir,
+  // in welchem weiteren Baum dieselbe Überschrift vorkommt.
+  const member = s.otherTrees?.size
+    ? workTreeKeys(s.libraryID, r.workID)
+    : new Set<string>();
+  const otherTrees = [...(s.otherTrees ?? [])].filter(
+    ([k]) => k !== s.collectionKey && member.has(k),
+  );
   for (const tag of r.tags.filter((x) => x.startsWith(HEADING_PREFIX))) {
     const n = known.get(tag);
     const chip = el(
@@ -112,6 +120,16 @@ export function renderDetails(
         "padding:2px 8px;font-size:11px;display:inline-flex;gap:6px;",
       n ? `${nums.get(n.id)}  ${n.title}` : tag,
     );
+    const also = otherTrees.filter(([, o]) => o.tags.has(tag));
+    if (n && also.length)
+      chip.appendChild(
+        el(
+          doc,
+          "span",
+          `color:${t.sub};`,
+          `· ${tr("alsoInTree")} ${also.map(([, o]) => o.name).join(", ")}`,
+        ),
+      );
     if (n && !r.readOnly) {
       const x = el(doc, "span", "cursor:pointer;", "✕");
       x.addEventListener("click", () => void unassign(ctx, [r.id], n));

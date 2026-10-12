@@ -94,7 +94,6 @@ export function tabBar(ctx: Ctx, t: Palette): HTMLElement {
     o.addEventListener("click", () => {
       // Wechselt Kategorienbaum und Eintrags-Filter: Hauptsammlung → eigener
       // Baum, Untersammlung → Baum der Hauptsammlung, nur deren Einträge.
-      s.scope = { ...s.scope, collectionID: c.id || null };
       void loadScope(ctx, c.id || null, {
         confirm: (title, text) => ctx.confirm(ctx.doc.defaultView, title, text),
       });

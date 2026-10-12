@@ -63,6 +63,7 @@ const PREF = "dialogOutlineView";
 const STYLE_ID = "flexannotate-dialog-style";
 const ROW_ID = "flexannotate-toggle-row";
 const PICKER_ID = "flexannotate-dialog-scope-picker";
+const HINT_ID = "flexannotate-dialog-no-tree";
 /** Native elements hidden while our three columns are shown. */
 const NATIVE_HIDE = [
   "zotero-collections-tree",
@@ -110,7 +111,8 @@ const PREF_COLLECTION = "dialogOutlineCollection";
 function readCollectionID(): number {
   try {
     const v = Zotero.Prefs.get(prefKey(PREF_COLLECTION), true);
-    return typeof v === "number" && v ? v : 0;
+    // gelöschte Sammlung → zurück auf "Gesamte Bibliothek"
+    return typeof v === "number" && v && collectionKeyOf(v) ? v : 0;
   } catch {
     return 0;
   }
@@ -194,6 +196,7 @@ function detach(win: Window) {
     if (info?.enabled) restoreLayout(win);
     doc.getElementById(ROW_ID)?.remove();
     doc.getElementById(PICKER_ID)?.remove();
+    doc.getElementById(HINT_ID)?.remove();
   } catch (e) {
     ztoolkit.log("flexannotate dialog detach failed:", e);
   }
@@ -204,39 +207,7 @@ async function enable(win: Window, cb: HTMLInputElement) {
   const info = attached.get(win);
   if (!info) return;
   try {
-    const libraryID = Zotero.Libraries.userLibraryID;
-    const collectionID = readCollectionID();
-    const roots = await loadRoots(libraryID, collectionID);
-    const showWorks = readShowWorks();
-    // Einträge passend zur Sammlung: eine Annotation gehört zum Scope, wenn
-    // ihr Werk dazugehört (wie der Scope-Filter im Organizer-Fenster).
-    const scopeWorks = loadScopeWorkIDs(libraryID, {
-      collectionID: collectionID || null,
-      includeSub: true,
-    });
-    const rowsAll = await loadAnnotationRows(libraryID);
-    const rows = rowsAll.filter((r) => !scopeWorks || scopeWorks.has(r.workID));
-    const worksAll = showWorks ? await loadWorkRows(libraryID) : [];
-    const works = worksAll.filter(
-      (w) => !scopeWorks || scopeWorks.has(w.workID),
-    );
-    const sections = buildDialogSections(
-      roots,
-      rows.map((r) => ({ id: r.id, tags: r.tags, workID: r.workID })),
-      new Map(works.map((w) => [w.id, w.tags])),
-      showWorks,
-    );
-    const citedWorks = await citedWorksOf(win);
-    const view: View = {
-      roots,
-      sections,
-      counts: nodeCounts(roots, sections),
-      rows: new Map(rows.map((r) => [r.id, r])),
-      cited: activeIds(readCitedStore(), currentSessionId(), citedWorks),
-      node: "all",
-      query: bubbleText(win.document),
-      sel: emptySelection(),
-    };
+    const view = await buildView(win, info);
     info.view = view;
     info.enabled = true;
     applyLayout(win);
@@ -244,6 +215,7 @@ async function enable(win: Window, cb: HTMLInputElement) {
     addKeys(win, info);
     addSearchSync(win, info);
     addPicker(win, info);
+    updateHint(win, view);
     cb.checked = true;
   } catch (e) {
     ztoolkit.log("flexannotate dialog enable failed:", e);
@@ -335,43 +307,64 @@ function addPicker(win: Window, info: Attached) {
 async function rebuildView(win: Window, info: Attached) {
   if (!info.enabled) return;
   try {
-    const libraryID = Zotero.Libraries.userLibraryID;
-    const collectionID = readCollectionID();
-    const roots = await loadRoots(libraryID, collectionID);
-    const showWorks = readShowWorks();
-    const scopeWorks = loadScopeWorkIDs(libraryID, {
-      collectionID: collectionID || null,
-      includeSub: true,
-    });
-    const rowsAll = await loadAnnotationRows(libraryID);
-    const rows = rowsAll.filter((r) => !scopeWorks || scopeWorks.has(r.workID));
-    const worksAll = showWorks ? await loadWorkRows(libraryID) : [];
-    const works = worksAll.filter(
-      (w) => !scopeWorks || scopeWorks.has(w.workID),
-    );
-    const sections = buildDialogSections(
-      roots,
-      rows.map((r) => ({ id: r.id, tags: r.tags, workID: r.workID })),
-      new Map(works.map((w) => [w.id, w.tags])),
-      showWorks,
-    );
-    const citedWorks = await citedWorksOf(win);
-    const query = info.view?.query ?? bubbleText(win.document);
-    const view: View = {
-      roots,
-      sections,
-      counts: nodeCounts(roots, sections),
-      rows: new Map(rows.map((r) => [r.id, r])),
-      cited: activeIds(readCitedStore(), currentSessionId(), citedWorks),
-      node: "all",
-      query,
-      sel: emptySelection(),
-    };
-    info.view = view;
-    renderAll(win, view);
+    info.view = await buildView(win, info);
+    renderAll(win, info.view);
+    updateHint(win, info.view);
   } catch (e) {
     ztoolkit.log("flexannotate dialog rebuild failed:", e);
   }
+}
+
+/** Hinweis unter der Auswahl, solange die gewählte Sammlung keinen Baum hat. */
+function updateHint(win: Window, view: View) {
+  const doc = win.document;
+  doc.getElementById(HINT_ID)?.remove();
+  const picker = doc.getElementById(PICKER_ID);
+  if (!picker || !readCollectionID() || view.roots.length) return;
+  const hint = doc.createElement("div");
+  hint.id = HINT_ID;
+  hint.style.cssText =
+    "flex:none;padding:6px 8px;font-size:12px;color:var(--fill-secondary,#777);";
+  hint.textContent = tr("dialogNoTree");
+  picker.after(hint);
+}
+
+/** Baum, Zeilen und Zähler für die gewählte Sammlung; Auswahl steht auf "all". */
+async function buildView(win: Window, info: Attached): Promise<View> {
+  const libraryID = Zotero.Libraries.userLibraryID;
+  const collectionID = readCollectionID();
+  const roots = await loadRoots(libraryID, collectionID);
+  const showWorks = readShowWorks();
+  // Eine Annotation gehört zum Scope, wenn ihr Werk dazugehört (wie der
+  // Scope-Filter im Organizer-Fenster).
+  const scopeWorks = loadScopeWorkIDs(libraryID, {
+    collectionID: collectionID || null,
+    includeSub: true,
+  });
+  const inScope = (workID: number) => !scopeWorks || scopeWorks.has(workID);
+  const rows = (await loadAnnotationRows(libraryID)).filter((r) =>
+    inScope(r.workID),
+  );
+  const works = showWorks
+    ? (await loadWorkRows(libraryID)).filter((w) => inScope(w.workID))
+    : [];
+  const sections = buildDialogSections(
+    roots,
+    rows.map((r) => ({ id: r.id, tags: r.tags, workID: r.workID })),
+    new Map(works.map((w) => [w.id, w.tags])),
+    showWorks,
+  );
+  const citedWorks = await citedWorksOf(win);
+  return {
+    roots,
+    sections,
+    counts: nodeCounts(roots, sections),
+    rows: new Map(rows.map((r) => [r.id, r])),
+    cited: activeIds(readCitedStore(), currentSessionId(), citedWorks),
+    node: "all",
+    query: info.view?.query ?? bubbleText(win.document),
+    sel: emptySelection(),
+  };
 }
 
 async function disable(win: Window, cb: HTMLInputElement) {
@@ -382,6 +375,7 @@ async function disable(win: Window, cb: HTMLInputElement) {
   cb.checked = false;
   restoreLayout(win);
   win.document.getElementById(PICKER_ID)?.remove();
+  win.document.getElementById(HINT_ID)?.remove();
 }
 
 /**

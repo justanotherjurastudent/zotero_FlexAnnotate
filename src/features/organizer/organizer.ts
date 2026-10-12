@@ -26,7 +26,13 @@ import {
   readShowWorks,
 } from "./organizerData";
 import { emptySelection } from "../../core/selection";
-import { applyScope, Ctx, State, loadScope } from "./organizerState";
+import {
+  applyScope,
+  Ctx,
+  State,
+  loadScope,
+  refreshOrphans,
+} from "./organizerState";
 import { onKey } from "./organizerKeys";
 import { makeCtx, renderAll } from "./organizerView";
 import { getTheme } from "./theme";
@@ -220,6 +226,9 @@ export class OrganizerFactory {
       focusCol: "list",
       lastTreeClick: null,
       focusSearch: false,
+      orphans: [],
+      orphanOpen: false,
+      otherTrees: null,
     };
     applyScope(state);
     this.lastState = state;
@@ -257,24 +266,16 @@ export class OrganizerFactory {
       true,
     );
     renderAll(ctx);
-    // Start-Scope: Sammlung aus Kontextmenü/Toolbar oder aus dem Hauptfenster.
-    // Dieselbe Logik wie das Scope-Drop-down: Baum der Hauptsammlung laden.
-    // Der Erstöffnungs-Dialog (Bibliotheksbaum kopieren?) fragt nur, wenn der
-    // Nutzer die Sammlung explizit gewählt hat (Kontextmenü) — nicht beim
-    // impliziten Start mit der gerade markierten Sammlung des Hauptfensters.
-    const explicit = this.pendingCollectionID !== undefined;
-    const collectionID = explicit
-      ? this.pendingCollectionID!
-      : scope.collectionID;
+    // Start-Scope: Sammlung aus Kontextmenü/Toolbar, sonst die im Hauptfenster
+    // markierte. Gleiche Logik wie das Scope-Drop-down (Baum der Hauptsammlung).
+    const collectionID =
+      this.pendingCollectionID !== undefined
+        ? this.pendingCollectionID
+        : scope.collectionID;
     this.pendingCollectionID = undefined;
-    // Nur bei explizit gewählter Sammlung (Kontextmenü) den Baum am Fensterstart
-    // umschalten und den Erstöffnungs-Dialog stellen; beim impliziten Start mit
-    // der gerade markierten Sammlung des Hauptfensters bleibt der Bibliotheksbaum.
-    if (explicit && collectionID !== null) {
-      await loadScope(ctx, collectionID, {
-        confirm: (title, text) => OrganizerFactory.confirm(win, title, text),
-      });
-    }
+    if (collectionID !== null) {
+      await loadScope(ctx, collectionID, this.confirmOpts(win));
+    } else void refreshOrphans(ctx);
   }
 
   /** Öffnet den Organizer für eine Sammlung (Kontextmenü im Zotero-Fenster). */
@@ -285,7 +286,7 @@ export class OrganizerFactory {
   }
 
   /** Confirm-Drahtung für loadScope je Fenster (tests ersetzen the composite). */
-  private static confirmOpts(win: Window): {
+  private static confirmOpts(win: Window | null): {
     confirm: (title: string, text: string) => boolean;
   } {
     return {

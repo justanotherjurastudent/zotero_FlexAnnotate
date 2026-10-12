@@ -7,7 +7,11 @@ import {
   topmostCollection,
 } from "../src/core/collections.ts";
 import { activeIds, parseStore, record, unrecord } from "../src/core/cited.ts";
-import { makeNode, neighborId } from "../src/core/outline.ts";
+import {
+  makeNode,
+  neighborId,
+  orphanHeadingTags,
+} from "../src/core/outline.ts";
 
 const cols = [
   { id: 1, parentID: false as const, name: "Recht" },
@@ -98,5 +102,15 @@ describe("cited marks: manual removal", () => {
     s = record(s, "d", [{ id: 1, workID: 5 }]);
     assert.deepEqual([...activeIds(s, "d", null)].sort(), [1, 2]);
     assert.deepEqual(unrecord(s, "other", [1]).other, {});
+  });
+});
+
+describe("orphan heading tags", () => {
+  it("lists § tags without a heading, ignores other tags", () => {
+    const roots = [makeNode("Alpha")];
+    assert.deepEqual(
+      orphanHeadingTags(["§Alpha", "§Beta", "§Beta", "frei", "§Aaa"], roots),
+      ["§Aaa", "§Beta"],
+    );
   });
 });

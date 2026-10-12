@@ -6,11 +6,16 @@ import { flatten } from "../../core/outline";
 import { gatherAll, saveDraftAsNote } from "./outlineExport";
 import { toast } from "./organizerDom";
 import { tr } from "./strings";
+import { treeWorkIDs } from "./organizerData";
 import { State } from "./organizerState";
 
 /** Write the outline with its quotes into a new Zotero note and show it. */
 export async function exportNote(s: State) {
-  const g = await gatherAll(s.libraryID, s.roots);
+  const g = await gatherAll(
+    s.libraryID,
+    s.roots,
+    treeWorkIDs(s.libraryID, s.collectionKey),
+  );
   const note = await saveDraftAsNote(s.roots, g, s.libraryID, {
     title: tr("exportNoteTitle"),
   });

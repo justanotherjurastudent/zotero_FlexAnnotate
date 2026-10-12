@@ -8,6 +8,7 @@ import { el } from "./organizerDom";
 import { renderDetails } from "./organizerDetails";
 import { renderList } from "./organizerList";
 import { tabBar } from "./organizerTabs";
+import { orphanOverlay } from "./organizerOrphans";
 import { renderTree } from "./organizerTree";
 import { Ctx, State, visibleRows } from "./organizerState";
 import { getTheme } from "./theme";
@@ -55,6 +56,8 @@ export function renderAll(ctx: Ctx) {
   renderTree(ctx, c1, t);
   renderList(ctx, c2, t, visible);
   renderDetails(ctx, c3, t, visible);
+
+  if (s.orphanOpen) root.appendChild(orphanOverlay(ctx, t));
 
   root.querySelectorAll("[data-scroll]").forEach((e: Element) => {
     const y = scroll.get(e.getAttribute("data-scroll")!);

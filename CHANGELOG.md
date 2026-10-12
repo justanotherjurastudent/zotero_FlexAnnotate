@@ -10,6 +10,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 
 - Organizer (Gliederung, Zitierdialog-Ansicht, Notiz-Export) aus Annotree als Teil von FlexAnnotate.
 - Kategorienbaum pro Hauptsammlung: Jede Sammlung auf oberster Ebene kann einen eigenen Gliederungsbaum haben. Wechsel über das Sammlungs-Drop-down im Organizer (Untersammlung zeigt den Baum der Hauptsammlung, aber nur deren Einträge) oder über den neuen Eintrag _Rechtsklick auf Sammlung → FlexAnnotate: Organizer für diese Sammlung_. Beim ersten Öffnen einer Sammlung ohne eigenen Baum fragt der Organizer einmal, ob der bestehende Bibliotheksbaum als Anfang übernommen werden soll; die Zuordnung Notiz→Sammlung liegt im Tag `#flexannotate-outline-<collectionKey>` (`core/collections.ts`, `features/organizer/outlineModel.ts`, `organizerState.ts`, `collectionMenu.ts`).
+- Verwaiste Überschriften-Tags: Wurde eine Überschrift auf einem Rechner ohne Plugin umbenannt, zeigt der Organizer unter dem Baum den Knopf _Verwaiste Tags (n)_. Das Fenster listet nur die Tags (ohne Einträge) und ordnet jedes einer Überschrift zu oder entfernt es (`organizerOrphans.ts`, `core/outline.ts` `orphanHeadingTags`).
+- Hinweis „auch in Baum: …“ an einer Kategorie, wenn das Werk in mehreren Hauptsammlungen liegt und die Überschrift dort ebenfalls existiert.
+- Zitierdialog: Hat die gewählte Sammlung noch keinen Kategorienbaum, steht unter der Auswahl ein Hinweis, den Baum im Organizer anzulegen.
+- Notizen gelöschter Sammlungen bleiben als Waisen liegen (Tag `#flexannotate-outline-<key>`); sie stören nicht und werden bewusst nicht automatisch gelöscht, falls die Sammlung nur im Papierkorb oder auf einem anderen Rechner noch gebraucht wird.
 - Zitierdialog aus Word: Das Gliederungs-Drop-down über dem Kategorienbaum wählt, aus welcher Sammlung die Kategorien kommen (Gesamte Bibliothek oder Hauptsammlung); die Liste wird passend gefiltert und die letzte Wahl als Pref `dialogOutlineCollection` gemerkt (`features/organizer/dialogOutline.ts`).
 - Toolbar-Button oben rechts neben dem Sync-Button, der den Organizer öffnet; Eintrag _Werkzeuge → FlexAnnotate: Organizer_.
 - Icons in den Menüs (Hinzufügen, Bearbeiten, Löschen, Organizer).
@@ -26,6 +30,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 
 ### Fixed
 
+- Umbenennen, Löschen und Export einer Überschrift wirken nur auf die Werke der Hauptsammlung des aktiven Baums statt bibliotheksweit (gleichnamige Überschriften in zwei Bäumen blieben sonst gekoppelt). Der Bibliotheksbaum bleibt uneingeschränkt.
+- Beim Wechsel der Sammlung oder über das Kontextmenü passen Eintrags-Filter, Dropdown und Baum jetzt zusammen; Wechsel laufen nacheinander (keine doppelte Baum-Notiz).
+- Zitierdialog: eine gelöschte Sammlung in der gemerkten Wahl fällt auf „Gesamte Bibliothek“ zurück.
 - Datenverlust: Die Gliederungsnotiz wurde als markierte Notiz angelegt, sodass Zoteros Notiz-Editor sie öffnete und spätere Speicherungen des Organizers mit seinem älteren Stand überschreiben konnte (`editorInstance.js` `_save`). Sie wird jetzt mit `skipSelect: true` angelegt. Hat der Nutzer die Notiz selbst im Editor geöffnet, kann der Editor weiter überschreiben. Gibt es mehrere Gliederungsnotizen, gewinnt die zuletzt geänderte, bei Gleichstand die mit der höheren id (`pickNewest`).
 - Citavi-Import: Die Schlagwort-Zuordnung verglich Präfixe (K1 traf K10). Im `OnetoN`-Text ist das erste Glied die ID des Eintrags, danach folgen die Schlagwörter; die Zuordnung ist jetzt exakt.
 - Print-Annotationen auf Zotero 7.x bis 9.x: die Farbauswahl nutzte `Zotero.Annotations.COLORS`, das es erst ab 10.x gibt. Jetzt Fallback auf die acht Standardfarben (`core/printAnnotation.ts`).

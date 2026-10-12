@@ -49,9 +49,22 @@ const de = {
   open: "Zitatstelle öffnen",
   copy: "Zitat kopieren",
   copied: "Kopiert",
+  orphanButton: "Verwaiste Tags ({n})…",
+  orphanTitle: "Tags ohne passende Überschrift",
+  orphanHint:
+    "Diese Tags gehören zu keiner Überschrift dieses Baums, z. B. weil eine Überschrift auf einem anderen Rechner ohne Plugin umbenannt wurde. Ordne jedes Tag einer Überschrift zu: Alle betroffenen Einträge wandern dorthin.",
+  orphanPick: "Überschrift wählen…",
+  orphanAssign: "Zuordnen",
+  orphanRemove: "Tag entfernen",
+  orphanRemoveConfirm:
+    "Das Tag {tag} wird von allen {n} Einträgen entfernt. Fortfahren?",
+  orphanClose: "Schließen",
+  alsoInTree: "auch in Baum:",
   scope: "Sammlung:",
   scopeAll: "Gesamte Bibliothek",
   scopeSub: "inkl. Untersammlungen",
+  dialogNoTree:
+    "Diese Sammlung hat noch keinen Kategorienbaum. Lege ihn im Organizer an (Rechtsklick auf die Sammlung → FlexAnnotate: Organizer).",
   collectFirstTitle: "Kategorienbaum für diese Sammlung",
   collectFirstText:
     "Für diese Sammlung gibt es noch keinen eigenen Kategorienbaum. Soll der bestehende Baum der gesamten Bibliothek als Anfang übernommen werden?",
@@ -152,9 +165,22 @@ const en: Record<Key, string> = {
   open: "Open citation place",
   copy: "Copy quote",
   copied: "Copied",
+  orphanButton: "Orphaned tags ({n})…",
+  orphanTitle: "Tags without a matching heading",
+  orphanHint:
+    "These tags belong to no heading of this tree, e.g. because a heading was renamed on another computer without the plugin. Assign each tag to a heading: all affected items move there.",
+  orphanPick: "Choose heading…",
+  orphanAssign: "Assign",
+  orphanRemove: "Remove tag",
+  orphanRemoveConfirm:
+    "The tag {tag} will be removed from all {n} items. Continue?",
+  orphanClose: "Close",
+  alsoInTree: "also in tree:",
   scope: "Collection:",
   scopeAll: "Whole library",
   scopeSub: "incl. subcollections",
+  dialogNoTree:
+    "This collection has no outline tree yet. Create it in the Organizer (right-click the collection → FlexAnnotate: Organizer).",
   collectFirstTitle: "Outline tree for this collection",
   collectFirstText:
     "This collection has no outline tree of its own yet. Should the existing tree of the whole library be used as the starting point?",

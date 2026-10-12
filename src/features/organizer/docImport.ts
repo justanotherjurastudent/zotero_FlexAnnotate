@@ -22,6 +22,7 @@ import {
 import { headingTag } from "../../core/outline";
 import { button, el, toast } from "./organizerDom";
 import { OutlineModel } from "./outlineModel";
+import { treeWorkIDs } from "./organizerData";
 import { Ctx, persist } from "./organizerState";
 import { tr } from "./strings";
 import { getTheme } from "./theme";
@@ -367,6 +368,7 @@ export const docImport = {
               s.libraryID,
               headingTag(op.oldTitle),
               headingTag(op.title),
+              treeWorkIDs(s.libraryID, s.collectionKey),
             );
           }
         }

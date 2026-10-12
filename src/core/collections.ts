@@ -59,8 +59,6 @@ export function topmostCollection(
   const byId = new Map(cols.map((c) => [c.id, c]));
   let cur = byId.get(collectionID);
   if (!cur) return null;
-  // defining collections: target = collectionID to resolve
-  // upper bound: distinct ids, so a circular parent chain cannot loop for a long time
   const chain = new Set<number>([collectionID]);
   while (typeof cur.parentID === "number") {
     if (chain.has(cur.parentID)) break; // circular chain: stay where we are
