@@ -12,13 +12,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/justanotherjurastudent/zotero_flexAnnotations.git"
+    "url": "git+https://github.com/justanotherjurastudent/zotero_FlexAnnotate.git"
   },
   "author": "justanotherjurastudent",
   "bugs": {
-    "url": "https://github.com/justanotherjurastudent/zotero_flexAnnotations/issues"
+    "url": "https://github.com/justanotherjurastudent/zotero_FlexAnnotate/issues"
   },
-  "homepage": "https://github.com/justanotherjurastudent/zotero_flexAnnotations#readme",
+  "homepage": "https://github.com/justanotherjurastudent/zotero_FlexAnnotate#readme",
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "start": "zotero-plugin serve",

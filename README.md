@@ -39,7 +39,7 @@ Im Annotationsbereich des Dialogs gibt es die Option „Nach Gliederung anordnen
 
 ### Installation
 
-1. Die `.xpi`-Datei von der [Release-Seite](https://github.com/justanotherjurastudent/zotero_flexAnnotations/releases) laden.
+1. Die `.xpi`-Datei von der [Release-Seite](https://github.com/justanotherjurastudent/zotero_FlexAnnotate/releases) laden.
 2. In Zotero _Werkzeuge → Plugins_ öffnen, auf das Zahnrad klicken und _Plugin aus Datei installieren…_ wählen.
 3. Zotero neu starten, falls es danach fragt.
 
@@ -114,7 +114,7 @@ The plugin's labels are in German and English, following Zotero's language.
 
 ### Install
 
-1. Download the `.xpi` from the [Releases page](https://github.com/justanotherjurastudent/zotero_flexAnnotations/releases).
+1. Download the `.xpi` from the [Releases page](https://github.com/justanotherjurastudent/zotero_FlexAnnotate/releases).
 2. In Zotero open _Tools → Plugins_, click the gear and choose _Install Plugin From File…_.
 3. Restart Zotero if it asks.
 
