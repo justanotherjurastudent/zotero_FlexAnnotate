@@ -28,12 +28,4 @@ Die vollständige Git-Historie von Lattice ist in diesem Repository enthalten (R
 - **Neu:** dreispaltiges Organizer-Fenster (Gliederung · Zitate · Details), Zuordnung von **Werken und Annotationen** zu Kategorien per Drag and Drop und Mehrfachauswahl, Einstellung zur Anzeige von Werken in der Annotationsansicht, Ansicht nach Gliederung im Zitierdialog, der sich aus Word öffnet.
 - Eingebunden in FlexAnnotate mit eigenem Namen, eigener Plugin-ID und eigener Dokumentation.
 
-## Pflichten aus der AGPL-3.0 (Kurzfassung, keine Rechtsberatung)
-
-- Lizenz und Urheberhinweise des Ursprungs bleiben erhalten.
-- Änderungen sind als solche gekennzeichnet (Git-Historie, diese Datei).
-- Der Quellcode jeder verteilten oder über ein Netzwerk angebotenen Fassung ist unter derselben Lizenz zugänglich.
-
-_Citavi_ ist eine Marke ihres jeweiligen Inhabers. FlexAnnotate ist **kein** Citavi-Produkt und steht in keiner Verbindung dazu; der Citavi-Import liest lediglich Exportdateien.
-
 Stand: 2026-10-12
