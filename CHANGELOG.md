@@ -4,7 +4,7 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 
 ## 2.0.0 (2026-10-12)
 
-**Neu: Organizer.** FlexAnnotate bekommt einen Organizer und ist komplett in TypeScript (zotero-plugin-scaffold) neu aufgebaut; 1.2.0 war Vanilla JS (Git-Tag `pre-merge`). Geprüft gegen Zotero 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6; Umfang je Version siehe README.
+**Annotations-Überarbeitung.** Annotationen lassen sich nachträglich bearbeiten (Locator, Seite, Kommentar), ein neuer Organizer ordnet sie in einer Gliederung, und der Zitierdialog arbeitet mit ihr. FlexAnnotate ist dafür komplett in TypeScript (zotero-plugin-scaffold) neu aufgebaut; 1.2.0 war Vanilla JS (Git-Tag `pre-merge`). Geprüft gegen Zotero 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6; Umfang je Version siehe README.
 
 ### Added
 
