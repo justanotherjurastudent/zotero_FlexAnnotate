@@ -2,7 +2,7 @@
 
 **Sprache / Language: [Deutsch](#deutsch) · [English](#english)**
 
-Zotero-Plugin für gedruckte Quellen: Annotationen ohne Datei, Nur-Nachweis-Zitieren, Citavi-Import und ein Organizer (Gliederung) für Annotationen. Version 2.0.0-dev.0, Zotero 7.0 bis 10 (geprüft gegen 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6; Umfang je Version siehe [Einschränkungen](#einschränkungen-auf-zotero-versionen-vor-10)).
+Zotero-Plugin für gedruckte Quellen: Annotationen ohne Datei, Nur-Nachweis-Zitieren, Citavi-Import und ein Organizer (Gliederung) für Annotationen. Version 2.0.0, Zotero 7.0 bis 10 (geprüft gegen 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6; Umfang je Version siehe [Einschränkungen](#einschränkungen-auf-zotero-versionen-vor-10)).
 
 ## Deutsch
 

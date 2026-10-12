@@ -2,7 +2,7 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach [SemVer](https://semver.org/). Der Changelog des Ursprungsprojekts Lattice liegt unverändert in [`docs/lattice-changelog.md`](docs/lattice-changelog.md).
 
-## 2.0.0 (unreleased)
+## 2.0.0 (2026-10-12)
 
 **Merged: Annotree is now part of FlexAnnotate.** Ein einziges TypeScript-Plugin (zotero-plugin-scaffold) ersetzt das Vanilla-JS-FlexAnnotate 1.2.0 (Git-Tag `pre-merge`) und Annotree. Geprüft gegen Zotero 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6; Umfang je Version siehe README.
 
