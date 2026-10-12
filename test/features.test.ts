@@ -822,10 +822,11 @@ describe("FlexAnnotate features", function () {
           rows[0].getAttribute("data-ann-id") === String(anns[2].id)
         );
       });
-      // the unassigned row is listed under the "Ohne Kategorie" section header
-      assert.include(
+      // the unassigned row is listed under the "Ohne Kategorie"/"No category"
+      // section header (the label depends on Zotero's locale)
+      assert.match(
         doc.getElementById("flexannotate-list-pane")?.textContent || "",
-        "(Ohne Kategorie)",
+        /\((Ohne Kategorie|No category)\)/,
       );
     });
 
