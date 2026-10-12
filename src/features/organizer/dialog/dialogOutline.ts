@@ -37,6 +37,7 @@ import {
   loadAnnotationRows,
   loadScopeWorkIDs,
   loadWorkRows,
+  readShowCommentsInRows,
   readShowWorks,
 } from "../panel/organizerData";
 import {
@@ -277,8 +278,19 @@ function addPicker(win: Window, info: Attached) {
     // fixed statt absolute: der Container des Dialogs schneidet (overflow:hidden)
     "position:fixed;z-index:1000;display:none;min-width:220px;max-height:300px;overflow-y:auto;" +
     "background:var(--material-background,#fff);border:1px solid var(--fill-quinary, rgba(128,128,128,0.35));border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.25);";
+  const options: HTMLElement[] = [];
+  // Aktive Auswahl im Dropdown sichtbar machen und den Button-Text nachziehen,
+  // wenn die Sammlung geändert wird.
+  const select = (c: { id: number; name: string }) => {
+    sel.textContent = `${c.name}  ▾`;
+    for (const o of options) {
+      const active = o.getAttribute("data-id") === String(c.id);
+      o.style.fontWeight = active ? "600" : "";
+    }
+  };
   for (const c of choices) {
     const o = doc.createElement("div");
+    o.dataset.id = String(c.id);
     o.style.cssText =
       `padding:5px 10px 5px ${10 + c.depth * 14}px;cursor:pointer;white-space:nowrap;` +
       (c.id === current ? "font-weight:600;" : "");
@@ -292,8 +304,10 @@ function addPicker(win: Window, info: Attached) {
     o.addEventListener("click", () => {
       menu.style.display = "none";
       writeCollectionID(c.id);
+      select(c);
       void rebuildView(win, info);
     });
+    options.push(o);
     menu.appendChild(o);
   }
   sel.addEventListener("click", (e) => {
@@ -357,6 +371,7 @@ async function buildView(win: Window, info: Attached): Promise<View> {
   const rows = (await loadAnnotationRows(libraryID)).filter((r) =>
     inScope(r.workID),
   );
+  const showCommentsInRows = readShowCommentsInRows();
   const works = showWorks
     ? (await loadWorkRows(libraryID)).filter((w) => inScope(w.workID))
     : [];
@@ -372,6 +387,7 @@ async function buildView(win: Window, info: Attached): Promise<View> {
     sections,
     counts: nodeCounts(roots, sections),
     rows: new Map(rows.map((r) => [r.id, r])),
+    showCommentsInRows,
     cited: activeIds(readCitedStore(), currentSessionId(), citedWorks),
     node: "all",
     query: info.view?.query ?? bubbleText(win.document),

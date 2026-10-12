@@ -262,13 +262,17 @@ function rowEl(
     };`,
   );
   icon.title = r.type;
+  const rowText =
+    s.showCommentsInRows && r.comment && r.kind === "annotation"
+      ? r.comment
+      : r.text;
   const text = el(
     doc,
     "span",
     "flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;",
-    (r.text || r.comment || r.workTitle).replace(/\s+/g, " "),
+    (rowText || r.comment || r.workTitle).replace(/\s+/g, " "),
   );
-  text.title = r.text;
+  text.title = rowText;
   const meta = el(
     doc,
     "span",

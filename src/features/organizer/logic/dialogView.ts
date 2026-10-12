@@ -4,7 +4,7 @@
  * Pure logic (no Zotero, no DOM) so it is unit-testable in Node.
  */
 
-import { groupByOutline, headingTagsOf, tagIndex } from "./outline.ts";
+import { groupByOutline, headingTagsOf } from "./outline.ts";
 import type { OutlineNode, Section } from "./outline.ts";
 
 export interface AnnLike {
@@ -35,8 +35,9 @@ export function effectiveTags(
 
 /**
  * Sections in outline order, each with the annotations that belong there.
- * Annotations without any known heading are left out: they are not part of
- * the outline. Empty headings are skipped.
+ * Annotations without a known heading land in the trailing "no category"
+ * bucket (node === null), exactly like the organizer shows them. Empty
+ * headings are skipped unless they carry items.
  */
 export function buildDialogSections(
   roots: OutlineNode[],
@@ -44,11 +45,11 @@ export function buildDialogSections(
   workTags: Map<number, string[]>,
   includeWorks: boolean,
 ): Section<AnnLike>[] {
-  const known = tagIndex(roots);
-  const view = anns
-    .map((a) => ({ ...a, tags: effectiveTags(a, workTags, includeWorks) }))
-    .filter((a) => a.tags.some((t) => known.has(t)));
-  return groupByOutline(roots, view).filter((s) => s.node !== null);
+  const view = anns.map((a) => ({
+    ...a,
+    tags: effectiveTags(a, workTags, includeWorks),
+  }));
+  return groupByOutline(roots, view);
 }
 
 /** Distinct annotations per heading, counting the heading's subheadings too. */

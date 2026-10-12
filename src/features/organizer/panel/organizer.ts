@@ -23,6 +23,7 @@ import { OutlineModel } from "../outlineModel";
 import {
   defaultScope,
   loadAnnotationRows,
+  readShowCommentsInRows,
   readShowWorks,
 } from "./organizerData";
 import { emptySelection } from "../logic/selection";
@@ -218,6 +219,7 @@ export class OrganizerFactory {
       goto: "",
       sections: false,
       showWorks: readShowWorks(),
+      showCommentsInRows: readShowCommentsInRows(),
       renaming: null,
       saveChain: Promise.resolve(),
       saveLog: [],

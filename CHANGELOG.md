@@ -15,6 +15,7 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 - Zitierdialog: Hat die gewählte Sammlung noch keinen Kategorienbaum, steht unter der Auswahl ein Hinweis, den Baum im Organizer anzulegen.
 - Notizen gelöschter Sammlungen bleiben als Waisen liegen (Tag `#flexannotate-outline-<key>`); sie stören nicht und werden bewusst nicht automatisch gelöscht, falls die Sammlung nur im Papierkorb oder auf einem anderen Rechner noch gebraucht wird.
 - Zitierdialog aus Word: Das Gliederungs-Drop-down über dem Kategorienbaum wählt, aus welcher Sammlung die Kategorien kommen (Gesamte Bibliothek oder Hauptsammlung); die Liste wird passend gefiltert und die letzte Wahl als Pref `dialogOutlineCollection` gemerkt (`features/organizer/dialogOutline.ts`).
+- Zitierdialog aus Word: Der Gliederungsbaum zeigt wie der Organizer auch „(Ohne Kategorie)“. Annotationen, die keiner Überschrift zugeordnet sind, erscheinen dort statt weggelassen zu werden; „(Alle)“ enthält sie auf Wunsch mit. Beim Wechsel der Sammlung wird der Name im Drop-down sofort nachgezogen (`logic/dialogView.ts`, `dialogOutline.ts`, `dialogOutlineRender.ts`).
 - Toolbar-Button oben rechts neben dem Sync-Button, der den Organizer öffnet; Eintrag _Werkzeuge → FlexAnnotate: Organizer_.
 - Icons in den Menüs (Hinzufügen, Bearbeiten, Löschen, Organizer).
 - Zotero 7.x ohne `Zotero.MenuManager`: Eintrag _Werkzeuge → FlexAnnotate: Organizer_ direkt im Werkzeugmenü (`features/organizer/toolsMenuFallback.ts`).

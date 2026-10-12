@@ -100,6 +100,8 @@ describe("FlexAnnotate", function () {
   describe("organizer window", function () {
     this.timeout(90000);
     const mine: Zotero.Item[] = [];
+    const commentText = "Kommentar nur für Organizerzeile";
+    const quoteText = "Fensterzitat 0";
     let noteID: number;
     let win: Window | null = null;
 
@@ -111,6 +113,8 @@ describe("FlexAnnotate", function () {
       for (let i = 0; i < 3; i++) {
         mine.push(await makeAnnotation(att, `Fensterzitat ${i}`, `${i}`, i));
       }
+      mine[1].annotationComment = commentText;
+      await mine[1].saveTx();
       const core = api().outline;
       const roots = [core.makeNode("Einleitung"), core.makeNode("Hauptteil")];
       noteID = await api().outlineModel.OutlineModel.save(
@@ -152,6 +156,35 @@ describe("FlexAnnotate", function () {
       ) as HTMLElement;
       for (let p = search.parentElement; p && p !== grid; p = p.parentElement) {
         assert.notEqual((p as HTMLElement).style.overflowY, "auto");
+      }
+    });
+
+    it("shows comment text in rows when the preference is enabled", async function () {
+      const prefKey = `${config.prefsPrefix}.showCommentInOrganizerRows`;
+      const rowText = (id: number) =>
+        (win!.document.querySelector(`[data-row-id="${id}"]`) as HTMLElement)
+          ?.textContent || "";
+      // Schließe das Fenster vollständig, bevor es neu geöffnet wird: die
+      // Fenster-Enumeration liefert sonst das halb geschlossene alte Fenster
+      // und `win` zeigt danach auf eine veraltete Referenz.
+      const reopen = async () => {
+        api().OrganizerFactory.close();
+        await waitFor(() => !findOrganizerWindow());
+        await api().OrganizerFactory.open();
+        win = await waitFor(findOrganizerWindow);
+      };
+      Zotero.Prefs.set(prefKey, false, true);
+      try {
+        await reopen();
+        await waitFor(() => rowText(mine[1].id).includes(quoteText));
+        assert.notInclude(rowText(mine[1].id), commentText);
+
+        Zotero.Prefs.set(prefKey, true, true);
+        await reopen();
+        await waitFor(() => rowText(mine[1].id).includes(commentText));
+        assert.notInclude(rowText(mine[1].id), quoteText);
+      } finally {
+        Zotero.Prefs.set(prefKey, false, true);
       }
     });
 

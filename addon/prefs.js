@@ -1,4 +1,5 @@
 pref("showWorksInAnnotationView", false);
+pref("showCommentInOrganizerRows", false);
 pref("dialogOutlineView", false);
 // Zitierdialog: Sammlung, aus der die Gliederung kommt (0 = gesamte Bibliothek)
 pref("dialogOutlineCollection", 0);

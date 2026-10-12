@@ -188,6 +188,20 @@ export function readShowWorks(): boolean {
   }
 }
 
+/** Plugin setting: show comment text in organizer rows when available. */
+export function readShowCommentsInRows(): boolean {
+  try {
+    return (
+      Zotero.Prefs.get(
+        `${addon.data.config.prefsPrefix}.showCommentInOrganizerRows`,
+        true,
+      ) === true
+    );
+  } catch {
+    return false;
+  }
+}
+
 // ── collection scope ────────────────────────────────────────────────────────
 
 export interface Scope {

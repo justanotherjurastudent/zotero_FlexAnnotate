@@ -8,6 +8,7 @@ declare namespace _ZoteroTypes {
   interface Prefs {
     PluginPrefsMap: {
       "showWorksInAnnotationView": boolean;
+      "showCommentInOrganizerRows": boolean;
       "dialogOutlineView": boolean;
       "dialogOutlineCollection": number;
       "citedAnnotations": string;

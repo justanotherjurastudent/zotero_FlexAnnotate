@@ -25,10 +25,11 @@ describe("dialog view", () => {
   it("uses only the annotations' own headings by default", () => {
     const s = buildDialogSections(roots, anns, workTags, false);
     assert.deepEqual(
-      s.map((x) => [x.number, x.items.map((i) => i.id)]),
+      s.map((x) => [x.number, x.items.map((i) => i.id), x.node?.id ?? null]),
       [
-        ["1", [1]],
-        ["2.1", [3]],
+        ["1", [1], a.id],
+        ["2.1", [3], b1.id],
+        ["", [2, 4], null],
       ],
     );
   });
@@ -36,20 +37,22 @@ describe("dialog view", () => {
   it("brings the annotations of a filed work along when works are shown", () => {
     const s = buildDialogSections(roots, anns, workTags, true);
     assert.deepEqual(
-      s.map((x) => [x.number, x.items.map((i) => i.id)]),
+      s.map((x) => [x.number, x.items.map((i) => i.id), x.node?.id ?? null]),
       [
-        ["1", [1]],
-        ["2", [1, 2]],
-        ["2.1", [3]],
+        ["1", [1], a.id],
+        ["2", [1, 2], b.id],
+        ["2.1", [3], b1.id],
+        ["", [4], null],
       ],
     );
   });
 
-  it("never lists unassigned annotations", () => {
+  it("lists unassigned annotations in the no-category bucket", () => {
     const s = buildDialogSections(roots, anns, workTags, true);
-    assert.equal(
-      s.flatMap((x) => x.items).some((i) => i.id === 4),
-      false,
+    const none = s.find((x) => x.node === null)!;
+    assert.deepEqual(
+      none.items.map((i) => i.id),
+      [4],
     );
   });
 
