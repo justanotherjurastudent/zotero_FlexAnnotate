@@ -8,7 +8,7 @@
 
 **Deutsch · [English](#english)**
 
-FlexAnnotate bringt Annotationen in Zotero auf das nächste Level. FlexAnnotate überarbeitet den Umgang mit Annotationen von Grund auf: Locator, Seitenzahl und Kommentar lassen sich beim Anlegen und nachträglich ändern, ein Organizer ordnet alle Annotationen in einer Gliederung, der Zitierdialog aus Word arbeitet mit dieser Gliederung, und auch Bücher ohne Datei bekommen Annotationen. Läuft mit Zotero 7.0 bis 10.
+FlexAnnotate bringt Annotationen in Zotero auf das nächste Level. Das Plugin überarbeitet den Umgang mit Annotationen von Grund auf: Locator, Seitenzahl und Kommentar lassen sich beim Anlegen und nachträglich ändern, ein Organizer ordnet alle Annotationen in einer Gliederung, der Zitierdialog aus Word arbeitet mit dieser Gliederung, und auch Bücher ohne Datei bekommen Annotationen. Läuft mit Zotero 7.0 bis 10.
 
 _Annotations in Zotero, taken to the next level: edit locators and comments afterwards, organise every annotation in an outline, cite from Word by that outline, and annotate books without a file. Works with Zotero 7.0 to 10_
 
@@ -30,7 +30,7 @@ Das gilt für alle Annotationen, auch für die aus PDF, EPUB und Snapshot.
 
 - **Im Reader:** Rechtsklick auf eine Annotation, dann _Kommentar hinzufügen…_ oder _Locator festlegen…_. Im Seitenzahl-Popup lässt sich der Locator-Typ wählen und für das ganze Dokument merken.
 - **Im Zotero-Fenster:** Rechtsklick auf eine Annotation, _Annotation bearbeiten…_. Die Eingabemaske ändert Seitenangabe, Locator, Kommentar und Farbe.
-- **Locator nach Wahl:** Seite, Randnummer, Absatz, Spalte, Kapitel und weitere. Der Typ wandert in den Zitiernachweis.
+- **Locator nach Wahl:** Seite, Kapitel, Abschnitt, Absatz, Spalte und die weiteren Locator-Typen, die Zotero selbst kennt. Der Typ wandert in den Zitiernachweis.
 
 **2. Organizer**
 
@@ -53,13 +53,23 @@ Rechtsklick auf einen Titel, _Print-Annotation hinzufügen…_, Text, Kommentar 
 
 **Außerdem: Citavi-Import**
 
-Zitate ohne Dateianhang, die Zoteros Citavi-Import verwirft, bleiben erhalten und werden zu Print-Annotationen. Zudem kann man festlegen, wie die verschiedenen Locator‑Typen aus Citavi auf die Locator‑Typen von Soteros abgebildet werden, sodass beispielsweise Randnummern aus Citavi in Zotero zum Opus‑Locator werden.
+Zitate ohne Dateianhang, die Zoteros Citavi-Import verwirft, bleiben erhalten und werden zu Print-Annotationen. Außerdem lässt sich einstellen, welchem Zotero-Locator die Seitentypen aus Citavi (Seite, Spalte, Absatz, Randnummer, Andere) entsprechen. Standardmäßig wird eine Citavi-Randnummer zum Locator „Absatz“. Das Plugin selbst führt keinen eigenen Locator „Randnummer“ ein: Es nutzt die Locator-Typen von Zotero.
 
 ### Installation
+
+**Über die Release-Seite**
 
 1. Die `.xpi`-Datei von der [Release-Seite](https://github.com/justanotherjurastudent/zotero_FlexAnnotate/releases) laden.
 2. In Zotero _Werkzeuge → Plugins_ öffnen, auf das Zahnrad klicken und _Plugin aus Datei installieren…_ wählen.
 3. Zotero neu starten, falls es danach fragt.
+
+**Über den Add-on Market**
+
+FlexAnnotate steht auch im [Add-on Market for Zotero](https://github.com/syt2/zotero-addons), einem Plugin, mit dem man andere Plugins direkt in Zotero durchsuchen und installieren kann.
+
+1. Den Add-on Market selbst installieren: [`zotero-addons.xpi`](https://github.com/syt2/zotero-addons/releases/latest/download/zotero-addons.xpi) laden und in Zotero wie oben über _Werkzeuge → Plugins → Zahnrad → Plugin aus Datei installieren…_ einspielen.
+2. Den Market über das Symbol in der Werkzeugleiste oder den Eintrag _Add-on market_ im Menü _Werkzeuge_ öffnen.
+3. Nach „FlexAnnotate“ suchen und installieren.
 
 Selbst bauen (Node.js 24):
 
@@ -117,7 +127,7 @@ This applies to every annotation, including those from PDF, EPUB and snapshots.
 
 - **In the reader:** right-click an annotation, then _Add comment…_ or _Set locator…_. The page-number popup lets you pick the locator type and remember it for the whole document.
 - **In the Zotero window:** right-click an annotation, _Edit annotation…_. The input panel changes page, locator, comment and colour.
-- **Locator of your choice:** page, margin number, paragraph, column, chapter and more. The type goes into the citation.
+- **Locator of your choice:** page, chapter, section, paragraph, column and the other locator types Zotero itself knows. The type goes into the citation.
 
 **2. Organizer**
 
@@ -136,15 +146,25 @@ Right-click an item, _Add print annotation…_, then enter text, comment and pag
 
 **Also: Citavi import**
 
-Quotes without a file attachment, which Zotero's Citavi import discards, are kept and become print annotations. Importing the same export again creates no duplicates.
+Quotes without a file attachment, which Zotero's Citavi import discards, are kept and become print annotations. You can also set which Zotero locator each Citavi page type (page, column, paragraph, margin number, other) maps to. By default a Citavi margin number becomes the locator "paragraph". The plugin does not add a locator "margin number" of its own: it uses Zotero's locator types.
 
 The plugin's labels are in German and English, following Zotero's language.
 
 ### Install
 
+**From the Releases page**
+
 1. Download the `.xpi` from the [Releases page](https://github.com/justanotherjurastudent/zotero_FlexAnnotate/releases).
 2. In Zotero open _Tools → Plugins_, click the gear and choose _Install Plugin From File…_.
 3. Restart Zotero if it asks.
+
+**From the Add-on Market**
+
+FlexAnnotate is also listed in the [Add-on Market for Zotero](https://github.com/syt2/zotero-addons), a plugin that lets you browse and install other plugins from inside Zotero.
+
+1. Install the Add-on Market itself: download [`zotero-addons.xpi`](https://github.com/syt2/zotero-addons/releases/latest/download/zotero-addons.xpi) and install it as above via _Tools → Plugins → gear → Install Plugin From File…_.
+2. Open the market from its toolbar icon or the _Add-on market_ entry in the _Tools_ menu.
+3. Search for "FlexAnnotate" and install it.
 
 To build it yourself (Node.js 24):
 
