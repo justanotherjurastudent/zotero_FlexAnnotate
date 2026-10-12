@@ -164,17 +164,23 @@ describe("FlexAnnotate", function () {
       const rowText = (id: number) =>
         (win!.document.querySelector(`[data-row-id="${id}"]`) as HTMLElement)
           ?.textContent || "";
-      Zotero.Prefs.set(prefKey, false, true);
-      try {
+      // Schließe das Fenster vollständig, bevor es neu geöffnet wird: die
+      // Fenster-Enumeration liefert sonst das halb geschlossene alte Fenster
+      // und `win` zeigt danach auf eine veraltete Referenz.
+      const reopen = async () => {
+        api().OrganizerFactory.close();
+        await waitFor(() => !findOrganizerWindow());
         await api().OrganizerFactory.open();
         win = await waitFor(findOrganizerWindow);
+      };
+      Zotero.Prefs.set(prefKey, false, true);
+      try {
+        await reopen();
         await waitFor(() => rowText(mine[1].id).includes(quoteText));
         assert.notInclude(rowText(mine[1].id), commentText);
 
         Zotero.Prefs.set(prefKey, true, true);
-        api().OrganizerFactory.close();
-        await api().OrganizerFactory.open();
-        win = await waitFor(findOrganizerWindow);
+        await reopen();
         await waitFor(() => rowText(mine[1].id).includes(commentText));
         assert.notInclude(rowText(mine[1].id), quoteText);
       } finally {

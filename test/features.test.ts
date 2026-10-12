@@ -724,7 +724,7 @@ describe("FlexAnnotate features", function () {
       await waitFor(
         () =>
           doc.querySelectorAll("#flexannotate-list-pane [data-ann-id]")
-            .length === 2,
+            .length === 3,
       );
       // left column keeps showing categories, native trees are hidden
       if (!w || !doc) throw new Error("Kein Document im Testfenster");
@@ -789,6 +789,85 @@ describe("FlexAnnotate features", function () {
       });
     });
 
+    it("shows unassigned annotations under Ohne Kategorie like the organizer", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const { w, toggle } = await openDialog();
+      win = w;
+      const doc = w.document;
+      if (!toggle.checked) toggle.click();
+      // with the outline on, "Alle" includes the unassigned annotation
+      await waitFor(
+        () =>
+          doc.querySelectorAll("#flexannotate-list-pane [data-ann-id]")
+            .length === 3,
+      );
+      // the tree offers an "(Ohne Kategorie)" entry with a count
+      const noneNode = await waitFor(() =>
+        Array.from(
+          doc.querySelectorAll("#flexannotate-tree [data-node-id]"),
+        ).find((n) => n.getAttribute("data-node-id") === "none"),
+      );
+      assert.match(noneNode.textContent || "", /1$/, "one unassigned");
+      // clicking it shows only the unassigned annotation
+      click(noneNode);
+      await waitFor(() => {
+        const rows = doc.querySelectorAll(
+          "#flexannotate-list-pane [data-ann-id]",
+        );
+        return (
+          rows.length === 1 &&
+          rows[0].getAttribute("data-ann-id") === String(anns[2].id)
+        );
+      });
+      // the unassigned row is listed under the "Ohne Kategorie" section header
+      assert.include(
+        doc.getElementById("flexannotate-list-pane")?.textContent || "",
+        "(Ohne Kategorie)",
+      );
+    });
+
+    it("updates the collection name in the dialog scope picker", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const col = new Zotero.Collection({
+        name: "DialogScope",
+        libraryID: libraryID(),
+      } as any);
+      await col.saveTx();
+      try {
+        const { w, toggle } = await openDialog();
+        win = w;
+        const doc = w.document;
+        if (!toggle.checked) toggle.click();
+        await waitFor(() => doc.getElementById("flexannotate-dialog-scope"));
+        const label = doc.querySelector(
+          "#flexannotate-dialog-scope",
+        ) as HTMLElement;
+        assert.match(
+          label.textContent || "",
+          /Gesamte Bibliothek|Whole library/,
+        );
+        // open the menu and pick the new collection
+        click(label);
+        const option = await waitFor(() =>
+          [
+            ...doc.querySelectorAll("#flexannotate-dialog-scope-picker div"),
+          ].find((o) => o.textContent === "DialogScope"),
+        );
+        click(option!);
+        await waitFor(() =>
+          (label.textContent || "").startsWith("DialogScope"),
+        );
+      } finally {
+        await col.eraseTx();
+      }
+    });
+
     it("marks annotations cited in this document with a green check", async function () {
       win?.close();
       // the work is still cited in the document: the check is shown
@@ -847,7 +926,7 @@ describe("FlexAnnotate features", function () {
       await waitFor(
         () =>
           w.document.querySelectorAll("#flexannotate-list-pane [data-ann-id]")
-            .length === 2,
+            .length === 3,
       );
       assert.lengthOf(w.document.querySelectorAll(".flexannotate-cited"), 0);
     });
@@ -980,14 +1059,15 @@ describe("FlexAnnotate features", function () {
       type(filter()!, "Dialogzitat");
       await waitFor(
         () =>
-          rows().length === 1 &&
-          rows()[0].getAttribute("data-ann-id") === String(anns[0].id),
+          rows().length === 2 &&
+          rows()[0].getAttribute("data-ann-id") === String(anns[0].id) &&
+          rows()[1].getAttribute("data-ann-id") === String(anns[2].id),
       );
       assert.equal(bar().value, "Sehr langes", "search bar untouched");
 
       // emptying the search bar shows everything again
       type(bar(), "");
-      await waitFor(() => rows().length === 2 && filter()?.value === "");
+      await waitFor(() => rows().length === 3 && filter()?.value === "");
     });
 
     it("opens the citation place of one selected annotation in the reader", async function () {
@@ -1002,7 +1082,7 @@ describe("FlexAnnotate features", function () {
       await waitFor(
         () =>
           doc.querySelectorAll("#flexannotate-list-pane [data-ann-id]")
-            .length === 2,
+            .length === 3,
       );
       const preview = doc.getElementById("flexannotate-preview")!;
       const buttons = () =>

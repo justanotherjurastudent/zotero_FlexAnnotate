@@ -37,7 +37,7 @@ export interface View {
   rows: Map<number, Row>;
   showCommentsInRows: boolean;
   cited: Set<number>;
-  node: string; // "all" or a heading id
+  node: string; // "all", "none", or a heading id
   query: string;
   sel: SelectionState;
 }
@@ -101,7 +101,11 @@ function renderTree(win: Window, v: View) {
     });
     return d;
   };
+  const noneCount = v.sections
+    .filter((s) => s.node === null)
+    .reduce((n, s) => n + new Set(s.items.map((i) => i.id)).size, 0);
   host.appendChild(line("all", 0, tr("all"), total));
+  host.appendChild(line("none", 0, tr("none"), noneCount));
   for (const { node, depth } of flatten(v.roots)) {
     host.appendChild(
       line(
@@ -117,7 +121,10 @@ function renderTree(win: Window, v: View) {
 /** Sections shown in the middle column for the chosen heading and filter. */
 export function visibleSections(v: View): Section<AnnLike>[] {
   let secs = v.sections;
-  if (v.node !== "all") {
+  if (v.node === "none") {
+    // only the unassigned "no category" bucket
+    secs = secs.filter((s) => s.node === null);
+  } else if (v.node !== "all") {
     const root = flatten(v.roots).find((f) => f.node.id === v.node)?.node;
     const ids = new Set(root ? flatten([root]).map((f) => f.node.id) : []);
     secs = secs.filter((s) => s.node && ids.has(s.node.id));
@@ -186,7 +193,7 @@ export function renderList(win: Window, v: View) {
         "div",
         `padding:6px 10px;font-weight:600;font-size:12px;border-bottom:1px solid ${LINE};` +
           "background:rgba(128,128,128,0.08);",
-        `${sec.number}  ${sec.node!.title}`,
+        sec.node ? `${sec.number}  ${sec.node.title}` : tr("none"),
       ),
     );
     for (const a of sec.items) {
