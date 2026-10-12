@@ -892,7 +892,9 @@ describe("FlexAnnotate features", function () {
         let opened = await openDialog();
         win = opened.w;
         if (!opened.toggle.checked) opened.toggle.click();
-        await waitFor(() => rowText(opened.w, anns[0].id).includes("Dialogzitat 0"));
+        await waitFor(() =>
+          rowText(opened.w, anns[0].id).includes("Dialogzitat 0"),
+        );
         assert.notInclude(rowText(opened.w, anns[0].id), comment);
 
         Zotero.Prefs.set(prefKey, true, true);
