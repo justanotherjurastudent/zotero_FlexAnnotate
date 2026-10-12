@@ -84,7 +84,17 @@
 
   <html:h3 data-l10n-id="prefs-citavi-locator-heading"></html:h3>
 
-  <hbox align="center">
+  <html:div
+    style="
+      display: grid;
+      grid-template-columns: max-content max-content;
+      align-items: center;
+      justify-content: start;
+      column-gap: 12px;
+      row-gap: 6px;
+      margin-block: 6px;
+    "
+  >
     <label
       control="flexannotate-pref-citavi-locator-page"
       data-l10n-id="prefs-citavi-locator-page"
@@ -96,9 +106,7 @@
     >
       <menupopup id="flexannotate-pref-citavi-locator-page-popup" />
     </menulist>
-  </hbox>
 
-  <hbox align="center">
     <label
       control="flexannotate-pref-citavi-locator-column"
       data-l10n-id="prefs-citavi-locator-column"
@@ -110,9 +118,7 @@
     >
       <menupopup id="flexannotate-pref-citavi-locator-column-popup" />
     </menulist>
-  </hbox>
 
-  <hbox align="center">
     <label
       control="flexannotate-pref-citavi-locator-paragraph"
       data-l10n-id="prefs-citavi-locator-paragraph"
@@ -124,9 +130,7 @@
     >
       <menupopup id="flexannotate-pref-citavi-locator-paragraph-popup" />
     </menulist>
-  </hbox>
 
-  <hbox align="center">
     <label
       control="flexannotate-pref-citavi-locator-margin"
       data-l10n-id="prefs-citavi-locator-margin"
@@ -138,9 +142,7 @@
     >
       <menupopup id="flexannotate-pref-citavi-locator-margin-popup" />
     </menulist>
-  </hbox>
 
-  <hbox align="center">
     <label
       control="flexannotate-pref-citavi-locator-other"
       data-l10n-id="prefs-citavi-locator-other"
@@ -152,7 +154,7 @@
     >
       <menupopup id="flexannotate-pref-citavi-locator-other-popup" />
     </menulist>
-  </hbox>
+  </html:div>
 
   <description
     class="indented-pref"

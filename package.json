@@ -2,7 +2,7 @@
   "name": "zotero-flexannotate",
   "type": "module",
   "version": "2.0.0",
-  "description": "FlexAnnotate: print annotations, citation-only insertion, Citavi import and a Citavi-style annotation organizer for Zotero.",
+  "description": "FlexAnnotate: print annotations, citation-only insertion, Citavi import and an annotation organizer for Zotero.",
   "config": {
     "addonName": "FlexAnnotate",
     "addonID": "flexannotate@justanotherjurastudent.github.io",

@@ -1,5 +1,6 @@
 import { assert } from "chai";
 import { config } from "../package.json";
+import { waitFor } from "./helpers";
 
 // Die Pane wird über Zotero.PreferencePanes.register() in hooks.ts angemeldet.
 function findPane() {
@@ -29,6 +30,32 @@ describe("preferences pane", function () {
     for (const key of keys) {
       assert.isTrue(key.startsWith(`${config.prefsPrefix}.`), key);
       assert.isDefined(Zotero.Prefs.get(key, true), `default for ${key}`);
+    }
+  });
+
+  it("aligns the locator menus in one left-aligned column", async function () {
+    const pane = findPane();
+    assert.isDefined(pane);
+    Zotero.Utilities.Internal.openPreferences(pane!.id!);
+    const win = await waitFor(() => {
+      const en = Services.wm.getEnumerator("zotero:pref");
+      return en.hasMoreElements() ? (en.getNext() as Window) : null;
+    });
+    try {
+      const ids = ["page", "column", "paragraph", "margin", "other"].map(
+        (k) => `flexannotate-pref-citavi-locator-${k}`,
+      );
+      const lefts = await waitFor(() => {
+        const els = ids.map((id) => win.document.getElementById(id));
+        if (els.some((el) => !el)) return null;
+        const rects = els.map((el) => (el as Element).getBoundingClientRect());
+        return rects.every((r) => r.width > 0)
+          ? rects.map((r) => r.left)
+          : null;
+      });
+      assert.lengthOf(new Set(lefts.map((l) => Math.round(l))), 1, `${lefts}`);
+    } finally {
+      win.close();
     }
   });
 });

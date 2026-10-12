@@ -5,7 +5,7 @@
  *   column 2: one-line rows (annotations or works) with a permanent assign bar
  *   column 3: details of the selected row (editable), citation and categories
  *
- * Two tabs like Citavi: "Wissen" (annotations) and "Titel" (works). Rows are
+ * Two tabs: "Wissen" (annotations) and "Titel" (works). Rows are
  * filed under a heading by multi-select + assign bar, or by drag and drop onto
  * a tree node. A heading is a Zotero tag; the tree lives in the outline note.
  * The entries can be restricted to a collection (and its subcollections).

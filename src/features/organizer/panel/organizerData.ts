@@ -1,7 +1,7 @@
 /**
  * organizerData — rows for the organizer window and bulk filing.
  *
- * Two kinds of rows, like Citavi's two tabs: "work" rows (Titel) are regular
+ * Two kinds of rows: "work" rows (Titel) are regular
  * Zotero items, "annotation" rows (Wissen) come from the annotation index.
  * Filing a row under a heading = adding the heading's tag to the item.
  */
