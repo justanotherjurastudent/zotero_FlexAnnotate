@@ -1,21 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
-	<!-- Buch mit Seitenzahl-Lesezeichen und Textmarker-Strich -->
-	<rect x="14" y="10" width="62" height="76" rx="6" fill="#2f5d8c"/>
-	<rect x="20" y="10" width="56" height="70" rx="3" fill="#fdfdf8"/>
-	<rect x="14" y="10" width="10" height="76" rx="4" fill="#244a70"/>
-	<g stroke="#b9c2cc" stroke-width="3" stroke-linecap="round">
-		<line x1="32" y1="26" x2="66" y2="26"/>
-		<line x1="32" y1="56" x2="60" y2="56"/>
-		<line x1="32" y1="66" x2="52" y2="66"/>
-	</g>
-	<rect x="30" y="35" width="38" height="11" rx="2" fill="#ffd400" opacity="0.85"/>
-	<g stroke="#8a93a0" stroke-width="3" stroke-linecap="round">
-		<line x1="32" y1="40.5" x2="64" y2="40.5"/>
-	</g>
-	<!-- Textmarker -->
-	<g transform="rotate(35 70 58)">
-		<rect x="64" y="38" width="12" height="34" rx="2" fill="#e9a800"/>
-		<rect x="64" y="38" width="12" height="9" rx="2" fill="#ffd400"/>
-		<polygon points="64,72 76,72 72,82 68,82" fill="#555b66"/>
-	</g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96"><defs><linearGradient id="g" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#1c6e5a"/><stop offset="1" stop-color="#46b36a"/></linearGradient></defs>
+<path d="M18 6H78a14 14 0 0 1 14 14V62a14 14 0 0 1-14 14H44L26 92V76H18a14 14 0 0 1-14-14V20A14 14 0 0 1 18 6Z" fill="url(#g)"/>
+<rect x="32" y="32" width="48" height="18" rx="6" fill="#ffd400"/>
+<g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M22 30V58M22 41H30M22 58H30" stroke="#fff" stroke-width="5"/><path d="M38 41H70" stroke="#14513f" stroke-width="6"/><path d="M36 24H76M38 58H64" stroke="#fff" stroke-width="7"/></g>
+<circle cx="22" cy="24" r="7" fill="#fff"/></svg>
