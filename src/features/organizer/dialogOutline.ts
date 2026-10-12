@@ -254,7 +254,7 @@ function addPicker(win: Window, info: Attached) {
   const wrap = doc.createElement("div");
   wrap.id = PICKER_ID;
   wrap.style.cssText =
-    "flex:none;display:flex;gap:6px;align-items:center;padding:6px 8px;border-bottom:1px solid var(--fill-quinary, rgba(128,128,128,0.25));";
+    "flex:none;display:flex;gap:6px;align-items:center;box-sizing:border-box;height:34px;padding:0 8px;border-bottom:1px solid var(--fill-quinary, rgba(128,128,128,0.25));";
   const label = doc.createElement("span");
   label.style.cssText = "font-size:12px;color:var(--fill-secondary,#777);";
   label.textContent = tr("scope");
@@ -270,11 +270,12 @@ function addPicker(win: Window, info: Attached) {
   sel.id = "flexannotate-dialog-scope";
   sel.style.cssText =
     "appearance:none;-moz-appearance:none;cursor:pointer;width:100%;max-width:100%;overflow:hidden;" +
-    "text-overflow:ellipsis;white-space:nowrap;text-align:start;padding:3px 8px;font-size:12px;";
+    "text-overflow:ellipsis;white-space:nowrap;text-align:start;box-sizing:border-box;height:24px;padding:0 8px;font-size:12px;";
   sel.textContent = `${still.name}  ▾`;
   const menu = doc.createElement("div");
   menu.style.cssText =
-    "position:absolute;left:0;top:100%;margin-top:2px;z-index:60;display:none;min-width:220px;max-height:300px;overflow-y:auto;" +
+    // fixed statt absolute: der Container des Dialogs schneidet (overflow:hidden)
+    "position:fixed;z-index:1000;display:none;min-width:220px;max-height:300px;overflow-y:auto;" +
     "background:var(--material-background,#fff);border:1px solid var(--fill-quinary, rgba(128,128,128,0.35));border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.25);";
   for (const c of choices) {
     const o = doc.createElement("div");
@@ -295,8 +296,19 @@ function addPicker(win: Window, info: Attached) {
     });
     menu.appendChild(o);
   }
-  sel.addEventListener("click", () => {
-    menu.style.display = menu.style.display === "none" ? "block" : "none";
+  sel.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (menu.style.display === "block") {
+      menu.style.display = "none";
+      return;
+    }
+    const r = sel.getBoundingClientRect();
+    menu.style.left = `${r.left}px`;
+    menu.style.top = `${r.bottom + 2}px`;
+    menu.style.display = "block";
+  });
+  doc.addEventListener("click", () => {
+    menu.style.display = "none";
   });
   relPos.append(sel, menu);
   wrap.append(label, relPos);

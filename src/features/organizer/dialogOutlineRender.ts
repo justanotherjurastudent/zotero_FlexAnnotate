@@ -73,7 +73,7 @@ function renderTree(win: Window, v: View) {
       doc,
       "div",
       `display:flex;justify-content:space-between;gap:8px;cursor:pointer;` +
-        `padding:5px 10px 5px ${10 + depth * 14}px;` +
+        `padding:4px 10px 4px ${10 + depth * 14}px;font-size:12px;` +
         `background:${on ? SELECTED : "transparent"};font-weight:${on ? 600 : 400};`,
     );
     d.dataset.nodeId = id;
@@ -147,7 +147,9 @@ export function renderList(win: Window, v: View) {
   filter.type = "text";
   filter.placeholder = tr("dialogFilter");
   filter.value = v.query;
-  filter.style.cssText = "margin:6px;flex:none;padding:5px 8px;";
+  // Höhe 24 + Rand 2×5 = 34 px, genau wie die Sammlungs-Zeile links
+  filter.style.cssText =
+    "margin:5px 6px;flex:none;box-sizing:border-box;height:24px;padding:0 8px;font-size:12px;";
   filter.addEventListener("input", () => {
     v.query = filter.value;
     renderList(win, v);
