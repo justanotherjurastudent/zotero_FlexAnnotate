@@ -21,6 +21,7 @@ import {
   loadScopeWorkIDs,
   loadWorkRows,
   locatorLabel,
+  readShowCommentsInRows,
   readShowWorks,
   Row,
   Scope,
@@ -56,6 +57,8 @@ export interface State {
   sections: boolean;
   /** Plugin setting: show the works behind the annotations. */
   showWorks: boolean;
+  /** Plugin setting: show annotation comments in row text if available. */
+  showCommentsInRows: boolean;
   renaming: string | null;
   /** Pending outline saves, in order. */
   saveChain: Promise<void>;
@@ -232,6 +235,7 @@ export async function reload(ctx: Ctx) {
   s.sel = emptySelection();
   s.editing = null;
   s.showWorks = readShowWorks();
+  s.showCommentsInRows = readShowCommentsInRows();
   ctx.render();
   void refreshOrphans(ctx);
 }
