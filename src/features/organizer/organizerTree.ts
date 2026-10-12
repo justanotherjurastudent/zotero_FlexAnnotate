@@ -71,12 +71,6 @@ export function renderTree(ctx: Ctx, c: HTMLElement, t: Palette) {
     iconButton(doc, t, "outdent", tr("outdent"), act(outdent)),
     iconButton(doc, t, "indent", tr("indent"), act(indent)),
     sep(),
-    iconButton(doc, t, "importDoc", tr("importTitle"), () => {
-      void docImport.start(ctx);
-    }),
-    iconButton(doc, t, "exportDoc", tr("exportDocTitle"), () => {
-      void docExport.start(ctx);
-    }),
     iconButton(doc, t, "rename", tr("rename"), () => {
       if (selNode) {
         s.renaming = s.node;
@@ -107,7 +101,24 @@ export function renderTree(ctx: Ctx, c: HTMLElement, t: Palette) {
     "div",
     `border-top:1px solid ${t.border};padding:6px;display:flex;flex-direction:column;gap:4px;`,
   );
-  foot.append(
+  const row = el(doc, "div", "display:flex;gap:4px;");
+  row.append(
+    button(
+      doc,
+      t,
+      tr("importLabel"),
+      tr("importTitle"),
+      () => void docImport.start(ctx),
+      "importDoc",
+    ),
+    button(
+      doc,
+      t,
+      tr("exportDocLabel"),
+      tr("exportDocTitle"),
+      () => void docExport.start(ctx),
+      "exportDoc",
+    ),
     button(
       doc,
       t,
@@ -116,8 +127,12 @@ export function renderTree(ctx: Ctx, c: HTMLElement, t: Palette) {
       () => void exportNote(s),
       "export",
     ),
-    el(doc, "span", `font-size:11px;color:${t.sub};`, tr("exportHint")),
   );
+  for (const b of Array.from(row.children) as HTMLElement[]) {
+    b.style.flex = "1";
+    b.style.justifyContent = "center";
+  }
+  foot.append(row);
   if (s.orphans.length) {
     const b = button(
       doc,

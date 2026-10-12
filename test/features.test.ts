@@ -549,7 +549,7 @@ describe("FlexAnnotate features", function () {
     });
 
     it("explains and performs the note export", async function () {
-      const btn = buttonWith(/Als Notiz exportieren|Export as note/)!;
+      const btn = buttonWith(/^\s*(Notiz|Note)\s*$/)!;
       assert.ok(btn, "export button");
       assert.match(btn.title, /Notiz|note/i);
       click(btn);

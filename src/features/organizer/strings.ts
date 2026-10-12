@@ -20,11 +20,11 @@ const de = {
   rename: "Umbenennen (F2 oder Doppelklick)",
   delete: "Überschrift löschen (Entf)",
   goto: "Gehe zu …",
-  export: "Als Notiz exportieren",
+  importLabel: "Import",
+  exportDocLabel: "Export",
+  export: "Notiz",
   exportTitle:
     "Legt eine neue Zotero-Notiz an: alle Überschriften in Reihenfolge, darunter die zugeordneten Zitate mit Quellenangabe.",
-  exportHint:
-    "Erzeugt eine Zotero-Notiz mit der Gliederung und allen zugeordneten Zitaten.",
   exportDone: "Notiz angelegt: {h} Überschriften, {n} Einträge.",
   exportNoteTitle: "Gliederung mit Zitaten",
   newHeading: "Neue Überschrift",
@@ -138,10 +138,11 @@ const en: Record<Key, string> = {
   rename: "Rename (F2 or double-click)",
   delete: "Delete heading (Del)",
   goto: "Go to …",
-  export: "Export as note",
+  importLabel: "Import",
+  exportDocLabel: "Export",
+  export: "Note",
   exportTitle:
     "Creates a new Zotero note: all headings in order, with the assigned quotes and their sources below.",
-  exportHint: "Creates a Zotero note with the outline and all assigned quotes.",
   exportDone: "Note created: {h} headings, {n} entries.",
   exportNoteTitle: "Outline with quotes",
   newHeading: "New heading",
