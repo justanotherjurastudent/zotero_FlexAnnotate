@@ -8,6 +8,7 @@
  * (docs/architecture.md, Fallstrick 10).
  */
 import { getLocaleID } from "../../utils/locale";
+import { selectedCollection as paneCollection } from "../../utils/window";
 import type { Feature } from "../../shared/feature";
 import { OrganizerFactory } from "./panel/organizer";
 
@@ -22,10 +23,7 @@ const listeners = new WeakMap<MainWin, { show: () => void; cmd: () => void }>();
 /** Aktuell markierte Sammlung, oder null (Bibliothek/Item markiert). */
 function selectedCollection(win: MainWin): Zotero.Collection | null {
   try {
-    const col = win.ZoteroPane?.getSelectedCollection?.() as
-      Zotero.Collection | false | null | undefined;
-    // Zotero liefert false/null, wenn kein Item oder keine Sammlung markiert ist
-    return col && typeof col === "object" ? col : null;
+    return paneCollection(win.ZoteroPane);
   } catch {
     return null;
   }

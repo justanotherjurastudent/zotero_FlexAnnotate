@@ -213,6 +213,8 @@ describe("docExport", function () {
     assert.equal(r.status, "exported");
     const before = await IOUtils.read(path);
     const lock = lockFile(path);
+    // Die Sperre braucht kernel32 (nur Windows); anderswo ueberspringen.
+    if (!lock && !Zotero.isWin) return this.skip();
     if (!lock) assert.fail(`lockFile null: ${lastLockError}`);
     try {
       const r2 = await api().docExport.exportTo(sample(), {

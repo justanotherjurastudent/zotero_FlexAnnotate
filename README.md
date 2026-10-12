@@ -12,7 +12,7 @@ Ein Zotero-Plugin für alle, die mit gedruckten Quellen arbeiten: Kommentare, Le
 
 Zotero hängt Annotationen an Dateien, also an PDFs, EPUBs oder Snapshots. Ein gedrucktes Buch hat keine Datei, und damit kann man dort keine Textstelle mit Seitenzahl festhalten. Dazu kommen zwei weitere Hürden: Word und LibreOffice fügen eine Annotation immer samt Zitattext ein, und Zoteros Citavi-Import wirft Zitate ohne PDF-Anker weg.
 
-FlexAnnotate löst diese drei Dinge und bringt einen Organizer mit, der Annotationen nach Gliederungspunkten sortiert, ähnlich wie die Wissensorganisation in Citavi. Seit 2.0.0 steckt auch das frühere Plugin Annotree darin; beides ist jetzt ein Plugin.
+FlexAnnotate löst diese drei Dinge und bringt einen Organizer mit, der Annotationen nach Gliederungspunkten sortiert, ähnlich wie die Wissensorganisation in Citavi.
 
 ### Was es kann
 
@@ -89,7 +89,7 @@ Getestet sind 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6. Alles Wichtige läuft auf 
 
 Zotero attaches annotations to files: PDFs, EPUBs, snapshots. A printed book has no file, so you cannot save a passage with a page number. Two more problems: Word and LibreOffice always insert an annotation together with its quoted text, and Zotero's Citavi import throws away quotes that have no PDF anchor.
 
-FlexAnnotate deals with all three. It also ships an Organizer that sorts annotations under outline headings, much like knowledge organisation in Citavi. Since 2.0.0 it contains the former plugin Annotree, so the two are now one.
+FlexAnnotate deals with all three. It also ships an Organizer that sorts annotations under outline headings, much like knowledge organisation in Citavi.
 
 ### What it does
 

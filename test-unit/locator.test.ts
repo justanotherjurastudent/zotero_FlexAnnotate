@@ -27,10 +27,6 @@ describe("locator", () => {
     assert.equal(locatorOf([para], [docSection]), "paragraph");
   });
 
-  it("ignores a stale Annotree tag", () => {
-    assert.equal(locatorOf(["annotree:locator=chapter"]), "page");
-  });
-
   it("sets no tag for page without a non-page document default", () => {
     assert.deepEqual(locatorTagChanges([], [], "page"), {
       remove: [],

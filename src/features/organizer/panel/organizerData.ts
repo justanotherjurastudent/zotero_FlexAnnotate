@@ -8,6 +8,7 @@
 
 import { AnnotationIndex } from "../annotationIndex";
 import { citationFor } from "../citation";
+import { selectedCollection } from "../../../utils/window";
 import {
   collectionOptions,
   scopeCollectionIDs,
@@ -207,11 +208,7 @@ export function defaultScope(): { libraryID: number; scope: Scope } {
     } else if (typeof pane?.getSelectedLibraryID === "function") {
       libraryID = pane.getSelectedLibraryID() ?? libraryID;
     }
-    const cols = pane?.getSelectedCollections?.();
-    const col =
-      Array.isArray(cols) && cols.length > 0
-        ? cols[0]
-        : pane?.getSelectedCollection?.();
+    const col = selectedCollection(pane);
     if (col && col.libraryID === libraryID) collectionID = col.id;
   } catch (e) {
     ztoolkit.log("flexannotate default scope failed:", e);

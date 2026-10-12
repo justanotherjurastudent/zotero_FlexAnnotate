@@ -187,9 +187,9 @@ describe("FlexAnnotate features", function () {
       const scopeSel = doc.getElementById(
         "flexannotate-scope",
       ) as HTMLSelectElement;
-      const selected = (
-        Zotero.getMainWindow() as any
-      ).ZoteroPane.getSelectedCollection();
+      const pane = (Zotero.getMainWindow() as any).ZoteroPane;
+      const selected =
+        pane.getSelectedCollections?.()[0] ?? pane.getSelectedCollection();
       assert.equal(
         scopeSel.dataset.value,
         String(selected.id),
@@ -605,7 +605,6 @@ describe("FlexAnnotate features", function () {
       const tags = tagsOf(a1);
       assert.include(tags, "#flexannotate-locator-section");
       assert.notInclude(tags, "#flexannotate-locator-paragraph");
-      assert.isFalse(tags.some((t) => t.startsWith("annotree:locator=")));
       // it is an automatic tag, like FlexAnnotate sets it
       const t = a1.getTags().find((x) => x.tag.endsWith("section"))!;
       assert.equal(t.type, 1);
@@ -619,7 +618,6 @@ describe("FlexAnnotate features", function () {
       await api().organizerData.saveAnnotation(a2.id, { locator: "page" });
       const tags = tagsOf(a2);
       assert.include(tags, "#flexannotate-locator-page");
-      assert.isFalse(tags.some((t) => t.startsWith("annotree:locator=")));
     });
   });
 

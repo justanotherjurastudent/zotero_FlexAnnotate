@@ -2,7 +2,7 @@
 
 ## Projekt
 
-FlexAnnotate ist ein Zotero-Plugin (TypeScript, zotero-plugin-scaffold, Version 2.0.0, Addon-ID `flexannotate@justanotherjurastudent.github.io`, AGPL-3.0-or-later). Es vereint das frühere FlexAnnotate (Print-Annotationen, Nur-Nachweis-Zitieren, Citavi-Import; 1.2.0 liegt unter dem Git-Tag `pre-merge`) und Annotree (Organizer; Fork von Lattice). Ziel: Zotero 7.0 bis 10. Entwickelt gegen **Zotero 10.0.5/10.0.6** (Per-User-Install unter `%LOCALAPPDATA%\Zotero`); die Testsuite läuft zusätzlich gegen 7.0.32, 8.0.4 und 9.0.6 (`npm run test:versions`). Was vor Zotero 10 fehlt, steht im README. Aufbau und Fallstricke: `docs/architecture.md`.
+FlexAnnotate ist ein Zotero-Plugin (TypeScript, zotero-plugin-scaffold, Version 2.0.0, Addon-ID `flexannotate@justanotherjurastudent.github.io`, AGPL-3.0-or-later). Es bietet Print-Annotationen, Nur-Nachweis-Zitieren, Citavi-Import und einen Organizer (Fork von Lattice); 1.2.0 liegt unter dem Git-Tag `pre-merge`. Ziel: Zotero 7.0 bis 10. Entwickelt gegen **Zotero 10.0.5/10.0.6** (Per-User-Install unter `%LOCALAPPDATA%\Zotero`); die Testsuite läuft zusätzlich gegen 7.0.32, 8.0.4 und 9.0.6 (`npm run test:versions`). Was vor Zotero 10 fehlt, steht im README. Aufbau und Fallstricke: `docs/architecture.md`.
 
 ## Aufbau
 

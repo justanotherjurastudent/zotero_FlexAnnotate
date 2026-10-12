@@ -179,6 +179,8 @@ describe("docImport", function () {
     const ctx = fresh();
     const file = makeDocx("locked.docx", DE_BODY, DE_STYLES);
     const lock = lockFile(file.path);
+    // Die Sperre braucht kernel32 (nur Windows); anderswo ueberspringen.
+    if (!lock && !Zotero.isWin) return this.skip();
     if (!lock) assert.fail(`lockFile null: ${lastLockError}`);
     try {
       const r = await imp(ctx, file);

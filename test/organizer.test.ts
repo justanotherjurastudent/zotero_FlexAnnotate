@@ -195,7 +195,9 @@ describe("FlexAnnotate", function () {
     it("Titel tab lists works and files a work under a heading", async function () {
       const doc = win!.document;
       const tab = Array.from(doc.querySelectorAll("div")).find(
-        (d) => d.textContent === "Titel" && d.children.length === 0,
+        (d) =>
+          ["Titel", "Titles"].includes(d.textContent ?? "") &&
+          d.children.length === 0,
       ) as HTMLElement;
       tab.click();
       const workRow = (await waitFor(() =>
