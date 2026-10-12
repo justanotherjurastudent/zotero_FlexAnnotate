@@ -8,7 +8,7 @@ import {
   AnnRecord,
   uriLibraryPrefix,
 } from "./annotationIndex";
-import { citationFor } from "./annotationExport";
+import { citationFor } from "./citation";
 import {
   HEADING_PREFIX,
   htmlToText,

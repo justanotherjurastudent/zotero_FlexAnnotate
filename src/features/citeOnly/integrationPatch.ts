@@ -1,5 +1,5 @@
 /**
- * Feature B – Nur-Nachweis-Zitieren (Herkunft: pre-merge:src/integrationPatch.js).
+ * Nur-Nachweis-Zitieren (citeOnly) (Herkunft: pre-merge:src/integrationPatch.js).
  *
  * Angriffspunkt (verifiziert gegen Zotero 10.0.5, xpcom/integration.js:1678-1701):
  * `Zotero.Integration.Session.prototype._insertCitingResult` zweigt ab, sobald die
@@ -128,13 +128,13 @@ export function patch(): boolean {
   if (!proto || typeof proto._insertCitingResult !== "function") {
     ztoolkit.log(
       "FlexAnnotate: Integration.Session.prototype._insertCitingResult not found — " +
-        "Feature B (Nur-Nachweis-Zitieren) bleibt deaktiviert.",
+        "Nur-Nachweis-Zitieren (citeOnly) bleibt deaktiviert.",
     );
     return false;
   }
   if (typeof proto._insertItemsIntoDocument !== "function") {
     ztoolkit.log(
-      "FlexAnnotate: _insertItemsIntoDocument not found — Feature B bleibt deaktiviert.",
+      "FlexAnnotate: _insertItemsIntoDocument not found — cite-only stays disabled.",
     );
     return false;
   }
@@ -162,7 +162,7 @@ export function patch(): boolean {
   if (!assignChecked(proto, "_insertCitingResult", patched)) {
     ztoolkit.log(
       "FlexAnnotate: patch of _insertCitingResult did not take effect — " +
-        "Feature B (Nur-Nachweis-Zitieren) bleibt wirkungslos.",
+        "Nur-Nachweis-Zitieren (citeOnly) bleibt wirkungslos.",
     );
     return false;
   }

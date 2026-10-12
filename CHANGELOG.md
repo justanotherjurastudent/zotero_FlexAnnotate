@@ -6,6 +6,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 
 **Merged: Annotree is now part of FlexAnnotate.** Ein einziges TypeScript-Plugin (zotero-plugin-scaffold) ersetzt das Vanilla-JS-FlexAnnotate 1.2.0 (Git-Tag `pre-merge`) und Annotree. Geprüft gegen Zotero 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6; Umfang je Version siehe README.
 
+### Changed
+
+- Struktur: Reine Logik liegt jetzt je Feature in `src/features/<feature>/logic/`; `src/core/` enthält nur noch, was mehrere Features teilen (`locator`, `printDialog`, `labelPopup`). Organizer-Dateien sind in `panel/`, `dialog/`, `doc/` und `logic/` gegliedert. Pfadangaben in älteren Einträgen unten nennen noch den früheren Ort.
+- Aufräumen: ungenutzten Annotations-Digest-Export, `copyDraft`, `clearPref`, die verwaiste Wurzel-`prefs.js` und die historische `docs/plan.md` entfernt.
+
 ### Added
 
 - Organizer (Gliederung, Zitierdialog-Ansicht, Notiz-Export) aus Annotree als Teil von FlexAnnotate.

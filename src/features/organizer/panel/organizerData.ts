@@ -7,7 +7,7 @@
  */
 
 import { AnnotationIndex } from "../annotationIndex";
-import { citationFor } from "../annotationExport";
+import { citationFor } from "../citation";
 import {
   collectionOptions,
   scopeCollectionIDs,

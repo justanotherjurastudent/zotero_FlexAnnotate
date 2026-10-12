@@ -152,20 +152,6 @@ export async function gatherAll(
   return map;
 }
 
-/** Copy the generated draft to the clipboard. */
-export function copyDraft(
-  roots: OutlineNode[],
-  gathered: GatherMap,
-  format: "markdown" | "html",
-  opts: OutlineExportOptions = {},
-) {
-  const text =
-    format === "html"
-      ? outlineToHtml(roots, gathered, opts)
-      : outlineToMarkdown(roots, gathered, opts);
-  new ztoolkit.Clipboard().addText(text, "text/unicode").copy();
-}
-
 /** Materialise the draft as a standalone Zotero note and return it. */
 export async function saveDraftAsNote(
   roots: OutlineNode[],
