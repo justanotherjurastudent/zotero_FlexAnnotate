@@ -11,8 +11,8 @@ import {
 } from "./organizerData";
 import { button, el, input, toast } from "./organizerDom";
 import { Ctx } from "./organizerState";
-import { Palette } from "./theme";
-import { tr } from "./strings";
+import { Palette } from "../theme";
+import { tr } from "../strings";
 
 /** Edit quote text, comment, citation place and place type of an annotation. */
 export function renderEditForm(ctx: Ctx, box: HTMLElement, t: Palette, r: Row) {

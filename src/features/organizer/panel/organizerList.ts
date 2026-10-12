@@ -9,15 +9,15 @@ import {
   locate,
   numbering,
   OutlineNode,
-} from "../../core/outline";
-import { applyClick, dragIds } from "../../core/selection";
-import { openRow } from "./openTarget";
+} from "../logic/outline";
+import { applyClick, dragIds } from "../logic/selection";
+import { openRow } from "../openTarget";
 import { Row } from "./organizerData";
 import { button, DND_TYPE, el, input } from "./organizerDom";
 import { assign, unassign } from "./organizerFiling";
 import { Ctx, placeOf, State } from "./organizerState";
-import { Palette } from "./theme";
-import { tr } from "./strings";
+import { Palette } from "../theme";
+import { tr } from "../strings";
 
 // column 2 -------------------------------------------------------------------
 

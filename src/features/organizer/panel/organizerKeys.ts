@@ -11,8 +11,8 @@ import {
   neighborId,
   outdent,
   OutlineNode,
-} from "../../core/outline";
-import { applyClick, selectAll } from "../../core/selection";
+} from "../logic/outline";
+import { applyClick, selectAll } from "../logic/selection";
 import { unassign } from "./organizerFiling";
 import { Ctx, orderIds, persist } from "./organizerState";
 import { deleteNode } from "./organizerTree";

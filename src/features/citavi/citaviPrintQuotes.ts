@@ -13,7 +13,7 @@ import {
   xpathLiteral,
   type AnnotationKey,
   type CitaviKnowledgeItem,
-} from "../../core/citavi";
+} from "./logic/citavi";
 import { getPref } from "../../utils/prefs";
 import * as printAnnotations from "../print/printAnnotations";
 import { find as findPlaceholder, isPlaceholder } from "../print/placeholder";

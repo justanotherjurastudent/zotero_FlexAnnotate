@@ -7,9 +7,9 @@ FlexAnnotate ist ein Zotero-Plugin (TypeScript, zotero-plugin-scaffold, Version 
 ## Aufbau
 
 ```
-src/core/           reine Logik ohne Zotero-Importe (Node-testbar)
+src/core/           reine Logik, die mehrere Features teilen (Locator, Eingabemaske, Seitenzahl-Popup)
 src/shared/         Feature-Registry, assignChecked, Zitierdialog-Watcher
-src/features/       print, citeOnly, citavi, reader, organizer
+src/features/       print, citeOnly, citavi, reader, organizer; je Feature `logic/` = reine Logik ohne Zotero-Importe (Node-testbar)
 src/prefs/          Skript des Einstellungsfensters (eigenes Bundle)
 src/utils/          Locale, Prefs, Menü-Registrierung, ztoolkit
 src/hooks.ts        Feature-Liste und Lebenszyklus
@@ -48,11 +48,11 @@ npm start             # zotero-plugin serve (Entwicklung, Zugangsdaten in .env, 
 
   Neue Fundstellen mit Zeile in `docs/anchors.md` eintragen und die Version nennen. Was nur auf einer Version nachgeschlagen wurde, als solches kennzeichnen.
 
-- **Weitere Zotero-Versionen** liegen als entpackte Installer in `.zotero-versions/<version>/` (gitignored, nicht installiert; Beschaffung in `docs/testing.md`). Neue Funktionen auf 7.x bis 9.x prüfen und, wo sie fehlen, mit Funktionserkennung statt Versionsvergleich umgehen (Beispiele: `core/printAnnotation.ts` `annotationColors`, `features/organizer/toolsMenuFallback.ts`).
+- **Weitere Zotero-Versionen** liegen als entpackte Installer in `.zotero-versions/<version>/` (gitignored, nicht installiert; Beschaffung in `docs/testing.md`). Neue Funktionen auf 7.x bis 9.x prüfen und, wo sie fehlen, mit Funktionserkennung statt Versionsvergleich umgehen (Beispiele: `src/features/print/logic/printAnnotation.ts` `annotationColors`, `features/organizer/toolsMenuFallback.ts`).
 - **Bilder in `docs/img/`** nur über `npm run screenshots:docs` erzeugen, nicht von Hand ändern; die README bindet sie ein.
 
 - **Prototyp-Patches** nur mit `assignChecked` (`src/shared/patch.ts`): Ziel vorher prüfen, Ergebnis zurücklesen, Fehlschlag protokollieren, in `stop`/`removeFromWindow` zurücknehmen. Ein Patch braucht einen Nachweis (Test oder Quellstelle).
-- **Reine Logik nach `src/core`** (keine Zotero-Globals, Importe mit `.ts`-Endung) und dort mit einem Node-Test in `test-unit/` absichern.
+- **Reine Logik** nach `src/features/<feature>/logic/` (nur wenn mehrere Features sie brauchen: `src/core`); keine Zotero-Globals, Importe mit `.ts`-Endung, und mit einem Node-Test in `test-unit/` absichern.
 - **Zotero-Tests nur über `addon.api`** (siehe `src/hooks.ts`); Module nicht direkt importieren, sie brauchen das Global `ztoolkit`.
 - **Neue Features** als `Feature` (`src/shared/feature.ts`) in `src/hooks.ts` eintragen: Globales in `start`/`stop`, DOM in `addToWindow`/`removeFromWindow`, beides idempotent.
 - **Fensterzustand** gehört ans Element oder in eine `WeakMap` je Fenster, nicht ans Modulobjekt (`docs/architecture.md`, Fallstrick 11).

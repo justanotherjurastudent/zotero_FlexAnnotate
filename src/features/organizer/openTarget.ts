@@ -10,7 +10,7 @@
  * `annotationID` location key.
  */
 
-import type { Row } from "./organizerData";
+import type { Row } from "./panel/organizerData";
 
 function activateMainWindow(): any {
   const win = Zotero.getMainWindow() as any;

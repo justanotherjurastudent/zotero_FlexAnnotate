@@ -3,7 +3,7 @@
  * er bekommt. Reine Logik ohne Zotero-Globals, daher im Node-Test prüfbar.
  * Herkunft: pre-merge:src/readerMenu.js (getAnnotationLocator, getLocatorLabel).
  */
-import { DEFAULT_LOCATOR, LOCATOR_PREFIX } from "./locator.ts";
+import { DEFAULT_LOCATOR, LOCATOR_PREFIX } from "../../../core/locator.ts";
 
 export interface LocatorLabels {
   page: string;

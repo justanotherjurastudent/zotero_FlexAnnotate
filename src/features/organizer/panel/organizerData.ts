@@ -6,19 +6,19 @@
  * Filing a row under a heading = adding the heading's tag to the item.
  */
 
-import { AnnotationIndex } from "./annotationIndex";
-import { citationFor } from "./annotationExport";
+import { AnnotationIndex } from "../annotationIndex";
+import { citationFor } from "../annotationExport";
 import {
   collectionOptions,
   scopeCollectionIDs,
   topmostCollection,
-} from "../../core/collections";
-import type { ColNode } from "../../core/collections";
+} from "../logic/collections";
+import type { ColNode } from "../logic/collections";
 import {
   FALLBACK_LOCATORS,
   locatorOf,
   locatorTagChanges,
-} from "../../core/locator";
+} from "../../../core/locator";
 
 export type RowKind = "work" | "annotation";
 

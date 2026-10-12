@@ -14,7 +14,7 @@ import { DEFAULT_LOCATOR } from "../../core/locator";
 import {
   explicitLocatorFromTags,
   locatorLabelText,
-} from "../../core/readerLocator";
+} from "./logic/readerLocator";
 import type { DialogView } from "../../core/printDialog";
 import * as printDialog from "../print/dialog";
 import * as printAnnotations from "../print/printAnnotations";

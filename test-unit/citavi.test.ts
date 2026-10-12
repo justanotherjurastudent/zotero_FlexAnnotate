@@ -12,7 +12,7 @@ import {
   splitOnetoN,
   stripMarkup,
   xpathLiteral,
-} from "../src/core/citavi.ts";
+} from "../src/features/citavi/logic/citavi.ts";
 
 // Standardwerte der Prefs (prefs.js)
 const DEFAULT_PREFS: Record<string, string> = {

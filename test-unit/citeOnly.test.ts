@@ -1,7 +1,10 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { citationOnlyItems } from "../src/core/citeOnly.ts";
-import type { AnnotationRef, CitationItemLike } from "../src/core/citeOnly.ts";
+import { citationOnlyItems } from "../src/features/citeOnly/logic/citeOnly.ts";
+import type {
+  AnnotationRef,
+  CitationItemLike,
+} from "../src/features/citeOnly/logic/citeOnly.ts";
 import { locatorOf } from "../src/core/locator.ts";
 
 const ref = (over: Partial<AnnotationRef> = {}): AnnotationRef => ({

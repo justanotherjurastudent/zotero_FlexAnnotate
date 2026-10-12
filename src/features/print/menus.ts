@@ -9,7 +9,7 @@
  * deshalb steuert das Feature ihre Sichtbarkeit selbst auf popupshowing.
  */
 import { config } from "../../../package.json";
-import { printMenuState, type SelectionKind } from "../../core/printMenuState";
+import { printMenuState, type SelectionKind } from "./logic/printMenuState";
 import { getLocaleID } from "../../utils/locale";
 import { defaultLogger, type Feature } from "../../shared/feature";
 import * as dialog from "./dialog";

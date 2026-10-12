@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   explicitLocatorFromTags,
   locatorLabelText,
-} from "../src/core/readerLocator.ts";
+} from "../src/features/reader/logic/readerLocator.ts";
 
 const labels = { page: "Seite", margin: "Randnummer", opus: "Opus" };
 const noCite = () => undefined;

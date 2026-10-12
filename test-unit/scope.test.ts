@@ -5,13 +5,18 @@ import {
   descendantIds,
   scopeCollectionIDs,
   topmostCollection,
-} from "../src/core/collections.ts";
-import { activeIds, parseStore, record, unrecord } from "../src/core/cited.ts";
+} from "../src/features/organizer/logic/collections.ts";
+import {
+  activeIds,
+  parseStore,
+  record,
+  unrecord,
+} from "../src/features/organizer/logic/cited.ts";
 import {
   makeNode,
   neighborId,
   orphanHeadingTags,
-} from "../src/core/outline.ts";
+} from "../src/features/organizer/logic/outline.ts";
 
 const cols = [
   { id: 1, parentID: false as const, name: "Recht" },

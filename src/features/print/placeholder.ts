@@ -8,7 +8,7 @@
  * 1-Seiten-PDF unter den Titel und führen die Print-Annotationen darunter.
  * Herkunft: pre-merge:src/placeholder.js.
  */
-import { buildPlaceholderPDF } from "../../core/printAnnotation";
+import { buildPlaceholderPDF } from "./logic/printAnnotation";
 import { getString } from "../../utils/locale";
 import { getPref } from "../../utils/prefs";
 

@@ -2,11 +2,11 @@
  * Filing rows under headings: assign (tag) and unassign (untag).
  */
 
-import { headingTag, OutlineNode } from "../../core/outline";
+import { headingTag, OutlineNode } from "../logic/outline";
 import { fileMany, unfileMany } from "./organizerData";
 import { toast } from "./organizerDom";
 import { Ctx } from "./organizerState";
-import { tr } from "./strings";
+import { tr } from "../strings";
 
 /** File rows under a heading (a tag), then show how many were filed. */
 export async function assign(ctx: Ctx, ids: number[], node: OutlineNode) {

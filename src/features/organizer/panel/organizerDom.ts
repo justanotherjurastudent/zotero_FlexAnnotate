@@ -3,8 +3,8 @@
  * the text input style and the progress toast.
  */
 
-import { makeIcon, IconName } from "./icons";
-import { Palette, getTheme } from "./theme";
+import { makeIcon, IconName } from "../icons";
+import { Palette, getTheme } from "../theme";
 
 export const HTML_NS = "http://www.w3.org/1999/xhtml";
 /** Drag and drop payload: JSON array of row ids. */

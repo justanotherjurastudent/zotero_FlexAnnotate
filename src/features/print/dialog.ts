@@ -23,7 +23,7 @@ import {
   type DialogInput,
   type DialogView,
 } from "../../core/printDialog";
-import { annotationColors, supportsText } from "../../core/printAnnotation";
+import { annotationColors, supportsText } from "./logic/printAnnotation";
 import { getString } from "../../utils/locale";
 import { defaultLogger } from "../../shared/feature";
 import * as placeholder from "./placeholder";

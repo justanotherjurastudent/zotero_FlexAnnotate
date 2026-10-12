@@ -4,17 +4,17 @@
  * Einfügen) liegen hier, weil sie die Ansicht neu zeichnen.
  */
 
-import { record, unrecord } from "../../core/cited";
-import type { AnnLike } from "../../core/dialogView";
-import { formatLocator } from "../../core/locator";
-import { applyClick, emptySelection } from "../../core/selection";
-import type { SelectionState } from "../../core/selection";
-import { flatten, numbering } from "../../core/outline";
-import type { OutlineNode, Section } from "../../core/outline";
-import { citationOfRow, locatorLabel } from "./organizerData";
-import type { Row } from "./organizerData";
-import { openRow } from "./openTarget";
-import { tr } from "./strings";
+import { record, unrecord } from "../logic/cited";
+import type { AnnLike } from "../logic/dialogView";
+import { formatLocator } from "../../../core/locator";
+import { applyClick, emptySelection } from "../logic/selection";
+import type { SelectionState } from "../logic/selection";
+import { flatten, numbering } from "../logic/outline";
+import type { OutlineNode, Section } from "../logic/outline";
+import { citationOfRow, locatorLabel } from "../panel/organizerData";
+import type { Row } from "../panel/organizerData";
+import { openRow } from "../openTarget";
+import { tr } from "../strings";
 import {
   currentSessionId,
   readCitedStore,

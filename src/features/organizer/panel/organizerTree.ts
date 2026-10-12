@@ -19,17 +19,17 @@ import {
   subtreeTags,
   titleError,
   unassignedItems,
-} from "../../core/outline";
-import { OutlineModel } from "./outlineModel";
+} from "../logic/outline";
+import { OutlineModel } from "../outlineModel";
 import { treeWorkIDs } from "./organizerData";
 import { exportNote } from "./organizerExport";
 import { assign } from "./organizerFiling";
 import { button, DND_TYPE, el, iconButton, input, toast } from "./organizerDom";
-import { docImport } from "./docImport";
-import { docExport } from "./docExport";
+import { docImport } from "../doc/docImport";
+import { docExport } from "../doc/docExport";
 import { Ctx, NodeSel, persist, reload } from "./organizerState";
-import { Palette } from "./theme";
-import { tr } from "./strings";
+import { Palette } from "../theme";
+import { tr } from "../strings";
 
 const DOUBLE_CLICK_MS = 450;
 

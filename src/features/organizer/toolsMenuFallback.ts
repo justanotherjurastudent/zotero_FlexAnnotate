@@ -12,7 +12,7 @@
 import { config } from "../../../package.json";
 import { getString } from "../../utils/locale";
 import { defaultLogger, type Feature } from "../../shared/feature";
-import { OrganizerFactory } from "./organizer";
+import { OrganizerFactory } from "./panel/organizer";
 
 type MainWin = _ZoteroTypes.MainWindow;
 

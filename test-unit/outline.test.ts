@@ -19,7 +19,7 @@ import {
   titleError,
   unassignedItems,
   type OutlineNode,
-} from "../src/core/outline.ts";
+} from "../src/features/organizer/logic/outline.ts";
 
 function tree(): OutlineNode[] {
   const a = makeNode("Einleitung");

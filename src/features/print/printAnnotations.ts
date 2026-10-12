@@ -11,7 +11,7 @@ import {
   buildSortIndex,
   normalizeColor,
   supportsText,
-} from "../../core/printAnnotation";
+} from "./logic/printAnnotation";
 import {
   DEFAULT_LOCATOR,
   DEFAULT_LOCATOR_PREFIX,

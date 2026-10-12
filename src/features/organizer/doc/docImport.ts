@@ -18,14 +18,14 @@ import {
   parseDocxHeadings,
   parseOdtHeadings,
   planOutlineImport,
-} from "../../core/docOutline";
-import { headingTag } from "../../core/outline";
-import { button, el, toast } from "./organizerDom";
-import { OutlineModel } from "./outlineModel";
-import { treeWorkIDs } from "./organizerData";
-import { Ctx, persist } from "./organizerState";
-import { tr } from "./strings";
-import { getTheme } from "./theme";
+} from "../logic/docOutline";
+import { headingTag } from "../logic/outline";
+import { button, el, toast } from "../panel/organizerDom";
+import { OutlineModel } from "../outlineModel";
+import { treeWorkIDs } from "../panel/organizerData";
+import { Ctx, persist } from "../panel/organizerState";
+import { tr } from "../strings";
+import { getTheme } from "../theme";
 
 /** Upper limit for one unpacked XML entry. */
 export const MAX_ENTRY_BYTES = 50 * 1024 * 1024;

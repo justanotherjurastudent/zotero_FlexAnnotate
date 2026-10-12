@@ -8,8 +8,11 @@ import {
   odtBody,
   ODT_MIMETYPE,
   odtOutlineStyle,
-} from "../src/core/docExport.ts";
-import { makeNode, type OutlineNode } from "../src/core/outline.ts";
+} from "../src/features/organizer/logic/docExport.ts";
+import {
+  makeNode,
+  type OutlineNode,
+} from "../src/features/organizer/logic/outline.ts";
 
 function node(title: string, children: OutlineNode[] = []): OutlineNode {
   return { ...makeNode(title), children };

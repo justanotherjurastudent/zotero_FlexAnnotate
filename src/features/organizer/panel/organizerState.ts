@@ -10,10 +10,10 @@ import {
   OutlineNode,
   tagIndex,
   unassignedItems,
-} from "../../core/outline";
-import { emptySelection, SelectionState } from "../../core/selection";
-import { formatLocator } from "../../core/locator";
-import { OutlineModel } from "./outlineModel";
+} from "../logic/outline";
+import { emptySelection, SelectionState } from "../logic/selection";
+import { formatLocator } from "../../../core/locator";
+import { OutlineModel } from "../outlineModel";
 import {
   collectionKeyOf,
   listCollections,
@@ -26,8 +26,8 @@ import {
   Scope,
   treeWorkIDs,
 } from "./organizerData";
-import { topmostCollection } from "../../core/collections";
-import { tr } from "./strings";
+import { topmostCollection } from "../logic/collections";
+import { tr } from "../strings";
 
 export type Tab = "wissen" | "titel";
 export type NodeSel = "all" | "none" | string;

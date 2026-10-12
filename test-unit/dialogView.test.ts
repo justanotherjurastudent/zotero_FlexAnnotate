@@ -1,11 +1,11 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { makeNode } from "../src/core/outline.ts";
+import { makeNode } from "../src/features/organizer/logic/outline.ts";
 import {
   buildDialogSections,
   effectiveTags,
   nodeCounts,
-} from "../src/core/dialogView.ts";
+} from "../src/features/organizer/logic/dialogView.ts";
 
 const a = makeNode("Einleitung");
 const b = makeNode("Hauptteil");

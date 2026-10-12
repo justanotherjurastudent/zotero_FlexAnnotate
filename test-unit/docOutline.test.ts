@@ -8,8 +8,11 @@ import {
   parseOdtHeadings,
   planOutlineImport,
   type DocHeading,
-} from "../src/core/docOutline.ts";
-import { makeNode, type OutlineNode } from "../src/core/outline.ts";
+} from "../src/features/organizer/logic/docOutline.ts";
+import {
+  makeNode,
+  type OutlineNode,
+} from "../src/features/organizer/logic/outline.ts";
 
 const W =
   'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"';

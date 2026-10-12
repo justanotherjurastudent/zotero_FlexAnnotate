@@ -1,21 +1,21 @@
 import { initLocale } from "./utils/locale";
 import { createZToolkit } from "./utils/ztoolkit";
 import { AnnotationIndex } from "./features/organizer/annotationIndex";
-import { OrganizerFactory } from "./features/organizer/organizer";
+import { OrganizerFactory } from "./features/organizer/panel/organizer";
 import * as citationDialog from "./shared/citationDialog";
-import { outlineView } from "./features/organizer/dialogOutline";
+import { outlineView } from "./features/organizer/dialog/dialogOutline";
 import * as modeSelector from "./features/citeOnly/modeSelector";
 import {
   citeOnlyPatch,
   isPatched as citeOnlyIsPatched,
 } from "./features/citeOnly/integrationPatch";
-import { docImport } from "./features/organizer/docImport";
-import { docExport } from "./features/organizer/docExport";
+import { docImport } from "./features/organizer/doc/docImport";
+import { docExport } from "./features/organizer/doc/docExport";
 import * as openTarget from "./features/organizer/openTarget";
-import * as docOutlineCore from "./core/docOutline";
-import * as citedCore from "./core/cited";
-import * as organizerData from "./features/organizer/organizerData";
-import * as outlineCore from "./core/outline";
+import * as docOutlineCore from "./features/organizer/logic/docOutline";
+import * as citedCore from "./features/organizer/logic/cited";
+import * as organizerData from "./features/organizer/panel/organizerData";
+import * as outlineCore from "./features/organizer/logic/outline";
 import * as outlineModelModule from "./features/organizer/outlineModel";
 import * as printPlaceholder from "./features/print/placeholder";
 import * as printAnnotations from "./features/print/printAnnotations";

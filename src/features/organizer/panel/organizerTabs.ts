@@ -3,12 +3,12 @@
  * collection scope drop-down with its "subcollections" option.
  */
 
-import { emptySelection } from "../../core/selection";
+import { emptySelection } from "../logic/selection";
 import { collectionChoices } from "./organizerData";
 import { el } from "./organizerDom";
 import { applyScope, Ctx, loadScope, reload, Tab } from "./organizerState";
-import { Palette } from "./theme";
-import { tr } from "./strings";
+import { Palette } from "../theme";
+import { tr } from "../strings";
 
 export function tabBar(ctx: Ctx, t: Palette): HTMLElement {
   const { doc, s } = ctx;

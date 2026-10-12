@@ -19,13 +19,13 @@
  * Derived from Lattice's outlinePanel (birugit, AGPL-3.0-or-later).
  */
 
-import { OutlineModel } from "./outlineModel";
+import { OutlineModel } from "../outlineModel";
 import {
   defaultScope,
   loadAnnotationRows,
   readShowWorks,
 } from "./organizerData";
-import { emptySelection } from "../../core/selection";
+import { emptySelection } from "../logic/selection";
 import {
   applyScope,
   Ctx,
@@ -35,10 +35,10 @@ import {
 } from "./organizerState";
 import { onKey } from "./organizerKeys";
 import { makeCtx, renderAll } from "./organizerView";
-import { getTheme } from "./theme";
-import { getString } from "../../utils/locale";
-import { registerPluginMenu } from "../../utils/menu";
-import { tr } from "./strings";
+import { getTheme } from "../theme";
+import { getString } from "../../../utils/locale";
+import { registerPluginMenu } from "../../../utils/menu";
+import { tr } from "../strings";
 
 export class OrganizerFactory {
   /** State of the most recently opened window (for tests and debugging). */

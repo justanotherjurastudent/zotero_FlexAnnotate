@@ -4,8 +4,8 @@
  * die schon im Dokument zitiert sind. Keine Anzeige hier.
  */
 
-import { parseStore, record } from "../../core/cited";
-import type { CitedStore } from "../../core/cited";
+import { parseStore, record } from "../logic/cited";
+import type { CitedStore } from "../logic/cited";
 
 const CITED_PREF = "citedAnnotations";
 

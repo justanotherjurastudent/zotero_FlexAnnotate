@@ -23,13 +23,13 @@
  * Injected by shared/citationDialog.ts; the rendering is in dialogOutlineRender.ts.
  */
 
-import { activeIds } from "../../core/cited";
-import { buildDialogSections, nodeCounts } from "../../core/dialogView";
-import { applyClick, emptySelection } from "../../core/selection";
-import type { DialogInjector } from "../../shared/citationDialog";
-import type { OutlineNode } from "../../core/outline";
-import { topmostCollection } from "../../core/collections";
-import { OutlineModel } from "./outlineModel";
+import { activeIds } from "../logic/cited";
+import { buildDialogSections, nodeCounts } from "../logic/dialogView";
+import { applyClick, emptySelection } from "../logic/selection";
+import type { DialogInjector } from "../../../shared/citationDialog";
+import type { OutlineNode } from "../logic/outline";
+import { topmostCollection } from "../logic/collections";
+import { OutlineModel } from "../outlineModel";
 import {
   collectionKeyOf,
   collectionChoices,
@@ -38,7 +38,7 @@ import {
   loadScopeWorkIDs,
   loadWorkRows,
   readShowWorks,
-} from "./organizerData";
+} from "../panel/organizerData";
 import {
   citedWorksOf,
   currentSessionId,
@@ -57,7 +57,7 @@ import {
   visibleSections,
 } from "./dialogOutlineRender";
 import type { View } from "./dialogOutlineRender";
-import { tr } from "./strings";
+import { tr } from "../strings";
 
 const PREF = "dialogOutlineView";
 const STYLE_ID = "flexannotate-dialog-style";

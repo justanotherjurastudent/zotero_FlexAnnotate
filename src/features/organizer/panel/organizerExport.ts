@@ -2,10 +2,10 @@
  * Export of the outline as a Zotero note (outline with its quotes).
  */
 
-import { flatten } from "../../core/outline";
-import { gatherAll, saveDraftAsNote } from "./outlineExport";
+import { flatten } from "../logic/outline";
+import { gatherAll, saveDraftAsNote } from "../outlineExport";
 import { toast } from "./organizerDom";
-import { tr } from "./strings";
+import { tr } from "../strings";
 import { treeWorkIDs } from "./organizerData";
 import { State } from "./organizerState";
 

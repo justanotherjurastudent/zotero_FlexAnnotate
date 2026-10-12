@@ -9,11 +9,11 @@ import {
   buildDocxParts,
   buildOdtParts,
   ODT_MIMETYPE,
-} from "../../core/docExport";
-import { flatten, type OutlineNode } from "../../core/outline";
-import { toast } from "./organizerDom";
-import { Ctx } from "./organizerState";
-import { tr } from "./strings";
+} from "../logic/docExport";
+import { flatten, type OutlineNode } from "../logic/outline";
+import { toast } from "../panel/organizerDom";
+import { Ctx } from "../panel/organizerState";
+import { tr } from "../strings";
 
 export type DocFormat = "docx" | "odt";
 

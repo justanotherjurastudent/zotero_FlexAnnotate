@@ -3,16 +3,16 @@
  * source, categories and actions), or a hint and select-all for the selection.
  */
 
-import { HEADING_PREFIX, numbering, tagIndex } from "../../core/outline";
-import { selectAll } from "../../core/selection";
-import { openRow } from "./openTarget";
+import { HEADING_PREFIX, numbering, tagIndex } from "../logic/outline";
+import { selectAll } from "../logic/selection";
+import { openRow } from "../openTarget";
 import { citationOfRow, Row, workTreeKeys } from "./organizerData";
 import { button, el, toast } from "./organizerDom";
 import { unassign } from "./organizerFiling";
 import { renderEditForm } from "./organizerEdit";
 import { Ctx, placeOf } from "./organizerState";
-import { Palette } from "./theme";
-import { tr } from "./strings";
+import { Palette } from "../theme";
+import { tr } from "../strings";
 
 // column 3 -------------------------------------------------------------------
 

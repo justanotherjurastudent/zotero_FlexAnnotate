@@ -18,7 +18,7 @@ import {
   citationOnlyItems,
   type AnnotationRef,
   type CitationItemLike,
-} from "../../core/citeOnly";
+} from "./logic/citeOnly";
 import { getLocator } from "../print/printAnnotations";
 
 type Citation = {

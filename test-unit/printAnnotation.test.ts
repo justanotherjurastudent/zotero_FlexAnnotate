@@ -8,7 +8,7 @@ import {
   normalizeColor,
   STANDARD_COLORS,
   supportsText,
-} from "../src/core/printAnnotation.ts";
+} from "../src/features/print/logic/printAnnotation.ts";
 
 describe("annotationColors", () => {
   it("uses Zotero's own list when it is valid (Zotero 10)", () => {

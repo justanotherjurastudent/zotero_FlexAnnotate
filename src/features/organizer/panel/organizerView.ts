@@ -3,7 +3,7 @@
  * Scroll positions of the columns survive every re-render.
  */
 
-import { prune } from "../../core/selection";
+import { prune } from "../logic/selection";
 import { el } from "./organizerDom";
 import { renderDetails } from "./organizerDetails";
 import { renderList } from "./organizerList";
@@ -11,7 +11,7 @@ import { tabBar } from "./organizerTabs";
 import { orphanOverlay } from "./organizerOrphans";
 import { renderTree } from "./organizerTree";
 import { Ctx, State, visibleRows } from "./organizerState";
-import { getTheme } from "./theme";
+import { getTheme } from "../theme";
 
 export function renderAll(ctx: Ctx) {
   const { doc, root, s } = ctx;

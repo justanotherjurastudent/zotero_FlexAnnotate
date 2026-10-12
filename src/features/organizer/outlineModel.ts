@@ -17,8 +17,8 @@ import {
   parseOutline,
   pickNewest,
   serializeOutline,
-} from "../../core/outline";
-export * from "../../core/outline";
+} from "./logic/outline";
+export * from "./logic/outline";
 
 /**
  * Extra-Tag, mit dem eine Outline-Notiz einer Sammlung zugeordnet wird

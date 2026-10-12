@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { printMenuState } from "../src/core/printMenuState.ts";
+import { printMenuState } from "../src/features/print/logic/printMenuState.ts";
 
 describe("printMenuState", () => {
   it("hides everything without a selection", () => {

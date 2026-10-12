@@ -5,18 +5,13 @@
  * Überschrift zugeordnet (Tag-Umbenennung im Bereich des Baums) oder entfernt.
  */
 
-import {
-  flatten,
-  headingTag,
-  numbering,
-  OutlineNode,
-} from "../../core/outline";
-import { OutlineModel } from "./outlineModel";
+import { flatten, headingTag, numbering, OutlineNode } from "../logic/outline";
+import { OutlineModel } from "../outlineModel";
 import { treeWorkIDs } from "./organizerData";
 import { button, el } from "./organizerDom";
 import { Ctx, reload } from "./organizerState";
-import { Palette } from "./theme";
-import { tr } from "./strings";
+import { Palette } from "../theme";
+import { tr } from "../strings";
 
 export function orphanOverlay(ctx: Ctx, t: Palette): HTMLElement {
   const { doc, s } = ctx;
