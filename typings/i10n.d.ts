@@ -22,6 +22,8 @@ export type FluentMessageId =
   | 'outline-window-title'
   | 'placeholder-title'
   | 'pref-section'
+  | 'pref-show-comments'
+  | 'pref-show-comments-hint'
   | 'pref-show-works'
   | 'pref-show-works-hint'
   | 'prefs-citation-only'

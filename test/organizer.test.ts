@@ -162,9 +162,8 @@ describe("FlexAnnotate", function () {
     it("shows comment text in rows when the preference is enabled", async function () {
       const prefKey = `${config.prefsPrefix}.showCommentInOrganizerRows`;
       const rowText = (id: number) =>
-        (
-          win!.document.querySelector(`[data-row-id="${id}"]`) as HTMLElement
-        )?.textContent || "";
+        (win!.document.querySelector(`[data-row-id="${id}"]`) as HTMLElement)
+          ?.textContent || "";
       Zotero.Prefs.set(prefKey, false, true);
       try {
         await api().OrganizerFactory.open();

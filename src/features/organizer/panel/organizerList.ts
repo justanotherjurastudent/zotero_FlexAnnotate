@@ -263,7 +263,9 @@ function rowEl(
   );
   icon.title = r.type;
   const rowText =
-    s.showCommentsInRows && r.comment && r.kind === "annotation" ? r.comment : r.text;
+    s.showCommentsInRows && r.comment && r.kind === "annotation"
+      ? r.comment
+      : r.text;
   const text = el(
     doc,
     "span",

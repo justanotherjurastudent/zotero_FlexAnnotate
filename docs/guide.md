@@ -56,16 +56,16 @@ Preference keys are under `extensions.flexannotate.`.
 
 ![Settings pane "FlexAnnotate"](img/preferences.png)
 
-| Option                                                                | Effect                                                                | Default                                                                                 |
-| --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Insert only the citation by default (`citationOnly`)                  | annotations are inserted as a citation with a pinpoint only           | off                                                                                     |
-| Keep empty placeholder attachments (`keepEmptyPlaceholders`)          | the placeholder stays even when no annotation hangs under it any more | off                                                                                     |
-| Also show works behind the annotations (`showWorksInAnnotationView`)  | Organizer: the annotation view lists the works as well                | off                                                                                     |
+| Option                                                                               | Effect                                                                                      | Default                                                                                 |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Insert only the citation by default (`citationOnly`)                                 | annotations are inserted as a citation with a pinpoint only                                 | off                                                                                     |
+| Keep empty placeholder attachments (`keepEmptyPlaceholders`)                         | the placeholder stays even when no annotation hangs under it any more                       | off                                                                                     |
+| Also show works behind the annotations (`showWorksInAnnotationView`)                 | Organizer: the annotation view lists the works as well                                      | off                                                                                     |
 | Show comments instead of quote text in organizer rows (`showCommentInOrganizerRows`) | Organizer: for annotations with a comment, the row shows the comment instead of the excerpt | off                                                                                     |
-| Import quotes without a file as print annotations (`citaviImport`)    | the Citavi import creates print annotations for quotes Zotero drops   | on                                                                                      |
-| Keep the note on the quote (`citaviKeepNotes`)                        | off: the note Zotero's translator creates for the quote is removed    | off                                                                                     |
-| Link contributions to their parent work (`citaviLinkContributions`)   | the Citavi import creates "Related" links                             | on                                                                                      |
-| Cite pinpoints as (`citaviLocatorPage/Column/Paragraph/Margin/Other`) | CSL locator per Citavi page type                                      | page: page, column: column, paragraph: paragraph, margin number: paragraph, other: page |
+| Import quotes without a file as print annotations (`citaviImport`)                   | the Citavi import creates print annotations for quotes Zotero drops                         | on                                                                                      |
+| Keep the note on the quote (`citaviKeepNotes`)                                       | off: the note Zotero's translator creates for the quote is removed                          | off                                                                                     |
+| Link contributions to their parent work (`citaviLinkContributions`)                  | the Citavi import creates "Related" links                                                   | on                                                                                      |
+| Cite pinpoints as (`citaviLocatorPage/Column/Paragraph/Margin/Other`)                | CSL locator per Citavi page type                                                            | page: page, column: column, paragraph: paragraph, margin number: paragraph, other: page |
 
 Internal, without a UI: `dialogOutlineView` (state of the outline option in the citation dialog), `citedAnnotations` (cited annotations per document).
 
