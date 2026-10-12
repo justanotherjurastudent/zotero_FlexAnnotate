@@ -6,11 +6,6 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 
 **Merged: Annotree is now part of FlexAnnotate.** Ein einziges TypeScript-Plugin (zotero-plugin-scaffold) ersetzt das Vanilla-JS-FlexAnnotate 1.2.0 (Git-Tag `pre-merge`) und Annotree. Geprüft gegen Zotero 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6; Umfang je Version siehe README.
 
-### Changed
-
-- Struktur: Reine Logik liegt jetzt je Feature in `src/features/<feature>/logic/`; `src/core/` enthält nur noch, was mehrere Features teilen (`locator`, `printDialog`, `labelPopup`). Organizer-Dateien sind in `panel/`, `dialog/`, `doc/` und `logic/` gegliedert. Pfadangaben in älteren Einträgen unten nennen noch den früheren Ort.
-- Aufräumen: ungenutzten Annotations-Digest-Export, `copyDraft`, `clearPref`, die verwaiste Wurzel-`prefs.js` und die historische `docs/plan.md` entfernt.
-
 ### Added
 
 - Organizer (Gliederung, Zitierdialog-Ansicht, Notiz-Export) aus Annotree als Teil von FlexAnnotate.
@@ -29,10 +24,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 - Organizer-Fensterverwaltung als Single-Instance: Menü und Toolbar-Button fokussieren und stellen ein bereits geöffnetes Organizer-Fenster wieder her, statt Duplikate zu öffnen; das offene Fenster schließt sauber beim Entladen des Plugins (`features/organizer/organizer.ts`).
 - Zitierdialog aus Word: Die rechte Spalte behält mit und ohne Gliederungsansicht die native Breite (vorher feste 330 px). Die Suchleiste des Dialogs filtert die Gliederungsliste mit (gespiegelt ins Filterfeld des Plugins, nicht umgekehrt). Neuer Knopf „Zitatstelle anzeigen“ in der Vorschau öffnet den Reader an der Annotation und holt Zotero nach vorn; der Dialog bleibt offen.
 - Citavi-Import: Dublettenprüfung. Ein zweiter Import desselben Exports legt nichts neu an; gleich sind Platzhalter (Werk), Seitenlabel und normalisierter Zitattext, bei leerem Text Seitenlabel und Kommentar.
-- Plugin-Icon (Buch mit Textmarker).
+- Neues Plugin-Icon (Sprechblase mit Gliederung) für Plugin und Organizer-Button.
 - `npm run test:versions`: Zotero-Suite nacheinander für die installierte Version und alle Testversionen in `.zotero-versions/` (frisches Testprofil je Version).
 - `npm run screenshots` und `npm run screenshots:docs`: Fensteraufnahmen aus den Zotero-Tests, kuratierte Bilder nach `docs/img/`.
-- Neue Struktur: `src/core` (reine Logik), `src/shared`, `src/features/{print,citeOnly,citavi,reader,organizer}`; 211 Node-Unit-Tests und Zotero-Tests (76 bestanden auf 10.0.6; Rest übersprungen, siehe `docs/testing.md`).
+- Neue Struktur: `src/core` (reine Logik), `src/shared`, `src/features/{print,citeOnly,citavi,reader,organizer}`; 214 Node-Unit-Tests und Zotero-Tests (80 bestanden auf 10.0.6 und 9.0.6, 74 auf 7.0.32, 72 auf 8.0.4; der Rest ist je Version übersprungen, siehe `docs/testing.md`).
 
 ### Fixed
 
@@ -45,6 +40,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 
 ### Changed
 
+- Struktur: Reine Logik liegt jetzt je Feature in `src/features/<feature>/logic/`; `src/core/` enthält nur noch, was mehrere Features teilen (`locator`, `printDialog`, `labelPopup`). Organizer-Dateien sind in `panel/`, `dialog/`, `doc/` und `logic/` gegliedert. Pfadangaben in den Einträgen oben nennen noch den früheren Ort.
+- Aufgeräumt: ungenutzter Annotations-Digest-Export, `copyDraft`, `clearPref`, die verwaiste Wurzel-`prefs.js`, die historische `docs/plan.md` und `renovate.json` (Dependabot bleibt).
+- README kurz und zweisprachig; Details im [Handbuch](docs/handbuch.md) und [User guide](docs/guide.md).
 - Gliederungsimport: Bei aktiver Option „Nummerierung aus Titeln entfernen“ werden auch bestehende Gliederungsknoten mit manueller Nummerierung im Titel wiederverwendet, auf den bereinigten Titel aktualisiert und zugehörige Tags via `OutlineModel.renameTag()` migriert (`core/docOutline.ts`, `features/organizer/docImport.ts`).
 - Fokusbehandlung: Nach dem Schließen von Datei- und Bestätigungsdialogen beim Gliederungsimport und -export kehrt der Fensterfokus zuverlässig zum Organizer zurück.
 - Toast-Benachrichtigungen im Organizer: Aktionsschaltflächen auf eigener Zeile, klickbare Nachrichtenzeile und Begrenzung auf sichtbare Bildschirmränder (`features/organizer/organizerDom.ts`).
@@ -63,7 +61,7 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 
 - Preference-Schlüssel `extensions.flexannotate.*` sind unverändert; Nutzerdaten von 1.x (Tags `#flexannotate-locator-<typ>`, `#flexannotate-default-locator-<typ>`, `#flexannotate-placeholder`, Platzhalter-Anhänge, Print-Annotationen) gelten weiter.
 - Gliederungsdaten (`§Titel`, Notiz `★outline` mit `LATTICE-OUTLINE-V1`) bleiben mit Lattice kompatibel.
-- Bekannte Einschränkungen: siehe README, Abschnitte „Einschränkungen auf Zotero-Versionen vor 10“ und „Bekannte Punkte“.
+- Bekannte Einschränkungen: siehe [Handbuch](docs/handbuch.md), Abschnitte „Einschränkungen auf Zotero-Versionen vor 10“ und „Bekannte Punkte“.
 
 ## [0.2.4] – 2026-10-06
 

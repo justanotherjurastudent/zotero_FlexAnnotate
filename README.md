@@ -1,246 +1,153 @@
 # FlexAnnotate
 
-**Sprache / Language: [Deutsch](#deutsch) · [English](#english)**
+**Deutsch · [English](#english)**
 
-Zotero-Plugin für gedruckte Quellen: Annotationen ohne Datei, Nur-Nachweis-Zitieren, Citavi-Import und ein Organizer (Gliederung) für Annotationen. Version 2.0.0, Zotero 7.0 bis 10 (geprüft gegen 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6; Umfang je Version siehe [Einschränkungen](#einschränkungen-auf-zotero-versionen-vor-10)).
+Ein Zotero-Plugin für alle, die mit gedruckten Quellen arbeiten: Kommentare, Lehrbücher, Gesetzessammlungen. Es speichert Annotationen mit Seitenangabe auch ohne PDF, fügt in Word auf Wunsch nur den Nachweis ein, importiert Citavi-Zitate und ordnet Annotationen in einer Gliederung. Läuft mit Zotero 7.0 bis 10, Version 2.0.0.
+
+![Hauptfenster: ein Buch ohne Datei, darunter die Print-Annotationen](docs/img/main-window.png)
 
 ## Deutsch
 
-### Inhalt
+### Wozu das Ganze
 
-[Wozu](#wozu) · [Funktionen](#funktionen) · [Installation](#installation) · [Bedienung](#bedienung) · [Einstellungen](#einstellungen) · [Einschränkungen vor Zotero 10](#einschränkungen-auf-zotero-versionen-vor-10) · [Daten und Kompatibilität](#daten-und-kompatibilität) · [Bekannte Punkte](#bekannte-punkte) · [Entwicklung](#entwicklung) · [Lizenz und Herkunft](#lizenz-und-herkunft)
+Zotero hängt Annotationen an Dateien, also an PDFs, EPUBs oder Snapshots. Ein gedrucktes Buch hat keine Datei, und damit kann man dort keine Textstelle mit Seitenzahl festhalten. Dazu kommen zwei weitere Hürden: Word und LibreOffice fügen eine Annotation immer samt Zitattext ein, und Zoteros Citavi-Import wirft Zitate ohne PDF-Anker weg.
 
-### Wozu
+FlexAnnotate löst diese drei Dinge und bringt einen Organizer mit, der Annotationen nach Gliederungspunkten sortiert, ähnlich wie die Wissensorganisation in Citavi. Seit 2.0.0 steckt auch das frühere Plugin Annotree darin; beides ist jetzt ein Plugin.
 
-Zotero legt Annotationen nur unter einem Dateianhang (PDF, EPUB, Snapshot) ab. Wer mit gedruckten Büchern, Kommentaren oder Gesetzessammlungen arbeitet, hat dort keine Datei und kann Textstellen samt Seitenangabe nicht als Annotation festhalten. Außerdem setzt Zotero Annotationen in Word und LibreOffice immer mit Zitattext ein, und Zoteros Citavi-Import verwirft Zitate ohne PDF-Anker.
+### Was es kann
 
-FlexAnnotate füllt diese Lücken und bringt einen Organizer mit, der Annotationen in einer Gliederung ordnet (Wissensorganisation wie in Citavi). Seit 2.0.0 sind das frühere FlexAnnotate und Annotree ein einziges Plugin.
+**Gedruckte Quellen**
 
-### Funktionen
+- **Print-Annotationen.** Rechtsklick auf einen Titel, _Print-Annotation hinzufügen…_, Text, Kommentar und Seite eintragen. Statt „Seite“ gehen auch Randnummer, Absatz, Spalte und andere Locator. Im Hintergrund legt das Plugin dafür einen Platzhalter-Anhang an.
+- **Nur-Nachweis-Zitieren.** Beim Einfügen aus Word oder LibreOffice lässt sich der Zitattext weglassen. Dann steht im Dokument nur die Zitation mit Fundstelle. Umschalten geht im Zitierdialog oder dauerhaft in den Einstellungen.
+- **Citavi-Import.** Zitate ohne Dateianhang bleiben erhalten und werden zu Print-Annotationen. Ein zweiter Import desselben Exports legt keine Doubletten an.
 
-#### Gedruckte Quellen
+**Organizer**
 
-- **Print-Annotationen:** Annotationen mit eigener Seitenangabe und wählbarem Locator (Seite, Randnummer, Absatz …) für Titel ohne Dateianhang. Technisch hängen sie an einem automatisch angelegten Platzhalter-Anhang. Das Plugin-Icon zeigt ein Buch mit Textmarker. Bearbeiten und Löschen per Kontextmenü; Locator und Kommentar lassen sich auch an PDF-/EPUB-Annotationen im Reader ändern.
-- **Nur-Nachweis-Zitieren:** Beim Einfügen von Annotationen aus Word oder LibreOffice wahlweise nur die Zitation mit Fundstelle, ohne Zitattext. Umschaltbar im Zitierdialog („Einfügen als“) und in den Einstellungen.
-- **Citavi-Import:** Zitate ohne Dateianhang, die Zoteros Importer verwirft, werden als Print-Annotationen angelegt; Schlagwörter werden exakt zugeordnet. Ein zweiter Import desselben Exports legt nichts neu an: gleich sind Platzhalter (Werk), Seitenlabel und normalisierter Zitattext, bei leerem Text Seitenlabel und Kommentar. Beiträge werden mit ihrem Hauptwerk verknüpft.
-
-![Hauptfenster: Titel mit Print-Annotationen unter dem Platzhalter-Anhang](docs/img/main-window.png)
-
-#### Organizer
-
-- **Gliederung:** Überschriften (beliebig verschachtelt, Dezimalnummern nur zur Anzeige) ordnen Annotationen und Werke per Drag and Drop oder Zuweisungsleiste. Tabs „Wissen“ (Annotationen) und „Titel“ (Werke), Auswahl der Sammlung, Bearbeiten von Zitattext, Kommentar, Zitatstelle und Locator, Tastaturbedienung. Der Organizer öffnet sich über den Toolbar-Button (zweites Symbol von rechts, vor dem Sync-Button).
-- **Kategorienbaum pro Sammlung:** Jede Sammlung auf oberster Ebene kann einen eigenen Gliederungsbaum haben. Das Sammlungs-Drop-down im Organizer wechselt Baum und Eintrags-Filter gleichzeitig: Bei einer Untersammlung zeigt der Baum der Hauptsammlung, aber nur deren Einträge. Rechtsklick auf eine Sammlung im Zotero-Fenster (_FlexAnnotate: Organizer für diese Sammlung_) öffnet den Organizer direkt dafür. Beim ersten Öffnen einer Sammlung ohne eigenen Baum fragt der Organizer einmal, ob der bestehende Bibliotheksbaum als Anfang übernommen werden soll. Umbenennen und Löschen einer Überschrift wirken nur auf die Werke dieser Hauptsammlung; liegt ein Werk in zwei Hauptsammlungen, teilen sich beide Bäume seine Überschriften-Tags (Hinweis „auch in Baum“). Tags, deren Überschrift anderswo (ohne Plugin) umbenannt wurde, ordnet der Knopf _Verwaiste Tags_ unter dem Baum einer Überschrift neu zu. Löschst du eine Sammlung, bleibt ihre Baum-Notiz (Tag `#flexannotate-outline-<key>`) als harmlose Waise liegen.
-- **Export:** Unter dem Baum stehen drei Knöpfe: „Import“ und „Export“ (Word/ODT-Gliederung) sowie „Notiz“. „Notiz“ legt eine Zotero-Notiz mit der Gliederung und den zugeordneten Zitaten an. „Zitatstelle öffnen“ springt zur Annotation im Reader.
+- **Gliederung.** Überschriften beliebig verschachteln und Annotationen oder Werke per Drag and Drop darunter einsortieren. Es gibt eine Ansicht für Annotationen („Wissen“) und eine für Werke („Titel“).
+- **Eine Gliederung je Sammlung.** Jede Hauptsammlung kann ihren eigenen Baum haben.
+- **Word und LibreOffice.** Eine Gliederung aus einem `.docx` oder `.odt` importieren, oder die eigene Gliederung als Dokument mit nummerierten Überschriften exportieren und dort weiterschreiben.
+- **Notiz-Export.** Die Gliederung mit allen zugeordneten Zitaten wird auf Wunsch zu einer Zotero-Notiz.
 
 ![Organizer mit Gliederung, Annotationsliste und Detailbereich](docs/img/organizer.png)
 
-![Toolbar-Ausschnitt: Organizer-Button links neben dem Sync-Button](docs/img/toolbar.png)
+**Zitierdialog (ab Zotero 9)**
 
-- **Gliederungsimport aus Word/LibreOffice:** übernimmt die Überschriften eines `.docx`- oder `.odt`-Dokuments in die Gliederung (siehe unten).
-- **Gliederungsexport als Word/ODT:** schreibt die Gliederung als `.docx` oder `.odt` mit den Standard-Formatvorlagen („Überschrift 1–9“) und einer mehrstufigen, automatischen Nummerierung — das Dokument ist damit der Ausgangspunkt für die eigene Arbeit (siehe unten).
-
-![Vorschau des Gliederungsimports: Zähler, eingerückte Liste, Option zur Nummerierung](docs/img/import-preview.png)
-
-#### Zitierdialog aus Word und LibreOffice
-
-Im Annotationsbereich des Zitierdialogs (ab Zotero 9) ergänzt FlexAnnotate die Option „Nach Gliederung anordnen (FlexAnnotate)“. Sie zeigt drei Spalten: Überschriften mit Anzahl, Annotationen, Vorschau. Ein grüner Haken markiert bereits zitierte Annotationen.
-
-- Die rechte Spalte hat mit und ohne Gliederungsansicht dieselbe, native Breite.
-- Die Suchleiste oben im Dialog filtert die Gliederungsliste mit. Der Text wird ins Filterfeld des Plugins gespiegelt, nicht umgekehrt.
-- Bei genau einer markierten Annotation öffnet „Zitatstelle anzeigen“ den Reader an der Annotation und holt Zotero nach vorn. Der Dialog bleibt offen.
+Im Annotationsbereich des Dialogs gibt es die Option „Nach Gliederung anordnen“. Links stehen die Überschriften mit Anzahl, in der Mitte die Annotationen. Schon zitierte Annotationen tragen einen grünen Haken. Die Suche oben filtert mit, und „Zitatstelle anzeigen“ öffnet den Reader an der richtigen Stelle.
 
 ![Zitierdialog mit Gliederungsansicht](docs/img/citation-dialog.png)
 
-![Zitierdialog ohne Gliederungsansicht (native Ansicht, gleiche Spaltenbreite)](docs/img/citation-dialog-native.png)
-
-![Vorschau mit „Zitatstelle anzeigen“](docs/img/citation-dialog-place.png)
-
-![Suche oben filtert die Gliederungsliste](docs/img/citation-dialog-search.png)
-
 ### Installation
 
-Fertiges XPI: [Releases](https://github.com/justanotherjurastudent/zotero_flexAnnotations/releases) (2.0.0 ist noch nicht veröffentlicht). In Zotero: _Werkzeuge → Plugins → Zahnrad → Plugin aus Datei installieren…_.
+1. Die `.xpi`-Datei von der [Release-Seite](https://github.com/justanotherjurastudent/zotero_flexAnnotations/releases) laden.
+2. In Zotero _Werkzeuge → Plugins_ öffnen, auf das Zahnrad klicken und _Plugin aus Datei installieren…_ wählen.
+3. Zotero neu starten, falls es danach fragt.
 
-Selbst bauen (Node.js 24 wurde verwendet):
+Selbst bauen (Node.js 24):
 
 ```bash
 npm install
-npm run build     # -> .scaffold/build/flex-annotate.xpi
+npm run build    # Ergebnis: .scaffold/build/flex-annotate.xpi
 ```
 
-Mindestversion ist Zotero 7.0 (Manifest). Was vor Zotero 10 fehlt, steht im Abschnitt [Einschränkungen](#einschränkungen-auf-zotero-versionen-vor-10).
+### Erste Schritte
 
-### Bedienung
+1. **Print-Annotation anlegen:** Rechtsklick auf einen Titel ohne Datei, _Print-Annotation hinzufügen…_.
+2. **Organizer öffnen:** der grüne Button links neben dem Sync-Button oben rechts, oder _Werkzeuge → FlexAnnotate: Organizer_.
+3. **Gliederung füllen:** im Organizer mit dem Plus-Symbol Überschriften anlegen, dann Annotationen darauf ziehen.
+4. **Aus Word zitieren:** in Word auf _Anmerkung hinzufügen_ klicken. Im Zitierdialog „Einfügen als“ wählen, wenn nur der Nachweis erscheinen soll.
 
-| Wo                                                | Was                                                                                |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Rechtsklick auf einen Titel                       | _Print-Annotation hinzufügen…_                                                     |
-| Rechtsklick auf eine Annotation (Item-Baum)       | _Annotation bearbeiten…_, bei Print-Annotationen auch _Print-Annotation löschen_   |
-| Rechtsklick auf eine Annotation (rechter Bereich) | dieselben Einträge                                                                 |
-| Reader: Rechtsklick auf eine Annotation           | _Kommentar hinzufügen…/bearbeiten…_, _Locator festlegen…_                          |
-| Reader: Seitenzahl bearbeiten                     | Locator-Auswahl und „Diesen Locator künftig für dieses Dokument verwenden“         |
-| Toolbar-Button oben rechts, neben dem Sync-Button | öffnet den Organizer (bzw. fokussiert ein offenes Fenster)                         |
-| _Werkzeuge → FlexAnnotate: Organizer_             | öffnet den Organizer (bzw. fokussiert ein offenes Fenster)                         |
-| Organizer, Dokument-Symbol der Gliederungsleiste  | Gliederung aus Word/LibreOffice importieren                                        |
-| Organizer, Export-Symbol der Gliederungsleiste    | Gliederung als Word/ODT exportieren                                                |
-| Zitierdialog aus Word/LibreOffice                 | „Einfügen als“ (Vollnachweis / Nur Nachweis); im Annotationsbereich die Gliederung |
-| _Bearbeiten → Einstellungen → FlexAnnotate_       | Einstellungen                                                                      |
+Eine Gliederung aus einer Word-Datei zu holen ist ebenfalls kurz:
 
-#### Gliederung aus Word/LibreOffice importieren
+![Vorschau beim Gliederungsimport](docs/img/import-preview.png)
 
-1. Organizer öffnen und in der Gliederungsleiste das Dokument-Symbol anklicken (_Gliederung aus Word/ODT-Dokument importieren…_).
-2. Ein `.docx`- oder `.odt`-Dokument wählen.
-3. In der Vorschau die Zähler (neu, vorhanden, umbenannt), die mehrstufige Nummerierung (`1`, `1.1` …) und die eingerückte Liste prüfen. Die Option „Nummerierung aus Titeln entfernen“ erscheint nur, wenn eine manuelle Nummerierung erkannt wurde (Formen wie `1.`, `1.2`, `1)`, `A.`, `I.`, `a)`, `(1)` in mindestens 80 % und mindestens 3 Überschriften).
-4. _Importieren_ klicken; mit _Abbrechen_ bleibt alles unverändert.
-5. Die neuen Überschriften stehen in der Gliederung; Annotationen werden wie gewohnt zugeordnet.
+Im Organizer das Dokument-Symbol anklicken, die Datei wählen, in der Vorschau prüfen und _Importieren_ drücken. Es wird nur angehängt, nichts gelöscht.
 
-Erkannt werden die Formatvorlagen „Überschrift 1/2/3 …“ bzw. „Heading 1/2/3 …“, benutzerdefinierte Vorlagen mit Gliederungsebene (`outlineLvl`) und in ODT `text:h`. Die Ebenen werden lückenlos gemacht (die erste Überschrift ist Ebene 1, keine Ebene springt um mehr als eins).
+### Mit welchen Zotero-Versionen
 
-Der Import hängt nur an: Nichts wird gelöscht oder verschoben. Eine Überschrift mit gleichem Titel (ohne Beachtung von Groß-/Kleinschreibung und Leerraum) unter demselben Elternknoten wird wiederverwendet, sonst entsteht sie als letztes Kind. Ist „Nummerierung aus Titeln entfernen“ aktiv, werden auch bestehende Gliederungspunkte erkannt, deren Titel noch eine manuelle Nummerierung tragen; deren Titel wird bereinigt und zugeordnete Annotationen/Werke werden automatisch auf das bereinigte Tag umgehängt. Weil jede Überschrift ein Tag ist, müssen Titel eindeutig sein; Duplikate heißen „Titel (2)“, „Titel (3)“.
+Getestet sind 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6. Alles Wichtige läuft auf allen vier. Kleine Abweichungen:
 
-Grenzen:
+- Vor Zotero 10 hat das Farbmenü der Eingabemaske nur Zoteros acht Standardfarben.
+- Unter 7.x liegt der Menüeintrag direkt im Menü _Werkzeuge_ und nicht über Zoteros Menü-Verwaltung.
+- Den Annotationsmodus im Zitierdialog gibt es erst ab Zotero 9. Auf 7 und 8 tut das Plugin dort nichts.
 
-- Nur Absatz-Formatvorlagen und `outlineLvl`; fett gesetzter Fließtext zählt nicht als Überschrift.
-- Fußnoten und gelöschte Änderungen fließen nicht in den Titel ein.
-- `.doc` und `.rtf` werden nicht unterstützt (vorher in `.docx` oder `.odt` speichern).
-- Je XML-Eintrag (`document.xml`, `styles.xml`, `content.xml`) gilt eine Grenze von 50 MB.
-- Textfelder sowie Kopf- und Fußzeilen werden nicht gezielt behandelt.
+### Weiterlesen
 
-Ist das Dokument gerade in einem anderen Programm geöffnet und exklusiv gesperrt, meldet der Import das statt „kein gültiges Dokument“; das Dokument in dem Programm schließen und es erneut versuchen.
-
-#### Gliederung als Word/ODT exportieren
-
-1. Organizer öffnen und in der Gliederungsleiste das Export-Symbol anklicken (_Gliederung als Word/ODT exportieren…_).
-2. Ort und Namen wählen; über das Format-Aufklappmenü zwischen `.docx` (Word) und `.odt` (LibreOffice) wechseln.
-3. Das Dokument enthält alle Überschriften in Gliederungsreihenfolge mit den Standard-Formatvorlagen „Überschrift 1–9“ (bzw. „Heading 1–9“) und einer mehrstufigen automatischen Nummerierung („1“, „1.1“ …), die beim Umstellen von Kapiteln in Word/LibreOffice automatisch mitläuft. Direkt loslegen und unter den Überschriften schreiben.
-
-Der Export ändert nichts in der Bibliothek; die Zieldatei wird überschrieben (der Dateidialog fragt vorher nach). Ist die Zieldatei gerade in Word/LibreOffice geöffnet oder schreibgeschützt, schlägt das Schreiben mit einer Meldung fehl, ohne die Datei zu beschädigen — das Dokument dort schließen und erneut exportieren.
-
-### Einstellungen
-
-Schlüssel liegen unter `extensions.flexannotate.`.
-
-![Einstellungsfenster „FlexAnnotate“](docs/img/preferences.png)
-
-| Option                                                                       | Wirkung                                                                  | Standard                                                                               |
-| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| Standardmäßig nur den Nachweis einfügen (`citationOnly`)                     | Annotationen werden nur als Zitation mit Seitenangabe eingefügt          | aus                                                                                    |
-| Leere Platzhalter-Anhänge behalten (`keepEmptyPlaceholders`)                 | Platzhalter bleibt, auch wenn keine Annotation mehr daran hängt          | aus                                                                                    |
-| Werke hinter den Annotationen mitanzeigen (`showWorksInAnnotationView`)      | Organizer: Annotationsansicht zeigt auch die Werke                       | aus                                                                                    |
-| Zitate ohne Dateianhang als Print-Annotationen übernehmen (`citaviImport`)   | Citavi-Import legt Print-Annotationen für Zitate an, die Zotero verwirft | an                                                                                     |
-| Notiz zum Zitat behalten (`citaviKeepNotes`)                                 | Aus: die Notiz, die Zoteros Übersetzer zum Zitat anlegt, wird entfernt   | aus                                                                                    |
-| Beiträge mit ihrem Hauptwerk verknüpfen (`citaviLinkContributions`)          | Citavi-Import legt „Verwandte“-Verknüpfungen an                          | an                                                                                     |
-| Fundstellen zitieren als (`citaviLocatorPage/Column/Paragraph/Margin/Other`) | CSL-Locator je Citavi-Seitentyp                                          | Seite: page, Spalte: column, Paragraph: paragraph, Randnummer: paragraph, Andere: page |
-
-Intern, ohne Oberfläche: `dialogOutlineView` (Zustand der Gliederungsoption im Zitierdialog), `citedAnnotations` (zitierte Annotationen je Dokument).
-
-### Einschränkungen auf Zotero-Versionen vor 10
-
-Das Manifest verlangt Zotero 7.0 bis 10.\*. Geprüft ist das nur durch die automatische Zotero-Testsuite (`npm run test:versions`, siehe [docs/testing.md](docs/testing.md)) gegen Zotero **7.0.32, 8.0.4, 9.0.6** und **10.0.5/10.0.6**. Andere Patchversionen derselben Reihen sind nicht geprüft; Abweichungen dort sind nicht ausgeschlossen.
-
-| Funktion                                                                                            | 7.0.x                       | 8.0.x                       | 9.0.x                       | 10.x                    |
-| --------------------------------------------------------------------------------------------------- | --------------------------- | --------------------------- | --------------------------- | ----------------------- |
-| Organizer (Fenster, Gliederung, Export), Toolbar-Button                                             | geprüft                     | geprüft                     | geprüft                     | geprüft                 |
-| Gliederungsimport aus Word/LibreOffice                                                              | geprüft                     | geprüft                     | geprüft                     | geprüft                 |
-| Gliederungsexport als Word/ODT (inkl. Sperr-Tests)                                                  | nicht geprüft¹              | nicht geprüft¹              | nicht geprüft¹              | geprüft                 |
-| Print-Annotationen inkl. Eingabemaske                                                               | geprüft, Farbmenü: Rückfall | geprüft, Farbmenü: Rückfall | geprüft, Farbmenü: Rückfall | geprüft                 |
-| Citavi-Import                                                                                       | geprüft                     | geprüft                     | geprüft                     | geprüft                 |
-| Nur-Nachweis-Zitieren (Patch von `_insertCitingResult`, nur synthetisch geprüft)                    | geprüft                     | geprüft                     | geprüft                     | geprüft                 |
-| Menü _Werkzeuge → FlexAnnotate: Organizer_                                                          | Rückfall (DOM)              | geprüft (`MenuManager`)     | geprüft (`MenuManager`)     | geprüft (`MenuManager`) |
-| Zitierdialog mit Annotationsmodus: Modus-Auswahl, Gliederungsansicht, Suche, „Zitatstelle anzeigen“ | nicht verfügbar             | nicht verfügbar             | geprüft                     | geprüft                 |
-| Einstellungsfenster                                                                                 | geprüft                     | geprüft                     | geprüft                     | geprüft                 |
-
-- **Farbmenü (7.x bis 9.x):** `Zotero.Annotations.COLORS` gibt es erst ab 10.x. Davor verwendet die Eingabemaske die acht Standardfarben von Zotero (`STANDARD_COLORS` in `src/features/print/logic/printAnnotation.ts`).
-- **Werkzeugmenü (7.x):** `Zotero.MenuManager` fehlt in 7.0.32; der Eintrag wird direkt in das Menü _Werkzeuge_ eingehängt. Die übrigen Menüs (Rechtsklick auf Titel und Annotationen) arbeiten ohnehin über DOM.
-- **Zitierdialog (7.x, 8.x):** Der Annotationsmodus im Zitierdialog existiert erst ab Zotero 9. Auf 7.x und 8.x gibt es dort weder die Option „Nach Gliederung anordnen“ noch die Modus-Auswahl „Einfügen als“ noch „Zitatstelle anzeigen“. Das Plugin tut in diesem Dialog nichts und stört nicht.
-- ¹ **Gliederungsexport:** Auf 10.0.6 geprüft (inkl. gesperrte Zieldatei). Für 7.x bis 9.x `npm run test:versions` mit den Installern in `.zotero-versions/` laufen lassen (Beschaffung: [docs/testing.md](docs/testing.md)); der Export nutzt nur `nsIZipWriter`, `Zotero.File` und den `FilePicker`-Wrapper, die es in allen Versionen gibt.
-
-### Daten und Kompatibilität
-
-Nutzerdaten der Version 1.x gelten unverändert weiter; die Preference-Schlüssel `extensions.flexannotate.*` sind gleich geblieben.
-
-- `#flexannotate-locator-<typ>`: Locator-Typ einer Annotation (automatischer Tag; bei „Seite“ ohne abweichenden Dokument-Standard kein Tag).
-- `#flexannotate-default-locator-<typ>`: Standard-Locator eines Anhangs für künftige Annotationen.
-- `#flexannotate-placeholder`: kennzeichnet den Platzhalter-Anhang der Print-Annotationen.
-- `§Titel`: Überschrift der Gliederung als Tag an zugeordneten Annotationen und Werken (Lattice-kompatibel).
-- `★outline` und `LATTICE-OUTLINE-V1`: Notiz mit dem Gliederungsbaum als JSON (Lattice-kompatibel); mit dem zusätzlichen Tag `#flexannotate-outline-<collectionKey>` gehört die Notiz zum Baum der jeweiligen Sammlung.
-
-Die alte Version 1.2.0 ist über den Git-Tag `pre-merge` erreichbar.
-
-### Bekannte Punkte
-
-- Die Gliederungsnotiz `★outline` nicht selbst im Notiz-Editor öffnen und dort bearbeiten: Der Editor kann sie später mit seinem Stand überschreiben (Hintergrund: [docs/architecture.md](docs/architecture.md), Fallstrick 14). FlexAnnotate legt sie so an, dass Zotero sie nicht von sich aus öffnet.
-- Das Seitenformat `PageRange` (`<os>`/`<nt>`) ist nur gegen synthetische Fixtures getestet.
-- Reader-Popup, Reader-Menü sowie Toolbar- und Menü-Icons im Dark Mode sind nur per Code-Review geprüft, nicht visuell und nicht automatisch.
-- Das Toolbar-Icon ist 16 px groß; Zoteros eigene Icons sind 20 px.
-- Bearbeiten und Löschen für Annotationen im Item-Baum laufen über DOM, nicht über `MenuManager`: Zotero wendet bei Annotationsauswahl keine Plugin-Menüs an (`zoteroPane.js:4680` in 10.0.5).
-- Nicht automatisch getestet: Reader-Fenster, ein echter Word-Lauf, der echte Citavi-Translator (siehe [docs/testing.md](docs/testing.md)).
-
-### Entwicklung
-
-Befehle, Aufbau und Regeln: [AGENTS.md](AGENTS.md). Dazu [docs/architecture.md](docs/architecture.md) (Aufbau, Datenmodell, Fallstricke), [docs/testing.md](docs/testing.md), [docs/anchors.md](docs/anchors.md) (verwendete Zotero-Interna) und [CHANGELOG.md](CHANGELOG.md).
+- [Handbuch](docs/handbuch.md): Bedienung im Detail, Import und Export der Gliederung, Einstellungen, Versionsmatrix, Datenformat, bekannte Punkte
+- [CHANGELOG](CHANGELOG.md)
+- [Aufbau und Fallstricke](docs/architecture.md) und [Tests](docs/testing.md) für Entwickler, dazu [AGENTS.md](AGENTS.md)
 
 ### Lizenz und Herkunft
 
-[AGPL-3.0-or-later](LICENSE). Der Organizer basiert auf [Lattice](https://github.com/birugit/zotero-grounded-qa) von birugit (AGPL-3.0-or-later); die Print-Annotationen, das Nur-Nachweis-Zitieren und der Citavi-Import stammen vom Projektautor. Einzelheiten: [NOTICE.md](NOTICE.md).
+[AGPL-3.0-or-later](LICENSE). Der Organizer geht auf [Lattice](https://github.com/birugit/zotero-grounded-qa) von birugit zurück (AGPL-3.0-or-later). Print-Annotationen, Nur-Nachweis-Zitieren und Citavi-Import stammen vom Projektautor. Details in [NOTICE.md](NOTICE.md).
 
 ---
 
 ## English
 
-### Contents
+### What it is for
 
-[Purpose](#purpose) · [Features](#features) · [Install](#install) · [Where to find things](#where-to-find-things) · [Settings and data](#settings-and-data) · [Zotero versions before 10](#zotero-versions-before-10) · [Known issues](#known-issues) · [Development and license](#development-and-license)
+Zotero attaches annotations to files: PDFs, EPUBs, snapshots. A printed book has no file, so you cannot save a passage with a page number. Two more problems: Word and LibreOffice always insert an annotation together with its quoted text, and Zotero's Citavi import throws away quotes that have no PDF anchor.
 
-### Purpose
+FlexAnnotate deals with all three. It also ships an Organizer that sorts annotations under outline headings, much like knowledge organisation in Citavi. Since 2.0.0 it contains the former plugin Annotree, so the two are now one.
 
-Zotero stores annotations only under a file attachment, so printed books, commentaries and statute collections cannot hold annotations with a page reference. Zotero also always inserts annotations into Word and LibreOffice with their quoted text, and its Citavi import discards quotes without a PDF anchor. FlexAnnotate closes these gaps and adds an organizer that files annotations under an outline. Since 2.0.0, the former FlexAnnotate and Annotree are one plugin.
-
-### Features
+### What it does
 
 **Printed sources**
 
-- Print annotations: annotations with a manual page reference and selectable locator on items without a file. They hang under an automatically created placeholder attachment.
-- Citation-only insertion: insert only the citation with its pinpoint from Word or LibreOffice (toggle in the citation dialog and in the settings).
-- Citavi import: quotes without a file attachment become print annotations; keywords are matched exactly; importing the same export again creates nothing new; contributions are linked to their parent work.
+- **Print annotations.** Right-click an item, _Add print annotation…_, then enter text, comment and page. Instead of "page" you can use margin number, paragraph, column and others. In the background the plugin creates a placeholder attachment to hold them.
+- **Citation-only insertion.** When you insert from Word or LibreOffice, you can leave out the quoted text and get only the citation with the pinpoint. Switch it in the citation dialog, or permanently in the settings.
+- **Citavi import.** Quotes without a file attachment are kept and become print annotations. Importing the same export again creates no duplicates.
 
 **Organizer**
 
-- Outline: headings (tags `§Title`) file annotations and works by drag and drop; export as a Zotero note.
-- Outline import: the toolbar button with the document icon reads the heading styles of a `.docx` or `.odt` file, shows a preview with multilevel numbering and appends the headings to the outline (nothing is deleted or moved; duplicates become "Title (2)"). When stripping numbering, existing nodes with manual numbers are matched and updated. Locked files get their own message, legacy `.doc` files a hint. `.doc` and `.rtf` are not supported.
-- Outline export: the toolbar button with the arrow icon writes the outline as a `.docx` or `.odt` document with the standard heading styles ("Heading 1–9") and an automatic multilevel numbering ("1", "1.1" …) that updates in Word/LibreOffice when chapters are rearranged. If the target file is open or read-only, the write fails with a message instead of damaging the file.
-- Single-instance window: clicking the toolbar button or menu focuses an already open Organizer window instead of opening duplicates.
-- Citation dialog view (Zotero 9 and later): option "Nach Gliederung anordnen (FlexAnnotate)" in the annotations view of the dialog opened from Word, with a green check for already cited annotations. The right column keeps its native width, the dialog's search bar also filters the outline list, and "Zitatstelle anzeigen" opens the reader at the annotation.
+- **Outline.** Nest headings as deeply as you like and drag annotations or works under them. One view lists annotations ("Wissen"), another lists works ("Titel").
+- **One outline per collection.** Every top-level collection can have its own tree.
+- **Word and LibreOffice.** Import an outline from a `.docx` or `.odt`, or export your outline as a document with numbered headings and keep writing there.
+- **Note export.** On request the outline with all assigned quotes becomes a Zotero note.
+
+**Citation dialog (Zotero 9 and later)**
+
+The annotations view of the dialog gets the option "Nach Gliederung anordnen" (arrange by outline). Headings with counts are on the left, annotations in the middle. Annotations you have already cited carry a green check. The search bar at the top filters the list too, and "Zitatstelle anzeigen" (show place) opens the reader at the passage.
+
+The plugin's labels are in German and English, following Zotero's language.
 
 ### Install
 
-Download the XPI from [Releases](https://github.com/justanotherjurastudent/zotero_flexAnnotations/releases) (2.0.0 is not released yet) or build it with `npm install && npm run build` (`.scaffold/build/flex-annotate.xpi`). Install it via _Tools → Plugins → gear → Install Plugin From File…_.
+1. Download the `.xpi` from the [Releases page](https://github.com/justanotherjurastudent/zotero_flexAnnotations/releases).
+2. In Zotero open _Tools → Plugins_, click the gear and choose _Install Plugin From File…_.
+3. Restart Zotero if it asks.
 
-### Where to find things
+To build it yourself (Node.js 24):
 
-- Right-click an item: _Add print annotation…_; right-click an annotation: _Edit annotation…_ (print annotations also _Delete_).
-- Organizer: toolbar button next to the Sync button, or _Tools → FlexAnnotate: Organizer_. In the outline toolbar, the document icon imports from Word/ODT, the arrow icon exports to Word/ODT (see the German walkthrough above).
-- Settings: _Edit → Settings → FlexAnnotate_ (preference keys `extensions.flexannotate.*`).
+```bash
+npm install
+npm run build    # result: .scaffold/build/flex-annotate.xpi
+```
 
-### Settings and data
+### Getting started
 
-The settings table above applies (German UI labels; the English UI uses the same options). Data created by 1.x keeps working unchanged: tags `#flexannotate-locator-<type>`, `#flexannotate-default-locator-<type>`, `#flexannotate-placeholder`, and the Lattice-compatible `§Title` tags and `★outline` note (`LATTICE-OUTLINE-V1`). Version 1.2.0 is available at the Git tag `pre-merge`.
+1. **Create a print annotation:** right-click an item without a file, _Add print annotation…_.
+2. **Open the Organizer:** the green button left of the Sync button at the top right, or _Tools → FlexAnnotate: Organizer_.
+3. **Build an outline:** add headings with the plus icon, then drag annotations onto them.
+4. **Cite from Word:** click _Add Note_ in Word. In the citation dialog pick "Insert as" if you want only the citation.
 
-### Zotero versions before 10
+Getting an outline out of a Word file is short too. Click the document icon in the Organizer, choose the file, check the preview and press _Import_. It only appends and deletes nothing.
 
-The manifest allows Zotero 7.0 to 10.\*. Only these versions were run through the automated suite: 7.0.32, 8.0.4, 9.0.6 and 10.0.5/10.0.6; other patch releases are untested. On all four, the organizer (with toolbar button), outline import, print annotations, Citavi import, the citation-only patch and the settings pane pass the tests. Differences:
+### Supported Zotero versions
 
-- **Before 10:** the color menu of the print annotation panel falls back to Zotero's eight standard colors (`Zotero.Annotations.COLORS` exists only in 10.x).
-- **Outline export:** verified on 10.0.6 only (including the locked-target test). For 7.x–9.x run `npm run test:versions` with the installers in `.zotero-versions/`; the export only uses `nsIZipWriter`, `Zotero.File` and the `FilePicker` wrapper, which exist in all versions.
-- **7.x:** no `Zotero.MenuManager`; _Tools → FlexAnnotate: Organizer_ is added to the Tools menu directly.
-- **7.x and 8.x:** the citation dialog has no annotations mode (it starts in 9.x). The mode selector, the outline view, the search mirror and "Zitatstelle anzeigen" are therefore not available there; the plugin does nothing in that dialog.
+Tested: 7.0.32, 8.0.4, 9.0.6 and 10.0.5/10.0.6. All the main features work on all four. Small differences:
 
-The full matrix is in the German section above.
+- Before Zotero 10 the colour menu of the input panel has only Zotero's eight standard colours.
+- On 7.x the menu entry goes straight into the _Tools_ menu instead of through Zotero's menu manager.
+- The annotations mode in the citation dialog exists only from Zotero 9. On 7 and 8 the plugin does nothing there.
 
-### Known issues
+### Further reading
 
-See the German list above. In short: do not edit the `★outline` note in Zotero's note editor, the `PageRange` format is only tested against synthetic fixtures, and dark-mode icons and the reader popup were reviewed in code only.
+- [User guide](docs/guide.md): detailed usage, outline import and export, settings, version matrix, data format, known issues
+- [CHANGELOG](CHANGELOG.md)
+- [Architecture and pitfalls](docs/architecture.md) and [testing](docs/testing.md) for developers, plus [AGENTS.md](AGENTS.md)
 
-### Development and license
+### License and origin
 
-See [AGENTS.md](AGENTS.md) and [docs/](docs/). AGPL-3.0-or-later; the organizer is based on Lattice by birugit, see [NOTICE.md](NOTICE.md).
+[AGPL-3.0-or-later](LICENSE). The Organizer derives from [Lattice](https://github.com/birugit/zotero-grounded-qa) by birugit (AGPL-3.0-or-later). Print annotations, citation-only insertion and the Citavi import are by the project author. Details in [NOTICE.md](NOTICE.md).

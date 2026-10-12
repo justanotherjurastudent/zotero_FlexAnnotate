@@ -17,7 +17,7 @@ addon/              manifest.json, prefs.js, content/ (XHTML, Icons), locale/{de
 test-unit/          Node-Tests der reinen Logik
 test/               Mocha-Tests im echten Zotero
 scripts/            Testläufer (ein Lauf, mehrere Versionen), Screenshots, Kill-Skript, Word-Rauchtest
-docs/               architecture, testing, anchors, img/ (README-Bilder), lattice-changelog
+docs/               architecture, testing, anchors, handbuch (de), guide (en), img/ (README-Bilder), lattice-changelog
 ```
 
 ## Befehle
