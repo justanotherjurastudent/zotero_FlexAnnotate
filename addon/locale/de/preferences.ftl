@@ -4,7 +4,7 @@ pref-show-works =
 pref-show-works-hint = An: Die Annotationsansicht zeigt Werke samt Annotationen (Zotero-Standard). Aus: Es werden nur die der Kategorie zugewiesenen Annotationen angezeigt.
 pref-show-comments =
     .label = Im Organizer Kommentare statt Zitattext in den Zeilen anzeigen
-pref-show-comments-hint = An: Wenn eine Annotation einen Kommentar enthält, zeigt die Zeile den Kommentar statt des Exzerpts. Ohne Kommentar bleibt das Zitat sichtbar.
+pref-show-comments-hint = An: Wenn eine Annotation einen Kommentar enthält, zeigt die Zeile den Kommentar statt des Zitats. Ohne Kommentar bleibt das Zitat sichtbar.
 
 prefs-citing-heading = Zitieren in Word und LibreOffice
 prefs-citation-only =

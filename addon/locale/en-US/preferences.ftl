@@ -4,7 +4,7 @@ pref-show-works =
 pref-show-works-hint = On: the annotation view lists works with their annotations (Zotero default). Off: only annotations assigned to the category are shown.
 pref-show-comments =
     .label = Show comments instead of quote text in organizer rows
-pref-show-comments-hint = On: if an annotation has a comment, the row shows the comment instead of the excerpt. Without a comment, the quote stays visible.
+pref-show-comments-hint = On: if an annotation has a comment, the row shows the comment instead of the quote. Without a comment, the quote stays visible.
 
 prefs-citing-heading = Citing in Word and LibreOffice
 prefs-citation-only =
