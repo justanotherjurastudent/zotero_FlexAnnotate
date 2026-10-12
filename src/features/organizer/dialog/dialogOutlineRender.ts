@@ -35,6 +35,7 @@ export interface View {
   sections: Section<AnnLike>[];
   counts: Map<string, number>;
   rows: Map<number, Row>;
+  showCommentsInRows: boolean;
   cited: Set<number>;
   node: string; // "all" or a heading id
   query: string;
@@ -232,9 +233,13 @@ function rowEl(win: Window, v: View, r: Row, order: number[]): HTMLElement {
     doc,
     "span",
     "flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;",
-    (r.text || r.comment || r.workTitle).replace(/\s+/g, " "),
+    (
+      (v.showCommentsInRows && r.comment ? r.comment : r.text) ||
+      r.comment ||
+      r.workTitle
+    ).replace(/\s+/g, " "),
   );
-  text.title = r.text;
+  text.title = v.showCommentsInRows && r.comment ? r.comment : r.text;
   const place = el(
     doc,
     "span",

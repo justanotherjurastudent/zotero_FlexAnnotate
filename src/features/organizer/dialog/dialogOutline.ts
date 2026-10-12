@@ -37,6 +37,7 @@ import {
   loadAnnotationRows,
   loadScopeWorkIDs,
   loadWorkRows,
+  readShowCommentsInRows,
   readShowWorks,
 } from "../panel/organizerData";
 import {
@@ -357,6 +358,7 @@ async function buildView(win: Window, info: Attached): Promise<View> {
   const rows = (await loadAnnotationRows(libraryID)).filter((r) =>
     inScope(r.workID),
   );
+  const showCommentsInRows = readShowCommentsInRows();
   const works = showWorks
     ? (await loadWorkRows(libraryID)).filter((w) => inScope(w.workID))
     : [];
@@ -372,6 +374,7 @@ async function buildView(win: Window, info: Attached): Promise<View> {
     sections,
     counts: nodeCounts(roots, sections),
     rows: new Map(rows.map((r) => [r.id, r])),
+    showCommentsInRows,
     cited: activeIds(readCitedStore(), currentSessionId(), citedWorks),
     node: "all",
     query: info.view?.query ?? bubbleText(win.document),

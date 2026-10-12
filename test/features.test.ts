@@ -874,6 +874,41 @@ describe("FlexAnnotate features", function () {
       }
     });
 
+    it("shows comment text in dialog rows when the setting is on", async function () {
+      const prefKey = `${prefs}.showCommentInOrganizerRows`;
+      const comment = "Nur Kommentar im Dialog";
+      const original = (anns[0] as any).annotationComment || "";
+      const rowText = (w: Window, id: number) =>
+        (
+          w.document.querySelector(
+            `#flexannotate-list-pane [data-ann-id="${id}"]`,
+          ) as HTMLElement | null
+        )?.textContent || "";
+      (anns[0] as any).annotationComment = comment;
+      await anns[0].saveTx();
+      win?.close();
+      Zotero.Prefs.set(prefKey, false, true);
+      try {
+        let opened = await openDialog();
+        win = opened.w;
+        if (!opened.toggle.checked) opened.toggle.click();
+        await waitFor(() => rowText(opened.w, anns[0].id).includes("Dialogzitat 0"));
+        assert.notInclude(rowText(opened.w, anns[0].id), comment);
+
+        Zotero.Prefs.set(prefKey, true, true);
+        opened.w.close();
+        opened = await openDialog();
+        win = opened.w;
+        if (!opened.toggle.checked) opened.toggle.click();
+        await waitFor(() => rowText(opened.w, anns[0].id).includes(comment));
+        assert.notInclude(rowText(opened.w, anns[0].id), "Dialogzitat 0");
+      } finally {
+        Zotero.Prefs.set(prefKey, false, true);
+        (anns[0] as any).annotationComment = original;
+        await anns[0].saveTx();
+      }
+    });
+
     it("keeps the right column the same width with and without the outline", async function () {
       (Zotero as any).Integration.currentSession = {
         sessionID: "T1",
