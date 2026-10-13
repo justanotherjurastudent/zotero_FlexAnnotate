@@ -2,6 +2,12 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach [SemVer](https://semver.org/). Der Changelog des Ursprungsprojekts Lattice liegt unverändert in [`docs/lattice-changelog.md`](docs/lattice-changelog.md).
 
+## Unreleased
+
+### Added
+
+- Anleitung für Entwickler von KI-Anbindungen (MCP-Server, Plugins): Datenmodell der Gliederung, Zuordnung von Annotationen über `§`-Tags, Tool-Vorschläge und Prompt-Skizze in [`docs/ai-integration.md`](docs/ai-integration.md). Das Plugin selbst enthält keine KI; die Anleitung ist nur gegen den Quellcode geprüft, nicht mit einem echten KI-Werkzeug erprobt.
+
 ## 2.0.0 (2026-10-12)
 
 **Annotations-Überarbeitung.** Annotationen lassen sich nachträglich bearbeiten (Locator, Seite, Kommentar), ein neuer Organizer ordnet sie in einer Gliederung, und der Zitierdialog arbeitet mit ihr. FlexAnnotate ist dafür komplett in TypeScript (zotero-plugin-scaffold) neu aufgebaut; 1.2.0 war Vanilla JS (Git-Tag `pre-merge`). Geprüft gegen Zotero 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6; Umfang je Version siehe README.

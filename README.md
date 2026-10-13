@@ -105,6 +105,7 @@ Getestet sind 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6. Alles Wichtige läuft auf 
 - [Handbuch](docs/handbuch.md): Bedienung im Detail, Import und Export der Gliederung, Einstellungen, Versionsmatrix, Datenformat, bekannte Punkte
 - [CHANGELOG](CHANGELOG.md)
 - [Aufbau und Fallstricke](docs/architecture.md) und [Tests](docs/testing.md) für Entwickler, dazu [AGENTS.md](AGENTS.md)
+- [KI-Anbindung](docs/ai-integration.md) (englisch): wie Werkzeuge, die eine KI mit Zotero verbinden (MCP-Server, Plugins), Annotationen der Gliederung zuordnen können
 
 ### Lizenz und Herkunft
 
@@ -202,6 +203,7 @@ Tested: 7.0.32, 8.0.4, 9.0.6 and 10.0.5/10.0.6. All the main features work on al
 - [User guide](docs/guide.md): detailed usage, outline import and export, settings, version matrix, data format, known issues
 - [CHANGELOG](CHANGELOG.md)
 - [Architecture and pitfalls](docs/architecture.md) and [testing](docs/testing.md) for developers, plus [AGENTS.md](AGENTS.md)
+- [AI integration](docs/ai-integration.md): how tools that connect an AI to Zotero (MCP servers, plugins) can assign annotations to the outline
 
 ### License and origin
 
