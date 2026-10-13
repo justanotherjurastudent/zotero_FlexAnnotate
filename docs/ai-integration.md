@@ -57,9 +57,8 @@ Search for the tag `★outline` among notes, then keep the one that carries the
 marker tag from the table above.
 
 - Zotero JS API: `Zotero.Search` with the condition `tag` `is` `★outline`.
-- Web or local API: the `tag` query parameter of the items endpoint with
-  `itemType=note` (standard Zotero API; not checked against the local API
-  source).
+- Web or local API: `GET /api/users/0/items?tag=%E2%98%85outline&itemType=note`
+  (checked against a running Zotero 10, with the header `Zotero-API-Version: 3`).
 
 If several notes match (for example after a sync conflict), the organizer takes
 the one with the latest `dateModified`; on a tie the higher item id.
@@ -121,11 +120,27 @@ child of the work. For each annotation the model should get:
 Image and ink annotations have no quote. If they also have no comment, skip
 them rather than letting the model guess from nothing.
 
-On Zotero 7, item search does not return annotations (see `itemsWithTag` in
-`outlineModel.ts`). Collect them from the attachments instead:
-`attachment.getAnnotations()` in the JS API, or the `/children` endpoint of the
-attachment. This was not checked for 8 to 10, so the same route is the safe
-choice there too.
+How to list them:
+
+- JS API: `attachment.getAnnotations()`. On Zotero 7, item search does not
+  return annotations (see `itemsWithTag` in `outlineModel.ts`), so do not rely
+  on `Zotero.Search` there.
+- Local API (checked against a running Zotero 10, read-only):
+  - `GET /api/users/0/items?itemType=annotation&limit=100&start=0` lists all
+    annotations; page through with `start` (the `Total-Results` header gives the
+    count).
+  - `GET /api/users/0/items/<attachmentKey>/children?itemType=annotation` lists
+    the annotations of one attachment. Without `itemType=annotation` the
+    children list comes back empty, so do not leave it out.
+  - Do not use `parentItem=` on the items endpoint; it is ignored and returns
+    every annotation.
+- Tag filters need the exact tag name, with no wildcard:
+  `items?itemType=annotation&tag=%C2%A7Introduction` returns the annotations
+  assigned to that heading. To find the unassigned ones, either load all
+  annotations and look at their `tags`, or collect the assigned keys per
+  heading of the tree and subtract them. A prefix search such as `tag=§*` finds
+  nothing, and `tags?q=` did not filter reliably in the check; if you need all
+  `§` tags, load `/api/users/0/tags` and filter by `startsWith("§")` yourself.
 
 ### Writing an assignment
 
@@ -270,5 +285,9 @@ Ask for the `reason`; it speeds up review.
   `xpcom/data/item.js` (annotation fields), `elements/zoteroSearch.js`
   (annotation types).
 - Zotero 7.0.32, 8.0.4, 9.0.6: `server_localAPI.js` has no `PATCH`.
-- Not checked: the zotero.org web API write format and the `tag` parameter of
-  the local API.
+- A running Zotero 10 (read-only `GET` requests to the local API): the
+  `Zotero-Server-ID` header, the search for `★outline` notes and parsing of
+  three real outline notes with the snippet above, the annotation listing, the
+  `children?itemType=annotation` route and the exact-tag filter.
+- Not checked: writing through the local API, the zotero.org web API write
+  format, and the local API on Zotero 7 to 9 (read side).
