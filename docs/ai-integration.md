@@ -206,11 +206,25 @@ From outside Zotero:
 
 - Zotero 10 (checked in 10.0.5): the local API accepts `PATCH` on
   `/api/users/0/items/<annotationKey>` (groups: `/api/groups/<groupID>/items/...`).
-  Writes need a local API key in the `Zotero-API-Key` header. Get one with
-  `POST /api/local/authorize` and the body `{ "appName": "<your tool>" }`;
-  Zotero then asks the user to allow or deny. Send the item JSON with the
-  complete `tags` array (existing tags plus the new `§` tags) and optionally
-  `version`; a stale version returns 412.
+  Requirements:
+  - The user must enable the local API (preference
+    `extensions.zotero.httpServer.localAPI.enabled`, off by default). Otherwise
+    every request returns 403 "Local API is not enabled". The port is
+    `extensions.zotero.httpServer.port` (23119 by default).
+  - Writes need the header `Zotero-Server-ID`, otherwise they return 428. Every
+    response carries this header, so read it from a first `GET /api/` and send
+    it back.
+  - Writes need a local API key in the `Zotero-API-Key` header. Get one with
+    `POST /api/local/authorize` and the body `{ "appName": "<your tool>" }`
+    (also with `Zotero-Server-ID`); Zotero then asks the user to allow or deny.
+    The answer "Allow" gives a single-use key that the first write consumes;
+    "Always Allow" gives a key you can keep. A tool that writes many
+    annotations should send them in one `POST` to `/api/users/0/items` (an
+    array of objects with `key` and `version`, as in the web API; the endpoint
+    exists, the update semantics were not tested), or ask the user for
+    "Always Allow".
+  - Send the item JSON with the complete `tags` array (existing tags plus the
+    new `§` tags) and optionally `version`; a stale version returns 412.
 - Zotero 7 to 9 (checked in 7.0.32, 8.0.4, 9.0.6): the local API has no write
   methods. Use the zotero.org web API with a normal API key (the change reaches
   the desktop client through sync) or run code inside Zotero.
