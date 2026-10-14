@@ -158,6 +158,11 @@ export function findOrganizerWindow(): Window | null {
   return null;
 }
 
+// FLEXANNOTATE_GREP (npm run test:zotero -- --grep <Muster>): nur Tests mit dem Muster im Titel.
+// Läuft beim Laden der Testdateien, also vor mocha.run.
+const grepPattern = Services.env.get("FLEXANNOTATE_GREP");
+if (grepPattern) mocha.grep(grepPattern);
+
 /** Poll until `fn` returns something truthy (default 8 s, 25 ms steps). */
 export async function waitFor<T>(
   fn: () => T | null | false | undefined,

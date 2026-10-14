@@ -55,6 +55,24 @@ async function fillLocatorMenus(): Promise<void> {
   }
 }
 
+/**
+ * Ohne den Befehl addAnnotation (Zotero 7 und 8, integration.js ohne Interface.prototype.addAnnotation)
+ * gibt es kein Blätterfenster: die Option ausblenden. Ist Zotero.Integration nicht sichtbar, bleibt
+ * sie stehen.
+ */
+function hidePersistentWhenUnsupported(): void {
+  const integration = (Zotero as any).Integration;
+  if (!integration || integration.Interface?.prototype?.addAnnotation) return;
+  const box = document.getElementById(
+    "flexannotate-pref-persistent-citation-dialog",
+  );
+  if (!box) return;
+  (box as HTMLElement).hidden = true;
+  // die Beschreibung darunter (description) mit ausblenden
+  const note = box.nextElementSibling as HTMLElement | null;
+  if (note) note.hidden = true;
+}
+
 // Jedes Panel meldet sein `load`-Ereignis, auch fremde; unsere Felder stehen erst beim
 // eigenen Panel im Dokument. Das Ereignis blubbert nicht, daher Capture-Phase am
 // Dokument. Die Durchgänge laufen nacheinander, damit sie sich nicht überholen.
@@ -62,6 +80,7 @@ let queue: Promise<void> = Promise.resolve();
 document.addEventListener(
   "load",
   () => {
+    hidePersistentWhenUnsupported();
     queue = queue
       .then(fillLocatorMenus)
       .catch((e: unknown) => Zotero.logError(e as Error));

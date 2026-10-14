@@ -45,6 +45,8 @@ export type FluentMessageId =
   | 'prefs-citing-heading'
   | 'prefs-keep-placeholders'
   | 'prefs-keep-placeholders-description'
+  | 'prefs-persistent-citation-dialog'
+  | 'prefs-persistent-citation-dialog-description'
   | 'prefs-print-heading'
   | 'reader-comment-add'
   | 'reader-comment-edit'

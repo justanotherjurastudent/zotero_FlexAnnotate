@@ -2,6 +2,35 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach [SemVer](https://semver.org/). Der Changelog des Ursprungsprojekts Lattice liegt unverändert in [`docs/lattice-changelog.md`](docs/lattice-changelog.md).
 
+## Unreleased
+
+### Added
+
+- Anleitung für Entwickler von KI-Anbindungen (MCP-Server, Plugins): Datenmodell der Gliederung, Zuordnung von Annotationen über `§`-Tags, Tool-Vorschläge und Prompt-Skizze in [`docs/ai-integration.md`](docs/ai-integration.md). Das Plugin selbst enthält keine KI; die Anleitung ist nur gegen den Quellcode geprüft, nicht mit einem echten KI-Werkzeug erprobt.
+- Zitierfenster offen halten (Option _Als Aufgabenleiste geöffnet halten_, Einstellungen und Schalter im Gliederungsbereich des Dialogs): Nach dem Einfügen öffnet sich der Dialog an derselben Stelle neu im Blätterfenster-Modus: normale Ansicht mit Sammlungen, Annotationen und Suche; „Einfügen“ dort schreibt die Fußnote an die Cursorposition in Word. Eine neue Anfrage aus Word ersetzt das Fenster (`features/organizer/dialog/dialogPersistent.ts`). Getestet mit Zotero 10.0.6 und 9.0.6 (Testsuite); macOS, Linux und dunkler Modus nicht geprüft.
+- Schmales Zitierfenster (unter 750 px, nur das persistente Fenster): Baum oben, Liste darunter, Details unten; die Liste bleibt bei jeder Breite ab 360 px sichtbar (`dialogOutline.ts`, `LAYOUT_CSS`). Normale Zitierdialoge bleiben unverändert.
+- Zitierfenster offen halten: Jede neue Anfrage aus Word öffnet das Fenster an derselben Stelle und mit derselben Größe (vorher nur die Position). Ein Neuladen des offenen Dialogs ist nicht möglich, weil Zotero dabei `window.arguments` verliert (geprüft in der Testsuite); das Andocken geht darum bei jeder Anfrage verloren.
+- Fehler im Zitierfenster werden protokolliert (`ztoolkit.log` und `Zotero.logError`); lässt sich das Fenster nicht öffnen, greift der normale Zitierdialog.
+- Schmales Zitierfenster: Die beiden Schalter (Gliederung, Aufgabenleiste) wandern unter 750 px in das Einstellungsmenü (Zahnrad unten rechts) und nehmen dort keinen Platz in der Liste; dieselben Elemente und Listener, der Stand wird beim Öffnen angezeigt (`dialogOutline.ts`).
+
+- Zitierfenster offen halten: Der erste Dialog nach einem Neustart öffnet an der zuletzt benutzten Stelle und Größe (Pref `persistentWindowRect`, JSON). Ungültige Werte oder eine Position außerhalb des Bildschirms führen zum Standard; außerhalb bleibt nur die Größe, die Position bestimmt das System.
+
+### Changed
+
+- Zitierdialog, Vorschau: Die drei Aktionsbuttons (In die Zitation einfügen, Zitatstelle anzeigen, Als zitiert markieren) stehen nebeneinander in einer Zeile und brechen nur bei zu wenig Breite um; die Abstände der Vorschau sind etwas enger (`dialogOutlineRender.ts`, `dialogOutline.ts`).
+
+### Fixed
+
+- Zitierfenster offen halten (Review): Ein fehlgeschlagenes Einfügen aus dem Blätterfenster lässt kein eingeklapptes zweites Fenster mehr stehen; die Auswahl wird wieder mit grünen Haken angezeigt; Blätterfenster nur für Word für Windows (Google Docs und LibreOffice würden hängen); auf Zotero 7 und 8 wird nichts gepatcht und die Option ausgeblendet; die Liste im Listen-Layout bleibt bei 800 px als Höchstbreite unverändert; Schalter-Hinweis: Ausschalten wirkt sofort, Einschalten ab der nächsten Anfrage; Fenster nach stop() öffnen kein Blätterfenster mehr; Fehler nach dem Öffnen führen nicht mehr zu einem zweiten Dialog; die Lage eines bereits akzeptierten Fensters wird nicht mehr gespeichert.
+- Zitierfenster offen halten: Ein Blätterfenster, das der Nutzer verschiebt, sprang in den ersten fünf Sekunden nach dem Öffnen an seine alte Stelle zurück. Die Lage wird jetzt nur noch in der Ladephase gehalten (bis 1,5 s nach dem Öffnen); danach bleibt sie beim Nutzer, und die Größe bleibt bis zur ersten fremden Größenänderung nach dem Laden gehalten (`dialogPersistent.ts`, `pinRect`).
+- Zitierfenster offen halten: Das Blätterfenster und ein neuer Dialog an derselben Stelle behalten Position und Größe jetzt, auch wenn Zotero den Dialog nach dem Öffnen noch vergrößert oder schrumpft (vorher sprang es nach ein paar Zehntelsekunden auf die Standardgröße). Die Mindestbreite wird vor dem ersten Layout gesenkt; nach der Ladephase gilt die erste eigene Größenänderung als Eingriff des Nutzers (`dialogPersistent.ts`, `pinRect`). Der Test fragt die Größe nach 0,3 s bis fünf Sekunden ab; in den ersten 0,3 s kann Zotero die Mindestbreite noch kurz zeigen. Nach einer manuellen Größenänderung öffnet sich das Blätterfenster beim Einfügen mit der neuen Größe, nicht mit der festgehaltenen (gespeichert wird jetzt die Innengröße, die Position wie bisher); zwei Öffnungen hintereinander ändern die Außenmaße nicht mehr.
+- Zitierdialog, Gliederungsansicht: Wer in der Annotationsliste nach unten gescrollt hat, sprang beim Auswählen, Abhaken oder mit den Pfeiltasten an den Anfang; die Liste behält jetzt ihre Position. Eine neue Suche oder ein neuer Knoten beginnt oben, und die Pfeiltasten holen die neue Auswahl ins Sichtfeld (`dialogOutlineRender.ts`, `dialogOutline.ts`).
+
+### Known limits
+
+- Die Mindesthöhe des Zitierfensters liegt bei rund 590 px; Zotero erzwingt sie (`citationDialog.js:603-640`). Kleinere Fenster werden vergrößert.
+- Ausschalten des Schalters wirkt sofort; Einschalten gilt ab der nächsten Anfrage (ein Fenster, das ohne Option geöffnet wurde, wird nicht nachträglich zum Blätterfenster).
+
 ## 2.0.0 (2026-10-12)
 
 **Annotations-Überarbeitung.** Annotationen lassen sich nachträglich bearbeiten (Locator, Seite, Kommentar), ein neuer Organizer ordnet sie in einer Gliederung, und der Zitierdialog arbeitet mit ihr. FlexAnnotate ist dafür komplett in TypeScript (zotero-plugin-scaffold) neu aufgebaut; 1.2.0 war Vanilla JS (Git-Tag `pre-merge`). Geprüft gegen Zotero 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6; Umfang je Version siehe README.

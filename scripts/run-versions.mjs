@@ -36,12 +36,22 @@ function installedVersion() {
   }
 }
 
-const targets = [{ version: installedVersion(), bin: null }];
+let targets = [{ version: installedVersion(), bin: null }];
 if (existsSync(versionsDir)) {
   for (const name of readdirSync(versionsDir).sort()) {
     const bin = join(versionsDir, name, "core", "zotero.exe");
     if (existsSync(bin)) targets.push({ version: name, bin });
   }
+}
+// Teilmenge: --versions 10.0.6,9.0.6 und --grep <Muster> (wird an die Testläufe weitergereicht)
+const versionsArg = process.argv.indexOf("--versions");
+if (versionsArg >= 0 && process.argv[versionsArg + 1]) {
+  const wanted = process.argv[versionsArg + 1].split(",");
+  targets = targets.filter((t) => wanted.includes(t.version));
+}
+const grepArg = process.argv.indexOf("--grep");
+if (grepArg >= 0 && process.argv[grepArg + 1]) {
+  process.env.FLEXANNOTATE_GREP = process.argv[grepArg + 1];
 }
 
 /** Startet den Testläufer für eine Version und reicht die Ausgabe durch. */

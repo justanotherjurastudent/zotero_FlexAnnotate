@@ -11,6 +11,16 @@ import {
 } from "./features/citeOnly/integrationPatch";
 import { docImport } from "./features/organizer/doc/docImport";
 import { docExport } from "./features/organizer/doc/docExport";
+import {
+  persistentDialogPatch,
+  readPersistentPref,
+  writePersistentPref,
+  getPersistentWindow,
+  rememberCommandForTest,
+  openBrowseForTest,
+  persistentSupported,
+} from "./features/organizer/dialog/dialogPersistent";
+import { normalizePersistentOptions } from "./features/organizer/logic/persistentOptions";
 import * as openTarget from "./features/organizer/openTarget";
 import * as docOutlineCore from "./features/organizer/logic/docOutline";
 import * as citedCore from "./features/organizer/logic/cited";
@@ -71,6 +81,7 @@ const features: Feature[] = [
     start: () => citationDialog.start(),
     stop: () => citationDialog.stop(),
   },
+  persistentDialogPatch,
   citeOnlyPatch,
   readerMenuModule.readerMenu,
   citaviImport,
@@ -108,6 +119,16 @@ async function onStartup() {
     openTarget,
     cited: citedCore,
     CitationDialogPatch: { viewOf: outlineView.viewOf },
+    persistentDialog: {
+      feature: persistentDialogPatch,
+      readPref: readPersistentPref,
+      writePref: writePersistentPref,
+      getWindow: getPersistentWindow,
+      normalizeOptions: normalizePersistentOptions,
+      rememberCommand: rememberCommandForTest,
+      openBrowse: openBrowseForTest,
+      supported: persistentSupported,
+    },
     modeSelector,
     citeOnly: { patch: citeOnlyPatch, isPatched: citeOnlyIsPatched },
     reader: { readerMenu: readerMenuModule },

@@ -24,7 +24,17 @@
 | `npm run build`              | `zotero-plugin build` und `tsc --noEmit`                                                                                         |
 | `npm run verify`             | `lint:check`, `build`, `test:unit`, `test:zotero` nacheinander                                                                   |
 
-Stand 2026-10-11: 207 Unit-Tests (100 % Zeilenabdeckung von `src/core` und `src/shared/feature.ts`), alle bestanden. Zotero-Tests auf 10.0.6: 74 bestanden, ohne Fehler; die übrigen Tests sind übersprungen (pending), siehe [Mehrere Zotero-Versionen](#mehrere-zotero-versionen).
+Stand 2026-10-13 (`npm run test:versions`): 223 Unit-Tests, alle bestanden. Zotero-Tests ohne Fehler: 10.0.6 (installiert) 102 bestanden, 7 übersprungen; 9.0.6 102 bestanden, 7 übersprungen; 8.0.4 74 bestanden, 35 übersprungen; 7.0.32 76 bestanden, 33 übersprungen. Übersprungen werden Tests, die eine Funktion der jeweiligen Version brauchen (z. B. der Annotationsmodus des Zitierdialogs ab Zotero 9) oder Screenshots nur mit `npm run screenshots` erzeugen; siehe [Mehrere Zotero-Versionen](#mehrere-zotero-versionen).
+
+## Teilmengen testen
+
+Beim Entwickeln lässt sich nur ein Teil der Tests laufen. Ohne Argumente laufen wie bisher alle Tests (`verify`, `test:versions` ändern sich nicht).
+
+- Unit-Tests nach Name: `node --test --test-name-pattern=persistent "test-unit/*.test.ts"` (Option von `node --test`; sie muss vor dem Dateiglob stehen, sonst wird sie als Datei gelesen, deshalb nicht über `npm run test:unit -- ...`). Nach Datei: `node --test test-unit/persistentRect.test.ts`.
+- Zotero-Tests nach Titel: `npm run test:zotero -- --grep "persistent"`. Gesucht wird im vollständigen Titel (describe und it). Umsetzung: `FLEXANNOTATE_GREP` wird in `test/helpers.ts` an `mocha.grep` übergeben; ohne Muster läuft alles.
+- Versionen: `npm run test:versions -- --versions 10.0.6,9.0.6 --grep "browse"` läuft nur diese Versionen mit der Auswahl.
+
+Muster für das Blätterfenster (Zotero-Tests): `persistent` (erster Dialog nach dem Neustart, Layout, Teile des Schalters), `browse` (Blätterfenster, Einfügen aus ihm), `stored rect` (Position und Größe), `reopen` (zwei Öffnungen hintereinander), `switch` (Schalter), `wide window` (drei Spalten nach Neustart und Öffnung). Eine Auswahl ist nur ein Entwicklungswerkzeug: vor dem Abschluss immer `npm run verify` und `npm run test:versions` ohne Argumente laufen lassen.
 
 ## Strategie
 

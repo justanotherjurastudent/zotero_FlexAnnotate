@@ -22,6 +22,7 @@ import { screenshot } from "./screenshot";
 
 const api = () => (Zotero as any)[config.addonInstance].api;
 const DIALOG_URL = "chrome://zotero/content/integration/citationDialog.xhtml";
+
 const prefs = `${config.prefsPrefix}`;
 
 describe("FlexAnnotate features", function () {
@@ -628,6 +629,11 @@ describe("FlexAnnotate features", function () {
     const anns: Zotero.Item[] = [];
     let win: Window | null = null;
 
+    // kein Befehlsmerker aus einem Test in den nächsten: sonst treibt ein späterer Test die echte Word-Integration
+    afterEach(function () {
+      api().persistentDialog.rememberCommand(null);
+    });
+
     /** Close dialogs from earlier steps so we never pick up a stale one. */
     const closeDialogs = async () => {
       let w: Window | null;
@@ -638,8 +644,10 @@ describe("FlexAnnotate features", function () {
       }
     };
 
-    const openDialog = async (cited: Record<string, unknown> = {}) => {
-      await closeDialogs();
+    /** The options Zotero passes for the citation dialog (integration.js:1603-1609). */
+    const NATIVE_OPTIONS = "chrome,centerscreen,resizable=true,alwaysRaised";
+    /** The io Zotero passes to the dialog for adding annotations. */
+    const makeIo = (cited: Record<string, unknown> = {}) => {
       const io: any = new (Zotero.Integration as any).CitationEditInterface(
         { citationItems: [], properties: {}, citationID: "flexannotate-test" },
         true,
@@ -652,6 +660,12 @@ describe("FlexAnnotate features", function () {
       io.isAddingAnnotations = true;
       io.sort = () => {};
       io.getItems = () => [];
+      return io;
+    };
+
+    const openDialog = async (cited: Record<string, unknown> = {}) => {
+      await closeDialogs();
+      const io = makeIo(cited);
       (Services.ww as any).openWindow(
         null,
         DIALOG_URL,
@@ -1124,6 +1138,1169 @@ describe("FlexAnnotate features", function () {
       assert.isTrue(
         !!doc.getElementById("flexannotate-show-place"),
         "dialog stays open",
+      );
+    });
+
+    /** Runs the command around displayDialog as execCommand does (integration.js:257-347). */
+    const beginCommand = () => {
+      const integration = Zotero.Integration as any;
+      let resolve!: () => void;
+      integration.currentCommandPromise = new Promise<void>(
+        (r) => (resolve = r),
+      );
+      return {
+        // execCommand's finally: close currentWindow (integration.js:312-316), then done (:346-347)
+        end: async () => {
+          if (integration.currentWindow && !integration.currentWindow.closed)
+            integration.currentWindow.close();
+          integration.currentWindow = false;
+          resolve();
+          await Zotero.Promise.delay(300);
+        },
+      };
+    };
+    const insertInto = async (w: Window, ann: Zotero.Item) => {
+      const doc = w.document;
+      await waitFor(
+        () => (w as any).DIALOG_STATE?.loaded || null,
+        8000,
+        "dlg-loaded",
+      );
+      const toggle = (await waitFor(
+        () => doc.getElementById("flexannotate-toggle"),
+        8000,
+        "dlg-toggle",
+      )) as HTMLInputElement;
+      if (!toggle.checked) toggle.click();
+      const plus = (await waitFor(
+        () => doc.querySelector(`[data-ann-id="${ann.id}"] .flexannotate-plus`),
+        8000,
+        "dlg-plus",
+      )) as HTMLElement;
+      click(plus);
+      await waitFor(
+        () =>
+          doc.querySelectorAll("#bubble-input .bubble").length > 0
+            ? true
+            : null,
+        8000,
+        "dlg-bubble",
+      );
+    };
+
+    const dialogWindows = (): Window[] => {
+      const out: Window[] = [];
+      const en = Services.wm.getEnumerator("");
+      while (en.hasMoreElements()) {
+        const w = en.getNext() as Window;
+        if (w.location?.href === DIALOG_URL) out.push(w);
+      }
+      return out;
+    };
+    /** One real request with the first annotation inserted and accepted; returns the browse window. */
+    const firstInsert = async (
+      io1: any,
+      rect: { x: number; y: number; w: number; h: number },
+    ) => {
+      void rect;
+      const cmd1 = beginCommand();
+      const done1 = (Zotero.Integration as any).displayDialog(
+        DIALOG_URL,
+        NATIVE_OPTIONS,
+        io1,
+        "citation",
+      ) as Promise<void>;
+      const w1 = (await waitFor(
+        () => findWindowByUrl(DIALOG_URL),
+        8000,
+        "dlg-w1",
+      )) as Window;
+      win = w1;
+      await insertInto(w1, anns[0]);
+      await (w1 as any).accept();
+      await cmd1.end();
+      await done1;
+      return w1;
+    };
+    const browseWindow = async (not: Window) =>
+      (await waitFor(
+        () => dialogWindows().find((w) => w !== not && !w.closed) ?? null,
+        8000,
+        "browse window",
+      )) as Window;
+
+    it("after accept the dialog closes and a browse window opens at the same rect", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const origPref = api().persistentDialog.readPref();
+      const origDoc = integration.currentDoc;
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      api().persistentDialog.rememberCommand({
+        agent: "WinWord",
+        docId: "Dokument1",
+        templateVersion: 0,
+      });
+      try {
+        const io1 = makeIo();
+        const w1 = await firstInsert(io1, { x: 0, y: 0, w: 0, h: 0 });
+        assert.isTrue(
+          w1.closed,
+          "the dialog window is closed after the command",
+        );
+        const bw = await browseWindow(w1);
+        win = bw;
+        await waitFor(
+          () => (bw as any).DIALOG_STATE?.loaded || null,
+          8000,
+          "browse loaded",
+        );
+        await Zotero.Promise.delay(1500);
+        // the normal view with the annotations, not a placeholder
+        const toggle = (await waitFor(
+          () => bw.document.getElementById("flexannotate-toggle"),
+          8000,
+          "toggle",
+        )) as HTMLInputElement;
+        if (!toggle.checked) toggle.click();
+        await waitFor(
+          () =>
+            bw.document.querySelectorAll(
+              "#flexannotate-list-pane [data-ann-id]",
+            ).length === 3
+              ? true
+              : null,
+          8000,
+          "annotations in the browse window",
+        );
+        assert.isAtLeast(
+          io1.citation.citationItems.length,
+          1,
+          "the first citation went into the io",
+        );
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        integration.currentDoc = origDoc;
+        win?.close();
+      }
+    });
+
+    it("inserting in the browse window runs the command, which gets the citation; no new dialog window", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const origPref = api().persistentDialog.readPref();
+      const origDoc = integration.currentDoc;
+      const origExec = integration.execCommand;
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      api().persistentDialog.rememberCommand({
+        agent: "WinWord",
+        docId: "Dokument1",
+        templateVersion: 0,
+      });
+      // a fake Word document: what the insertion adds to it
+      const fakeDoc: string[] = [];
+      const commands: string[] = [];
+      let windowsDuringInsert = -1;
+      integration.execCommand = async (agent: string, command: string) => {
+        commands.push(`${agent}:${command}`);
+        // as execCommand: a command promise, then the command's own dialog request
+        const cmd = beginCommand();
+        const io = makeIo();
+        await integration.displayDialog(
+          DIALOG_URL,
+          NATIVE_OPTIONS,
+          io,
+          "citation",
+        );
+        await Zotero.Promise.delay(300);
+        windowsDuringInsert = dialogWindows().filter((w) => !w.closed).length;
+        fakeDoc.push(
+          ...io.citation.citationItems.map((i: any) => String(i.id)),
+        );
+        await cmd.end();
+      };
+      try {
+        const io1 = makeIo();
+        const w1 = await firstInsert(io1, { x: 0, y: 0, w: 0, h: 0 });
+        const bw = await browseWindow(w1);
+        win = bw;
+        await waitFor(
+          () => (bw as any).DIALOG_STATE?.loaded || null,
+          8000,
+          "browse loaded",
+        );
+        await Zotero.Promise.delay(1500);
+        const toggle = (await waitFor(
+          () => bw.document.getElementById("flexannotate-toggle"),
+          8000,
+          "toggle",
+        )) as HTMLInputElement;
+        if (!toggle.checked) toggle.click();
+        const rows = (await waitFor(
+          () => {
+            const r = bw.document.querySelectorAll(
+              "#flexannotate-list-pane [data-ann-id]",
+            );
+            return r.length === 3 ? r : null;
+          },
+          8000,
+          "rows",
+        )) as NodeListOf<Element>;
+        void rows;
+        const plus = (await waitFor(
+          () =>
+            bw.document.querySelector(
+              `[data-ann-id="${anns[1].id}"] .flexannotate-plus`,
+            ),
+          8000,
+          "plus",
+        )) as HTMLElement;
+        click(plus);
+        await waitFor(
+          () =>
+            bw.document.querySelectorAll("#bubble-input .bubble").length > 0
+              ? true
+              : null,
+          8000,
+          "bubble",
+        );
+        const before = { w: bw.outerWidth, h: bw.outerHeight, x: bw.screenX };
+        await (bw as any).accept();
+        // the fake command ran, and the browse window comes back at the same rect
+        await waitFor(
+          () => (fakeDoc.length > 0 ? true : null),
+          8000,
+          "insert done",
+        );
+        assert.deepEqual(
+          commands,
+          ["WinWord:addAnnotation"],
+          "the command ran again",
+        );
+        assert.deepEqual(
+          fakeDoc,
+          [String(anns[1].id)],
+          "the fake document got the citation",
+        );
+        assert.strictEqual(
+          windowsDuringInsert,
+          0,
+          `no dialog window while inserting (${dialogWindows()
+            .map((w) => (w.closed ? "c" : "o"))
+            .join("")})`,
+        );
+        const bw2 = await browseWindow(bw);
+        win = bw2;
+        assert.isTrue(bw.closed, "the browse window was closed for the insert");
+        await waitFor(
+          () => (bw2 as any).DIALOG_STATE?.loaded || null,
+          8000,
+          "browse 2 loaded",
+        );
+        await Zotero.Promise.delay(1500);
+        assert.approximately(bw2.outerWidth, before.w, 4, "same width");
+        assert.approximately(bw2.outerHeight, before.h, 4, "same height");
+        assert.approximately(bw2.screenX, before.x, 4, "same x");
+      } finally {
+        integration.execCommand = origExec;
+        api().persistentDialog.writePref(origPref);
+        integration.currentDoc = origDoc;
+        win?.close();
+      }
+    });
+
+    it("a real request replaces the browse window; X on the browse window ends the persistence", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const origPref = api().persistentDialog.readPref();
+      const origDoc = integration.currentDoc;
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      api().persistentDialog.rememberCommand({
+        agent: "WinWord",
+        docId: "Dokument1",
+        templateVersion: 0,
+      });
+      try {
+        const w1 = await firstInsert(makeIo(), { x: 0, y: 0, w: 0, h: 0 });
+        const bw = await browseWindow(w1);
+        win = bw;
+        // a real request (a new Add Annotation in Word) closes the browse window and opens the dialog
+        const cmd = beginCommand();
+        const done = integration.displayDialog(
+          DIALOG_URL,
+          NATIVE_OPTIONS,
+          makeIo(),
+          "citation",
+        ) as Promise<void>;
+        const real = await browseWindow(bw);
+        win = real;
+        await waitFor(
+          () => (bw.closed ? true : null),
+          5000,
+          "browse closed by the real request",
+        );
+        // the real request is answered like a normal insert, so the browse window comes back after it
+        await insertInto(real, anns[0]);
+        await (real as any).accept();
+        await cmd.end();
+        await done;
+        // now X on the browse window that the command leaves behind
+        const bw3 = await browseWindow(real);
+        win = bw3;
+        bw3.close();
+        await waitFor(
+          () => (api().persistentDialog.getWindow() === null ? true : null),
+          5000,
+          "persistence ended",
+        );
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        integration.currentDoc = origDoc;
+        win?.close();
+      }
+    });
+
+    it("turning the switch off closes the browse window", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const origPref = api().persistentDialog.readPref();
+      const origDoc = integration.currentDoc;
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      api().persistentDialog.rememberCommand({
+        agent: "WinWord",
+        docId: "Dokument1",
+        templateVersion: 0,
+      });
+      try {
+        const w1 = await firstInsert(makeIo(), { x: 0, y: 0, w: 0, h: 0 });
+        const bw = await browseWindow(w1);
+        win = bw;
+        api().persistentDialog.writePref(false);
+        await waitFor(
+          () => (bw.closed ? true : null),
+          5000,
+          `browse closed by the switch (${dialogWindows()
+            .map(
+              (w) =>
+                `${w === w1 ? "w1" : "x"}${w.closed ? "c" : "o"}${w === api().persistentDialog.getWindow() ? "T" : ""}`,
+            )
+            .join(",")})`,
+        );
+        assert.isNull(api().persistentDialog.getWindow());
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        integration.currentDoc = origDoc;
+        win?.close();
+      }
+    });
+
+    it("reads the switch at accept time: off -> the dialog is left for the command to close, no browse window", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const origPref = api().persistentDialog.readPref();
+      const origDoc = integration.currentDoc;
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      try {
+        const io1 = makeIo();
+        const cmd = beginCommand();
+        const done = integration.displayDialog(
+          DIALOG_URL,
+          NATIVE_OPTIONS,
+          io1,
+          "citation",
+        ) as Promise<void>;
+        const w = (await waitFor(
+          () => findWindowByUrl(DIALOG_URL),
+          8000,
+          "dlg",
+        )) as Window;
+        win = w;
+        await insertInto(w, anns[0]);
+        // the switch is turned off while the window is open
+        api().persistentDialog.writePref(false);
+        await (w as any).accept();
+        assert.isFalse(w.closed, "not closed by us; the command closes it");
+        assert.strictEqual(
+          integration.currentWindow,
+          w,
+          "execCommand's finally will close it",
+        );
+        await cmd.end();
+        await done;
+        assert.isTrue(w.closed, "closed by the command");
+        assert.isNull(
+          findWindowByUrl(DIALOG_URL),
+          "no browse window when the switch is off",
+        );
+        assert.isAtLeast(
+          io1.citation.citationItems.length,
+          1,
+          "the citation went into the io",
+        );
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        integration.currentDoc = origDoc;
+        win?.close();
+      }
+    });
+
+    it("a single close resolves a pending persistent request", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const origPref = api().persistentDialog.readPref();
+      const origDoc = integration.currentDoc;
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      try {
+        let resolved = false;
+        const done = integration.displayDialog(
+          DIALOG_URL,
+          NATIVE_OPTIONS,
+          makeIo(),
+          "citation",
+        ) as Promise<void>;
+        done.then(() => {
+          resolved = true;
+        });
+        const w = (await waitFor(() => findWindowByUrl(DIALOG_URL))) as Window;
+        win = w;
+        await waitFor(() => (w as any).DIALOG_STATE?.loaded || null);
+        w.close(); // one call, no accept
+        await waitFor(
+          () => (resolved ? true : null),
+          5000,
+          "pending request resolved",
+        );
+        assert.isTrue(w.closed);
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        integration.currentDoc = origDoc;
+        win?.close();
+      }
+    });
+
+    it("moves the two switches into the settings menu when narrow, and back when wide", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const origOutline =
+        Zotero.Prefs.get(`${prefs}.dialogOutlineView`, true) ?? false;
+      const origPersist = api().persistentDialog.readPref();
+      await closeDialogs();
+      // narrow needs the persistent window: only it lifts Zotero's minimum width
+      api().persistentDialog.writePref(true);
+      Zotero.Prefs.set(`${prefs}.dialogOutlineView`, false, true);
+      try {
+        const { w } = await openDialog();
+        win = w;
+        const doc = w.document;
+        const popup = doc.getElementById("settings-popup")!;
+        const row = doc.getElementById(
+          "flexannotate-toggle-row",
+        ) as HTMLElement;
+        const outlineCb = (await waitFor(() =>
+          doc.getElementById("flexannotate-toggle"),
+        )) as HTMLInputElement;
+        const persistCb = doc.getElementById(
+          "flexannotate-persistent-toggle",
+        ) as HTMLInputElement;
+        assert.isTrue(row.contains(outlineCb), "inline when wide");
+
+        w.resizeTo(520, 700);
+        await waitFor(() => (row.hidden ? true : null), 8000, "row hidden");
+        assert.equal(
+          doc.querySelectorAll("#flexannotate-menu-items").length,
+          1,
+        );
+        assert.isTrue(popup.contains(outlineCb), "outline switch in the menu");
+        assert.isTrue(
+          popup.contains(persistCb),
+          "persistent switch in the menu",
+        );
+
+        // the menu reflects the state when it opens
+        outlineCb.checked = true;
+        popup.dispatchEvent(new (w as any).Event("popupshowing"));
+        assert.isFalse(outlineCb.checked, "reset to the outline state (off)");
+
+        // toggling in the menu does what the inline switch did
+        outlineCb.click();
+        await waitFor(
+          () => doc.getElementById("flexannotate-list-pane") || null,
+          8000,
+          "outline on",
+        );
+        assert.isTrue(
+          Zotero.Prefs.get(`${prefs}.dialogOutlineView`, true) === true,
+        );
+        // the pref was on: the click switches it off, and the pref follows the switch
+        const before = persistCb.checked;
+        persistCb.click();
+        assert.notEqual(persistCb.checked, before, "switch toggled");
+        assert.equal(
+          api().persistentDialog.readPref(),
+          persistCb.checked,
+          "pref follows",
+        );
+
+        w.resizeTo(1100, 700);
+        await waitFor(
+          () => (!row.hidden && row.contains(outlineCb) ? true : null),
+          8000,
+          "inline again",
+        );
+        assert.isNull(
+          doc.getElementById("flexannotate-menu-items"),
+          "menu items removed",
+        );
+        assert.isFalse(popup.contains(outlineCb), "not in the menu any more");
+        assert.isTrue(outlineCb.checked, "state kept across the move");
+      } finally {
+        api().persistentDialog.writePref(origPersist);
+        Zotero.Prefs.set(`${prefs}.dialogOutlineView`, origOutline, true);
+        win?.close();
+      }
+    });
+
+    it("stop() closes the window and restores the patches, start() patches again", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const feature = api().persistentDialog.feature;
+      const origPref = api().persistentDialog.readPref();
+      const origDoc = integration.currentDoc;
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      try {
+        const done = integration.displayDialog(
+          DIALOG_URL,
+          NATIVE_OPTIONS,
+          makeIo(),
+          "citation",
+        ) as Promise<void>;
+        const w = (await waitFor(() => findWindowByUrl(DIALOG_URL))) as Window;
+        win = w;
+        await waitFor(() => (w as any).DIALOG_STATE?.loaded || null);
+        const patchedDD = integration.displayDialog;
+        const patchedShow = integration.Progress.prototype.show;
+        feature.stop();
+        // die nativen Funktionen nach stop(): start() muss die Patches wieder anlegen
+        const nativeDD = integration.displayDialog;
+        const nativeShow = integration.Progress.prototype.show;
+        try {
+          assert.notStrictEqual(
+            integration.displayDialog,
+            patchedDD,
+            "displayDialog restored",
+          );
+          assert.notStrictEqual(
+            integration.Progress.prototype.show,
+            patchedShow,
+            "Progress.show restored",
+          );
+          await waitFor(
+            () => (w.closed ? true : null),
+            5000,
+            "window closed by stop",
+          );
+          await done; // the pending request is released by the close
+        } finally {
+          feature.start();
+        }
+        assert.notStrictEqual(
+          integration.displayDialog,
+          nativeDD,
+          "patched again",
+        );
+        assert.notStrictEqual(
+          integration.Progress.prototype.show,
+          nativeShow,
+          "Progress.show patched again",
+        );
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        integration.currentDoc = origDoc;
+        win?.close();
+      }
+    });
+
+    it("keeps the list scroll on select, cited mark and arrow keys; a new query starts at the top", async function () {
+      const work = await makeWork("Scroll Werk");
+      const att = await makePdfAttachment(work);
+      const many: Zotero.Item[] = [];
+      for (let i = 0; i < 30; i++)
+        many.push(
+          await makeAnnotation(
+            att,
+            `Scroll Zitat ${String(i).padStart(2, "0")}`,
+            `${i + 1}`,
+            i,
+          ),
+        );
+      try {
+        const { w, toggle } = await openDialog();
+        win = w;
+        const doc = w.document;
+        if (!toggle.checked) toggle.click();
+        const rows = () => [
+          ...doc.querySelectorAll<HTMLElement>(
+            "#flexannotate-list-pane [data-ann-id]",
+          ),
+        ];
+        await waitFor(() => rows().length >= 30 || null);
+        // the list pane is the host's second child (filter field first)
+        const list = () =>
+          doc.getElementById("flexannotate-list-pane")!
+            .children[1] as HTMLElement;
+        const filter = () =>
+          doc.querySelector(
+            "#flexannotate-list-pane input",
+          ) as HTMLInputElement;
+        assert.isAbove(list().scrollHeight, list().clientHeight, "overflows");
+
+        list().scrollTop = 200;
+        const top = list().scrollTop;
+        assert.isAbove(top, 0, "scrolled down");
+
+        // a click selects the row and keeps the scroll position
+        click(rows()[25]);
+        await waitFor(() => doc.getElementById("flexannotate-show-place"));
+        assert.approximately(list().scrollTop, top, 1, "select keeps scroll");
+
+        // the cited mark keeps it too
+        click(rows()[26].querySelector(".flexannotate-check") as HTMLElement);
+        await waitFor(() => rows()[26]?.querySelector(".flexannotate-cited"));
+        assert.approximately(list().scrollTop, top, 1, "cited keeps scroll");
+
+        // arrow keys keep the scroll and bring the new row into view
+        const key = (k: string) =>
+          doc.body.dispatchEvent(
+            new (doc.defaultView as any).KeyboardEvent("keydown", {
+              key: k,
+              bubbles: true,
+            }),
+          );
+        for (let i = 0; i < 6; i++) key("ArrowDown");
+        const lr = list().getBoundingClientRect();
+        const rr = rows()[31].getBoundingClientRect();
+        assert.isAtLeast(rr.top, lr.top - 1, "arrow target below the top edge");
+        assert.isAtMost(
+          rr.bottom,
+          lr.bottom + 1,
+          "arrow target above the bottom edge",
+        );
+        assert.isAbove(list().scrollTop, 0, "arrow keeps scroll");
+        key("ArrowUp");
+        assert.isAbove(list().scrollTop, 0, "arrow up keeps scroll");
+
+        // a new query starts at the top
+        list().scrollTop = 200;
+        filter().value = "Zitat 1";
+        filter().dispatchEvent(new Event("input", { bubbles: true }));
+        await waitFor(() => (rows().length < 30 ? true : null));
+        assert.equal(list().scrollTop, 0, "query resets scroll");
+      } finally {
+        await closeDialogs();
+        await Zotero.Items.erase(many.map((a) => a.id));
+      }
+    });
+
+    it("keeps the stored rect of a browse and of a real request window while Zotero resizes them", async function () {
+      this.timeout(60000);
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const origPref = api().persistentDialog.readPref();
+      const rect = { x: 220, y: 140, w: 520, h: 800 };
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      /** Samples the window every 100 ms for 5 s (Zotero resizes it after load). */
+      const sample = async (getWin: () => Window | null) => {
+        const samples: {
+          t: number;
+          w: number;
+          h: number;
+          x: number;
+          y: number;
+        }[] = [];
+        let last: Window | null = null;
+        const t0 = Date.now();
+        while (Date.now() - t0 < 5000) {
+          const w = getWin();
+          if (w && !w.closed) {
+            last = w;
+            samples.push({
+              t: Date.now() - t0,
+              w: w.innerWidth,
+              h: w.innerHeight,
+              x: w.screenX,
+              y: w.screenY,
+            });
+          }
+          await Zotero.Promise.delay(100);
+        }
+        return { samples, last };
+      };
+      // Zotero's load-time minimum can still widen the window for up to ~0.3 s (10.0.6 ~0.14 s, 9.0.6 ~0.14 s); the pin corrects it afterwards
+      const outside = (
+        s: { t: number; w: number; h: number; x: number; y: number }[],
+      ) =>
+        s.filter(
+          (p) =>
+            p.t >= 300 &&
+            (Math.abs(p.w - rect.w) > 2 ||
+              Math.abs(p.h - rect.h) > 2 ||
+              Math.abs(p.x - rect.x) > 4 ||
+              Math.abs(p.y - rect.y) > 4),
+        );
+      try {
+        // 1) browse window
+        const bw = api().persistentDialog.openBrowse(rect);
+        const b = await sample(() => bw);
+        bw.close();
+        assert.isAtLeast(b.samples.length, 30, "browse window was sampled");
+        assert.deepEqual(
+          outside(b.samples),
+          [],
+          `browse window left the rect: ${JSON.stringify(b.samples.slice(0, 12))}`,
+        );
+        await waitFor(() => (bw.closed ? true : null));
+
+        // 2) real request window, opened at the rect of the tracked window
+        const old = api().persistentDialog.openBrowse(rect);
+        const done = integration.displayDialog(
+          DIALOG_URL,
+          NATIVE_OPTIONS,
+          makeIo(),
+          "citation",
+        ) as Promise<void>;
+        const r = await sample(
+          () => dialogWindows().find((w) => w !== old && !w.closed) ?? null,
+        );
+        assert.isAtLeast(r.samples.length, 30, "request window was sampled");
+        assert.deepEqual(
+          outside(r.samples),
+          [],
+          `request window left the rect: ${JSON.stringify(r.samples.slice(0, 12))}`,
+        );
+        r.last?.close();
+        await done;
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        integration.currentDoc = undefined;
+        await closeDialogs();
+      }
+    });
+
+    it("a browse window reopens with the geometry the user gave it, two cycles in a row", async function () {
+      this.timeout(120000);
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const origPref = api().persistentDialog.readPref();
+      const origExec = integration.execCommand;
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      api().persistentDialog.rememberCommand({
+        agent: "WinWord",
+        docId: "Dokument1",
+        templateVersion: 0,
+      });
+      const fakeDoc: string[] = [];
+      integration.execCommand = async () => {
+        const cmd = beginCommand();
+        const io = makeIo();
+        await integration.displayDialog(
+          DIALOG_URL,
+          NATIVE_OPTIONS,
+          io,
+          "citation",
+        );
+        await Zotero.Promise.delay(300);
+        fakeDoc.push(
+          ...io.citation.citationItems.map((i: any) => String(i.id)),
+        );
+        await cmd.end();
+      };
+      const geo = (w: Window) => ({
+        x: w.screenX,
+        y: w.screenY,
+        iw: w.innerWidth,
+        ih: w.innerHeight,
+        ow: w.outerWidth,
+        oh: w.outerHeight,
+      });
+      let bw = api().persistentDialog.openBrowse({
+        x: 220,
+        y: 140,
+        w: 520,
+        h: 800,
+      });
+      const targets = [
+        { x: 260, y: 170, w: 1000, h: 640 },
+        { x: 180, y: 120, w: 900, h: 700 },
+      ];
+      try {
+        for (const [n, target] of targets.entries()) {
+          // the pin is over after 5 s: a resize from here on is the user's
+          await Zotero.Promise.delay(5500);
+          const chrome = {
+            w: bw.outerWidth - bw.innerWidth,
+            h: bw.outerHeight - bw.innerHeight,
+          };
+          bw.resizeTo(target.w + chrome.w, target.h + chrome.h);
+          bw.moveTo(target.x, target.y);
+          await waitFor(
+            () => (bw.innerWidth === target.w ? true : null),
+            3000,
+            `user resize ${n}`,
+          );
+          await Zotero.Promise.delay(300);
+          const before = geo(bw);
+          // accept from the browse window: one citation, the command runs, the window comes back
+          const io = (bw as any).arguments[0].wrappedJSObject;
+          io.citation.citationItems = [{ id: anns[n].id }];
+          io.accept();
+          const next = (await waitFor(
+            () => dialogWindows().find((w) => w !== bw && !w.closed) ?? null,
+            8000,
+            "reopened browse window",
+          )) as Window;
+          const samples: ReturnType<typeof geo>[] = [];
+          for (let i = 0; i < 30; i++) {
+            samples.push(geo(next));
+            await Zotero.Promise.delay(100);
+          }
+          // the first 300 ms: the opening frame (features size, before the pin's first correction)
+          for (const s of samples.slice(3)) {
+            assert.approximately(s.iw, before.iw, 2, "inner width");
+            assert.approximately(s.ih, before.ih, 2, "inner height");
+            assert.approximately(
+              s.ow,
+              before.ow,
+              4,
+              "outer width, no frame growth",
+            );
+            assert.approximately(
+              s.oh,
+              before.oh,
+              4,
+              "outer height, no frame growth",
+            );
+            assert.approximately(s.x, before.x, 4, "x");
+            assert.approximately(s.y, before.y, 4, "y");
+          }
+          bw = next;
+        }
+        assert.lengthOf(
+          fakeDoc,
+          2,
+          "both citations went into the fake document",
+        );
+      } finally {
+        integration.execCommand = origExec;
+        api().persistentDialog.writePref(origPref);
+        await closeDialogs();
+      }
+    });
+
+    it("the first persistent window after a restart opens at the stored rect; off-screen keeps the size, invalid falls back", async function () {
+      this.timeout(90000);
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const origPref = api().persistentDialog.readPref();
+      const key = `${prefs}.persistentWindowRect`;
+      const origRect = Zotero.Prefs.get(key, true);
+      const area = (Zotero.getMainWindow() as any).screen;
+      /** One persistent request with the pref set to `value`; returns the dialog window. */
+      const openWith = async (value: string) => {
+        Zotero.Prefs.set(key, value, true);
+        const done = integration.displayDialog(
+          DIALOG_URL,
+          NATIVE_OPTIONS,
+          makeIo(),
+          "citation",
+        ) as Promise<void>;
+        const w = (await waitFor(() => findWindowByUrl(DIALOG_URL))) as Window;
+        await waitFor(() => (w as any).DIALOG_STATE?.loaded || null);
+        return { w, done };
+      };
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      try {
+        // 1) on screen: size and position are taken; a move is remembered
+        const x = area.availLeft + 100;
+        const y = area.availTop + 80;
+        let { w, done } = await openWith(
+          JSON.stringify({ x, y, w: 600, h: 720 }),
+        );
+        await Zotero.Promise.delay(2500);
+        assert.approximately(w.innerWidth, 600, 2, "stored width");
+        assert.approximately(w.innerHeight, 720, 2, "stored height");
+        assert.approximately(w.screenX, x, 4, "stored x");
+        assert.approximately(w.screenY, y, 4, "stored y");
+        // the pin holds the place for 5 s; after that the user's move is kept and remembered
+        await Zotero.Promise.delay(3000);
+        w.moveTo(x + 40, y + 30);
+        await Zotero.Promise.delay(1500);
+        const saved = JSON.parse(Zotero.Prefs.get(key, true) as string);
+        assert.approximately(saved.x, x + 40, 4, "remembered x");
+        assert.approximately(saved.y, y + 30, 4, "remembered y");
+        w.close();
+        await done;
+
+        // 2) off screen: the size is kept, the OS places the window
+        const offX = area.availLeft + area.availWidth + 5000;
+        ({ w, done } = await openWith(
+          JSON.stringify({ x: offX, y, w: 600, h: 720 }),
+        ));
+        await Zotero.Promise.delay(2500);
+        assert.approximately(w.innerWidth, 600, 2, "size kept off screen");
+        assert.isBelow(
+          w.screenX,
+          area.availLeft + area.availWidth,
+          "not placed off screen",
+        );
+        w.close();
+        await done;
+
+        // 3) invalid value: the normal default window opens
+        // a valid position but a non-number width: the stored value is not used at all
+        ({ w, done } = await openWith('{"x":5,"y":5,"w":"700","h":500}'));
+        await Zotero.Promise.delay(1000);
+        assert.isAbove(
+          Math.abs(w.innerWidth - 700),
+          2,
+          "invalid width not used",
+        );
+        assert.isAbove(Math.abs(w.screenX - 5), 4, "invalid position not used");
+        w.close();
+        await done;
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        Zotero.Prefs.set(key, origRect as string, true);
+        await closeDialogs();
+      }
+    });
+
+    it("a persistent window moved by the user after the load phase stays where it was moved (browse and request)", async function () {
+      this.timeout(90000);
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const origPref = api().persistentDialog.readPref();
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      /** Moves `w` to (x, y) after the load phase and samples its position for 1 s. */
+      const moveAndSample = async (w: Window, x: number, y: number) => {
+        w.moveTo(x, y);
+        const seen: { x: number; y: number }[] = [];
+        for (let i = 0; i < 10; i++) {
+          seen.push({ x: w.screenX, y: w.screenY });
+          await Zotero.Promise.delay(100);
+        }
+        return seen;
+      };
+      try {
+        // browse window
+        const bw = api().persistentDialog.openBrowse({
+          x: 220,
+          y: 140,
+          w: 520,
+          h: 800,
+        });
+        await waitFor(() => (bw as any).DIALOG_STATE?.loaded || null);
+        await Zotero.Promise.delay(2000);
+        const seenB = await moveAndSample(bw, 420, 260);
+        for (const p of seenB) {
+          assert.approximately(p.x, 420, 4, "browse x after the move");
+          assert.approximately(p.y, 260, 4, "browse y after the move");
+        }
+        bw.close();
+        await waitFor(() => (bw.closed ? true : null));
+
+        // real request window
+        const done = integration.displayDialog(
+          DIALOG_URL,
+          NATIVE_OPTIONS,
+          makeIo(),
+          "citation",
+        ) as Promise<void>;
+        const w = (await waitFor(
+          () => dialogWindows().find((x) => !x.closed) ?? null,
+        )) as Window;
+        await waitFor(() => (w as any).DIALOG_STATE?.loaded || null);
+        await Zotero.Promise.delay(2000);
+        const tx = w.screenX + 60;
+        const ty = w.screenY + 40;
+        const seenR = await moveAndSample(w, tx, ty);
+        for (const p of seenR) {
+          assert.approximately(p.x, tx, 4, "request x after the move");
+          assert.approximately(p.y, ty, 4, "request y after the move");
+        }
+        w.close();
+        await done;
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        await closeDialogs();
+      }
+    });
+
+    it("a browse insert that fails before the command reaches the dialog leaves one browse window of the full size", async function () {
+      this.timeout(60000);
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const origPref = api().persistentDialog.readPref();
+      const origExec = integration.execCommand;
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      api().persistentDialog.rememberCommand({
+        agent: "WinWord",
+        docId: "Dokument1",
+        templateVersion: 0,
+      });
+      // the command fails before displayDialog (e.g. the cursor is inside a field)
+      integration.execCommand = async () => {
+        throw new Error("cannot insert here (test)");
+      };
+      const rect = { x: 230, y: 150, w: 520, h: 800 };
+      try {
+        const bw = api().persistentDialog.openBrowse(rect);
+        await waitFor(() => (bw as any).DIALOG_STATE?.loaded || null);
+        await Zotero.Promise.delay(2000);
+        const io = (bw as any).arguments[0].wrappedJSObject;
+        io.citation.citationItems = [{ id: anns[0].id }];
+        io.accept();
+        await Zotero.Promise.delay(2000);
+        const open = dialogWindows().filter((w) => !w.closed);
+        assert.lengthOf(open, 1, "exactly one browse window afterwards");
+        assert.notStrictEqual(
+          open[0],
+          bw,
+          "a new window, not the collapsed one",
+        );
+        assert.approximately(open[0].innerWidth, rect.w, 4, "full width");
+        assert.approximately(open[0].innerHeight, rect.h, 4, "full height");
+      } finally {
+        integration.execCommand = origExec;
+        api().persistentDialog.writePref(origPref);
+        await closeDialogs();
+      }
+    });
+
+    it("the browse window gets the session's cited works, so the green checks can show", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: { "4242": [] },
+      };
+      const origPref = api().persistentDialog.readPref();
+      await closeDialogs();
+      try {
+        const bw = api().persistentDialog.openBrowse({
+          x: 240,
+          y: 160,
+          w: 520,
+          h: 800,
+        });
+        const io = (bw as any).arguments[0].wrappedJSObject;
+        const loaded = (await io.allCitedDataLoadedPromise) as unknown[];
+        assert.property(
+          loaded[1] as object,
+          "4242",
+          "session citations reach the browse io",
+        );
+        bw.close();
+      } finally {
+        (Zotero as any).Integration.currentSession = {
+          sessionID: "T1",
+          citationsByItemID: {},
+        };
+        api().persistentDialog.writePref(origPref);
+        await closeDialogs();
+      }
+    });
+
+    it("no browse window for an agent other than Word for Windows (http: a hang; LibreOffice: a nested event loop)", async function () {
+      this.timeout(60000);
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const origPref = api().persistentDialog.readPref();
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      api().persistentDialog.rememberCommand({
+        agent: "http",
+        docId: "Dokument1",
+        templateVersion: 0,
+      });
+      try {
+        const io = makeIo();
+        io.citation.citationItems = [{ id: anns[0].id }];
+        const done = integration.displayDialog(
+          DIALOG_URL,
+          NATIVE_OPTIONS,
+          io,
+          "citation",
+        ) as Promise<void>;
+        await waitFor(() => dialogWindows().find((w) => !w.closed) ?? null);
+        io.accept();
+        await done;
+        await Zotero.Promise.delay(1500);
+        assert.lengthOf(
+          dialogWindows().filter((w) => !w.closed),
+          0,
+          "no browse window",
+        );
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        await closeDialogs();
+      }
+    });
+
+    it("browse mode is detected where Zotero has the addAnnotation command", function () {
+      assert.strictEqual(
+        api().persistentDialog.supported(),
+        typeof (Zotero as any).Integration?.Interface?.prototype
+          ?.addAnnotation === "function",
       );
     });
   });

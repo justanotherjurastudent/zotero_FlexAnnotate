@@ -47,6 +47,21 @@ Im Zitierdialog gibt es die Option „Nach Gliederung anordnen“. Links stehen 
 
 ![Zitierdialog mit Gliederungsansicht](docs/img/citation-dialog.png)
 
+**Zitierfenster offen halten (Option)**
+
+Mit „Als Aufgabenleiste geöffnet halten“ (Einstellungen → FlexAnnotate, oder Schalter im Gliederungsbereich des Dialogs) bleibt das Zitierfenster nach dem Einfügen stehen, und Sie können die nächste Annotation auswählen, ohne Word zu verlassen.
+
+- Nach dem Einfügen schließt der Dialog kurz, damit Word die Fußnote übernimmt, und öffnet sich an derselben Stelle neu: wieder die normale Ansicht mit Sammlungen, allen Annotationen und Suche. Dort wählen Sie die nächste Annotation und klicken auf „Einfügen“. Die Fußnote landet an der Cursorposition in Word.
+- Eine neue Anfrage aus Word (Annotation hinzufügen) ersetzt das Fenster durch den Dialog an derselben Stelle. Schließen Sie das Fenster mit dem X, endet das Offenhalten bis zur nächsten Anfrage.
+- Zotero lädt einen offenen Dialog nicht mit einem neuen Auftrag neu. Deshalb wird das Fenster nach jedem Einfügen neu geöffnet; ein angedocktes Fenster muss danach neu angedockt werden.
+- Unter 750 px Breite stehen die beiden Schalter im Einstellungsmenü (Zahnrad unten rechts) statt in der Zeile, damit die Liste mehr Platz hat.
+- Das Fenster lässt sich wie ein normales andocken (etwa an den Rand unter Windows). Die Mindesthöhe liegt bei rund 590 px, weil Zotero sie erzwingt. Unter 750 px Breite liegt der Baum oben, die Liste darunter und die Details unten.
+- Ausschalten wirkt sofort, Einschalten ab der nächsten Anfrage. Ist er aus, schließt ein offenes Fenster nach dem Einfügen wie gewohnt.
+- Getestet nur mit Word für Windows. Mit Word für Mac, LibreOffice und Google Docs öffnet nach dem Einfügen kein Blätterfenster. Zotero 7 und 8 haben den nötigen Befehl nicht; dort gibt es die Option nicht.
+- Der erste Dialog nach einem Neustart öffnet an der zuletzt benutzten Stelle und Größe, sofern sie noch auf dem Bildschirm liegt; sonst nur mit der Größe, die Position bestimmt das System.
+- Geprüft mit Zotero 10.0.6 (installierte Version) und 9.0.6 (Testsuite grün). 7.0.32 und 8.0.4 haben keinen Annotationsmodus; dort fehlt die Option. Nicht in echtem Word geprüft: das Einfügen aus dem offenen Fenster (Cursorposition, Anzeige der Fußnote). macOS, Linux und der dunkle Modus sind nicht geprüft.
+- Warum ein dauerhaft angedocktes Zitierfenster mit Zoteros Word-Integration nicht möglich ist (Englisch): [docs/persistent-window-limits.md](docs/persistent-window-limits.md).
+
 **4. Bücher ohne Datei: Print-Annotationen**
 
 Rechtsklick auf einen Titel, _Print-Annotation hinzufügen…_, Text, Kommentar und Seite eintragen. Im Hintergrund legt das Plugin einen Platzhalter-Anhang an, die Annotation verhält sich wie jede andere: Sie lässt sich ordnen, durchsuchen und aus Word zitieren.
@@ -99,12 +114,14 @@ Getestet sind 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6. Alles Wichtige läuft auf 
 - Vor Zotero 10 hat das Farbmenü der Eingabemaske nur Zoteros acht Standardfarben.
 - Unter 7.x liegt der Menüeintrag direkt im Menü _Werkzeuge_ und nicht über Zoteros Menü-Verwaltung.
 - Den Annotationsmodus im Zitierdialog gibt es erst ab Zotero 9. Auf 7 und 8 tut das Plugin dort nichts.
+- Zitierfenster offen halten: getestet auf 10.0.6 und 9.0.6, auf 7.0.32 und 8.0.4 ohne Annotationsmodus nicht verfügbar.
 
 ### Weiterlesen
 
 - [Handbuch](docs/handbuch.md): Bedienung im Detail, Import und Export der Gliederung, Einstellungen, Versionsmatrix, Datenformat, bekannte Punkte
 - [CHANGELOG](CHANGELOG.md)
 - [Aufbau und Fallstricke](docs/architecture.md) und [Tests](docs/testing.md) für Entwickler, dazu [AGENTS.md](AGENTS.md)
+- [KI-Anbindung](docs/ai-integration.md) (englisch): wie Werkzeuge, die eine KI mit Zotero verbinden (MCP-Server, Plugins), Annotationen der Gliederung zuordnen können
 
 ### Lizenz und Herkunft
 
@@ -140,6 +157,21 @@ This applies to every annotation, including those from PDF, EPUB and snapshots.
 **3. Citing from Word and LibreOffice (Zotero 9 and later)**
 
 The citation dialog gets the option "Nach Gliederung anordnen" (arrange by outline). Headings with counts are on the left, annotations in the middle. Annotations you have already cited carry a green check. The search bar at the top filters the list too, and "Zitatstelle anzeigen" (show place) opens the reader at the passage. On top of that comes **citation-only insertion**: if you do not want the quoted text in the document, insert only the citation with its pinpoint, per dialog or permanently in the settings.
+
+**Keep the citation window open (option)**
+
+With "Keep citation window open as a persistent task pane" (Settings → FlexAnnotate, or the checkbox in the outline area of the dialog) the citation window stays on screen after inserting, so you can select the next annotation without leaving Word.
+
+- After inserting, the dialog closes briefly so that Word takes the footnote, then reopens at the same position: the normal view with collections, all annotations and search. Select the next annotation and click Insert; the footnote goes to the cursor position in Word.
+- A new request from Word (Add Annotation) replaces the window with the dialog at the same position. Close the window with the X and the persistence ends until the next request.
+- Zotero does not reload an open dialog with a new request, so the window is opened again after each insert. A docked window therefore has to be docked again after each insert.
+- Below 750 px width the two switches are in the settings menu (gear at the bottom right) instead of the row, so the list has more room.
+- The window can be docked like any other (e.g. to a screen edge on Windows). The minimum height is about 590 px because Zotero enforces it. Below 750 px width the tree is on top, the list below it and the details at the bottom.
+- Switching off applies at once, switching on from the next request. If it is off, an open window closes after inserting as usual.
+- Tested only with Word for Windows. With Word for Mac, LibreOffice and Google Docs no browse window opens after inserting. Zotero 7 and 8 lack the needed command; the option is not offered there.
+- The first dialog after a restart opens at the last used position and size, if the position is still on the screen; otherwise only the size is kept and the system places the window.
+- Checked with Zotero 10.0.6 (the installed version) and 9.0.6 (test suite green). 7.0.32 and 8.0.4 have no annotations mode, so the option is absent there. Not checked in real Word: inserting from the open window (cursor position, footnote display). macOS, Linux and dark mode are not checked.
+- Why a permanently docked citation window is not possible with Zotero's Word integration: [docs/persistent-window-limits.md](docs/persistent-window-limits.md).
 
 **4. Books without a file: print annotations**
 
@@ -191,12 +223,14 @@ Tested: 7.0.32, 8.0.4, 9.0.6 and 10.0.5/10.0.6. All the main features work on al
 - Before Zotero 10 the colour menu of the input panel has only Zotero's eight standard colours.
 - On 7.x the menu entry goes straight into the _Tools_ menu instead of through Zotero's menu manager.
 - The annotations mode in the citation dialog exists only from Zotero 9. On 7 and 8 the plugin does nothing there.
+- Keep citation window open: tested on 10.0.6 and 9.0.6; not available on 7.0.32 and 8.0.4 (no annotations mode).
 
 ### Further reading
 
 - [User guide](docs/guide.md): detailed usage, outline import and export, settings, version matrix, data format, known issues
 - [CHANGELOG](CHANGELOG.md)
 - [Architecture and pitfalls](docs/architecture.md) and [testing](docs/testing.md) for developers, plus [AGENTS.md](AGENTS.md)
+- [AI integration](docs/ai-integration.md): how tools that connect an AI to Zotero (MCP servers, plugins) can assign annotations to the outline
 
 ### License and origin
 

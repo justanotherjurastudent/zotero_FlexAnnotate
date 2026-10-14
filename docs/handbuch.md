@@ -85,6 +85,7 @@ Das Manifest verlangt Zotero 7.0 bis 10.\*. Geprüft ist das nur durch die autom
 | Zitierdialog mit Annotationsmodus: Modus-Auswahl, Gliederungsansicht, Suche, „Zitatstelle anzeigen“ | nicht verfügbar             | nicht verfügbar             | geprüft                     | geprüft                 |
 | Einstellungsfenster                                                                                 | geprüft                     | geprüft                     | geprüft                     | geprüft                 |
 
+- **Zitierfenster offen halten (Option `persistentCitationDialog`, Standard aus):** Nach dem Einfügen öffnet sich der Dialog an derselben Stelle neu mit allen Annotationen; dort lassen sich weitere Annotationen einfügen. Eine neue Anfrage aus Word ersetzt das Fenster. Ausschalten wirkt sofort, Einschalten ab der nächsten Anfrage. Geprüft: Testsuite auf 10.0.6 und 9.0.6 grün; 7.0.32 und 8.0.4 haben keinen Annotationsmodus, dort fehlt die Option.
 - **Farbmenü (7.x bis 9.x):** `Zotero.Annotations.COLORS` gibt es erst ab 10.x. Davor verwendet die Eingabemaske die acht Standardfarben von Zotero (`STANDARD_COLORS` in `src/features/print/logic/printAnnotation.ts`).
 - **Werkzeugmenü (7.x):** `Zotero.MenuManager` fehlt in 7.0.32; der Eintrag wird direkt in das Menü _Werkzeuge_ eingehängt. Die übrigen Menüs (Rechtsklick auf Titel und Annotationen) arbeiten ohnehin über DOM.
 - **Zitierdialog (7.x, 8.x):** Der Annotationsmodus im Zitierdialog existiert erst ab Zotero 9. Auf 7.x und 8.x gibt es dort weder die Option „Nach Gliederung anordnen“ noch die Modus-Auswahl „Einfügen als“ noch „Zitatstelle anzeigen“. Das Plugin tut in diesem Dialog nichts und stört nicht.
@@ -104,6 +105,7 @@ Die alte Version 1.2.0 ist über den Git-Tag `pre-merge` erreichbar.
 ## Bekannte Punkte
 
 - Die Gliederungsnotiz `★outline` nicht selbst im Notiz-Editor öffnen und dort bearbeiten: Der Editor kann sie später mit seinem Stand überschreiben (Hintergrund: [architecture.md](architecture.md), Fallstrick 14). FlexAnnotate legt sie so an, dass Zotero sie nicht von sich aus öffnet.
+- Zitierfenster offen halten: Die Mindesthöhe liegt bei rund 590 px, weil Zotero sie erzwingt. Nach dem Einfügen öffnet sich das Fenster an derselben Stelle neu, so dass weitere Annotationen eingefügt werden können; das Einfügen aus diesem Fenster ist in echtem Word noch nicht geprüft. Fensterposition nur unter Windows mit 125 % Skalierung gemessen. macOS, Linux und der dunkle Modus sind nicht geprüft.
 - Das Seitenformat `PageRange` (`<os>`/`<nt>`) ist nur gegen synthetische Fixtures getestet.
 - Reader-Popup, Reader-Menü sowie Toolbar- und Menü-Icons im Dark Mode sind nur per Code-Review geprüft, nicht visuell und nicht automatisch.
 - Das Toolbar-Icon ist 16 px groß; Zoteros eigene Icons sind 20 px.

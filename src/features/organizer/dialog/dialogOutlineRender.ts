@@ -29,6 +29,8 @@ const GREEN = "#1f9d55";
 const SELECTED = "rgba(60,120,220,0.16)";
 const LINE = "var(--fill-quinary, rgba(128,128,128,0.25))";
 const MUTED = "var(--fill-secondary, #777)";
+/** Aktionsbuttons der Vorschau: eine Zeile, bei Platzmangel umbrechen. */
+const BUTTON_CSS = "flex:1 1 auto;padding:4px 8px;white-space:nowrap;";
 
 export interface View {
   roots: OutlineNode[];
@@ -51,7 +53,8 @@ function el(doc: Document, tag: string, css = "", text?: string): HTMLElement {
 
 export function renderAll(win: Window, v: View) {
   renderTree(win, v);
-  renderList(win, v);
+  // neue Daten oder neuer Knoten: die Liste beginnt oben
+  renderList(win, v, false);
   renderPreview(win, v);
 }
 
@@ -145,10 +148,14 @@ export function visibleSections(v: View): Section<AnnLike>[] {
     .filter((s) => s.items.length);
 }
 
-export function renderList(win: Window, v: View) {
+/** keepScroll: Auswahl und Häkchen bauen die Liste neu auf, die Scrollposition soll bleiben. */
+export function renderList(win: Window, v: View, keepScroll = true) {
   const doc = win.document;
   const host = doc.getElementById(LIST_ID);
   if (!host) return;
+  const scroll = keepScroll
+    ? ((host.children[1] as HTMLElement | undefined)?.scrollTop ?? 0)
+    : 0;
   host.textContent = "";
 
   const filter = doc.createElement("input");
@@ -160,7 +167,7 @@ export function renderList(win: Window, v: View) {
     "margin:5px 6px;flex:none;box-sizing:border-box;height:24px;padding:0 8px;font-size:12px;";
   filter.addEventListener("input", () => {
     v.query = filter.value;
-    renderList(win, v);
+    renderList(win, v, false);
     const again = doc.querySelector(`#${LIST_ID} input`) as HTMLInputElement;
     again?.focus();
     again?.setSelectionRange(again.value.length, again.value.length);
@@ -201,6 +208,7 @@ export function renderList(win: Window, v: View) {
       if (r) list.appendChild(rowEl(win, v, r, order));
     }
   }
+  list.scrollTop = scroll;
 }
 
 function rowEl(win: Window, v: View, r: Row, order: number[]): HTMLElement {
@@ -347,21 +355,23 @@ export function renderPreview(win: Window, v: View) {
         ),
       );
   }
+  const bar = el(doc, "div", "display:flex;flex-wrap:wrap;gap:6px;");
+  host.appendChild(bar);
   const btn = doc.createElement("button");
   btn.id = "flexannotate-insert";
   btn.textContent = tr("dialogInsert");
-  btn.style.cssText = "align-self:flex-start;padding:5px 12px;";
+  btn.style.cssText = BUTTON_CSS;
   btn.addEventListener("click", () => void insert(win, [...v.sel.selected]));
-  host.appendChild(btn);
+  bar.appendChild(btn);
 
   // one annotation only: jump to its place in the reader (the dialog stays open)
   if (picked.length === 1) {
     const show = doc.createElement("button");
     show.id = "flexannotate-show-place";
     show.textContent = tr("dialogShowPlace");
-    show.style.cssText = "align-self:flex-start;padding:5px 12px;";
+    show.style.cssText = BUTTON_CSS;
     show.addEventListener("click", () => void openRow(picked[0]));
-    host.appendChild(show);
+    bar.appendChild(show);
   }
 
   // manual correction of the green check
@@ -369,11 +379,11 @@ export function renderPreview(win: Window, v: View) {
   const mark = doc.createElement("button");
   mark.id = "flexannotate-toggle-cited";
   mark.textContent = allCited ? tr("dialogUncite") : tr("dialogMark");
-  mark.style.cssText = "align-self:flex-start;padding:5px 12px;";
+  mark.style.cssText = BUTTON_CSS;
   mark.addEventListener("click", () =>
     setCited(win, v, [...v.sel.selected], !allCited),
   );
-  host.appendChild(mark);
+  bar.appendChild(mark);
 }
 
 /** Set or remove the green check of annotations for this document. */

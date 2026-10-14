@@ -85,6 +85,7 @@ The manifest allows Zotero 7.0 to 10.\*. Only the automated Zotero test suite (`
 | Citation dialog with annotations mode: mode selector, outline view, search, "show place" | not available                 | not available                 | tested                        | tested                 |
 | Settings pane                                                                            | tested                        | tested                        | tested                        | tested                 |
 
+- **Keep citation window open (option `persistentCitationDialog`, default off):** after inserting, the dialog reopens at the same position in its normal view (collections, all annotations, search), so you can insert the next annotation. Switching off applies at once, switching on from the next request. Tested: the test suite is green on 10.0.6 and 9.0.6; 7.0.32 and 8.0.4 have no annotations mode, so the option is absent there.
 - **Colour menu (7.x to 9.x):** `Zotero.Annotations.COLORS` exists only from 10.x. Before that, the input panel uses Zotero's eight standard colours.
 - **Tools menu (7.x):** `Zotero.MenuManager` is missing in 7.0.32, so the entry is added to the _Tools_ menu directly. The other menus (right-click on items and annotations) work through the DOM anyway.
 - **Citation dialog (7.x, 8.x):** the annotations mode of the citation dialog exists only from Zotero 9. On 7.x and 8.x there is no "Nach Gliederung anordnen" option, no "Insert as" selector and no "Zitatstelle anzeigen". The plugin does nothing in that dialog and stays out of the way.
@@ -104,6 +105,7 @@ Version 1.2.0 is available at the Git tag `pre-merge`.
 ## Known issues
 
 - Do not open the `★outline` note in Zotero's note editor and edit it there. The editor can overwrite it later with its own state (background: [architecture.md](architecture.md), pitfall 14). FlexAnnotate creates it in a way that keeps Zotero from opening it by itself.
+- Keep citation window open: the minimum height is about 590 px because Zotero enforces it. After inserting, the dialog reopens at the same position in its normal view, so you can insert the next annotation; a new request from Word replaces it. Inserting from the open window is not yet checked in real Word. Window position was measured only on Windows at 125 % scaling. macOS, Linux and dark mode are not checked.
 - The `PageRange` format (`<os>`/`<nt>`) is only tested against synthetic fixtures.
 - The reader popup, the reader menu and the toolbar and menu icons in dark mode were reviewed in code only, not visually and not automatically.
 - The toolbar icon is 16 px; Zotero's own icons are 20 px.
