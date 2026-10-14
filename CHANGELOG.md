@@ -6,7 +6,6 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 
 ### Added
 
-- Anleitung für Entwickler von KI-Anbindungen (MCP-Server, Plugins): Datenmodell der Gliederung, Zuordnung von Annotationen über `§`-Tags, Tool-Vorschläge und Prompt-Skizze in [`docs/ai-integration.md`](docs/ai-integration.md). Das Plugin selbst enthält keine KI; die Anleitung ist nur gegen den Quellcode geprüft, nicht mit einem echten KI-Werkzeug erprobt.
 - Zitierfenster offen halten (Option _Als Aufgabenleiste geöffnet halten_, Einstellungen und Schalter im Gliederungsbereich des Dialogs): Nach dem Einfügen öffnet sich der Dialog an derselben Stelle neu im Blätterfenster-Modus: normale Ansicht mit Sammlungen, Annotationen und Suche; „Einfügen“ dort schreibt die Fußnote an die Cursorposition in Word. Eine neue Anfrage aus Word ersetzt das Fenster (`features/organizer/dialog/dialogPersistent.ts`). Getestet mit Zotero 10.0.6 und 9.0.6 (Testsuite); macOS, Linux und dunkler Modus nicht geprüft.
 - Schmales Zitierfenster (unter 750 px, nur das persistente Fenster): Baum oben, Liste darunter, Details unten; die Liste bleibt bei jeder Breite ab 360 px sichtbar (`dialogOutline.ts`, `LAYOUT_CSS`). Normale Zitierdialoge bleiben unverändert.
 - Zitierfenster offen halten: Jede neue Anfrage aus Word öffnet das Fenster an derselben Stelle und mit derselben Größe (vorher nur die Position). Ein Neuladen des offenen Dialogs ist nicht möglich, weil Zotero dabei `window.arguments` verliert (geprüft in der Testsuite); das Andocken geht darum bei jeder Anfrage verloren.
