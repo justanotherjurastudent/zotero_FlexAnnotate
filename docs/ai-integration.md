@@ -1,74 +1,72 @@
-# Assigning annotations to the outline with an AI tool
+# Assigning annotations to outline headings
 
-## Introduction
+FlexAnnotate contains no AI. This page describes how a tool, such as an MCP
+server or a Zotero plugin that connects a language model, assigns annotations
+to the headings of the organizer outline.
 
-FlexAnnotate has no AI features. This page describes the data a tool needs to
-assign annotations to the headings of the organizer outline, for developers of
-MCP servers and Zotero plugins that connect a language model to Zotero. Nothing
-here requires the plugin to be running; everything is stored as ordinary Zotero
-tags and notes.
+## Requirements
+
+- **Zotero 10 or later to write.** Zotero 10 adds write methods to the local
+  API ([changelog 10.0](http://www.zotero.org/support/changelog): "Local API
+  write support"). Without write access a tool can list and suggest, but not
+  assign.
+- **Zotero 8 or later to read annotations** through the local API. On 7.x the
+  annotation queries below return no items, and there is no fulltext route.
+- The user enables the local API with `extensions.zotero.httpServer.localAPI.enabled`
+  (off by default). The default port is `extensions.zotero.httpServer.port` (23119).
 
 ## Data model
 
-| Thing            | Representation                                            |
-| ---------------- | --------------------------------------------------------- |
-| Heading          | A Zotero tag `§` + title (trimmed), e.g. `§Introduction`. |
-| Assignment       | The annotation item carries the heading tag.              |
-| Several headings | The annotation carries several `§` tags.                  |
-| Outline tree     | JSON inside one standalone note tagged `★outline`.        |
+| Thing            | Representation                                     |
+| ---------------- | -------------------------------------------------- |
+| Heading          | A tag `§` + title (trimmed), e.g. `§Introduction`. |
+| Assignment       | The annotation item carries the heading tag.       |
+| Several headings | The annotation carries several `§` tags.           |
+| Outline tree     | JSON in a standalone note tagged `★outline`.       |
 
-The tree gives hierarchy and order only. Assigning never touches the note.
-Numbers such as `1.2.3` are computed for display and are not stored.
+The tree stores hierarchy and order. Assigning never changes the note. Numbers
+such as `1.2.3` are computed for display and are not stored.
 
-### Which outline applies: one tree per top-level collection
+## Choosing the outline tree
 
-A library can hold several outlines, each one a note tagged `★outline`:
+A library can hold several outlines. Each is a note tagged `★outline`:
 
-| Outline         | Marker on the note                                | Used for                                                              |
-| --------------- | ------------------------------------------------- | --------------------------------------------------------------------- |
-| Library tree    | no `#flexannotate-outline-<key>` tag              | work without a collection chosen                                      |
-| Collection tree | extra tag `#flexannotate-outline-<collectionKey>` | the top-level collection `<collectionKey>` and all its subcollections |
-
-To pick the tree for a run:
+| Outline         | Marker on the note                                | Covers                                        |
+| --------------- | ------------------------------------------------- | --------------------------------------------- |
+| Library tree    | no `#flexannotate-outline-<key>` tag              | works without a collection                    |
+| Collection tree | extra tag `#flexannotate-outline-<collectionKey>` | a top-level collection and its subcollections |
 
 1. Take the collection the user names. If it is a subcollection, walk up to its
-   top-level ancestor (the "main collection"). Its Zotero collection key is
-   `<collectionKey>`. Collection keys are part of the synced data, so they are
-   the same on every device.
-2. Use the note tagged `★outline` **and** `#flexannotate-outline-<collectionKey>`.
-   If no such note exists, the collection has no tree yet. Do not fall back to
-   the library tree or to another collection's tree; the organizer starts with
-   an empty tree here. Report "no outline for this collection" and stop.
-3. Only assign annotations whose work lies in that main collection or one of its
-   subcollections (annotation, attachment, work, collection membership).
-   Annotations of works without a collection have no tree and are skipped.
+   top-level ancestor (the main collection). Use its collection key, not its name.
+2. Use the note with `★outline` **and** `#flexannotate-outline-<collectionKey>`.
+   If none exists, the collection has no tree. Report that and stop. Do not
+   fall back to the library tree or to another collection's tree.
+3. Assign only annotations whose work is in that main collection or one of its
+   subcollections. Skip works without a collection.
 
 Consequences:
 
-- Tags are library-wide. Two trees may contain the same title and then share the
-  tag `§Title`. Limiting a run to one collection keeps the trees apart.
-- A work can sit in several main collections and then belongs to several trees.
-  Make `collection` a required parameter of your tools, so the caller decides
-  which tree a run uses and the tool never has to guess.
+- Tags are library-wide. Two trees can share a heading title, and then both use
+  the tag `§Title`. Limiting a run to one collection keeps them apart.
+- A work can belong to several main collections, and so to several trees. Make
+  `collection` required: the caller picks the tree.
 
-### Finding and reading the outline note
+## Reading the outline
 
-Search for the tag `★outline` among notes, then keep the one that carries the
-marker tag from the table above.
+Find the note by its `★outline` tag, then keep the one with the marker tag from
+the table above. If several match (for example after a sync conflict), take the
+latest `dateModified`, and on a tie the higher item id.
 
-- Zotero JS API: `Zotero.Search` with the condition `tag` `is` `★outline`.
-- Web or local API: `GET /api/users/0/items?tag=%E2%98%85outline&itemType=note`
-  (checked against a running Zotero 10, with the header `Zotero-API-Version: 3`).
-
-If several notes match (for example after a sync conflict), the organizer takes
-the one with the latest `dateModified`; on a tie the higher item id.
+- JS API: `Zotero.Search` with the condition `tag` `is` `★outline`.
+- Local API: `GET /api/users/0/items?tag=%E2%98%85outline&itemType=note`.
 
 The tree is in the note HTML, after the line `LATTICE-OUTLINE-V1`, inside a
-`<pre><code>` block. Zotero may rewrite that block to `<pre>` when the note is
-saved again, so accept both closing tags:
+`<pre><code>` block. Zotero may rewrite that block to `<pre>` when it saves the
+note, so accept both closing tags:
 
 ```js
 const m = html.match(/LATTICE-OUTLINE-V1\s*([\s\S]*?)<\/(?:code|pre)>/);
+if (!m) return []; // no outline in this note
 const json = m[1]
   .trim()
   .replace(/&quot;/g, '"')
@@ -78,8 +76,7 @@ const json = m[1]
 const roots = JSON.parse(json).roots;
 ```
 
-If the sentinel is missing or the JSON does not parse, treat the outline as
-empty. The result looks like this:
+If the JSON does not parse, treat the outline as empty. The structure:
 
 ```json
 {
@@ -99,84 +96,122 @@ empty. The result looks like this:
 }
 ```
 
-The tag for a node is `"§" + node.title.trim()`. Titles are unique across the
-whole tree (case-insensitive), never empty and contain no line break, so the
-title identifies the heading. Give the model the path (`Main Part > Analysis`),
-not only the title. A large tree is fine to send whole; headings are short.
+The tag of a node is `"§" + node.title.trim()`. Titles are unique across the
+tree (case-insensitive), never empty, and contain no line break. Give the model
+the path (`Main Part > Analysis`), not only the title.
 
-### Reading annotations
+## Reading annotations
 
 Annotations are child items of an attachment (PDF, EPUB, snapshot), which is a
-child of the work. For each annotation the model should get:
+child of the work. Per annotation, pass the model:
 
-- `annotationText` (the quote), `annotationComment`, `annotationPageLabel`,
-  `annotationType` (`highlight`, `underline`, `note`, `text`, `image`, `ink`)
-  and `annotationColor`
-- the work's title and creators (the parent of the attachment)
-- its current tags; existing `§` tags are existing assignments
-- ideally the text around it, from the attachment's full text near the
-  annotation's page
+- `annotationText`, `annotationComment`, `annotationPageLabel`,
+  `annotationType` (`highlight`, `underline`, `note`, `text`, `image`, `ink`),
+  `annotationColor`
+- the work's title and creators
+- its current tags; existing `§` tags are current assignments
+- the surrounding text from the attachment's fulltext (see below)
 
-Image and ink annotations have no quote. If they also have no comment, skip
-them rather than letting the model guess from nothing.
+Image and ink annotations have no quote. Skip them if they also have no comment.
 
-How to list them:
+Local API (Zotero 8 and later):
 
-- JS API: `attachment.getAnnotations()`. On Zotero 7, item search does not
-  return annotations (see `itemsWithTag` in `outlineModel.ts`), so do not rely
-  on `Zotero.Search` there.
-- Local API (checked against a running Zotero 10, read-only):
-  - `GET /api/users/0/items?itemType=annotation&limit=100&start=0` lists all
-    annotations; page through with `start` (the `Total-Results` header gives the
-    count).
-  - `GET /api/users/0/items/<attachmentKey>/children?itemType=annotation` lists
-    the annotations of one attachment. Without `itemType=annotation` the
-    children list comes back empty, so do not leave it out.
-  - Do not use `parentItem=` on the items endpoint; it is ignored and returns
-    every annotation.
-- Tag filters need the exact tag name, with no wildcard:
-  `items?itemType=annotation&tag=%C2%A7Introduction` returns the annotations
-  assigned to that heading. To find the unassigned ones, either load all
-  annotations and look at their `tags`, or collect the assigned keys per
-  heading of the tree and subtract them. A prefix search such as `tag=§*` finds
-  nothing, and `tags?q=` did not filter reliably in the check; if you need all
-  `§` tags, load `/api/users/0/tags` and filter by `startsWith("§")` yourself.
+- `GET /api/users/0/items?itemType=annotation&limit=100&start=0`: all
+  annotations. Page with `start`; the `Total-Results` header gives the count.
+- `GET /api/users/0/items/<attachmentKey>/children?itemType=annotation`: the
+  annotations of one attachment. Without `itemType=annotation` the list is empty.
+- `GET /api/users/0/items?itemType=annotation&tag=%C2%A7Introduction`: the
+  annotations with that exact heading tag. There is no wildcard.
+- `GET /api/users/0/items/<attachmentKey>/fulltext`: the indexed text of the
+  attachment.
+- `GET /api/users/0/tags`: all tags. Filter `§` tags on the client.
 
-### Writing an assignment
+The `parentItem` parameter of the items endpoint does not filter; it returns all
+annotations.
 
-Add the heading tag to the annotation item and save it. Remove the tag to undo.
-This is what the organizer does (`fileMany` and `unfileMany` in
-`organizerData.ts`): it skips items that already carry the tag and items that
-are not editable, such as annotations of other users in a group library.
+JS API: `attachment.getAnnotations()`.
 
-Rules the tool should enforce:
+## Writing an assignment
 
-- Use only titles of the tree that belongs to the annotation's main collection.
-- Use only titles that exist in that tree. A `§` tag that is not in the tree is
-  not a heading; the organizer shows it as an orphan.
+Add the heading tag to the annotation and save it. Remove it to undo. The
+organizer does the same (`fileMany` and `unfileMany` in `organizerData.ts`). It
+skips items that already carry the tag and items that are not editable, such as
+annotations of other users in a group library.
+
+Rules for a tool:
+
+- Use only titles of the tree of the annotation's main collection.
+- Use only titles that exist in that tree. A `§` tag without a matching node
+  shows as an orphan in the organizer.
 - Do not create, rename or delete headings through tags. Tree changes belong to
   the user, in the organizer.
-- Leave other tags alone, in particular `#flexannotate-*` tags.
-- Add `§` tags freely, but remove them only through an explicit unassign request
-  from the user.
+- Leave other tags alone, in particular `#flexannotate-*`.
+- Remove `§` tags only on an explicit unassign request.
 - Do not rename or delete annotations.
 
-## Suggested tools (names are free)
+How the organizer shows an assignment: a heading lists the annotations with its
+tag and, by default, those of all its subheadings (`itemsUnder` in
+`logic/outline.ts`, `includeSub = true`). An annotation under a subheading also
+appears under each parent. Choose the most specific heading that fits.
 
-| Tool                   | Input                                                                     | Output                                                                 |
-| ---------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `outline_get`          | `collection`                                                              | List of `{ title, path, depth }` from that collection's tree           |
-| `annotations_list`     | `collection`; `unassignedOnly` (no tag that matches a title of this tree) | Annotations with text, comment, page, type, color, work, `§` tags, key |
-| `annotation_context`   | annotation key, `radius` pages                                            | Full text around the annotation                                        |
-| `annotations_assign`   | `collection`, `assignments: [{ key, headings }]`, `dryRun`                | `{ assigned, skipped, unknownHeadings }`                               |
-| `annotations_unassign` | `collection`, `assignments: [{ key, headings }]`                          | The tags that were removed                                             |
+### Inside Zotero (plugin)
 
-A minimal version needs only `outline_get`, `annotations_list` and
-`annotations_assign`. If your tool only offers generic tag tools ("add tag to
-item"), the same result works: read the note yourself and add the `§Title` tags
-to the annotation items.
+```js
+const item = Zotero.Items.getByLibraryAndKey(libraryID, annotationKey);
+item.addTag("§Analysis"); // once per heading
+await item.saveTx();
+```
 
-Example call and result of `annotations_assign`:
+### Local API (Zotero 10)
+
+- `PATCH /api/users/0/items/<annotationKey>` with the full `tags` array (existing
+  tags plus the new `§` tags). Returns 204. Groups use
+  `/api/groups/<groupID>/items/...`.
+- `POST /api/users/0/items` with an array of up to 50 objects, each with `key`,
+  `version` and the full `tags` array. Returns 200 with the result per entry.
+  More than 50 entries return 413.
+- Send the item's current `version` in the body, or as the header
+  `If-Unmodified-Since-Version`. A stale version returns 412.
+- Writes need the header `Zotero-Server-ID`, otherwise 428. Every response
+  carries it, so read it from `GET /api/` first.
+- Writes need a key in the `Zotero-API-Key` header. Get one with
+  `POST /api/local/authorize` and `{ "appName": "<your tool>" }`, sent with
+  `Zotero-Server-ID`. The user allows or denies in a dialog. Denial returns 403.
+  Rate limit: 429 with `Retry-After`.
+- "Allow" gives a key for one use. The key is used up when it is checked, even if
+  the write then fails. "Always Allow" gives a key that stays valid. A key that
+  is not registered returns 401.
+- Requests with a browser `User-Agent` (starting with `Mozilla/`) or an `Origin`
+  header get no response unless they also send `Zotero-Allowed-Request: 1`.
+- A write to a read-only library returns 403.
+
+Source: `xpcom/server/server_localAPI.js` and `server/server.js` in Zotero 10.0.5.
+
+## Tools, workflow and prompt
+
+Suggested tools (names are free):
+
+| Tool                   | Input                                                                    | Output                                                |
+| ---------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------- |
+| `outline_get`          | `collection` (key)                                                       | `{ title, path, depth }` for each node of the tree    |
+| `annotations_list`     | `collection`; `unassignedOnly` (no tag that matches a title of the tree) | Text, comment, page, type, color, work, `§` tags, key |
+| `annotation_context`   | annotation key                                                           | Fulltext near the annotation's quote                  |
+| `annotations_assign`   | `collection`, `assignments: [{ key, headings }]`, `dryRun`               | `{ assigned, skipped, unknownHeadings }`              |
+| `annotations_unassign` | `collection`, `assignments: [{ key, headings }]`                         | The tags that were removed                            |
+
+Minimal set: `outline_get`, `annotations_list`, `annotations_assign`.
+
+Per entry, `annotations_assign`:
+
+1. Resolves the tree of the collection.
+2. Checks that the annotation's work is in that collection and that the item is
+   editable; skips it otherwise.
+3. Maps each title to `"§" + title.trim()`. Unknown titles go to
+   `unknownHeadings`.
+4. Adds the missing tags and saves. The `version` comes from the item's `GET`
+   response.
+
+Example:
 
 ```json
 {
@@ -197,65 +232,16 @@ Example call and result of `annotations_assign`:
 }
 ```
 
-Per entry the tool:
+Workflow:
 
-1. Resolves the collection's tree.
-2. Checks that the annotation's work lies in that collection and that the
-   annotation is editable; skips it otherwise.
-3. Maps every title to `"§" + title.trim()` and reports titles that are not in
-   the tree under `unknownHeadings`.
-4. Adds the tags the annotation does not yet carry and saves, ideally the whole
-   batch in one transaction.
-
-### Writing from inside and outside Zotero
-
-Inside Zotero (a plugin), as the organizer does it:
-
-```js
-const item = Zotero.Items.getByLibraryAndKey(libraryID, annotationKey);
-item.addTag("§Analysis"); // once per heading
-await item.saveTx();
-```
-
-From outside Zotero:
-
-- Zotero 10 (checked in 10.0.5): the local API accepts `PATCH` on
-  `/api/users/0/items/<annotationKey>` (groups: `/api/groups/<groupID>/items/...`).
-  Requirements:
-  - The user must enable the local API (preference
-    `extensions.zotero.httpServer.localAPI.enabled`, off by default). Otherwise
-    every request returns 403 "Local API is not enabled". The port is
-    `extensions.zotero.httpServer.port` (23119 by default).
-  - Writes need the header `Zotero-Server-ID`, otherwise they return 428. Every
-    response carries this header, so read it from a first `GET /api/` and send
-    it back.
-  - Writes need a local API key in the `Zotero-API-Key` header. Get one with
-    `POST /api/local/authorize` and the body `{ "appName": "<your tool>" }`
-    (also with `Zotero-Server-ID`); Zotero then asks the user to allow or deny.
-    The answer "Allow" gives a single-use key that the first write consumes;
-    "Always Allow" gives a key you can keep. A tool that writes many
-    annotations should send them in one `POST` to `/api/users/0/items` (an
-    array of objects with `key` and `version`, as in the web API; the endpoint
-    exists, the update semantics were not tested), or ask the user for
-    "Always Allow".
-  - Send the item JSON with the complete `tags` array (existing tags plus the
-    new `§` tags) and optionally `version`; a stale version returns 412.
-- Zotero 7 to 9 (checked in 7.0.32, 8.0.4, 9.0.6): the local API has no write
-  methods. Use the zotero.org web API with a normal API key (the change reaches
-  the desktop client through sync) or run code inside Zotero.
-
-## Suggested workflow and prompt
-
-1. The user names a collection. Call `outline_get` and give the model the whole
-   tree with paths.
-2. Call `annotations_list` for that collection with `unassignedOnly: true`, in
-   batches of about 20 to 50. A later run then only handles new annotations.
-3. For unclear quotes call `annotation_context`.
-4. The model returns, per annotation, one or more headings or none. One heading
-   should be the normal case; several only when the quote supports each.
+1. The user names a collection. Call `outline_get` and pass the full tree with
+   paths to the model.
+2. Call `annotations_list` with `unassignedOnly: true`, in batches of 20 to 50.
+3. For unclear quotes, call `annotation_context`.
+4. The model returns one or more headings per annotation, or none.
 5. Show the plan with `dryRun: true`, then call `annotations_assign`.
 
-Prompt sketch:
+Prompt:
 
 > You assign reading annotations to the headings of an outline. For each
 > annotation choose the heading whose meaning the quote fits best, judging by
@@ -265,29 +251,28 @@ Prompt sketch:
 > headings from the list, spelled exactly. Return JSON:
 > `[{ "key": "...", "headings": ["..."], "reason": "one short sentence" }]`.
 
-Ask for the `reason`; it speeds up review.
+## API support by version
+
+| Route or method                                | 7.x | 8.x | 9.x | 10.x |
+| ---------------------------------------------- | --- | --- | --- | ---- |
+| Annotations by exact `§` tag                   | no  | yes | yes | yes  |
+| Annotations under an attachment (`children`)   | no  | yes | yes | yes  |
+| Attachment fulltext (`/fulltext`)              | no  | yes | yes | yes  |
+| Write: `PATCH` item, `POST` batch, auth routes | no  | no  | no  | yes  |
 
 ## Caveats
 
-- The `LATTICE-OUTLINE-V1` format is internal to FlexAnnotate and Lattice. Read
-  it, do not write it.
+- `LATTICE-OUTLINE-V1` is an internal format of FlexAnnotate and Lattice. Read
+  it. Do not write it.
 - Match heading titles as exact strings.
-- Not tested with a specific MCP server or plugin. This page describes the data
-  and the Zotero interfaces, not an integration that was run end to end.
+- A tool that uses the zotero.org web API instead of the local API follows the
+  web API rules. The tag format is the same.
 
-## Verified against
+## References
 
-- FlexAnnotate: `src/features/organizer/logic/outline.ts`, `outlineModel.ts`,
-  `logic/collections.ts`, `panel/organizerData.ts`, `panel/organizerState.ts`,
-  `panel/organizerFiling.ts`.
-- Zotero 10.0.5: `xpcom/server/server_localAPI.js` (authorization, write
-  methods, version check), `xpcom/data/dataObjects.js` (`getByLibraryAndKey`),
-  `xpcom/data/item.js` (annotation fields), `elements/zoteroSearch.js`
-  (annotation types).
-- Zotero 7.0.32, 8.0.4, 9.0.6: `server_localAPI.js` has no `PATCH`.
-- A running Zotero 10 (read-only `GET` requests to the local API): the
-  `Zotero-Server-ID` header, the search for `★outline` notes and parsing of
-  three real outline notes with the snippet above, the annotation listing, the
-  `children?itemType=annotation` route and the exact-tag filter.
-- Not checked: writing through the local API, the zotero.org web API write
-  format, and the local API on Zotero 7 to 9 (read side).
+- [Zotero local API](https://www.zotero.org/support/dev/web_api/v3/local_api)
+- [Zotero Web API, write requests](https://www.zotero.org/support/dev/web_api/v3/write_requests)
+- [Zotero changelog](http://www.zotero.org/support/changelog) (10.0)
+- Plugin source: `src/features/organizer/logic/outline.ts`, `outlineModel.ts`,
+  `logic/collections.ts`, `panel/organizerData.ts`, `panel/organizerState.ts`
+- Zotero 10.0.5 source: `xpcom/server/server_localAPI.js`, `server/server.js`
