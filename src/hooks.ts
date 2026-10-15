@@ -16,6 +16,7 @@ import * as docOutlineCore from "./features/organizer/logic/docOutline";
 import * as citedCore from "./features/organizer/logic/cited";
 import * as organizerData from "./features/organizer/panel/organizerData";
 import * as outlineCore from "./features/organizer/logic/outline";
+import * as flatHeadingsCore from "./features/organizer/logic/flatHeadings";
 import * as outlineModelModule from "./features/organizer/outlineModel";
 import * as printPlaceholder from "./features/print/placeholder";
 import * as printAnnotations from "./features/print/printAnnotations";
@@ -33,6 +34,10 @@ import { importPrintQuotes } from "./features/citavi/citaviPrintQuotes";
 import { organizerToolbarButton } from "./features/organizer/toolbarButton";
 import { collectionMenu } from "./features/organizer/collectionMenu";
 import { toolsMenuFallback } from "./features/organizer/toolsMenuFallback";
+import {
+  installExternalApi,
+  uninstallExternalApi,
+} from "./features/organizer/externalApi";
 import { unregisterAllPluginMenus } from "./utils/menu";
 import {
   addToWindow,
@@ -81,6 +86,13 @@ const features: Feature[] = [
     start: () => AnnotationIndex.init(),
     stop: () => AnnotationIndex.unload(),
   },
+  {
+    // Public plugin-to-plugin interface: other plugins read the outline
+    // headings with their numbers through Zotero.FlexAnnotate.
+    name: "externalApi",
+    start: () => installExternalApi(),
+    stop: () => uninstallExternalApi(),
+  },
   printMenus,
   annotationRowMenu,
 ];
@@ -98,7 +110,12 @@ async function onStartup() {
   addon.api = {
     organizerData,
     outline: outlineCore,
+    flatHeadings: flatHeadingsCore,
     outlineModel: outlineModelModule,
+    externalApi: {
+      install: installExternalApi,
+      uninstall: uninstallExternalApi,
+    },
     OrganizerFactory,
     docImport,
     docExport,
