@@ -1,6 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
+  anchorTagDiff,
   groupByOutline,
   htmlToText,
   pickNewest,
@@ -195,5 +196,56 @@ describe("htmlToText", () => {
 
   it("handles empty or falsy input gracefully", () => {
     assert.equal(htmlToText(""), "");
+  });
+});
+
+describe("anchorTagDiff (heading tags for the outline note)", () => {
+  it("adds a tag for every heading, including subheadings", () => {
+    const r = tree(); // Einleitung, Hauptteil, Hauptteil>Begriff, >Streitstand
+    assert.deepEqual(anchorTagDiff(r, []), {
+      add: ["§Begriff", "§Einleitung", "§Hauptteil", "§Streitstand"],
+      remove: [],
+    });
+  });
+
+  it("ignores non-`§` tags already on the note", () => {
+    const r = tree();
+    assert.deepEqual(anchorTagDiff(r, ["★outline", "foo"]).add, [
+      "§Begriff",
+      "§Einleitung",
+      "§Hauptteil",
+      "§Streitstand",
+    ]);
+  });
+
+  it("removes stale tags that no longer match a heading (rename/delete)", () => {
+    // Hauptteil renamed, Streitstand removed
+    const r = tree();
+    r[1].title = "Hauptteil neu";
+    r[1].children.pop();
+    const diff = anchorTagDiff(r, [
+      "§Einleitung",
+      "§Hauptteil",
+      "§Hauptteil neu",
+      "§Begriff",
+      "§Streitstand", // stale: heading deleted
+      "§AlteUeberschrift",
+    ]);
+    assert.deepEqual(diff.add, []);
+    assert.deepEqual(diff.remove, [
+      "§AlteUeberschrift",
+      "§Hauptteil",
+      "§Streitstand",
+    ]);
+  });
+
+  it("stays empty when note and tree already match", () => {
+    const r = tree();
+    const tags = ["§Begriff", "§Einleitung", "§Hauptteil", "§Streitstand"];
+    assert.deepEqual(anchorTagDiff(r, tags), { add: [], remove: [] });
+  });
+
+  it("is a no-op for an empty tree", () => {
+    assert.deepEqual(anchorTagDiff([], []), { add: [], remove: [] });
   });
 });

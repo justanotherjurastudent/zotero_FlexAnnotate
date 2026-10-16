@@ -342,6 +342,28 @@ export function headingTagsOf(tags: string[]): string[] {
   return tags.filter((t) => t.startsWith(HEADING_PREFIX));
 }
 
+/**
+ * §-Tags, die die Anker-Notiz ergänzen (add, noch im Baum, noch nicht getaggt)
+ * bzw. entfernen (remove, getaggt, aber keine Überschrift mehr im Baum — z. B.
+ * nach Umbenennen/Löschen). Damit existiert der Tag zu jeder Überschrift in der
+ * Bibliothek und wird in der Tag-Zeile der PDF-Ansicht vorgeschlagen, auch wenn
+ * noch kein Item zugeordnet ist.
+ */
+export function anchorTagDiff(
+  roots: OutlineNode[],
+  currentHeadingTags: string[],
+): { add: string[]; remove: string[] } {
+  const desired = new Set(
+    flatten(roots).map(({ node }) => headingTag(node.title)),
+  );
+  const current = new Set(
+    currentHeadingTags.filter((t) => t.startsWith(HEADING_PREFIX)),
+  );
+  const add = [...desired].filter((t) => !current.has(t)).sort();
+  const remove = [...current].filter((t) => !desired.has(t)).sort();
+  return { add, remove };
+}
+
 export interface Section<T> {
   /** null = the "no category" bucket. */
   node: OutlineNode | null;

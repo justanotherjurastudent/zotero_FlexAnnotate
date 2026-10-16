@@ -59,14 +59,14 @@ The organizer window builds its DOM in code; its texts live in `organizer/string
 
 All data lives in Zotero's own structures (tags, notes, child items), so it syncs and survives a plugin removal.
 
-| Datum                                  | Where                             | Meaning                                                                         |
-| -------------------------------------- | --------------------------------- | ------------------------------------------------------------------------------- |
-| `#flexannotate-placeholder`            | tag on the placeholder attachment | marks the generated PDF that carries print annotations                          |
-| `#flexannotate-locator-<type>`         | automatic tag on an annotation    | CSL locator type; absent for `page` unless the document default differs         |
-| `#flexannotate-default-locator-<type>` | automatic tag on an attachment    | default locator for annotations created later; `page` is never tagged           |
-| `§Title`                               | tag on annotations and works      | files the item under the outline heading `Title`                                |
-| `★outline`                             | tag on a standalone note          | the note holds the outline tree as JSON after the sentinel `LATTICE-OUTLINE-V1` |
-| `citedAnnotations`                     | preference                        | per document session id: annotation id to work id, at most 50 documents         |
+| Datum                                  | Where                                          | Meaning                                                                                                                                      |
+| -------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `#flexannotate-placeholder`            | tag on the placeholder attachment              | marks the generated PDF that carries print annotations                                                                                       |
+| `#flexannotate-locator-<type>`         | automatic tag on an annotation                 | CSL locator type; absent for `page` unless the document default differs                                                                      |
+| `#flexannotate-default-locator-<type>` | automatic tag on an attachment                 | default locator for annotations created later; `page` is never tagged                                                                        |
+| `§Title`                               | tag on annotations, works and the outline note | files the item under the outline heading `Title`; the `★outline` note anchors every heading's `§`-tag so it exists even without a filed item |
+| `★outline`                             | tag on a standalone note                       | the note holds the outline tree as JSON after the sentinel `LATTICE-OUTLINE-V1`                                                              |
+| `citedAnnotations`                     | preference                                     | per document session id: annotation id to work id, at most 50 documents                                                                      |
 
 ### Placeholder attachment
 
@@ -95,7 +95,7 @@ Enforced by Zotero in `xpcom/data/item.js` (10.0.5 line numbers):
 
 `src/features/organizer/logic/outline.ts` and `organizer/outlineModel.ts` read and write the note. Zotero rewrites `<pre><code>` to `<pre>` on save; the reader accepts both. Numbers such as `1.2.3` are computed for display and never stored. Format and tags are compatible with Lattice.
 
-`OutlineModel.save()` creates the note with `saveTx({ skipSelect: true })`. If several notes carry `★outline` (for example after a sync conflict), `findNote()` takes `pickNewest()` (`src/features/organizer/logic/outline.ts`): latest `dateModified`, on a tie the higher id, so the result does not depend on the input order. See pitfall 14.
+`OutlineModel.save()` creates the note with `saveTx({ skipSelect: true })` and then calls `syncAnchorTags()`: every heading in the tree gets its `§`-tag on the note, and stale `§`-tags (renamed/deleted headings) are removed, so each heading's tag exists in the library and Zotero's PDF-reader tag autocomplete suggests it even when no item is filed yet. `load()` runs the same sync, so a note created by an older version gets its `§`-tags backfilled on first open; the sync is idempotent and skips the write when nothing changed. The note itself never counts as a filed item: `gather` and `buildCountMap` skip notes carrying `★outline` (`isOutlineNote`). If several notes carry `★outline` (for example after a sync conflict), `findNote()` takes `pickNewest()` (`src/features/organizer/logic/outline.ts`): latest `dateModified`, on a tie the higher id, so the result does not depend on the input order. See pitfall 14.
 
 ## Control flow
 

@@ -97,7 +97,7 @@ User data from version 1.x keeps working unchanged. The preference keys `extensi
 - `#flexannotate-locator-<type>`: locator type of an annotation (automatic tag; for "page" without a differing document default there is no tag).
 - `#flexannotate-default-locator-<type>`: default locator of an attachment for future annotations.
 - `#flexannotate-placeholder`: marks the placeholder attachment of the print annotations.
-- `§Title`: an outline heading as a tag on assigned annotations and works (Lattice-compatible).
+- `§Title`: an outline heading as a tag on assigned annotations and works (Lattice-compatible). The organizer also anchors a `§`-tag for every heading on the `★outline` note (fairly on save **and** on load, so headings of existing notes are tagged retroactively), so each heading's tag exists even with nothing filed: type `§` in the tag box of the annotation popup in the PDF reader and the headings of that tree are suggested. Rename/delete of a heading moves/removes its tag automatically. Zotero's tag suggestions are library-wide, so `§`-tags from other main collections with their own tree appear there as well.
 - `★outline` and `LATTICE-OUTLINE-V1`: note holding the outline tree as JSON (Lattice-compatible). The additional tag `#flexannotate-outline-<collectionKey>` ties the note to the tree of that collection.
 
 Version 1.2.0 is available at the Git tag `pre-merge`.

@@ -27,6 +27,14 @@ to the headings of the organizer outline.
 The tree stores hierarchy and order. Assigning never changes the note. Numbers
 such as `1.2.3` are computed for display and are not stored.
 
+Every heading's `§`-tag is also anchored on the `★outline` note itself
+(`OutlineModel.save()` → `syncAnchorTags`; `load()` runs the same sync, so
+existing notes get their `§`-tags backfilled on open). That way the tag exists
+in the library and Zotero's PDF-reader tag box suggests it when you type `§` —
+even before any item is filed. You therefore never need to create a heading tag
+yourself; assign it to an item and it already exists. The note never counts as
+a filed item for `gather`/`buildCountMap`.
+
 ## Choosing the outline tree
 
 A library can hold several outlines. Each is a note tagged `★outline`:
@@ -46,8 +54,11 @@ A library can hold several outlines. Each is a note tagged `★outline`:
 
 Consequences:
 
-- Tags are library-wide. Two trees can share a heading title, and then both use
-  the tag `§Title`. Limiting a run to one collection keeps them apart.
+- Tags are library-wide and the PDF-reader tag autocomplete is too (Zotero
+  filters it only by `libraryID`, not by collection). Two trees can share a
+  heading title, and then both use the tag `§Title`. Limiting a run to one
+  collection keeps them apart; `§`-tags from other main collections with their
+  own tree will still be offered in the tag box.
 - A work can belong to several main collections, and so to several trees. Make
   `collection` required: the caller picks the tree.
 

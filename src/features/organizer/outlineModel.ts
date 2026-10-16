@@ -10,6 +10,7 @@ import {
 } from "./annotationIndex";
 import { citationFor } from "./citation";
 import {
+  anchorTagDiff,
   HEADING_PREFIX,
   htmlToText,
   OUTLINE_TAG,
@@ -89,6 +90,21 @@ function isAnnotation(item: Zotero.Item): boolean {
   );
 }
 
+/** Ob ein Item eine Gliederungsnotiz ist (trägt den ★outline-Markertag).
+ *
+ * Diese Notiz trägt seit der §-Tag-Synchronisierung selbst `§`-Tags (als Anker,
+ * damit die Überschriften-Tags in der Bibliothek existieren). Sie darf darum
+ * nie als zugeordnetes Item zählen (gather, buildCountMap).
+ */
+function isOutlineNote(item: Zotero.Item): boolean {
+  return (
+    !!item &&
+    typeof item.isNote === "function" &&
+    item.isNote() &&
+    item.getTags().some((t) => t.tag === OUTLINE_TAG)
+  );
+}
+
 export class OutlineModel {
   /** Alle Outline-Notizen der Bibliothek (Tag-Suche statt alle Items laden). */
   private static async outlineNotes(libraryID: number): Promise<Zotero.Item[]> {
@@ -149,7 +165,12 @@ export class OutlineModel {
   ): Promise<{ noteID: number | null; roots: OutlineNode[] }> {
     const note = await this.findNote(libraryID, collectionKey);
     if (!note) return { noteID: null, roots: [] };
-    return { noteID: note.id, roots: parseOutline(note.getNote()) };
+    const roots = parseOutline(note.getNote());
+    // Anker-§-Tags auch beim Laden nachziehen: Damit bekommt auch eine Notiz,
+    // die vor der §-Tag-Synchronisierung angelegt wurde, ihre Überschrift-Tags
+    // nachträglich. Idempotent — ohne Unterschied wird nichts geschrieben.
+    await this.syncAnchorTags(note.id, roots);
+    return { noteID: note.id, roots };
   }
 
   /**
@@ -174,13 +195,40 @@ export class OutlineModel {
       // skipSelect: a selected note opens in Zotero's note editor, which later
       // writes its own (older) copy over our saves.
       await note.saveTx({ skipSelect: true });
+      await this.syncAnchorTags(note.id, roots);
       return note.id;
     }
     note.setNote(html);
     if (!note.getTags().some((t) => t.tag === OUTLINE_TAG))
       note.addTag(OUTLINE_TAG);
     await note.saveTx();
+    await this.syncAnchorTags(note.id, roots);
     return note.id;
+  }
+
+  /**
+   * Synchronisiert die Überschriften-`§`-Tags auf der Gliederungsnotiz: Jede
+   * Überschrift im Baum bekommt ein Tag auf der Notiz, damit der Tag in der
+   * Bibliothek existiert und in der PDF-Ansicht beim Tippen von `§` in der
+   * Tag-Zeile vorgeschlagen wird — auch ohne zugeordnete Items. Tags ohne
+   * passende Überschrift (Umbenennen/Löschen) werden entfernt. Die Notiz selbst
+   * wird in gather/buildCountMap ausgeschlossen (isOutlineNote), damit sie
+   * nicht als zugeordnetes Item zählt.
+   */
+  private static async syncAnchorTags(
+    noteID: number,
+    roots: OutlineNode[],
+  ): Promise<void> {
+    const note = Zotero.Items.get(noteID) as Zotero.Item | null;
+    if (!note || !note.isNote?.()) return;
+    const current = note.getTags().map((t) => t.tag);
+    const { add, remove } = anchorTagDiff(roots, current);
+    if (!add.length && !remove.length) return;
+    for (const t of remove)
+      if (note.getTags().some((x) => x.tag === t)) note.removeTag(t);
+    for (const t of add)
+      if (!note.getTags().some((x) => x.tag === t)) note.addTag(t);
+    await note.saveTx();
   }
 
   /** Item ids in a library carrying a given tag (annotations included). */
@@ -356,6 +404,7 @@ export class OutlineModel {
     for (const item of items) {
       if (!item || seen.has(item.id)) continue;
       if (isAnnotation(item)) continue;
+      if (isOutlineNote(item)) continue; // Gliederungsnotiz ist kein Fil-Item
       if (scope && !scope.has(workOf(item))) continue;
       seen.add(item.id);
       if (item.isNote?.()) out.push(this.noteToFiled(item));
@@ -391,7 +440,7 @@ export class OutlineModel {
       const ids = (await search.search()) as number[];
       const items = (await Zotero.Items.getAsync(ids)) as Zotero.Item[];
       for (const item of items) {
-        if (!item || isAnnotation(item)) continue;
+        if (!item || isAnnotation(item) || isOutlineNote(item)) continue;
         if (scope && !scope.has(workOf(item))) continue;
         for (const t of item.getTags())
           if (t.tag.startsWith(HEADING_PREFIX)) bump(t.tag);

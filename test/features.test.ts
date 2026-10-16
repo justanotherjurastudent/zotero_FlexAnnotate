@@ -2457,4 +2457,91 @@ describe("FlexAnnotate features", function () {
       );
     });
   });
+
+  // ── heading tags anchored to the outline note ─────────────────────────────
+  // Jede Überschrift bekommt einen `§`-Tag auf der Gliederungsnotiz, damit der
+  // Tag in der Bibliothek existiert und in der Tag-Zeile der PDF-Ansicht
+  // vorgeschlagen wird — auch ohne zugeordnete Items. Beim Umbenennen/Löschen
+  // wird er nachgeführt. Die Notiz selbst zählt nie als zugeordnetes Item.
+  describe("heading tags synced to the outline note", function () {
+    let noteID: number | null = null;
+    let tags: () => string[];
+
+    before(async function () {
+      const model = api().outlineModel.OutlineModel;
+      const core = api().outline;
+      const m1 = core.makeNode("M1 Sync");
+      const m2 = core.makeNode("M2 Sync");
+      m1.children.push(m2);
+      noteID = await model.save(libraryID(), null, [m1]);
+      tags = () =>
+        (Zotero.Items.get(noteID!) as Zotero.Item)
+          .getTags()
+          .map((t: { tag: string }) => t.tag);
+    });
+
+    after(async function () {
+      if (noteID) (Zotero.Items.get(noteID) as Zotero.Item)?.eraseTx?.();
+    });
+
+    it("anchors a §-tag for every heading (even without filed items)", function () {
+      assert.includeMembers(tags(), ["§M1 Sync", "§M2 Sync"]);
+      assert.include(tags(), "★outline", "the marker tag is kept");
+    });
+
+    it("does not count the outline note itself as a filed item", async function () {
+      const model = api().outlineModel.OutlineModel;
+      // no annotation is filed under these headings, so gather is empty …
+      assert.lengthOf(await model.gather(libraryID(), "§M1 Sync"), 0);
+      // … and buildCountMap must not see the note's anchored tags
+      const counts = await model.buildCountMap(libraryID());
+      assert.isFalse(
+        counts.has("§M1 Sync"),
+        "the §-tag only lives on the outline note, so it counts as 0",
+      );
+    });
+
+    it("follows a rename: old tag is removed, new tag is added", async function () {
+      const model = api().outlineModel.OutlineModel;
+      const roots = (await model.load(libraryID())).roots;
+      roots[0].title = "M1 Sync umbenannt";
+      noteID = await model.save(libraryID(), noteID, roots);
+      assert.include(tags(), "§M1 Sync umbenannt");
+      assert.notInclude(tags(), "§M1 Sync");
+    });
+
+    it("removes the tag when its heading is deleted", async function () {
+      const model = api().outlineModel.OutlineModel;
+      const roots = (await model.load(libraryID())).roots;
+      roots[0].children = [];
+      noteID = await model.save(libraryID(), noteID, roots);
+      assert.notInclude(tags(), "§M2 Sync");
+      assert.include(tags(), "§M1 Sync umbenannt");
+    });
+
+    it("backfills §-tags on load for a note created before the sync existed", async function () {
+      // Simuliert eine Bestands-Notiz: Bauminhalt + ★outline, aber noch keine
+      // §-Tags (von einer Version vor der §-Tag-Synchronisierung angelegt).
+      const core = api().outline;
+      const model = api().outlineModel.OutlineModel;
+      const oldNote = new Zotero.Item("note");
+      oldNote.libraryID = libraryID();
+      oldNote.setNote(
+        api().outline.serializeOutline([core.makeNode("Alt Eins")]),
+      );
+      oldNote.addTag("★outline");
+      await oldNote.saveTx({ skipSelect: true });
+      try {
+        await model.load(libraryID());
+        const loaded = Zotero.Items.get(oldNote.id) as Zotero.Item;
+        assert.include(
+          loaded.getTags().map((t: { tag: string }) => t.tag),
+          "§Alt Eins",
+          "loading the tree pulls the missing §-tag onto the pre-existing note",
+        );
+      } finally {
+        await (Zotero.Items.get(oldNote.id) as Zotero.Item).eraseTx?.();
+      }
+    });
+  });
 });
