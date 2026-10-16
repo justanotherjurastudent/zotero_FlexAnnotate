@@ -13,6 +13,8 @@ declare namespace _ZoteroTypes {
       "dialogOutlineCollection": number;
       "citedAnnotations": string;
       "citationOnly": boolean;
+      "persistentCitationDialog": boolean;
+      "persistentWindowRect": string;
       "keepEmptyPlaceholders": boolean;
       "citaviImport": boolean;
       "citaviKeepNotes": boolean;

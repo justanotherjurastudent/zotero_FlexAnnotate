@@ -8,6 +8,11 @@ pref("citedAnnotations", "");
 // Nur-Nachweis-Zitieren: false = vollständige Annotation, true = nur Nachweis mit Locator
 pref("citationOnly", false);
 
+// Zitierdialog nach dem Einfügen offen lassen und in Word wiederverwenden
+pref("persistentCitationDialog", false);
+// Letzte Lage und Größe des Blätterfensters (JSON, leer = keine): der erste Dialog nach einem Neustart nimmt sie
+pref("persistentWindowRect", "");
+
 // Platzhalter-Attachment behalten, auch wenn keine Annotation mehr daran hängt
 pref("keepEmptyPlaceholders", false);
 

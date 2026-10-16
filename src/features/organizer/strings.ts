@@ -78,6 +78,9 @@ const de = {
   saved: "Gespeichert.",
   saveFailed: "Nicht gespeichert (schreibgeschützt).",
   dialogOutline: "Nach Gliederung anordnen (FlexAnnotate)",
+  dialogPersistent: "Als Aufgabenleiste geöffnet halten",
+  dialogPersistentHint:
+    "Ausschalten wirkt sofort, Einschalten ab der nächsten Anfrage. Ist er aus, schließt das Fenster nach dem Einfügen wie gewohnt.",
   dialogEmpty:
     "FlexAnnotate: Noch keine Annotationen einer Gliederung zugeordnet.",
   dialogFilter: "Annotationen filtern …",
@@ -195,6 +198,9 @@ const en: Record<Key, string> = {
   saved: "Saved.",
   saveFailed: "Not saved (read-only).",
   dialogOutline: "Arrange by outline (FlexAnnotate)",
+  dialogPersistent: "Keep open as task pane",
+  dialogPersistentHint:
+    "Switching off applies at once, switching on from the next request. If it is off, the window closes after inserting as usual.",
   dialogEmpty: "FlexAnnotate: No annotations assigned to an outline yet.",
   dialogFilter: "Filter annotations …",
   dialogInsert: "Insert into the citation",

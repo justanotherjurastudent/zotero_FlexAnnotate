@@ -47,6 +47,13 @@ import {
   readCitedStore,
 } from "./dialogCited";
 import {
+  activatePersistentOnOpenDialog,
+  persistentSupported,
+  readPersistentPref,
+  relaxDialogMinWidth,
+  writePersistentPref,
+} from "./dialogPersistent";
+import {
   LIST_ID,
   NATIVE_ID,
   PREVIEW_ID,
@@ -63,6 +70,9 @@ import { tr } from "../strings";
 const PREF = "dialogOutlineView";
 const STYLE_ID = "flexannotate-dialog-style";
 const ROW_ID = "flexannotate-toggle-row";
+const MENU_ID = "flexannotate-menu-items";
+/** Schalter so gross wie Zoteros eigene Checkboxen im Einstellungsmenue (includeComments, 14 CSS-px). */
+const SWITCH_CSS = "width:16px;height:16px;margin:2px 4px;flex:none;";
 const PICKER_ID = "flexannotate-dialog-scope-picker";
 const HINT_ID = "flexannotate-dialog-no-tree";
 /** Native elements hidden while our three columns are shown. */
@@ -78,7 +88,19 @@ const LAYOUT_CSS =
   "#library-trees{overflow:hidden !important;min-width:0 !important;}" +
   "#item-tree-container{flex:1 1 0 !important;min-width:0 !important;overflow:hidden !important;}" +
   "#flexannotate-list-pane,#flexannotate-list-pane *{min-width:0;}" +
-  "#flexannotate-preview{min-width:0;overflow-x:hidden;overflow-wrap:anywhere;}";
+  "#flexannotate-preview{min-width:0;overflow-x:hidden;overflow-wrap:anywhere;}" +
+  // Unter 750 px, nur im persistenten Begleitfenster (Attribut von relaxDialogMinWidth):
+  // in einem Testlauf auf 9.0.6 schlugen zwei Gliederungstests fehl (Ursache nicht abschliessend
+  // geklaert); normale Dialoge sollen darum unveraendert bleiben. Baum oben als Streifen, Liste fuellt den Rest,
+  // Details unten. Spalte statt Zeilenumbruch: die Liste wuchs sonst und schob die Details
+  // aus dem Fenster.
+  "@media (max-width:750px){" +
+  "#citation-dialog[flexannotate-persistent] #library-trees{flex-direction:column !important;align-items:stretch !important;}" +
+  "#citation-dialog[flexannotate-persistent] #collections-tree-container{flex:0 0 auto !important;height:130px !important;width:auto !important;min-width:0 !important;min-height:0 !important;}" +
+  "#citation-dialog[flexannotate-persistent] #collections-tree-divider{display:none;}" +
+  "#citation-dialog[flexannotate-persistent] #item-tree-container{flex:1 1 0 !important;width:auto !important;min-width:0 !important;min-height:0 !important;}" +
+  "#citation-dialog[flexannotate-persistent] #sidebar{flex:0 1 auto !important;width:auto !important;min-width:0 !important;max-height:30%;overflow-y:auto;}" +
+  "}";
 
 interface Attached {
   observer: MutationObserver | null;
@@ -86,6 +108,12 @@ interface Attached {
   view: View | null;
   keyHandler: ((e: Event) => void) | null;
   searchHandler: ((e: Event) => void) | null;
+  /** Schmal: die Schalter stehen im Einstellungsmenue statt in der Zeile. */
+  narrow: boolean;
+  mq: MediaQueryList | null;
+  onMq: (() => void) | null;
+  settings: Element | null;
+  onPopup: (() => void) | null;
 }
 
 const attached = new Map<Window, Attached>();
@@ -145,10 +173,16 @@ function inject(win: Window) {
     view: null,
     keyHandler: null,
     searchHandler: null,
+    narrow: false,
+    mq: null,
+    onMq: null,
+    settings: null,
+    onPopup: null,
   };
   attached.set(win, info);
 
   hookAccept(win);
+  if (readPersistentPref()) relaxDialogMinWidth(win);
 
   const row = doc.createElement("div");
   row.id = ROW_ID;
@@ -157,25 +191,83 @@ function inject(win: Window) {
   const cb = doc.createElement("input");
   cb.type = "checkbox";
   cb.id = "flexannotate-toggle";
+  cb.style.cssText = SWITCH_CSS;
   const label = doc.createElement("label");
   label.htmlFor = "flexannotate-toggle";
   label.textContent = tr("dialogOutline");
-  row.append(cb, label);
+  const pcb = doc.createElement("input");
+  pcb.type = "checkbox";
+  pcb.id = "flexannotate-persistent-toggle";
+  pcb.style.cssText = SWITCH_CSS;
+  pcb.checked = readPersistentPref();
+  const plabel = doc.createElement("label");
+  plabel.htmlFor = pcb.id;
+  plabel.textContent = tr("dialogPersistent");
+  plabel.title = tr("dialogPersistentHint");
+  // ohne Befehl addAnnotation (Zotero 7 und 8) gibt es kein Blätterfenster: Schalter aus
+  pcb.hidden = plabel.hidden = !persistentSupported();
+  pcb.addEventListener("change", () => {
+    writePersistentPref(pcb.checked);
+    // Wird die Checkbox nachträglich (auf einem bereits geöffneten, nativen Dialog)
+    // aktiviert, installiere den Wiederöffnen-Wrapper auf dem laufenden Fenster, damit
+    // es nach dem nächsten Einfügen direkt als Blätterfenster wieder aufgeht.
+    if (pcb.checked) activatePersistentOnOpenDialog();
+  });
   sidebar.insertBefore(row, sidebar.firstChild);
 
+  // Schmal (matchMedia wie die Layout-Regel): die Schalter wandern in das Einstellungsmenue
+  // (Zahnrad unten rechts, #settings-popup). Dieselben Elemente und Listener, nur verschoben.
+  const settings = doc.getElementById("settings-popup");
+  const popupBox = settings?.querySelector(".popup") ?? null;
+  const menu = doc.createElement("div");
+  menu.id = MENU_ID;
+  menu.setAttribute("data-dialog-type", "annotations");
+  const wrapA = doc.createElement("div");
+  wrapA.className = "hbox";
+  const wrapB = doc.createElement("div");
+  wrapB.className = "hbox";
+  menu.append(wrapA, wrapB);
+
   const root = doc.documentElement as Element;
-  const syncVisibility = () => {
+  // Eine Quelle der Wahrheit: Zeile bzw. Menue, Sichtbarkeit je Dialogtyp
+  const refresh = () => {
     const isAnn = root.getAttribute("dialog-type") === "annotations";
-    row.hidden = !isAnn;
+    row.hidden = !isAnn || info.narrow;
+    menu.hidden = !isAnn;
     if (!isAnn && info.enabled) void disable(win, cb);
   };
-  const observer = new win.MutationObserver(syncVisibility);
+  const place = (narrow: boolean) => {
+    info.narrow = narrow && !!popupBox;
+    if (info.narrow) {
+      wrapA.append(cb, label);
+      wrapB.append(pcb, plabel);
+      popupBox!.appendChild(menu);
+    } else {
+      row.append(cb, label, pcb, plabel);
+      menu.remove();
+    }
+    refresh();
+  };
+  const observer = new win.MutationObserver(refresh);
   observer.observe(root, {
     attributes: true,
     attributeFilter: ["dialog-type"],
   });
   info.observer = observer;
-  syncVisibility();
+
+  const mq = win.matchMedia("(max-width: 750px)") as MediaQueryList;
+  info.mq = mq;
+  info.onMq = () => place(mq.matches);
+  mq.addEventListener("change", info.onMq);
+  place(mq.matches);
+
+  // Beim Oeffnen den Stand der Schalter zeigen (ein Weg zum Umschalten: die Schalter selbst)
+  info.settings = settings;
+  info.onPopup = () => {
+    cb.checked = info.enabled;
+    pcb.checked = readPersistentPref();
+  };
+  settings?.addEventListener("popupshowing", info.onPopup);
 
   cb.addEventListener("change", () => {
     writePref(cb.checked);
@@ -193,8 +285,12 @@ function detach(win: Window) {
   const info = attached.get(win);
   try {
     info?.observer?.disconnect();
+    if (info?.mq && info.onMq) info.mq.removeEventListener("change", info.onMq);
+    if (info?.settings && info.onPopup)
+      info.settings.removeEventListener("popupshowing", info.onPopup);
     const doc = win.document;
     if (info?.enabled) restoreLayout(win);
+    doc.getElementById(MENU_ID)?.remove();
     doc.getElementById(ROW_ID)?.remove();
     doc.getElementById(PICKER_ID)?.remove();
     doc.getElementById(HINT_ID)?.remove();
@@ -450,6 +546,9 @@ function addKeys(win: Window, info: Attached) {
       v.sel = applyClick(v.sel, order, next, { shift: k.shiftKey });
       renderList(win, v);
       renderPreview(win, v);
+      doc
+        .querySelector<HTMLElement>(`[data-ann-id="${next}"]`)
+        ?.scrollIntoView({ block: "nearest" });
     }
   };
   info.keyHandler = handler;
@@ -476,7 +575,7 @@ function addSearchSync(win: Window, info: Attached) {
     const query = (e as CustomEvent<{ query?: string }>).detail?.query ?? "";
     if (query === v.query) return;
     v.query = query;
-    renderList(win, v);
+    renderList(win, v, false);
   };
   info.searchHandler = handler;
   win.document.addEventListener("handle-input", handler);
@@ -516,7 +615,7 @@ function applyLayout(win: Window) {
   mk(
     "annotations-sidebar",
     PREVIEW_ID,
-    "flex:1;overflow-y:auto;min-height:0;padding:10px 12px;display:flex;flex-direction:column;gap:10px;",
+    "flex:1;overflow-y:auto;min-height:0;padding:8px 10px;display:flex;flex-direction:column;gap:8px;",
   );
 }
 

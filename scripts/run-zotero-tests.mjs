@@ -35,6 +35,17 @@ const screenshots = process.argv.includes("--screenshots");
 const screenshotDir = join(root, ".scaffold", "screenshots");
 if (screenshots) mkdirSync(screenshotDir, { recursive: true });
 
+// --grep <Muster>: nur Tests, deren Titel das Muster enthält (mocha.grep in test/helpers.ts)
+const grepArg = process.argv.indexOf("--grep");
+if (grepArg >= 0 && process.argv[grepArg + 1]) {
+  process.env.FLEXANNOTATE_GREP = process.argv[grepArg + 1];
+}
+if (process.env.FLEXANNOTATE_GREP) {
+  console.log(
+    `Teilmenge: nur Tests mit "${process.env.FLEXANNOTATE_GREP}" im Titel`,
+  );
+}
+
 const env = {
   ...process.env,
   ZOTERO_PLUGIN_ZOTERO_BIN_PATH: findZoteroBin(),

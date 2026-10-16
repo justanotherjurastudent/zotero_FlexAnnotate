@@ -83,7 +83,13 @@ export async function screenshot(
     createAncestors: true,
     ignoreExisting: true,
   });
-  const path = PathUtils.join(dir, `${fileName}.png`);
+  // fileName may contain "/" for a subfolder (PathUtils.join rejects it as one segment)
+  const parts = `${fileName}.png`.split("/");
+  const path = PathUtils.join(dir, ...parts);
+  await IOUtils.makeDirectory(PathUtils.parent(path)!, {
+    createAncestors: true,
+    ignoreExisting: true,
+  });
   await IOUtils.write(path, new Uint8Array(await blob.arrayBuffer()));
   return path;
 }
