@@ -88,7 +88,9 @@ export function installExternalApi(): void {
     // situation visible instead of silently skipping so the conflict surfaces.
     if (existing.pluginID !== addon.data.config.addonID) {
       Zotero.logError(
-        `[FlexAnnotate] Zotero.${EXTERNAL_NAMESPACE} is already provided by ${existing.pluginID}; external API not installed`,
+        new Error(
+          `[FlexAnnotate] Zotero.${EXTERNAL_NAMESPACE} is already provided by ${existing.pluginID}; external API not installed`,
+        ),
       );
     }
     return;
