@@ -56,10 +56,10 @@ Mit „Als Aufgabenleiste geöffnet halten“ (Einstellungen → FlexAnnotate, o
 - Zotero lädt einen offenen Dialog nicht mit einem neuen Auftrag neu. Deshalb wird das Fenster nach jedem Einfügen neu geöffnet; ein angedocktes Fenster muss danach neu angedockt werden.
 - Unter 750 px Breite stehen die beiden Schalter im Einstellungsmenü (Zahnrad unten rechts) statt in der Zeile, damit die Liste mehr Platz hat.
 - Das Fenster lässt sich wie ein normales andocken (etwa an den Rand unter Windows). Die Mindesthöhe liegt bei rund 590 px, weil Zotero sie erzwingt. Unter 750 px Breite liegt der Baum oben, die Liste darunter und die Details unten.
-- Ausschalten wirkt sofort, Einschalten ab der nächsten Anfrage. Ist er aus, schließt ein offenes Fenster nach dem Einfügen wie gewohnt.
-- Getestet nur mit Word für Windows. Mit Word für Mac, LibreOffice und Google Docs öffnet nach dem Einfügen kein Blätterfenster. Zotero 7 und 8 haben den nötigen Befehl nicht; dort gibt es die Option nicht.
+- Ausschalten schließt ein offenes Blätterfenster nicht sofort, sondern erst mit dem nächsten Einfügen (dann wie in Vanilla-Zotero). Einschalten wirkt auch auf einem bereits geöffneten Zitierfenster: das nächste Einfügen dort hält es wieder offen.
+- Das Blätterfenster nach dem Einfügen öffnet sich bei Word für Windows und LibreOffice Writer. Bei Word für Mac und Google Docs nicht. Zotero 7 und 8 haben den nötigen Befehl nicht; dort gibt es die Option nicht.
 - Der erste Dialog nach einem Neustart öffnet an der zuletzt benutzten Stelle und Größe, sofern sie noch auf dem Bildschirm liegt; sonst nur mit der Größe, die Position bestimmt das System.
-- Geprüft mit Zotero 10.0.6 (installierte Version) und 9.0.6 (Testsuite grün). 7.0.32 und 8.0.4 haben keinen Annotationsmodus; dort fehlt die Option. Nicht in echtem Word geprüft: das Einfügen aus dem offenen Fenster (Cursorposition, Anzeige der Fußnote). macOS, Linux und der dunkle Modus sind nicht geprüft.
+- Geprüft mit Zotero 10.0.6 (installierte Version) und 9.0.6 (Testsuite grün). 7.0.32 und 8.0.4 haben keinen Annotationsmodus; dort fehlt die Option. In echtem Word für Windows und in echtem LibreOffice Writer bestätigt; nicht geprüft: Word für Mac, macOS, Linux und der dunkle Modus.
 - Warum ein dauerhaft angedocktes Zitierfenster mit Zoteros Word-Integration nicht möglich ist (Englisch): [docs/persistent-window-limits.md](docs/persistent-window-limits.md).
 
 **4. Bücher ohne Datei: Print-Annotationen**
