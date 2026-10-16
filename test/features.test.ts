@@ -2411,41 +2411,43 @@ describe("FlexAnnotate features", function () {
       }
     });
 
-    it("a browse window opens after insert for LibreOffice Writer too", async function () {
-      this.timeout(60000);
-      (Zotero as any).Integration.currentSession = {
-        sessionID: "T1",
-        citationsByItemID: {},
-      };
-      const integration = Zotero.Integration as any;
-      const origPref = api().persistentDialog.readPref();
-      const origDoc = integration.currentDoc;
-      await closeDialogs();
-      api().persistentDialog.writePref(true);
-      api().persistentDialog.rememberCommand({
-        agent: "LibreOffice",
-        docId: "Dokument1",
-        templateVersion: 0,
-      });
-      try {
-        // the real request is LibreOffice: after accept the browse window comes back
-        const io1 = makeIo();
-        const w1 = await firstInsert(io1, { x: 0, y: 0, w: 0, h: 0 });
-        const bw = await browseWindow(w1);
-        win = bw;
-        await waitFor(
-          () => (bw as any).DIALOG_STATE?.loaded || null,
-          8000,
-          "browse loaded",
-        );
-        assert.isFalse(bw.closed, "a browse window opened for LibreOffice");
-      } finally {
-        api().persistentDialog.writePref(origPref);
-        integration.currentDoc = origDoc;
-        win?.close();
+    for (const agent of ["WinWord", "LibreOffice", "MacWord"]) {
+      it(`a browse window opens after an insert for ${agent}`, async function () {
+        this.timeout(60000);
+        (Zotero as any).Integration.currentSession = {
+          sessionID: "T1",
+          citationsByItemID: {},
+        };
+        const integration = Zotero.Integration as any;
+        const origPref = api().persistentDialog.readPref();
+        const origDoc = integration.currentDoc;
         await closeDialogs();
-      }
-    });
+        api().persistentDialog.writePref(true);
+        api().persistentDialog.rememberCommand({
+          agent,
+          docId: "Dokument1",
+          templateVersion: 0,
+        });
+        try {
+          // the real request for `agent`: after accept the browse window comes back
+          const io1 = makeIo();
+          const w1 = await firstInsert(io1, { x: 0, y: 0, w: 0, h: 0 });
+          const bw = await browseWindow(w1);
+          win = bw;
+          await waitFor(
+            () => (bw as any).DIALOG_STATE?.loaded || null,
+            8000,
+            "browse loaded",
+          );
+          assert.isFalse(bw.closed, `a browse window opened for ${agent}`);
+        } finally {
+          api().persistentDialog.writePref(origPref);
+          integration.currentDoc = origDoc;
+          win?.close();
+          await closeDialogs();
+        }
+      });
+    }
 
     it("browse mode is detected where Zotero has the addAnnotation command", function () {
       assert.strictEqual(

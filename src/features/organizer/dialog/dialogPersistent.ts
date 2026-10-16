@@ -66,15 +66,17 @@ interface AcceptState {
 /**
  * Agenten, für die das Blätterfenster nach dem Einfügen wieder geöffnet wird.
  *
- * WinWord: getestet. LibreOffice: gewünscht; das erneute Einfügen läuft durch den synchronen
+ * WinWord: getestet. LibreOffice: das erneute Einfügen läuft durch den synchronen
  * sendCommand-Pfad (zoteroLibreOfficeIntegration.mjs:270-288), der einen verschachtelten
- * Event-Loop ohne Timeout blockiert. Die normale Einfügung funktioniert in Writer über
- * denselben Pfad; ob der Rückweg aus dem Blätterfenster hängt, war vor der Freigabe nicht
- * belegt ([unproven]) — deshalb hier bewusst freigegeben. http (Google Docs) bleibt außen
- * vor: ein erneuter Befehl ließe den Server hängen (server.js:525-527).
+ * Event-Loop ohne Timeout blockiert; die normale Einfügung funktioniert in Writer über
+ * denselben Pfad und wurde vom Nutzer bestätigt. MacWord: die macOS-Integration spricht
+ * asynchron über ChromeWorker + Scripting Bridge (zotero-word-for-mac-integration), blockiert
+ * den Haupt-Thread also nicht wie LibreOffice; freigegeben, realer Mac-Test steht aus.
+ * http (Google Docs) bleibt außen vor: ein erneuter Befehl ließe den Server hängen
+ * (server.js:525-527).
  */
 function isPersistentAgent(agent: string): boolean {
-  return agent === "WinWord" || agent === "LibreOffice";
+  return agent === "WinWord" || agent === "LibreOffice" || agent === "MacWord";
 }
 
 /** Auswahl aus dem Blätterfenster, die beim nächsten Befehl eingefügt wird. */
