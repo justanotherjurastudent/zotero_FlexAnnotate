@@ -43,15 +43,36 @@ describe("parseStoredRect", () => {
     assert.equal(parseStoredRect('{"w":1e999,"h":720}', SCREEN), null);
   });
 
-  it("rejects sizes below the minimum or above the screen", () => {
+  it("rejects sizes below the minimum", () => {
     assert.equal(parseStoredRect('{"w":319,"h":720}', SCREEN), null);
     assert.equal(parseStoredRect('{"w":600,"h":299}', SCREEN), null);
-    assert.equal(parseStoredRect('{"w":2000,"h":720}', SCREEN), null);
-    assert.equal(parseStoredRect('{"w":600,"h":1100}', SCREEN), null);
     assert.deepEqual(parseStoredRect('{"w":320,"h":300}', SCREEN), {
       w: 320,
       h: 300,
     });
+  });
+
+  it("clamps a stored size that exceeds the screen to the available area", () => {
+    // z. B. Monitorwechsel von einem größeren Bildschirm: nicht verwerfen, sondern klemmen
+    assert.deepEqual(parseStoredRect('{"w":2000,"h":720}', SCREEN), {
+      w: 1920,
+      h: 720,
+    });
+    assert.deepEqual(parseStoredRect('{"w":600,"h":1100}', SCREEN), {
+      w: 600,
+      h: 1040,
+    });
+    assert.deepEqual(parseStoredRect('{"w":2000,"h":1100}', SCREEN), {
+      w: 1920,
+      h: 1040,
+    });
+  });
+
+  it("clamps size but keeps an on-screen position", () => {
+    assert.deepEqual(
+      parseStoredRect('{"x":100,"y":80,"w":2000,"h":1100}', SCREEN),
+      { x: 100, y: 80, w: 1920, h: 1040 },
+    );
   });
 });
 

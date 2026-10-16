@@ -47,6 +47,7 @@ import {
   readCitedStore,
 } from "./dialogCited";
 import {
+  activatePersistentOnOpenDialog,
   persistentSupported,
   readPersistentPref,
   relaxDialogMinWidth,
@@ -207,6 +208,10 @@ function inject(win: Window) {
   pcb.hidden = plabel.hidden = !persistentSupported();
   pcb.addEventListener("change", () => {
     writePersistentPref(pcb.checked);
+    // Wird die Checkbox nachträglich (auf einem bereits geöffneten, nativen Dialog)
+    // aktiviert, installiere den Wiederöffnen-Wrapper auf dem laufenden Fenster, damit
+    // es nach dem nächsten Einfügen direkt als Blätterfenster wieder aufgeht.
+    if (pcb.checked) activatePersistentOnOpenDialog();
   });
   sidebar.insertBefore(row, sidebar.firstChild);
 

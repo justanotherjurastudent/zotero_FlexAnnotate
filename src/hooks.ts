@@ -19,6 +19,7 @@ import {
   rememberCommandForTest,
   openBrowseForTest,
   persistentSupported,
+  activatePersistentOnOpenDialog,
 } from "./features/organizer/dialog/dialogPersistent";
 import { normalizePersistentOptions } from "./features/organizer/logic/persistentOptions";
 import * as openTarget from "./features/organizer/openTarget";
@@ -127,6 +128,7 @@ async function onStartup() {
       normalizeOptions: normalizePersistentOptions,
       rememberCommand: rememberCommandForTest,
       openBrowse: openBrowseForTest,
+      activateOnOpenDialog: activatePersistentOnOpenDialog,
       supported: persistentSupported,
     },
     modeSelector,

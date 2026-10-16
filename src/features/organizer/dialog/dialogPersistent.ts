@@ -58,6 +58,25 @@ interface CommandRef {
   templateVersion: number;
 }
 
+/** Ziel des Accept-Wrappers: Lage + optional Höhe, Quelle für das nächste Fenster. */
+interface AcceptState {
+  live: Rect | null;
+}
+
+/**
+ * Agenten, für die das Blätterfenster nach dem Einfügen wieder geöffnet wird.
+ *
+ * WinWord: getestet. LibreOffice: gewünscht; das erneute Einfügen läuft durch den synchronen
+ * sendCommand-Pfad (zoteroLibreOfficeIntegration.mjs:270-288), der einen verschachtelten
+ * Event-Loop ohne Timeout blockiert. Die normale Einfügung funktioniert in Writer über
+ * denselben Pfad; ob der Rückweg aus dem Blätterfenster hängt, war vor der Freigabe nicht
+ * belegt ([unproven]) — deshalb hier bewusst freigegeben. http (Google Docs) bleibt außen
+ * vor: ein erneuter Befehl ließe den Server hängen (server.js:525-527).
+ */
+function isPersistentAgent(agent: string): boolean {
+  return agent === "WinWord" || agent === "LibreOffice";
+}
+
 /** Auswahl aus dem Blätterfenster, die beim nächsten Befehl eingefügt wird. */
 interface PendingInsert {
   items: any[];
@@ -128,7 +147,6 @@ let installedExec: InstalledMethod<(...args: any[]) => Promise<any>> | null =
   null;
 let installedProgress: InstalledMethod<(...args: any[]) => unknown> | null =
   null;
-let prefObserver: symbol | null = null;
 
 export function patchProgressBar(): boolean {
   if (installedProgress) return true;
@@ -568,6 +586,77 @@ function insertFromBrowse(pend: PendingInsert): void {
 }
 
 /**
+ * Wrappt io.accept einmal pro Dialog: Bei einem akzeptierten Einfügen wird die Lage
+ * festgehalten und das Blätterfenster nach dem Befehl geöffnet. Nutzt readPersistentPref()
+ * und lastCommand beim Einfügen. Wiederverwendet von openNew (persistenter Pfad) und von
+ * activatePersistentOnOpenDialog (nachträgliches Anklicken der Checkbox im nativen Dialog).
+ */
+function wrapPersistentAccept(
+  win: Window,
+  io: any,
+  command: Promise<unknown>,
+): AcceptState {
+  const state: AcceptState = { live: null };
+  if (
+    !io ||
+    typeof io.accept !== "function" ||
+    io.__flexannotatePersistentHooked
+  )
+    return state;
+  io.__flexannotatePersistentHooked = true;
+  const origAccept = io.accept;
+  io.accept = function (this: unknown, ...args: unknown[]) {
+    trace("io.accept entered", cw());
+    state.live = null;
+    try {
+      // Der Schalter wird beim Einfuegen gelesen. Abbrechen leert citationItems vor dem accept.
+      if (readPersistentPref() && io.citation?.citationItems?.length) {
+        // vor allem, was das Fenster schließt: die Geometrie des Nutzers festhalten
+        state.live = captureLive(win);
+        const at = state.live;
+        (command || Promise.resolve()).then(() => {
+          trace("command finished", `dialogClosed=${win.closed} ${cw()}`);
+          if (!win.closed) win.close();
+          // Blätterfenster für Word für Windows und LibreOffice Writer; andere Agenten (http): keins
+          if (
+            readPersistentPref() &&
+            lastCommand &&
+            isPersistentAgent(lastCommand.agent)
+          )
+            openBrowse(at);
+        });
+      }
+    } catch (e) {
+      logError("accept", e);
+    }
+    const result = origAccept.apply(this, args);
+    // Zotero hat eben windowParams mit der äußeren Größe geschrieben (cleanupBeforeDialogClosing); unsere gilt
+    if (state.live) writeStoredSize(state.live.w, state.live.h);
+    trace("io.accept finished", cw());
+    return result;
+  };
+  return state;
+}
+
+/**
+ * Wird aufgerufen, wenn die Checkbox nachträglich (bei einem bereits geöffneten, nativen
+ * Dialog) aktiviert wird. Installiert den Accept-Wrapper auf dem offenen Fenster, damit es
+ * nach dem nächsten Einfügen als Blätterfenster wieder aufgeht. Findet den aktuellen
+ * Zitierdialog über den Befehlskontext (integration.currentWindow), ohne den nativen Pfad
+ * zu verändern.
+ */
+export function activatePersistentOnOpenDialog(): void {
+  if (!alive) return;
+  const integration = (Zotero as any).Integration;
+  const win = integration?.currentWindow as Window | undefined;
+  if (!win || win.closed) return;
+  const io = (win as any).io;
+  if (!io || typeof io.accept !== "function") return;
+  trace("persistent activated on the native dialog", cw());
+  wrapPersistentAccept(win, io, integration.currentCommandPromise ?? null);
+}
+
+/**
  * Öffnet den Dialog für eine echte Anfrage. Die Promise löst auf, wenn der Nutzer
  * akzeptiert oder abbricht bzw. das Fenster ohne Akzeptieren geschlossen wird;
  * Zotero wartet darauf in addEditCitation (integration.js:1615).
@@ -633,34 +722,14 @@ function openNew(
       );
     }
     if (io && typeof io.accept === "function") {
-      // io.cancel ruft this.accept() (citationDialog.js:189, integration.js:1844-1846): beides faengt diese Huelle
+      // io.cancel ruft this.accept() (citationDialog.js:189, integration.js:1844-1846):
+      // der persistente Wrapper (wrapPersistentAccept) faengt beides. finish() meldet das
+      // Fenster an openNew zurueck und laeuft vor dem nativen accept, wie zuvor.
+      wrapPersistentAccept(win, io, command);
       const origAccept = io.accept;
       io.accept = function (this: unknown, ...args: unknown[]) {
-        trace("io.accept entered", cw());
-        let live: Rect | null = null;
-        try {
-          // Der Schalter wird beim Einfuegen gelesen. Abbrechen leert citationItems vor dem accept.
-          if (readPersistentPref() && io.citation?.citationItems?.length) {
-            // vor allem, was das Fenster schließt: die Geometrie des Nutzers festhalten
-            live = captureLive(win);
-            const at = live;
-            command.then(() => {
-              trace("command finished", `dialogClosed=${win.closed} ${cw()}`);
-              if (!win.closed) win.close();
-              // Blätterfenster nur für Word für Windows (getestet); andere Agenten: kein Blätterfenster
-              if (readPersistentPref() && lastCommand?.agent === "WinWord")
-                openBrowse(at);
-            });
-          }
-          finish();
-        } catch (e) {
-          logError("accept", e);
-        }
-        const result = origAccept.apply(this, args);
-        // Zotero hat eben windowParams mit der äußeren Größe geschrieben (cleanupBeforeDialogClosing); unsere gilt
-        if (live) writeStoredSize(live.w, live.h);
-        trace("io.accept finished", cw());
-        return result;
+        finish();
+        return origAccept.apply(this, args);
       };
     }
   });
@@ -812,11 +881,12 @@ export function patchExecCommand(): boolean {
     docId?: string,
     templateVersion = 0,
   ) {
-    // Nur Word für Windows: der Befehl wird im Blätterfenster erneut ausgeführt (getestet). Für
-    // http (Google Docs) würde das den Server hängen lassen (server.js:525-527), LibreOffice blockiert
-    // mit verschachteltem Ereignis-Loop (zoteroLibreOfficeIntegration.mjs:270-288).
-    lastCommand =
-      agent === "WinWord" ? { agent, docId, templateVersion } : null;
+    // WinWord und LibreOffice: der Befehl wird im Blätterfenster erneut ausgeführt. Für
+    // http (Google Docs) würde das den Server hängen lassen (server.js:525-527), deshalb
+    // bleibt http außen vor.
+    lastCommand = isPersistentAgent(agent)
+      ? { agent, docId, templateVersion }
+      : null;
     return native.call(this, agent, command, docId, templateVersion);
   };
   if (!assignChecked(integration, "execCommand", patched)) {
@@ -849,14 +919,11 @@ export const persistentDialogPatch: Feature = {
       return;
     }
     patchProgressBar();
-    // Option aus (Einstellungen oder Schalter im Dialog): das Blätterfenster schließt sofort
-    prefObserver = (Zotero.Prefs as any).registerObserver(
-      prefKey(PREF),
-      () => {
-        if (!readPersistentPref()) void closeBrowse();
-      },
-      true,
-    );
+    // Option aus: kein unmittelbares Schließen mehr. Ein offenes Blätterfenster bleibt
+    // so lange, bis die nächste Einfügung kommt — danach schließt es und öffnet sich nicht
+    // wieder (insertFromBrowse und der accept-Handler prüfen readPersistentPref()). Das ist
+    // das gewünschte Verhalten: ausschalten legt das Fenster nicht sofort zu, sondern nur
+    // nach dem nächsten Einfügen (wie Vanilla-Zotero).
   },
   stop() {
     alive = false;
@@ -866,8 +933,6 @@ export const persistentDialogPatch: Feature = {
     unpatchDisplayDialog();
     unpatchProgressBar();
     unpatchExecCommand();
-    if (prefObserver) (Zotero.Prefs as any).unregisterObserver(prefObserver);
-    prefObserver = null;
     pendingInsert = null;
     lastCommand = null;
     const win = getPersistentWindow();

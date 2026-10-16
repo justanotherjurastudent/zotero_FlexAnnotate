@@ -1471,7 +1471,8 @@ describe("FlexAnnotate features", function () {
       }
     });
 
-    it("turning the switch off closes the browse window", async function () {
+    it("turning the switch off keeps the browse window open; it closes on the next insert", async function () {
+      this.timeout(60000);
       (Zotero as any).Integration.currentSession = {
         sessionID: "T1",
         citationsByItemID: {},
@@ -1479,6 +1480,7 @@ describe("FlexAnnotate features", function () {
       const integration = Zotero.Integration as any;
       const origPref = api().persistentDialog.readPref();
       const origDoc = integration.currentDoc;
+      const origExec = integration.execCommand;
       await closeDialogs();
       api().persistentDialog.writePref(true);
       api().persistentDialog.rememberCommand({
@@ -1486,26 +1488,90 @@ describe("FlexAnnotate features", function () {
         docId: "Dokument1",
         templateVersion: 0,
       });
+      const fakeDoc: string[] = [];
       try {
         const w1 = await firstInsert(makeIo(), { x: 0, y: 0, w: 0, h: 0 });
         const bw = await browseWindow(w1);
         win = bw;
+        await waitFor(
+          () => (bw as any).DIALOG_STATE?.loaded || null,
+          8000,
+          "browse loaded",
+        );
+        // the switch is turned off: the open browse window stays put
         api().persistentDialog.writePref(false);
+        await Zotero.Promise.delay(600);
+        assert.isFalse(
+          bw.closed,
+          "browse window stays open after the switch off",
+        );
+        assert.strictEqual(
+          api().persistentDialog.getWindow(),
+          bw,
+          "the browse window is still the persistent window",
+        );
+        // the next insert from it closes the window and does not reopen it (vanilla behaviour)
+        integration.execCommand = async (agent: string, command: string) => {
+          const cmd = beginCommand();
+          const io = makeIo();
+          await integration.displayDialog(
+            DIALOG_URL,
+            NATIVE_OPTIONS,
+            io,
+            "citation",
+          );
+          await Zotero.Promise.delay(300);
+          fakeDoc.push(
+            ...io.citation.citationItems.map((i: any) => String(i.id)),
+          );
+          await cmd.end();
+        };
+        const plus = (await waitFor(
+          () =>
+            bw.document.querySelector(
+              `[data-ann-id="${anns[0].id}"] .flexannotate-plus`,
+            ),
+          8000,
+          "plus",
+        )) as HTMLElement;
+        click(plus);
+        await waitFor(
+          () =>
+            bw.document.querySelectorAll("#bubble-input .bubble").length > 0
+              ? true
+              : null,
+          8000,
+          "bubble",
+        );
+        await (bw as any).accept();
+        await waitFor(
+          () => (fakeDoc.length > 0 ? true : null),
+          8000,
+          "insert done",
+        );
+        assert.lengthOf(
+          fakeDoc,
+          1,
+          "the insert from the still-open window still works",
+        );
+        // the fire-and-forget insertFromBrowse tail (closeBrowse + conditional
+        // openBrowse) runs after the insert. Let it settle while the switch is STILL off:
+        // it must not reopen a window here.
         await waitFor(
           () => (bw.closed ? true : null),
-          5000,
-          `browse closed by the switch (${dialogWindows()
-            .map(
-              (w) =>
-                `${w === w1 ? "w1" : "x"}${w.closed ? "c" : "o"}${w === api().persistentDialog.getWindow() ? "T" : ""}`,
-            )
-            .join(",")})`,
+          8000,
+          "browse closed by the insert (switch off)",
         );
-        assert.isNull(api().persistentDialog.getWindow());
+        await Zotero.Promise.delay(400);
+        assert.isNull(
+          api().persistentDialog.getWindow(),
+          "no window reopens while the switch is off",
+        );
       } finally {
+        integration.execCommand = origExec;
         api().persistentDialog.writePref(origPref);
         integration.currentDoc = origDoc;
-        win?.close();
+        await closeDialogs();
       }
     });
 
@@ -1560,6 +1626,55 @@ describe("FlexAnnotate features", function () {
         api().persistentDialog.writePref(origPref);
         integration.currentDoc = origDoc;
         win?.close();
+      }
+    });
+
+    it("activating the switch on an open dialog makes the next insert reopen a browse window", async function () {
+      this.timeout(60000);
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const origPref = api().persistentDialog.readPref();
+      const origDoc = integration.currentDoc;
+      const origSentinel = integration.currentWindow;
+      await closeDialogs();
+      api().persistentDialog.writePref(false);
+      api().persistentDialog.rememberCommand({
+        agent: "WinWord",
+        docId: "Dokument1",
+        templateVersion: 0,
+      });
+      try {
+        // a dialog window is open (native path: no browse wrap installed yet)
+        const w = (await openDialog()).w;
+        win = w;
+        await waitFor(() => (w as any).DIALOG_STATE?.loaded || null);
+        // the switch is turned on while the window is open: retrofit the wrap
+        // (the checkbox handler does writePref(true) + activateOnOpenDialog)
+        integration.currentWindow = w;
+        const cmd = beginCommand();
+        api().persistentDialog.writePref(true);
+        api().persistentDialog.activateOnOpenDialog();
+        await insertInto(w, anns[0]);
+        await (w as any).accept();
+        // the command settles (execCommand's finally would close the window)
+        await cmd.end();
+        // the browse window reopens at the same spot
+        const bw = await browseWindow(w);
+        win = bw;
+        await waitFor(
+          () => (bw as any).DIALOG_STATE?.loaded || null,
+          8000,
+          "browse loaded",
+        );
+        assert.isFalse(bw.closed, "a browse window reopens after the insert");
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        integration.currentDoc = origDoc;
+        integration.currentWindow = origSentinel;
+        await closeDialogs();
       }
     });
 
@@ -2257,7 +2372,7 @@ describe("FlexAnnotate features", function () {
       }
     });
 
-    it("no browse window for an agent other than Word for Windows (http: a hang; LibreOffice: a nested event loop)", async function () {
+    it("no browse window for http (Google Docs: re-running the command would hang the server)", async function () {
       this.timeout(60000);
       (Zotero as any).Integration.currentSession = {
         sessionID: "T1",
@@ -2292,6 +2407,42 @@ describe("FlexAnnotate features", function () {
         );
       } finally {
         api().persistentDialog.writePref(origPref);
+        await closeDialogs();
+      }
+    });
+
+    it("a browse window opens after insert for LibreOffice Writer too", async function () {
+      this.timeout(60000);
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const origPref = api().persistentDialog.readPref();
+      const origDoc = integration.currentDoc;
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      api().persistentDialog.rememberCommand({
+        agent: "LibreOffice",
+        docId: "Dokument1",
+        templateVersion: 0,
+      });
+      try {
+        // the real request is LibreOffice: after accept the browse window comes back
+        const io1 = makeIo();
+        const w1 = await firstInsert(io1, { x: 0, y: 0, w: 0, h: 0 });
+        const bw = await browseWindow(w1);
+        win = bw;
+        await waitFor(
+          () => (bw as any).DIALOG_STATE?.loaded || null,
+          8000,
+          "browse loaded",
+        );
+        assert.isFalse(bw.closed, "a browse window opened for LibreOffice");
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        integration.currentDoc = origDoc;
+        win?.close();
         await closeDialogs();
       }
     });
