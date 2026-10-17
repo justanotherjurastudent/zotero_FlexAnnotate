@@ -1,0 +1,304 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:a0251cc8f919e6892a66a78405cb6cdaef99b7fdd04faee88b07dc2309734bab",
+  "claims": [
+    {
+      "id": "claim_84e857fd36864709ac38a03761565cab",
+      "statement": "docs/anchors.md is the mandatory log of every place FlexAnnotate attaches to an undocumented Zotero internal: one row per anchor with the anchor description, the file and line range under chrome/content/zotero/ of the unpacked omni.ja, the plugin files that consume it (Genutzt in), and the versions the lookup was checked against (Geprüft).",
+      "evidence": [
+        {
+          "resource": "repo://docs/anchors.md#L1-L5",
+          "version": "repo-lines-v1:sha256:5bb77066a15c40d069f7e5063455d70a65e0f8c575b68207d8f7be67330649eb:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTVhMDgwODAzZjA2MTYwZDA4NjUyNDNkM2NjMjNlNWQwNTVlYzE1MTYwNDM0Y2ViM2ZiODIyZjk0MGIzODg4YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTdhOWY1ODE2ZjQwNzhjODkzMDIyN2RlNTc4MDJmMGYxNDZiYzlhZjVmYTY2MTZhOTI2ODE4MThlZmNkZGI0MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTVhYTE2ZGU0MzQ2NWQ1N2Y5NzUxNTc3ODJiODQzOTVmY2RlNWRhODRkNTNmZjQzZTQ4YTM4MmM3NzA1MzBiNSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f8b27b9f50584a439f6dca9e270a57ba",
+      "statement": "The Geprüft column has strict semantics: \"10.0.5\" means the place was looked up on 2026-10-09 in .zotero-reference/10.0.5/ and the recorded lines are the 10.0.5 ones; version-only lookups are explicitly marked as such (\"10.0.1, nicht neu geprüft\"), rows verified only against Zotero's GitHub main say so, one anchor is marked \"nicht geprüft\" (derived from the failure picture and commit 736657e), and the persistent-citation-window section notes that all of its lookups were 10.0.5-only.",
+      "evidence": [
+        {
+          "resource": "repo://docs/anchors.md#L29-L29",
+          "version": "repo-lines-v1:sha256:8b78c487b1a5cf033ea979f29ab9b4ed5d9c7a5c7af03bf752b677fe1f81b8e3:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGI3OGM0ODdiMWE1Y2YwMzNlYTk3OWYyOWFiOWI0ZWQ1ZDljN2E1YzdhZjAzYmY3NTJiNjc3ZmUxZjgxYjhlMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGI3OGM0ODdiMWE1Y2YwMzNlYTk3OWYyOWFiOWI0ZWQ1ZDljN2E1YzdhZjAzYmY3NTJiNjc3ZmUxZjgxYjhlMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGNiMTY0MDlkNzJmYzliMjlmNGJhMWZjODI2ZmJmZmU4ZjZhOTQyZjU0YWE2ODlhN2U2NmRiNDkzY2FkZWQ3ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTU5YTIyNjM0YzlmZWVjNTYyNmVhNjFhNTMxNmE4Mzg5OTBiMmNiMjRmMDI2YTZmOTA1NDc1MTc2OTBiZTFiMCJ9"
+        },
+        {
+          "resource": "repo://docs/anchors.md#L3-L3",
+          "version": "repo-lines-v1:sha256:bbaae2cb875d4be05e5ce88e45278ff3612f19f853afe59d6e0ded0807270e90:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmJhYWUyY2I4NzVkNGJlMDVlNWNlODhlNDUyNzhmZjM2MTJmMTlmODUzYWZlNTlkNmUwZGVkMDgwNzI3MGU5MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmJhYWUyY2I4NzVkNGJlMDVlNWNlODhlNDUyNzhmZjM2MTJmMTlmODUzYWZlNTlkNmUwZGVkMDgwNzI3MGU5MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjIsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2RkM2RkOTBmNDRmMzEzNmM0NzI4M2U3ZmYxNTBlNjNmODBhNWMzNmNmZmE2NDEzOTNjZDFlMzY3YzgyYTQzNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDI5N2MwYWJhZmE0MTgyNTU2Yzk4N2VhNTJmZGVjN2UwMGI3YTYyZmVkMzU3N2IzYmE2OGM4ZmI4M2NmM2IxMCJ9"
+        },
+        {
+          "resource": "repo://docs/anchors.md#L32-L33",
+          "version": "repo-lines-v1:sha256:faaf4998f2d3771a9caca30b3a53ad3cb886cbc145fa3baf62fc52a9ebe089f5:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQyNzcwYWUwZjJiYjQ3MmQ2YjUyODRlNWI1MWI5NmNmYThjZGY1OTAzYzhiNTZlZDIwNTMxMDY4MTNiZjMyNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmI4MGU4MmRiNWMyMDdmNzI5NzY4NTA0ZjE1NDMzZjc5MTliMzZiZmZhZTgxYTNiZDQ2MGUxNTUwOWJkYTRmMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjViZjQ1ZTI5YWRhODYyNTg1YjZlZjVkZmU1YWMxZTgxYjY0MTgzNzljMmI5NGNmZDNiNzdhMjhjNzBiZDVjNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmRkZjc1NjRkNzE2YjM1MGJmNDc5NDA4OWZhOTY5NTRkOGNhYmU1YWYyM2E4MGFjNjIzZTA5Y2IzNTFlN2Q4MSJ9"
+        },
+        {
+          "resource": "repo://docs/anchors.md#L54-L54",
+          "version": "repo-lines-v1:sha256:87e4e7cd1db4787589a40c94ad3d8abf6549caa149bb42ef74907de5e086e48a:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODdlNGU3Y2QxZGI0Nzg3NTg5YTQwYzk0YWQzZDhhYmY2NTQ5Y2FhMTQ5YmI0MmVmNzQ5MDdkZTVlMDg2ZTQ4YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODdlNGU3Y2QxZGI0Nzg3NTg5YTQwYzk0YWQzZDhhYmY2NTQ5Y2FhMTQ5YmI0MmVmNzQ5MDdkZTVlMDg2ZTQ4YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDQ2NDFmMWQwZmFlYmNjMzZhYzJhZTNhNWU0ZDZiMTM2YzlmNjU4OTk4MzFjZjYzMTVhOTU4NDBhOTdiYWZhOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjNlZWVmYjc3NDBmM2JkNjIzMTM3NWNjZDMzZTU0NmU5YTYxODIyZDI1NWIwZGNmNDY5OTk4ZjA4ZjY0NDY5NSJ9"
+        },
+        {
+          "resource": "repo://docs/anchors.md#L62-L62",
+          "version": "repo-lines-v1:sha256:59cdbcae510bf71e7cf82cc05051bacb773ca2d468c72423fce7492f91220195:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTljZGJjYWU1MTBiZjcxZTdjZjgyY2MwNTA1MWJhY2I3NzNjYTJkNDY4YzcyNDIzZmNlNzQ5MmY5MTIyMDE5NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTljZGJjYWU1MTBiZjcxZTdjZjgyY2MwNTA1MWJhY2I3NzNjYTJkNDY4YzcyNDIzZmNlNzQ5MmY5MTIyMDE5NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWEwMmEyYzhmYjlmOWE2MDBkZTU5MTI0OWU3ZDY3NWZkNDY2ZTg3OGZiODVjOGE2Yjg2YWQzNWRlYzFiOTM3NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjRkOTMwY2IwYzUyODk4NTI1NDk4YWRkNTUzOTY1YTQ3YTdhMmQ0YjVlYjQ2N2VmMzFjODUxMmUwZGJlOTM1YyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d88ad0dc4dc140b7a002505d14790c75",
+      "statement": "Zotero internals may only be verified against the unpacked source trees in .zotero-reference/<version>/ (gitignored; present: 7.0.32, 8.0.4, 9.0.6, 10.0.1, 10.0.5), never from memory; for the running install the tree is regenerated by copying %LOCALAPPDATA%\\Zotero\\app\\omni.ja to a .zip and Expand-Archive-ing it (source under chrome\\content\\zotero), and for other versions the omni.ja comes from .zotero-versions/<version>/core/.",
+      "evidence": [
+        {
+          "resource": "repo://.gitignore#L21-L23",
+          "version": "repo-lines-v1:sha256:4ed8d91abe88a24af895c54a70597b69026cf8d80d127b96585b651f547366ac:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDAyZGFiNWY5ZmYwNTk3OWM2MGE4NDBlY2JlMTgzMmQ3MjNiM2M3ZmY5MjQ3NTQwNzI3NjU5Nzg4MTk0NmU5OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTUyNzBmOTExMzhmYzJiYjU0NzBlY2I1MjFkYWIwNDMxNDBkN2UwZmQ4Y2IzM2JiMDY0NGFjMTNlZmI2MGZlNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2QzNjYwZjgxOTY0ODdmNWJhZTZkZjIzYjEwMzNlZDRmZWM4NmI2ZmE4ZmI4ZmY4YmM3NTUxNTEyOGM5ZjNlZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZmI5NGRjOGE0OTA1ZjczNzA0MjA0MzRhNjc2ODU1YzZiOTZkOTUzNWQ4ODIyMjAzMjU3OWQ5Mzg4ODJjYmIxNyJ9"
+        },
+        {
+          "resource": "repo://AGENTS.md#L41-L49",
+          "version": "repo-lines-v1:sha256:1a78d64c1c2f40e3193627bec0aba4349b93518818752a5756fa13be643d6234:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODI0NGU0MDQ5YjBmYzVmYWI5NjBiNTkxZDk2ZTQ2OThiNGMxZTUyY2Q1YTY2YWQxMzMxZjdkNjZmNTEzZDRmNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGJlMjljODgxOTE5OGRjMDJlYTI5ZDI1NzU4NjI3ZWZjM2UyMDg2YzZjMzkwYjRmNmEyYzRiMDBjNDljYmQ4MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTg2OTdmNWVkZDFkOTdkMGY4MTU0MDM0YzRlZTFkYzVjYzliYWVkZWQzYjg3ODdmNjA1MmI3MDU4NWJiZWRiYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDM4MWVlMjUwMDQ4MDBiYmZiMTVlYzg4MThhMDYzNmRjYjEyZTdkZmE5MjYwMjhiNTkzZjQ3NjIwYzEzMzc2NyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_55b96ed6f01a4663b4543fbcc81cc6d9",
+      "statement": "Anchor-log discipline: every new Zotero-internal finding gets a row with the line and the version named, version-only lookups are marked as such, anchors are re-checked after every Zotero update, and the anchor row ships in the same changeset as the code (README, CHANGELOG, docs/anchors.md).",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L49-L49",
+          "version": "repo-lines-v1:sha256:8be29c8819198dc02ea29d25758627efc3e2086c6c390b4f6a2c4b00c49cbd80:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGJlMjljODgxOTE5OGRjMDJlYTI5ZDI1NzU4NjI3ZWZjM2UyMDg2YzZjMzkwYjRmNmEyYzRiMDBjNDljYmQ4MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGJlMjljODgxOTE5OGRjMDJlYTI5ZDI1NzU4NjI3ZWZjM2UyMDg2YzZjMzkwYjRmNmEyYzRiMDBjNDljYmQ4MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWFmNjc5YmQ5ZDVjMGNmOGYwZmEzOWI2YWJhY2YxZDJjODFiNmJiMTdiZWM1ZjdhMzQ3MmQ5ODVhNTY0MzhiZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDM4MWVlMjUwMDQ4MDBiYmZiMTVlYzg4MThhMDYzNmRjYjEyZTdkZmE5MjYwMjhiNTkzZjQ3NjIwYzEzMzc2NyJ9"
+        },
+        {
+          "resource": "repo://AGENTS.md#L70-L70",
+          "version": "repo-lines-v1:sha256:7f5e7d8ac8bc0189579b8906bdf8a4af5001cf63841afa80a04022a945644980:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2Y1ZTdkOGFjOGJjMDE4OTU3OWI4OTA2YmRmOGE0YWY1MDAxY2Y2Mzg0MWFmYTgwYTA0MDIyYTk0NTY0NDk4MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2Y1ZTdkOGFjOGJjMDE4OTU3OWI4OTA2YmRmOGE0YWY1MDAxY2Y2Mzg0MWFmYTgwYTA0MDIyYTk0NTY0NDk4MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGI4MmQ0YjVjNzA1MDE1NjMxYjJlZDY4OWY3YThkN2IyZjM0MGQ0NTQ4ZTY2N2IwN2EwZGZiNGZjZWNmNGQwOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGQ2NzEyYmY1ZDI0ODdiYmMwMDIwNmZjODZhNDQ0Mjc1Zjc4MTA5OWFlOTQ2Y2E4MWY0OGJlOTAyZjY3Y2U2MiJ9"
+        },
+        {
+          "resource": "repo://docs/anchors.md#L3-L3",
+          "version": "repo-lines-v1:sha256:bbaae2cb875d4be05e5ce88e45278ff3612f19f853afe59d6e0ded0807270e90:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmJhYWUyY2I4NzVkNGJlMDVlNWNlODhlNDUyNzhmZjM2MTJmMTlmODUzYWZlNTlkNmUwZGVkMDgwNzI3MGU5MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmJhYWUyY2I4NzVkNGJlMDVlNWNlODhlNDUyNzhmZjM2MTJmMTlmODUzYWZlNTlkNmUwZGVkMDgwNzI3MGU5MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjIsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2RkM2RkOTBmNDRmMzEzNmM0NzI4M2U3ZmYxNTBlNjNmODBhNWMzNmNmZmE2NDEzOTNjZDFlMzY3YzgyYTQzNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDI5N2MwYWJhZmE0MTgyNTU2Yzk4N2VhNTJmZGVjN2UwMGI3YTYyZmVkMzU3N2IzYmE2OGM4ZmI4M2NmM2IxMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_15aa84fe6da34b94ae454142f546cafc",
+      "statement": "Where a capability is missing on Zotero 7.x–9.x, the plugin handles it with feature detection instead of version comparison, with the concrete examples annotationColors in src/features/print/logic/printAnnotation.ts and toolsMenuFallback in features/organizer/.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L51-L51",
+          "version": "repo-lines-v1:sha256:ab516288828520dc208dae68a78956715a6f51894f4262ad4dbc711c46f759e5:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWI1MTYyODg4Mjg1MjBkYzIwOGRhZTY4YTc4OTU2NzE1YTZmNTE4OTRmNDI2MmFkNGRiYzcxMWM0NmY3NTllNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWI1MTYyODg4Mjg1MjBkYzIwOGRhZTY4YTc4OTU2NzE1YTZmNTE4OTRmNDI2MmFkNGRiYzcxMWM0NmY3NTllNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDgwY2ZhZmYwYjVjZWUyMTg4ZWQ4ZThmMGQzYzU3ZmNjZGYwMWQwNGJkNzUxZDczY2ZjNDEyODQzMjcyYzRlNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmFjMDI0N2EzNGRjZWYwNGU5Yzc3MGE0YTFkOThkMTkyZjNmMDEzMDZhMjMyNzdjYjkyMzMyYTA4ZWUxMTdhNSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_69efb8ff171e47b0991d957fae6b8c2b",
+      "statement": "annotationColors(zoteroColors) uses Zotero.Annotations.COLORS only when it is a non-empty array whose every entry is a two-element pair of a string l10n key and a #rrggbb hex value, and otherwise falls back to the eight hard-coded STANDARD_COLORS; the shape check exists because the value comes from outside the plugin, the dialog reads COLORS deliberately untyped (zotero-types does not declare it), and the decision is covered by test-unit/printAnnotation.test.ts.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/print/dialog.ts#L499-L504",
+          "version": "repo-lines-v1:sha256:9ce6a04634df7b896697a57d62dea215fc70041b02a77106ab300547a867c760:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJkZGFjZGJmZjk2MDE4NmJhZDQyYzY4YmY4NzFlZTQ1MmU0YzY4ZTc3MmY3MTM5MTNmZGY1MTQ3YTFjYzk3MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTVlZjAxYmMwOGRiYzNiNjNlNGU3NWVhM2QyNmE1Yjk0MTg5MTg3N2UyN2FkODkxMzI5Yzg0MTFkN2Q4ZGM0ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2E5YjY1ZWYzNzViZWRkYjA0MmM5ODIwYjA4NGJiYzA1MmQzODc2OGRhZDcxNzVhNmMwNTg4Y2ZjMWVhMGJmNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjNhNDBkZDFiNjkxNjkzNDU2ZTQ4ZmEzMmM2ZjYyZTU2ZDEyNzAxZGVhOGJkNDk0NWM4NDVmNTU5NTk3ODAxMyJ9"
+        },
+        {
+          "resource": "repo://src/features/print/logic/printAnnotation.ts#L15-L42",
+          "version": "repo-lines-v1:sha256:5c4e8ab5de20fea71718fec4f72062bea1aa115b5722005b4b8dbe4858011367:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiOTg0OTk2ZDM0MzA5YTliZDE2MWQzYjYzYzAxY2Q2Y2FkZWI3YmI1MTc4MGFkOGNlMmQ4NmMyZTA4ZmRlZmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4N2QxMzA5MjU3YmM3OTc3YzNiZjNkYjQ3OTllYTc1ZGU3MzQ2YzY2YmYyYjEzZWE2ODU1YmJhMTA0YjRlMWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlhYzM0NjU4ODkzNWYxNWY4NmI4ZWY4NGMxZTAyY2UzODliMGFjNjkwZmJiMGQ3NWMxYWZmMjE3ZjczZGJlY2YifQ"
+        },
+        {
+          "resource": "repo://test-unit/printAnnotation.test.ts#L13-L36",
+          "version": "repo-lines-v1:sha256:830d12765c09129ad4e455a1fb3c7a286e98a74d6f8b5d6e72a78ddb20836103:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4OWYwMjhmMjI2ZGYwZWVhNzk1NGYzNDg2YzFiYzYyOTE4ZmFlZmZjY2YyMzljYjlkNzljNmI1MjI3YjY3ODQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjNTc4ZmE0NDMwOWI5MDdlYzk0ODY0ZWM5N2ZiYzk4MTA0YjM0NzYxNGIxMjhmMzgxNWJiMjRkOTUyNjVlOWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYwZWU1MDJlZGQ2NTMxYTkyYmVkMjlkNjVlZjRiZGU2ZjJjYTBlZWNkNzg0MmI1NTkzZGZiYTQxYjUxODFmZDYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c5e70284d07c4bb190ee498e56a84200",
+      "statement": "Color l10n keys differ by version (7.x legacy general.* keys in zotero.properties, 8.x/9.x/10.x general-* keys in en-US/zotero/zotero.ftl, hex values for 7–9 only partially evidenced), so print/dialog.ts colorLabel() tries both spellings — nameKey and nameKey with '-' replaced by '.' — before falling back to the raw key.",
+      "evidence": [
+        {
+          "resource": "repo://docs/anchors.md#L38-L38",
+          "version": "repo-lines-v1:sha256:16deaa29c9f87bc21e85864a56629ef9e7b18f49c6a02f3aee056c5306adb675:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTZkZWFhMjljOWY4N2JjMjFlODU4NjRhNTY2MjllZjllN2IxOGY0OWM2YTAyZjNhZWUwNTZjNTMwNmFkYjY3NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTZkZWFhMjljOWY4N2JjMjFlODU4NjRhNTY2MjllZjllN2IxOGY0OWM2YTAyZjNhZWUwNTZjNTMwNmFkYjY3NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjhiNzRjODgxN2I0YjRmY2I3ZTM4NDZmZDRhZmY2MjkyN2RiMGU1ZTNmMjMzOGIxZmMyYjI3NjBhMjk1NDM4MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYmFiYzU1NWM0OTc2MDlmZGMyOWI0OTQ0MWI4ODdhZWM4MGU0ODA2ZTZkNWQzMGNjYjcxNTg3ODE5YmI1ODE1YyJ9"
+        },
+        {
+          "resource": "repo://src/features/print/dialog.ts#L513-L527",
+          "version": "repo-lines-v1:sha256:0d87031e063b1430789c68a73a923c7f724585e814ec6ce8c0a669bc4782e395:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0NjAyYzNlNTc2ZjJjNWY3YWYxZTA2NzA3NWU1ZGRiYWE3NDQxOTZjNmUyMzNmMzZmMzRlODg1ZjgzNWZiYmUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fb4619264e73499bbb71cb01ed7f5f70",
+      "statement": "The organizer's Tools entry is registered through the MenuManager wrapper (a silent no-op where registerMenu is missing), and toolsMenuFallback adds a plain XUL menuitem to #menu_ToolsPopup only when typeof Zotero.MenuManager?.registerMenu !== \"function\" (Zotero 7.0.32) — otherwise it adds nothing so the entry does not exist twice; the label uses the label attribute because Fluent sets textContent, which a XUL menuitem does not display. toolsMenu.test.ts asserts the entry only without the manager, no duplication on repeated addToWindow, and skips the command test when the manager exists.",
+      "evidence": [
+        {
+          "resource": "repo://docs/anchors.md#L42-L42",
+          "version": "repo-lines-v1:sha256:ec9c3a0bc829a3cd9629bc25174251e69cd1fec2356c4010c173322cdf483515:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWM5YzNhMGJjODI5YTNjZDk2MjliYzI1MTc0MjUxZTY5Y2QxZmVjMjM1NmM0MDEwYzE3MzMyMmNkZjQ4MzUxNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWM5YzNhMGJjODI5YTNjZDk2MjliYzI1MTc0MjUxZTY5Y2QxZmVjMjM1NmM0MDEwYzE3MzMyMmNkZjQ4MzUxNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmFiYzU1NWM0OTc2MDlmZGMyOWI0OTQ0MWI4ODdhZWM4MGU0ODA2ZTZkNWQzMGNjYjcxNTg3ODE5YmI1ODE1YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGRmNTI2MzVmYjY4Y2YzZGRjMjZmYmJhMGI4ZjhiZjliMTU2N2I3NzBlMDQxZWRiZmNmZGQzNjAyZTdiZWQwNiJ9"
+        },
+        {
+          "resource": "repo://src/features/organizer/toolsMenuFallback.ts#L19-L38",
+          "version": "repo-lines-v1:sha256:7adcf169c430b20f8526a732ca5311267cfbf31a6a4b9f6367a7a0c950074fa1:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmOTgyMjMzZjZjMTBmMjc4MjZlNDE2ZDZjZjM4OGNkYTg0MDU0YThjNGMxNzM0NzRjMzc0NzlkZmNkZGFkMDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5NzI3OWYxZjYyZTgzMzMwNjgyOWE2M2VhZjBmN2EwYzljMjI4ZDI1YjExMDczM2VjYTJlZTI5NGI2YzM1YTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFiMzljYjM1MjAyM2UwODA5MzAxNmVhM2ZjOGYxYzk5MmI2NDBlNDI2MmJiN2ZlZTE0MDkzYTAwNjZmNDUzMTgifQ"
+        },
+        {
+          "resource": "repo://src/utils/menu.ts#L16-L18",
+          "version": "repo-lines-v1:sha256:3ded2ed824a7d6c64720865ca97a3fbeecdb78570e165b34fa39a17b767395e7:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTNhNDgyZWQ3NjQ5ZjEwZDY5NzE0YmI2YTA0ZTc0ZGUxYzViODg2ZDVhNTY3ODFiMTQ4YjIzMmU0MjdhMGUxMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzQxZDIzODY4MjNkMjBiOTQ3MDQzNGZhODJiMjkyOTE5MTlhNGRkZjAxZWY0OTE4MjI4YzljOTkyYmUzYjBlZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTNjMTEzNzJmMTRjNmU0ZjAzZWYxNjhlZGQ0NTNkMzc5NGJkNjBjMDlhYWRmZDBiYTNiZWNhZjUxMjM5N2NmMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWMxMmEyYjM0N2IyMmFkNjZiYjBiYzUyNjRmMjA0MjFmNTBkZjQ0Yjg0MWQxMmU2YmM4YzAxMDNhYzk5NGU2ZCJ9"
+        },
+        {
+          "resource": "repo://test/toolsMenu.test.ts#L23-L40",
+          "version": "repo-lines-v1:sha256:c9f3cec193237949a68b9fae8b8a16a747621488a3e1e13dc0216018ea0a4900:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwMWM2YzBmYTY2ODIyOTlmODAwNzRlMTQwOWUyYmViNTAxYTYwNDZjMTNjZjdmZjU2OGUwNWM2NjA2MWYyMmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlNjkwY2VmN2UxNTNjNzcxYzY2NDczNmQ5ZDNhNTlmMWZiMTdhYzRkY2ZmMGQyODRhY2U1M2ZiNmFiYWQzOTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0NWUzODdkNjZhNTViZmQ5MzQ4M2U5ODI3NGExNDlhZDYxYTNlNDI1YWI2OWUzMTE5OTUyN2MzN2NkYTI4YTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFmYmRmMGE4MGY4Y2IyNjY1MTBkNWQ4NDFmZTY3N2U5MDdjYzFmZDBhMDA1MTFkMmYzYjkwOTUwN2I0NDgyMjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_46f084dd94c14cae815f5897560b1010",
+      "statement": "The citation-dialog mode selector gates on capability, not version: the dialog file was renamed between majors (7.x integration/addCitationDialog.xhtml, 8.x+ citationDialog.xhtml) and the annotations mode (#annotations-sidebar, dialog-type=\"annotations\") exists only from 9.x, so injectModeSelector returns early when the dialog document lacks #annotations-sidebar; its injected rows carry data-dialog-type=\"annotations\" and a MutationObserver on the root dialog-type attribute sets and follows their visibility because Zotero toggles [data-dialog-type] elements only on mode changes while the plugin injects afterwards.",
+      "evidence": [
+        {
+          "resource": "repo://docs/anchors.md#L40-L40",
+          "version": "repo-lines-v1:sha256:9865334563ff60dafbd51b3f7dccb4865c3c9cc1a7ff11b760d60839aa57e828:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTg2NTMzNDU2M2ZmNjBkYWZiZDUxYjNmN2RjY2I0ODY1YzNjOWNjMWE3ZmYxMWI3NjBkNjA4MzlhYTU3ZTgyOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTg2NTMzNDU2M2ZmNjBkYWZiZDUxYjNmN2RjY2I0ODY1YzNjOWNjMWE3ZmYxMWI3NjBkNjA4MzlhYTU3ZTgyOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmNkYTAzNTk4N2IxMDc4ODUzMDI0MTJmZDFjYjNiYjIwOTcyYWJjYTYwMjMyZGUxMzA5MTgyYjE2NGMzMDU1NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTFlMjg0NmQ2ZmEwYTA3MWRkYWE3MmM3NDMwZGIyNWMyYzM5ZDc4OGM2ZDY4YzM0OTZhM2U4MmVhNjczYTRkMSJ9"
+        },
+        {
+          "resource": "repo://src/features/citeOnly/modeSelector.ts#L214-L236",
+          "version": "repo-lines-v1:sha256:bad038fd5d091213373d16bda6917c14c526a5ec4bb0e9d3126b2c213071c852:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/features/citeOnly/modeSelector.ts#L28-L36",
+          "version": "repo-lines-v1:sha256:97e6d4af30274927b1f3e8599603b8dea6b04842a4a754fe091ccee5503966e0:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjc5YjZhZDM0NTA5Yzc2NDYxNzEyY2NjYjdlM2UxMmM4ZjNlNThjMWNjNjU0ODk4YWU2ZmUzZGI4ZDMzN2YyNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODZmYmEyMTkxMmIzZTdhNTc4ZGQyZmI3ODJkMWQyMGQ1M2VhYWM3NGZhMTMzYzNlYzVlYzdlYzhlYjdiMmFjMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjNmMTRmZTY3MjM0ZWYwZjYwZGZhZWVhNjA3OTVmM2EyNTM0NjI2ZTdjNGE5ZTZiMzYzOGZjMTM5ZDdhZWRkYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_2e8f55c2d5254861adf8d24850343d69",
+      "statement": "The keep-citation-window-open feature requires Zotero's Integration.Interface.prototype.addAnnotation command (present in 9 and 10, absent in 7 and 8): persistentSupported() checks exactly that function, the outline view hides the persistent toggles when it returns false, and the whole feature is deliberately absent on 7.x/8.x instead of failing.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogOutline.ts#L207-L208",
+          "version": "repo-lines-v1:sha256:6d98d2624320705a73ad3d6580c621946551c5ea5a0b11db49e01868e7f68a17:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmUzZDUyNzY4NWZlYWZhNzNjZGZlNjYzMDQxZGNiNDAwMTBhYmMxMjRmOWRkZTY1NTk3ZjBlNjhiNTZmNzc0ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQ1YTMxY2ZjN2ExZDc5YTUyNDFhMDgzOWMwZWQwODAyZjg1YjUzMDdhYmE5MzM5NmM3ZjNkNDI4ZDMwNzA4NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGE5OWU4N2YzNzdmMjE1ZGQ0ZDJiZWIyOTAyNDYzNzI5MTE2ODIxNTI0ZjM0ZTRjN2MzODg1ZDZjNTc5NzIxOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjY5OWFkZDUwZGVmYzIwNzg4YjQ1YmYwZWMxZDY1ZTc5MjY5ODYxNDczMjAwYzI3ZGVkNzE2MzE2ODViOTdlYyJ9"
+        },
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L119-L125",
+          "version": "repo-lines-v1:sha256:ca59e72a24d2f5cdc2c8c41296cc18da6e743f0a74e196f0c80096fa3de81f6f:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWNlZTNhY2EwODA2NzgwZTcxOGJmYmE3YTA4Yjc3NmFmM2ZmOGZhMDhkMGFmNmNkYWQ3NzQyNmJmZTRlY2IxNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzRkYTM3YTU5NWYyOWZlYzk2OGZiZjc0ODM5OWI2ZmM3MWQ4YjdjMzgxM2Q4OWVlODliN2Y0YTk2M2M2N2UxMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWFjMjA3ZjNhMmQ1NTlmODcxYWUwNmFmZGVkZjc0OTRiMGM2ZmU3OWNkNGVhMzY5ODRkM2U5ZDU1ODU2N2MyZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f41c1a99ca9043dca9e488637aa5747d",
+      "statement": "The test suite mirrors the runtime rule with hasAnnotationDialog(), which reads chrome://zotero/content/integration/citationDialog.xhtml and checks the source for \"annotations-sidebar\" (a source check, not a version check); annotation-mode tests skip below Zotero 9, the tools-fallback command test skips once MenuManager exists, and the version runner reports those skips as pending so a missing capability shows as a skip, never a failure.",
+      "evidence": [
+        {
+          "resource": "repo://docs/testing.md#L79-L79",
+          "version": "repo-lines-v1:sha256:7493395c2bf6e3aebc9ec6ef21adc1345c9c0df9d76afdcc63c69388d1a2a47c:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzQ5MzM5NWMyYmY2ZTNhZWJjOWVjNmVmMjFhZGMxMzQ1YzljMGRmOWQ3NmFmZGNjNjNjNjkzODhkMWEyYTQ3YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzQ5MzM5NWMyYmY2ZTNhZWJjOWVjNmVmMjFhZGMxMzQ1YzljMGRmOWQ3NmFmZGNjNjNjNjkzODhkMWEyYTQ3YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTczNzQyOWI5OWZkYWIzZmJjOTcxNjVhM2UxYTMxY2Y0MGI0YWQ3OWM0ZjFlYjc0NmQ1YWIwNWU5NDA1YjMzMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTUwM2QyNTk4YTNjZGYxMGYwY2Y5Yjc4NGFmNmYzMDc0YzU0M2RmMWMwNTM0ZTc5ODRjODdkMzBiOWI2N2ViYiJ9"
+        },
+        {
+          "resource": "repo://test/helpers.ts#L128-L141",
+          "version": "repo-lines-v1:sha256:aac9f9b2c165d457a82038330c5d1de7c52d4eb53c5b102c547f0366a11e4d96:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNlMWVkYTJkZmI0ZGVjMzIyMzU1ZjhiNjAyMjY0NTViNGFhNmUyMjgzN2VlODk2NzYzZTcwMTA3ZDU3ZTY3YmUifQ"
+        },
+        {
+          "resource": "repo://test/modeSelector.test.ts#L57-L61",
+          "version": "repo-lines-v1:sha256:4d62b2ee264331a499709002c926958c542cc20220849c041d3332af21702963:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmRmMjhjN2U0ZWE5M2VkYTE3Y2I1NzBkZTAyYjhhMjNjMWY2OWRmZThhM2I4N2U2ZTdjYmQ5MTMzYjM4NzkwMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2EzZTQ2Zjk0Mjc2YjZmNmY0ZWQxZjAyYWY3OGJlZjZhMmVlMWM0MzlkZDU1ODRiOTczOTQ4MzEzMjE0ZDJiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWJmZTZiZDNiOTM4MTJlMmRkOGQ3Y2Q5OTJjNWVlMDdkYTBmMDgzZjQwZTIwNGU0Y2I2YWY2MjMzNDZmZjcyZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzUzYjQ5MDQwMjU0ZDg1Mzc4OTRmMzM3ZTU0MjI2Yzk3YmNhMTI5M2NlZjk0MmVlNzVhZDg4YjcxYjY5ZDgxNSJ9"
+        },
+        {
+          "resource": "repo://test/toolsMenu.test.ts#L39-L40",
+          "version": "repo-lines-v1:sha256:4f0ff92d3532844829a6d5748d69cc17b68b23c9615152b22935cb2f6a6073ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTczMjQyOTNiYjFkZjU2ODczZGUyN2M2YjcyMDU5NDZlZTUwM2JmMzUwZGJlYWNlMzU5YmI4ZTU4YzBjMzRiMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmU2OTBjZWY3ZTE1M2M3NzFjNjY0NzM2ZDlkM2E1OWYxZmIxN2FjNGRjZmYwZDI4NGFjZTUzZmI2YWJhZDM5OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzYzMWRlMjM0MTQzMWUwYTI1Y2M3MDczNTlkM2E2NzliODVhMTE2ZGU2MmUzNDk5NzczYTRlOWZhZTgxZDM5OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWZiZGYwYTgwZjhjYjI2NjUxMGQ1ZDg0MWZlNjc3ZTkwN2NjMWZkMGEwMDUxMWQyZjNiOTA5NTA3YjQ0ODIyMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_1ae936acff3c4fcab366d02547a4fd83",
+      "statement": "npm run test:versions (scripts/run-versions.mjs) runs the Mocha suite once per target — the installed version read from %LOCALAPPDATA%\\Zotero\\app\\application.ini plus every .zotero-versions/<version>/core/zotero.exe found on disk — deletes .scaffold/test/profile before each run because the scaffold only clears the data directory and a stale profile's startup cache and extension registry made runs order-dependent (8.0.4 failed only directly after 7.0.32), parses passed/failed from the \"Test run completed\" line, counts skipped tests from pending output lines, and exits 1 when any version failed or produced no result.",
+      "evidence": [
+        {
+          "resource": "repo://docs/testing.md#L77-L79",
+          "version": "repo-lines-v1:sha256:75273d793fc6021ac6fd852effce6308333a29d74f80ceac8ced52642aee7d50:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDExOTNkZjM5OGNlNmUyYzBkNmJkYWY4NThkMjg0NzI5ZjA3MjZiYThjZGI1ZmQ4NWQ2MDZkNGUwZjkwOTAwMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzQ5MzM5NWMyYmY2ZTNhZWJjOWVjNmVmMjFhZGMxMzQ1YzljMGRmOWQ3NmFmZGNjNjNjNjkzODhkMWEyYTQ3YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTk1OTM2MTcxY2ZhNTVjYTZjZTkwOTdlN2FmNjM5ZWY5MmIwMDk2ZTRkMGFhY2M1NGFhOGJmOWU1ODAzY2QyMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTUwM2QyNTk4YTNjZGYxMGYwY2Y5Yjc4NGFmNmYzMDc0YzU0M2RmMWMwNTM0ZTc5ODRjODdkMzBiOWI2N2ViYiJ9"
+        },
+        {
+          "resource": "repo://scripts/run-versions.mjs#L15-L45",
+          "version": "repo-lines-v1:sha256:5158b0d6e727e9820bd66bc8d37713af02dc04e28c09fe3ba51b7dfa4488d56d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3YzE3Njc1NDVjOTE1MTk1NzE1MWFlYTJjZjA5OGQ5OTNmNTY1ZTMwYTM1YzE3YTZlMGRhZTQ4OWQ1MjEwNmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ1ZTY4ZWM2YjkzOWNjMjRiMjk3Y2FkYTc0OGMwMDQwZTJhYjRhMjFhNjQ5YWQxYmE2YTIyZTQxMjQwZGZkM2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEzNmY0M2QyMWFlMzk2Y2Y3MzMyNGIwNWQ5MzUxODVkM2E0MWM2ZTI3YmEyZGVhYWFlYWVhZWI4ZTMwZmIxNWQifQ"
+        },
+        {
+          "resource": "repo://scripts/run-versions.mjs#L93-L115",
+          "version": "repo-lines-v1:sha256:d7c3450397a6a9b2c9aabbf213ad9a76d53b8867ea7eb028f1049a73ea1854e7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkZWNhODk5NGY4NjBiZGE0MDViNWZiZTU0ZjFiOWQ1ZDFkNmMwNWU4MmU1NDU5MjNlMGRlODQwNGEwY2M0M2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMzMjVhYTQxMmZlOTc3MDg1ZTQ4MjZjZGE1MjQyOTcyNDE1OTAwOTY4ZTM1M2ZkNTcxMDg0MGEyNDI5MGJiMjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f4ab1fb513e544888de3bd07e5ec2e06",
+      "statement": "Additional Zotero versions are kept as unpacked installers, not installed, in .zotero-versions/<version>/ (gitignored); they are obtained by downloading the release setup.exe from download.zotero.org and extracting it with 7z so the app lands under .zotero-versions/<version>/core/, and the same unpacked tree supplies the omni.ja for regenerating a matching .zotero-reference/ tree.",
+      "evidence": [
+        {
+          "resource": "repo://.gitignore#L26-L27",
+          "version": "repo-lines-v1:sha256:dfa172d96138b69e66efa8f590cb8e2909fdcf5ff0c49db334b0bcd38d484d1f:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjEzMjY1NjJiMGZmOWViNGE3OGQ2NDc4NzJhZjY1YmI5M2FkNzAxMDFjNWNhZGM3Nzk2YjY1NmJmYTkzMTgwMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTc2ZWFiNmVjN2NmNGUwNDFjMmE5ODNmZmJjY2UwZjc3YjAyYjcyOWFmYTRkMjcyNTA3NTM2Mzk5MDAxMTRkMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTM2MGVhNGU0YzgzNTFlODgxZDYxZDE1NzVlNGQ2MDdlODE4ZDE1YzQ4ZTJkYzRmNWExMzkyNjcyYTRlNzI0YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://AGENTS.md#L41-L41",
+          "version": "repo-lines-v1:sha256:8244e4049b0fc5fab960b591d96e4698b4c1e52cd5a66ad1331f7d66f513d4f6:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODI0NGU0MDQ5YjBmYzVmYWI5NjBiNTkxZDk2ZTQ2OThiNGMxZTUyY2Q1YTY2YWQxMzMxZjdkNjZmNTEzZDRmNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODI0NGU0MDQ5YjBmYzVmYWI5NjBiNTkxZDk2ZTQ2OThiNGMxZTUyY2Q1YTY2YWQxMzMxZjdkNjZmNTEzZDRmNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTg2OTdmNWVkZDFkOTdkMGY4MTU0MDM0YzRlZTFkYzVjYzliYWVkZWQzYjg3ODdmNjA1MmI3MDU4NWJiZWRiYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWQ1YjFmZjQ4NjE3MWM3ZTFmMWY0ZGExMjNjNGRlMzlhYTE5Mzc3MjRjNGExNzA1MjZhNzIxOTE0ZDcyZTJlNCJ9"
+        },
+        {
+          "resource": "repo://docs/testing.md#L61-L75",
+          "version": "repo-lines-v1:sha256:5d8fceea3ec7a18f91be6869d620f533e11861c050f33621ac9208b048606279:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwMzk1ZTRjZGNkMjkwNGM3OGU0ODQyMDYzMzhlMWU2ODlkNjRiMzdmNjZkZjNhNTc0YWQxNmMwMTQwYjAzZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YzA2YzU2MWQ1YzMyNzM0MzY4NTI2OGE0NmIzMzkxZjM5OThlZWU4OTBkMmJlNTFmMGQyMWNjNGE1M2FlNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEyMDUzZTYwN2FkOGU5Zjc0OWQ1NTFiZDBiZmI1ZmQwMTMwY2I4YTM0ZDg3OTk2NDY0YjJhOWVkMmVhOTQxMzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU3Mzc0MjliOTlmZGFiM2ZiYzk3MTY1YTNlMWEzMWNmNDBiNGFkNzljNGYxZWI3NDZkNWFiMDVlOTQwNWIzMzEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5775f782faf44710840eeae8fdcc2f1c",
+      "statement": "Anchor line numbers are version-pinned: the annotation field rules in xpcom/data/item.js stood roughly 24 lines earlier in 10.0.1 than in 10.0.5, EditorInstance._save begins at 933 (7.0.32), 1071 (8.0.4/9.0.6) and 1149 (10.0.5), and Zotero.File.getContentsAsync moved from line 218 (7.0.32) to 225 (10.0.5); identical lines across versions are the exception (filePicker.mjs keeps its lines from 7.0.32 through 10.0.5) and are called out as such — which is why every row names its version.",
+      "evidence": [
+        {
+          "resource": "repo://docs/anchors.md#L43-L43",
+          "version": "repo-lines-v1:sha256:1649ef2a2c6677eb378a944a18410e8a2887d5b76df8760c3d53e787fbdc0d42:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTY0OWVmMmEyYzY2NzdlYjM3OGE5NDRhMTg0MTBlOGEyODg3ZDViNzZkZjg3NjBjM2Q1M2U3ODdmYmRjMGQ0MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTY0OWVmMmEyYzY2NzdlYjM3OGE5NDRhMTg0MTBlOGEyODg3ZDViNzZkZjg3NjBjM2Q1M2U3ODdmYmRjMGQ0MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWEyMGExNTVmNGI3ODI4MDlkOWY3MzY3N2QzZDU4NWY4Zjk3ZjM1ZDQ2MmEzMGU1MmVhMDE1ZWZlNmM3NWYwYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzc1YjMxYWFkZmRjZTI0MGQ5MTQ1MWYzYjFmNTIyNTg4NGMyYjUwYTY1MDMxMjM5MjVjMWE3YjhhYWRjZWZlMCJ9"
+        },
+        {
+          "resource": "repo://docs/anchors.md#L47-L47",
+          "version": "repo-lines-v1:sha256:eb363c188c84113daf1405b3e3293966859aad26cd4c697732a99b93a6a39bf8:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWIzNjNjMTg4Yzg0MTEzZGFmMTQwNWIzZTMyOTM5NjY4NTlhYWQyNmNkNGM2OTc3MzJhOTliOTNhNmEzOWJmOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWIzNjNjMTg4Yzg0MTEzZGFmMTQwNWIzZTMyOTM5NjY4NTlhYWQyNmNkNGM2OTc3MzJhOTliOTNhNmEzOWJmOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzc1YjMxYWFkZmRjZTI0MGQ5MTQ1MWYzYjFmNTIyNTg4NGMyYjUwYTY1MDMxMjM5MjVjMWE3YjhhYWRjZWZlMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGIxODA2MzYwMDZiNjQzMzljNzZmMGM5NGQxZWIwN2Q3NzZkMmZmNjk1ZDAwMjBmN2YyZjE2MzgzZTc3MDg1YSJ9"
+        },
+        {
+          "resource": "repo://docs/anchors.md#L52-L52",
+          "version": "repo-lines-v1:sha256:d2cbd269e84b95aeaa14f2ec2ed7e8374028c06f6b2e0c4908372ad1f66d52a2:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDJjYmQyNjllODRiOTVhZWFhMTRmMmVjMmVkN2U4Mzc0MDI4YzA2ZjZiMmUwYzQ5MDgzNzJhZDFmNjZkNTJhMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDJjYmQyNjllODRiOTVhZWFhMTRmMmVjMmVkN2U4Mzc0MDI4YzA2ZjZiMmUwYzQ5MDgzNzJhZDFmNjZkNTJhMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWM1YjEyNjkwNzFjY2ZlODlhYjQ5ZGI5MjgxNTY2NzRlMjE1MDI5ZTI3MTBhMWJhZmJjMjdlNTFlOTEzNDQxZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2NjYjM1NDk1NjYwMDc2OTE4MmNiYWJjZmY2NWRkNDBmN2JhM2I4NmNiZTQ3YjBlZDYwNjJiZWY4NDllZjg2YSJ9"
+        },
+        {
+          "resource": "repo://docs/anchors.md#L8-L8",
+          "version": "repo-lines-v1:sha256:eb2f3fc91555ea9f185ff9d9c5813f64d722446f9b565ad031a362fd6d19c9da:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWIyZjNmYzkxNTU1ZWE5ZjE4NWZmOWQ5YzU4MTNmNjRkNzIyNDQ2ZjliNTY1YWQwMzFhMzYyZmQ2ZDE5YzlkYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWIyZjNmYzkxNTU1ZWE5ZjE4NWZmOWQ5YzU4MTNmNjRkNzIyNDQ2ZjliNTY1YWQwMzFhMzYyZmQ2ZDE5YzlkYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmFjZWNlNDA4MjE3MDFjNjBhNWVhMWE1NTRjY2ZkYWI5OWZmMGM4ZTQ3MTgwNzZiNDFlMTEyMjlkM2FjYjIwMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYmJjNTEwMjhiM2VmZjEwZWVjMjQyYzU4ZWZlNDA2MGU2ZmYzYzNmYjAyNTIxYjI0MzFkYmJiYTc3NjE5MTY5OCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_32936fda04b548999e7b474a21a791b4",
+      "statement": "docs/anchors.md doubles as the compatibility catalogue: the citation dialog file naming (7.x addCitationDialog.xhtml vs 8.x+ citationDialog.xhtml with the annotations mode from 9.x), Zotero.Annotations.COLORS only on 10.x, Zotero.MenuManager absent in 7.0.32 and present from 8.x, FilePicker.init passing parentWindow on 7.x versus parentWindow.browsingContext from 8.0.4, and the EPUB helper renamed EPUB.jsm to EPUB.mjs; the plugin consumes Zotero's FilePicker wrapper (modules/filePicker.mjs) unchanged so the init() difference stays inside Zotero.",
+      "evidence": [
+        {
+          "resource": "repo://docs/anchors.md#L39-L39",
+          "version": "repo-lines-v1:sha256:1c549e642c6f7b9eeb6a1f2d9a3f98ffae2db2d98d2ba54bc4d3aef8c6b6f85f:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWM1NDllNjQyYzZmN2I5ZWViNmExZjJkOWEzZjk4ZmZhZTJkYjJkOThkMmJhNTRiYzRkM2FlZjhjNmI2Zjg1ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWM1NDllNjQyYzZmN2I5ZWViNmExZjJkOWEzZjk4ZmZhZTJkYjJkOThkMmJhNTRiYzRkM2FlZjhjNmI2Zjg1ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2I5ZjhmNGI5ZWM0OGI2NjdhMTQ5YjNjMTk3NjA5ZGViM2U1MGQ0OWY3ZDYwNmRiZTgyZmJhMzg0ZGFmZjliMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWEyMGExNTVmNGI3ODI4MDlkOWY3MzY3N2QzZDU4NWY4Zjk3ZjM1ZDQ2MmEzMGU1MmVhMDE1ZWZlNmM3NWYwYiJ9"
+        },
+        {
+          "resource": "repo://docs/anchors.md#L40-L40",
+          "version": "repo-lines-v1:sha256:9865334563ff60dafbd51b3f7dccb4865c3c9cc1a7ff11b760d60839aa57e828:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTg2NTMzNDU2M2ZmNjBkYWZiZDUxYjNmN2RjY2I0ODY1YzNjOWNjMWE3ZmYxMWI3NjBkNjA4MzlhYTU3ZTgyOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTg2NTMzNDU2M2ZmNjBkYWZiZDUxYjNmN2RjY2I0ODY1YzNjOWNjMWE3ZmYxMWI3NjBkNjA4MzlhYTU3ZTgyOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmNkYTAzNTk4N2IxMDc4ODUzMDI0MTJmZDFjYjNiYjIwOTcyYWJjYTYwMjMyZGUxMzA5MTgyYjE2NGMzMDU1NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTFlMjg0NmQ2ZmEwYTA3MWRkYWE3MmM3NDMwZGIyNWMyYzM5ZDc4OGM2ZDY4YzM0OTZhM2U4MmVhNjczYTRkMSJ9"
+        },
+        {
+          "resource": "repo://docs/anchors.md#L42-L42",
+          "version": "repo-lines-v1:sha256:ec9c3a0bc829a3cd9629bc25174251e69cd1fec2356c4010c173322cdf483515:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWM5YzNhMGJjODI5YTNjZDk2MjliYzI1MTc0MjUxZTY5Y2QxZmVjMjM1NmM0MDEwYzE3MzMyMmNkZjQ4MzUxNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWM5YzNhMGJjODI5YTNjZDk2MjliYzI1MTc0MjUxZTY5Y2QxZmVjMjM1NmM0MDEwYzE3MzMyMmNkZjQ4MzUxNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmFiYzU1NWM0OTc2MDlmZGMyOWI0OTQ0MWI4ODdhZWM4MGU0ODA2ZTZkNWQzMGNjYjcxNTg3ODE5YmI1ODE1YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGRmNTI2MzVmYjY4Y2YzZGRjMjZmYmJhMGI4ZjhiZjliMTU2N2I3NzBlMDQxZWRiZmNmZGQzNjAyZTdiZWQwNiJ9"
+        },
+        {
+          "resource": "repo://docs/anchors.md#L43-L43",
+          "version": "repo-lines-v1:sha256:1649ef2a2c6677eb378a944a18410e8a2887d5b76df8760c3d53e787fbdc0d42:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTY0OWVmMmEyYzY2NzdlYjM3OGE5NDRhMTg0MTBlOGEyODg3ZDViNzZkZjg3NjBjM2Q1M2U3ODdmYmRjMGQ0MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTY0OWVmMmEyYzY2NzdlYjM3OGE5NDRhMTg0MTBlOGEyODg3ZDViNzZkZjg3NjBjM2Q1M2U3ODdmYmRjMGQ0MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWEyMGExNTVmNGI3ODI4MDlkOWY3MzY3N2QzZDU4NWY4Zjk3ZjM1ZDQ2MmEzMGU1MmVhMDE1ZWZlNmM3NWYwYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzc1YjMxYWFkZmRjZTI0MGQ5MTQ1MWYzYjFmNTIyNTg4NGMyYjUwYTY1MDMxMjM5MjVjMWE3YjhhYWRjZWZlMCJ9"
+        },
+        {
+          "resource": "repo://docs/anchors.md#L46-L46",
+          "version": "repo-lines-v1:sha256:7db81037a06bc90945feabe2855dca214bfa5d8bdf3d6df1e994707c88a62c04:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2RiODEwMzdhMDZiYzkwOTQ1ZmVhYmUyODU1ZGNhMjE0YmZhNWQ4YmRmM2Q2ZGYxZTk5NDcwN2M4OGE2MmMwNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2RiODEwMzdhMDZiYzkwOTQ1ZmVhYmUyODU1ZGNhMjE0YmZhNWQ4YmRmM2Q2ZGYxZTk5NDcwN2M4OGE2MmMwNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGRmNTI2MzVmYjY4Y2YzZGRjMjZmYmJhMGI4ZjhiZjliMTU2N2I3NzBlMDQxZWRiZmNmZGQzNjAyZTdiZWQwNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWYzMmE4ZTgyNTI0MTM1YWI4YWVmZGQxYzViYTNmN2JiOWQyZGY4OGYwZDk4NWE1MmQ4MmRmMTg3NjZkNWJjNyJ9"
+        },
+        {
+          "resource": "repo://src/features/organizer/doc/docImport.ts#L269-L284",
+          "version": "repo-lines-v1:sha256:b066632519527095781d53e7867804cf0e73ecf388e455ccaca5caa8ee158bd1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmMmEyZjk5NmYwOGU2ODBiZDI5MjEzNWE2ZmE0OTc4YmRhMjZlNjAyZDg0ZjMzY2IxZDU5NDc3NWQ0MzA0YjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAzYjBiN2Q5NGJmOGFiZTgyNjU0MTc0ZDUzNTllNDQ2OTUzMTYzMGZjZDE4OGFkZGJjYTM0NTE5N2QxMDg1NjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE4NDQzMjliZGExODZmZTY0YjQzOWEwYzI5OTBkOTFiMmNlMmZjMTUzMzk0NTM1ZWNjYzY3Y2ExYjgxNWM0YzMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_44991e02a9db444cbda59466a372ca08",
+      "statement": "The anchor log encodes the patch policy: the citation dialog receives no prototype patches (the plugin only adds DOM elements there and sets items on the annotations pane), while the prototype patches it does run — _insertCitingResult, Translate.Import.translate, the Zotero_File_Interface methods, Reader.open — go through assignChecked and are reverted in stop or removeFromWindow.",
+      "evidence": [
+        {
+          "resource": "repo://docs/anchors.md#L58-L58",
+          "version": "repo-lines-v1:sha256:2cdc0de538222c4fc5e476e803cf9f77d5ce60ba01e21da9318d983283e01ebb:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmNkYzBkZTUzODIyMmM0ZmM1ZTQ3NmU4MDNjZjlmNzdkNWNlNjBiYTAxZTIxZGE5MzE4ZDk4MzI4M2UwMWViYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmNkYzBkZTUzODIyMmM0ZmM1ZTQ3NmU4MDNjZjlmNzdkNWNlNjBiYTAxZTIxZGE5MzE4ZDk4MzI4M2UwMWViYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjNlZWVmYjc3NDBmM2JkNjIzMTM3NWNjZDMzZTU0NmU5YTYxODIyZDI1NWIwZGNmNDY5OTk4ZjA4ZjY0NDY5NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWEwMmEyYzhmYjlmOWE2MDBkZTU5MTI0OWU3ZDY3NWZkNDY2ZTg3OGZiODVjOGE2Yjg2YWQzNWRlYzFiOTM3NyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d0d62ea0ba3a484f9d60a7adcd5dab87",
+      "statement": "The README feature matrix for Zotero before 10 is derived only from test-runner output (npm run test:versions) and refreshed after every change to a fallback — never from memory of what a version does, the same discipline as the anchor log.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L71-L71",
+          "version": "repo-lines-v1:sha256:5540e5ab566582d7b6eec766b9165ffaf77ee2395f81111c15ed2cabd06bf0da:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTU0MGU1YWI1NjY1ODJkN2I2ZWVjNzY2YjkxNjVmZmFmNzdlZTIzOTVmODExMTFjMTVlZDJjYWJkMDZiZjBkYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTU0MGU1YWI1NjY1ODJkN2I2ZWVjNzY2YjkxNjVmZmFmNzdlZTIzOTVmODExMTFjMTVlZDJjYWJkMDZiZjBkYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjU0NDUxOGE2YTY5MDU0MDM2NWQxOTdhMDIwMmQ2ZGVlMzY1Nzc5MTAwZGNjNzhkODIyMjE2MDA1NjVmMmFlNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWIxYmM1YmM0YTIzN2Y1NzhlNmFmNGE0MTVkMDY0N2Y5OTEwYjAzYjM2NGUxZTI3YzFmMWRiYWE3NDNkMDNiYSJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-16T19:49:13.348Z"
+  }
+}

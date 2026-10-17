@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:327fa4098e2df35418588e8a825b815205abb7d40bd92f6d03c3598fc5abedd7",
+  "claims": [
+    {
+      "id": "claim_d13084602dbf40bf8f5758f33ffb6c6e",
+      "statement": "FlexAnnotate test scripts execute strictly within an isolated profile directory (`.scaffold/test/`) and terminate only test instances matching that profile path, preventing modification or termination of user production Zotero or Word environments.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L38-L40",
+          "version": "repo-lines-v1:sha256:a8697f5edd1d97d0f8154034c4ee1dc5cc9baeded3b8787f6052b70585bbedbc:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWIxMDM1NjU4YzVjNDA1YjYyNmQ2NDI3ZWY3Mjg0MzEyYTVlNDBhYjg3ZWMwZGM1NGMyZjlkYTUzM2Q3OTc3ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTUxOGI2ZTFhY2ZkMGNjNzMwMTVmODQ5ZDdlYmE2ZGI4NzQ1MGNhMDAxZGU2NGU0YzRjMTRkMWMxY2YzN2I1NCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWM4YjVmZDIzNjg4ZDNlMDMwMWNmZGM3MDUzZmUwNmI4NjJiYjlmZDZmMWVlMzM2MjViZTI1NDk0YmQ2Yzg0NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzg1MmIxNzQ3NzM4MDllZjcyMjdmMjFlYjk5ZTJjNzM4MDQyOWIzYWVhNDgxMjA1ODY0MDI2MTIyMGViM2U2YSJ9"
+        },
+        {
+          "resource": "repo://scripts/kill-test-zotero.ps1#L1-L9",
+          "version": "repo-lines-v1:sha256:fd9061744e7978b46dbb379f4585579824795a667dede80aa2455de8a9ac4acf:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWRlYzE4NzUxZDgzYmVkNTQzZDU1N2VmNjgzZWVjMTcyZDU4NDc5ZjZjZGFkZWE0MWVjNmZhYjc0ZGM4Y2NhZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWUwZTYwNzcwNjU1OThlMGIzYjIwYTVkOGJkYTNjZjNkNjQxZWUxMDM5NzgwNDY3ZTQ5YWJlZWQwNGI2OTAzYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://scripts/run-versions.mjs#L93-L98",
+          "version": "repo-lines-v1:sha256:2f8f27f31e9936b608a9dbed1e68a01dcf117d16a6f1cd2589348a056d20d255:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWRlY2E4OTk0Zjg2MGJkYTQwNWI1ZmJlNTRmMWI5ZDVkMWQ2YzA1ZTgyZTU0NTkyM2UwZGU4NDA0YTBjYzQzZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjViMDEyMmJiODYzNzgyNDY5Y2ZkN2ZkYWFhZTc1YTg3NzE5MzFjODY1Nzg5NmQ3NjZlMTJmNzk1MTk0YmY0YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTIwNDBlMDk1YTk0ZTJhZGE3NGU0MjFmMzcxODc1MWE5MWE4MTBiZmQ2NmY0OGY0ZTkzOWM3Yjc0ODBlYjY3MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDE3MTgxNWJhMDYzMjUxYTljY2IwZTcyNDU1YjViNTU3ZDBhYzFlMjcxY2IwZTdhNGQ2MmRkNzc5MGM3NTA4YiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_7edfc55e5bf44d779883d38e6f15a144",
+      "statement": "`assignChecked` assigns properties within a try-catch block and verifies property identity via read-back (`obj[name] === value`) to detect silent write failures on non-writable properties or Xray expandos across Mozilla chrome boundaries.",
+      "evidence": [
+        {
+          "resource": "repo://docs/architecture.md#L165-L165",
+          "version": "repo-lines-v1:sha256:527a81b5e969ed75504557db4dd68eff7cb545581047e39b8b2624b56c46b185:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTI3YTgxYjVlOTY5ZWQ3NTUwNDU1N2RiNGRkNjhlZmY3Y2I1NDU1ODEwNDdlMzliOGIyNjI0YjU2YzQ2YjE4NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTI3YTgxYjVlOTY5ZWQ3NTUwNDU1N2RiNGRkNjhlZmY3Y2I1NDU1ODEwNDdlMzliOGIyNjI0YjU2YzQ2YjE4NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2VjYzkwYzU0ZTUwMmM5ZjE1MWZjZWViNTg5ODRkODkxNDI4YjdiODFkOTEzYWExYjQzMGM4ODRlYjA3ZjYxOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzNlMjdiM2NiMTJjYmYwMGIxMWNhOGFjNzk1NWIzZmMwMmEwNDhmYjQ1NmU3MjIyZmMzMDMzYjI5NWY1YjRhMyJ9"
+        },
+        {
+          "resource": "repo://src/shared/patch.ts#L10-L22",
+          "version": "repo-lines-v1:sha256:726e488e092dea36938ae28f7a183b9cb020bfa9a0586a3d1c22f281d4b9efa6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyYTc5YjRiODU4YWY0YzhjNDQyOTNhMTI2OTcxYTc5MjBiYmQyNmJiMWQzMzg1YzQzYzc2Mzk5YmIyNjdhMzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYzODZmNDA1M2NjZjE5M2Y1MzBkZTFiMWFhYWFhNGRiNGJlZjVjZjg4N2JmMGZjMGEwODc2ZmRlZTQ5N2E1YWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f1b47fe17ed940119f0e924a94b4785e",
+      "statement": "Business logic without Zotero dependencies must be placed in `logic/` subdirectories or `src/core/`, imported with explicit `.ts` extensions, and verified with isolated Node tests in `test-unit/`.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L54-L55",
+          "version": "repo-lines-v1:sha256:8c5266941ece62257da354bf13efd05e5a3cc10f7a54407a5badc1d6172c8ec2:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzFmYjM5ZjE1NDdjNWIzNjA3ZTMwNGRlOTVkY2UzOWEzMWZmMjdiMTU5NDA4OWZmMGIwNzM0NDEyZDgzZGJiYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDEzNjViOThhMzM1YmYzNWJiNDYyNDdiYTcwOWVhODJkODYyOTE0ODNkOGMyYThlZmUyOGRmMTdlNzBhNjM4OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDMyMzA1NWFmNGZiYjliZGMyMjcyZDgyNTliNWNjM2E4NWExN2FmNjM1M2M1NGY0ZGU3MDgzZjdlZTYwZTFiZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2Q5ODFmMDQ3ZDNlYTkxNjlkZThmMTQwOTVhMWFjN2M0N2IyN2QyODUwNGIzNjE4NGM0YzQ1MGMxNzA3MWQ0YiJ9"
+        },
+        {
+          "resource": "repo://docs/architecture.md#L20-L28",
+          "version": "repo-lines-v1:sha256:1db96ff20f0c3dac1d9152c2f013f9e20d92757d11fb9f1823a34f178b2a7b02:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDk3NzczMzY0OGY0YjJhNTRlNzdjMDZkM2Q1MWYyNmM3ZjUyNmExNjMxMWRlM2JkNGNmZDUwNTNiNjY2ZGQwZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjEwZTJlYzA3MzUxNDFlMWFiNmM0OTU0NTVkMTVlOTVmYTk4NWI5N2JjZGFmNGNlYjQ4OGZmMTEzNDczNDdjYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDc2MDQ0MTk0ZTIzZGY1MmE0YjYzOTAwM2U4NzIxMTJiOTU2MDhmY2NiZDBjYWQ2NTgxMTk3NjFkMDg5MjEwNiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_dbd88e97ee094b6eaec71ebdde356706",
+      "statement": "The `Feature` registry executes lifecycle hooks in registration order during startup and window loading, and in reverse order during shutdown and window unloading, catching and logging errors in individual hooks without aborting other features.",
+      "evidence": [
+        {
+          "resource": "repo://src/shared/feature.ts#L38-L69",
+          "version": "repo-lines-v1:sha256:8fa6903e63935c4deea486ec90fcd3cff582f4a4e25a4387fb4fd44d6c580c9c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4MmQ1NGQzYzJhMzk2NDAzMmRjNmE2OWQ2OGU2MGMyYzZjZDRjNjM3ZGQ0NGNjYjAxZWMxZTlmNDQ2ODQzZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkzMTNkODY3ZWExOWMzNTI2NWNiMWI2MGUxMTViZGJiZmJkYTkyZDkwZGUzZGRhNjMwMzg0OTEyZjZjNzQwMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5MDU5YzAxMmJlYzJkNGM5MzZmYjkxYWY4YTlhNzU2MzhhNWJlMzlmNzViZjViMmEwODAxZTA0MjEwY2NkMTAifQ"
+        },
+        {
+          "resource": "repo://src/shared/feature.ts#L7-L13",
+          "version": "repo-lines-v1:sha256:bb8363a646ec568680d99410edd9ed66adf0a1c8226d298f3c9be8daf8e68f04:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQ0ZDJmM2IyOGNkMzY0OGQ5MTYxN2Y2MjI4NWQ2NjA0YjQwMDE2MTc1ZDQ5NDU3MGQ1YjAxYWY5OThkOGE2YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmRlMmU0ZWIyNzUzOWVmNzNiZjE4MWU2YjMzMmMyNGI0OGQzZDhhODM2MjU2OTAyOWE3NmZmNDI0NjM1NGMyYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWIwMWE3NTg1NTM2NmVmZmUwNDcxYTVmYjQyYzlmYzMxOTg3MGEzMTExYmQ4MGI3YWNjY2U2NzE3YTczYTUzZiJ9"
+        },
+        {
+          "resource": "repo://src/shared/feature.ts#L71-L80",
+          "version": "repo-lines-v1:sha256:77c190a508e9eebade41a568f584c63837113cd2b3c14ed4b0c746ada102c530:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhNjJlMjY5YTg3ODBmMDI5MDU1NDA1NGRiOTRkY2M1YzBjY2U2Zjc3M2UyY2QzMzIzYWVjNTBmNDlkM2M3ZmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA3MjliYjRjYTlkYWI1OGE0OWEzOGNiMzY4NmFiZWY2YjU5OWU5ZGZhODlhZjBlNDI5ZDZiMTBmNGM2YTliOWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUwZmI0YmE2YjAyZTdkNTRiNzdmMWQzMzE2OGFlNTY0OTdlNmZkMjZiOTgyYmQ1MTJhMWU5YWRiYzE0MzA0ZTIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d1d0dc7f632d499bb9e2a5dfc482ec8e",
+      "statement": "Integration tests in `test/` access plugin internal state and feature methods exclusively through `addon.api` exposed during startup in `src/hooks.ts`, avoiding direct runtime module imports.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L56-L56",
+          "version": "repo-lines-v1:sha256:c7a0233a99e3ae492dc7f27af0838dc0c9898e6f2da10d51f51c0fb42beb664e:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzdhMDIzM2E5OWUzYWU0OTJkYzdmMjdhZjA4MzhkYzBjOTg5OGU2ZjJkYTEwZDUxZjUxYzBmYjQyYmViNjY0ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzdhMDIzM2E5OWUzYWU0OTJkYzdmMjdhZjA4MzhkYzBjOTg5OGU2ZjJkYTEwZDUxZjUxYzBmYjQyYmViNjY0ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWFhM2ZlN2UxYzZkMWZhZDZkMzZhNGRmODA0YTQ3NDVlOGVjNWNhYTVkYzRjYWM2NmExYWNkMzdhYjBlNTUzZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDBlMGY1YjFiOTE3MzE4MzI3MDZjYWE4OWNmMTZmZjc1NjUwNDFhYTNlNjgzM2ZkYWZhNjUyNzQyOTc5MThlNyJ9"
+        },
+        {
+          "resource": "repo://src/hooks.ts#L122-L168",
+          "version": "repo-lines-v1:sha256:b8279a01d5833477320b7569ca8c0b2dd2f4adf322a981b0c9ca3e0cf094b4ec:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwMTgzNjQ4NGQ4MmQ1NmM5Yzc0MjExMDkzNDlhY2UyOTg4MDUwNmQyYjI3N2I0NjFmM2ZlYTgxYWE3ZTFiN2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiZWU0NTk1NDhlNDBjMTZiZmMwYTZjMjgzMDhiNmY1MzI0ZWE3NWI0ZmM5ZjRlZDQ1OTk5OTE2NTA0MTllODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3NzQ2NTQ2NjYwMThkNTg2Njk3NjI0MzhlMmJkZTAyMGIyODk3NjIxMmZiNWJhNTU3MDEyMmMwMzM5N2RiN2EifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0ed9722fab884992a29ffc3ff8e71fd7",
+      "statement": "FlexAnnotate persists all functional data within native Zotero data structures including custom tags (`#flexannotate-*`, `§Title`, `★outline`), child placeholder attachments, and outline notes, avoiding separate proprietary database files.",
+      "evidence": [
+        {
+          "resource": "repo://docs/architecture.md#L58-L70",
+          "version": "repo-lines-v1:sha256:16d8a34399009e60724cf74cce3f7dbacaf1a01ada48829be6086f84227ed852:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2OWNlMDM0YmY3MGExODgxODhjNTFjMmI5MjAyNDVlM2EwODlhOTEyMGMwM2RhYzMzNGU5ZGQ4NTA3YzZkMzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkYWExNmQxMmNmNGE3YTk5ZDQ1MWEzOGMzMTA2NTE5YWFhZGQ3ZWI3MTU0YmRiY2E0YjEyNTFiMGU5Y2RhZDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1YjBmMGIyZDhkNWNiNGU0Mzk4YjYzMzNkYzg2MjNjNzg1YWRjOGRhNGYxZDZiNzU2ODdiMTk1ZDUxY2VmMGEifQ"
+        },
+        {
+          "resource": "repo://docs/architecture.md#L94-L99",
+          "version": "repo-lines-v1:sha256:d0ca109fe4b4b2c7053877a2a97edfc34a77767c0e11da048b52b380423651ac:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQ4ZDFmYzI4MzU0YmEwYzg1ZGQ0NDg0MWFiZjJjYjU5OTg5M2I5Nzk1ZjdmZDU2NDFlODdjMjYwZGM4MmZmNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTQ4Y2NkZjQ5YjMwMWI5NjI5Y2IwNDFhMTRkOGZkNDUxZDMwZDQ0NWIzMmIxM2Y1NzhlNmZmYzNmMWY3ZGQyYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjEzN2MxNTViNzY4MTRiNDU1MjQ3MWQyZTIzNjk5YWRmYmMwNThkNzQxODA3MzU1ZTlkZDYzNmQ0Nzk4YjY5MSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b67046f9e64141a7815bd8cdc0526002",
+      "statement": "FlexAnnotate supports Zotero versions 7.0 through 10, relying on runtime feature detection rather than version comparisons to adapt to missing APIs across versions.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L5-L6",
+          "version": "repo-lines-v1:sha256:774b9b95e90375c22d2aa8b7718420b5d1dcb0f2f39fa761677f3a846740a939:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmU4NGFiNmFkNDdkYzlkZTA5NjJkY2E0ZTJhMWFiMGE3MDMzODQ5YmMzMTk1YTM1ZjUyM2UxNzQwMjIzMzMwNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTBmYjVmZDkwNjM1NDE1ODE1Y2VjNzg1MDYxNTYwZjIyMGU4MDIwODg0ZjRkNzg2YTBkZWY3ODg1ZmM2ZTE4MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDIwNDhjNWQ1NGFkMWI1ZTVmOTlhZjE1NWQxYTYyNmMxOGRkZDBmMTNjZjdiYjQ2Nzk2M2Q3ZmVjMTBmY2UyMSJ9"
+        },
+        {
+          "resource": "repo://AGENTS.md#L51-L51",
+          "version": "repo-lines-v1:sha256:ab516288828520dc208dae68a78956715a6f51894f4262ad4dbc711c46f759e5:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWI1MTYyODg4Mjg1MjBkYzIwOGRhZTY4YTc4OTU2NzE1YTZmNTE4OTRmNDI2MmFkNGRiYzcxMWM0NmY3NTllNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWI1MTYyODg4Mjg1MjBkYzIwOGRhZTY4YTc4OTU2NzE1YTZmNTE4OTRmNDI2MmFkNGRiYzcxMWM0NmY3NTllNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDgwY2ZhZmYwYjVjZWUyMTg4ZWQ4ZThmMGQzYzU3ZmNjZGYwMWQwNGJkNzUxZDczY2ZjNDEyODQzMjcyYzRlNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmFjMDI0N2EzNGRjZWYwNGU5Yzc3MGE0YTFkOThkMTkyZjNmMDEzMDZhMjMyNzdjYjkyMzMyYTA4ZWUxMTdhNSJ9"
+        },
+        {
+          "resource": "repo://docs/architecture.md#L3-L3",
+          "version": "repo-lines-v1:sha256:78c316db5a4bbfba8fb56934f90c6acb2e8314fb82e0f994bdcd40c78ff06af0:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzhjMzE2ZGI1YTRiYmZiYThmYjU2OTM0ZjkwYzZhY2IyZTgzMTRmYjgyZTBmOTk0YmRjZDQwYzc4ZmYwNmFmMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzhjMzE2ZGI1YTRiYmZiYThmYjU2OTM0ZjkwYzZhY2IyZTgzMTRmYjgyZTBmOTk0YmRjZDQwYzc4ZmYwNmFmMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjIsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGRmYjBlYWY0MmNiMTNmOTg3YmRiMTM1OWNhMzQ5ODI2Yzc5YzNhN2JhODdiZDU5NWNkYzkyZWI4NDcyNzk5YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2VkNzk0ZTVjMzM0ODllODU2MDM5Y2JiMzU5NGVjNjM1MzE3Mzc3ODhhZWFmYzdmYjVhMTMxZTQ1YTU2YjhkNCJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-16T19:49:13.348Z"
+  }
+}

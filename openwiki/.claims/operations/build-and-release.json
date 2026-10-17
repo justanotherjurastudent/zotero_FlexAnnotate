@@ -1,0 +1,308 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:cfdd843385dbdc4b5cecca7bf5736779a159c7643fcb519d7ae4ed19c1bb7810",
+  "claims": [
+    {
+      "id": "claim_1dd9c93dbfbd4a9c8a5b49188b18f3b5",
+      "statement": "zotero-plugin.config.ts is the single build definition: it declares source: [\"src\", \"addon\"], dist \".scaffold/build\", addon identity and pref prefix from package.json config, templated updateURL/xpiDownloadLink, build.assets [\"addon/**/*.*\"], build.define constants (pkg.config plus author/description/homepage/buildVersion and the {{buildTime}} placeholder), build.prefs.prefix, and a test.waitForPlugin hook on Zotero.FlexAnnotate.data.initialized.",
+      "evidence": [
+        {
+          "resource": "repo://package.json#L6-L12",
+          "version": "repo-lines-v1:sha256:12dbca70949a9ee242844210b11bacc8043a2bd857f73e835aa2e28d03023388:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODJjMTEyMTJkMjM1MjdiYWI1NjQzZjVjMjY5ZGNmMDJkMzA2ZGIzNjUzYmE1OWVkZTFkM2FhNmZkMWZjM2I1MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTQ4NDViNzEzODNkODYyMDJjOWNjOThiNjRlMTg4YzNiZGM4YTc0ZTMzMGM2MmRjZGU4ZjE5NzQ5OTAyYjU0NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTVlODRmODM5NzEzNzU3MTdmZGUxZmE3OGE0ZjlhMjE3NjI3OGQxZTNmOTY0YzNhMzgzYjBlZWZkMDhiNTEwMyJ9"
+        },
+        {
+          "resource": "repo://zotero-plugin.config.ts#L4-L55",
+          "version": "repo-lines-v1:sha256:0e208c05d372183d48ef868bca76135b38a4dd475e5ceaf517468eaa43c6ec05:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyY2VjYjE0NGE0NmY1ZGNmMTJhNjE2OWZjZWVkNzY5NWU4Mjk0YjA5MGRlNzZmMzY2MWNkZDAyNDkzMDAxNDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYTZjY2U3MTY5NWNlYzBmZjk1ZTU4YzAwMGM3ODg3YWVkNzZhZDA1NzE0NzZlZDNmNjY5M2VkOWIwOTAyYmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_35f562167cd14115a9dfba29d3af7888",
+      "statement": "npm run build chains zotero-plugin build with npm run typecheck, and produces .scaffold/build/flex-annotate.xpi; .scaffold/ is gitignored and excluded from the wiki read boundary, so build behavior is documented from config and scripts rather than artifacts.",
+      "evidence": [
+        {
+          "resource": "repo://.gitignore#L12-L19",
+          "version": "repo-lines-v1:sha256:67317d8dca88a413109ddc4f8bd8c738f15e908cc8a51fec73efc39ae05c5d73:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTQzNDZhMGIwNzVhN2IxMGEwMjA0YTc5YmU2NzViYWVmMmNiZDAyMzYyM2ViOWVjYmI1YTVhODc5ZmE0MzNlOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTEzNTQ0NzYyOTBjMzNlMjYzNTEzNWY3ODU5ZTM5YzcyMDQ1YjkzYTQ0ZjQ1NDJlODJmYWUzZWVkN2U1MDA0NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmMyZWU1ZjNlZTE1OTk3OWY4YTIxMTY2ZjEyYTM1YTM1MzgzNzRiYzcwNmYwNTkxOWMyODExOTk3NGM3MTFjZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjVmOWQ1N2VhMDA0MTRkNGYwMDA2ZDFiOWNkNDk0M2RlOGI0YzU1YzZjMTRkNWEyODljMzcwNDI1ODgzZGY0MCJ9"
+        },
+        {
+          "resource": "repo://.openwikiignore#L1-L11",
+          "version": "repo-lines-v1:sha256:8c0a898df0e171dcbe8a8d05646b32006c356bfbd0f86f25480d19f9e6782e7c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNkMjg5ZGIwOTFiZThiZGZjYTFlZmNlNWE3ODdlYjAzODI5Y2Q0MTU1N2VjZDdjZjRiMjFlOTEwMGUwODI3NzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlYjcwMjU3NTkzZGEwNmY2ODJhM2RkZGE1NGE5ZDI2MGQ0ZmM1MTRmNjQ1MjM3ZjVjYTc0YjA4ZjhkYTYxYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY4ODhiZTJjOTliMGY3ODE5MDJiMmQzYjkxNzkyMWIwY2M1YThjNzMyNzNlMDE4MjZjMWI5YmU1ZDJlMDZkNTYifQ"
+        },
+        {
+          "resource": "repo://package.json#L23-L40",
+          "version": "repo-lines-v1:sha256:2117afa71027d01a2053f73f18fd86f754cf7f44e74561274c74a9db988e2df7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRjZjk3Mjg1YWE2ZjhkMjVhNjlmNGU5ZmM1NzgwMjg5ZjAyZmJjYWVjMmRkMDNhMTAxNGEzMjgwMjUxZTlmYjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU4Y2RkYmVjZWUzOGI1NjMxNDZmNzM2ZTVlMzNiNDAwMWFkOWUxMTcwZGJkZThjYTE5N2U3ZjAzYzcwMGQ4ZjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_aa3c4fe71fee4e1aad671e874c9c5ca4",
+      "statement": "The build produces exactly two esbuild bundles, both bundled to target firefox140: the main bundle from src/index.ts (with __env__ defined from process.env.NODE_ENV, becoming addon.data.env) output to .scaffold/build/addon/content/scripts/flexannotate.js, and a separate pane bundle from src/prefs/preferences.ts output to .scaffold/build/addon/content/scripts/preferences.js.",
+      "evidence": [
+        {
+          "resource": "repo://src/addon.ts#L29-L36",
+          "version": "repo-lines-v1:sha256:e0399f0c725a929e8c3323eed8bec4cc9b3cb4dc31a5a355924a980fa7452316:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTU0YjMzZDBmMjViZDk0NDdmNDI0NWNmYjgxMWE1NjhhNzhkNGU0YzMxYmExODg4ZTRjZTI2YzMxYzRmMGJmNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWQ5ZTEyNTQ2NDI1NTc2ZDNkZWFlOGM5YjlkYmYxMjhkNWQ2ZGRhZjVkN2ZlODU3OTM0OTI3ZGVmZmEzYjlkZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTJjNDg5N2Y4MDllNDEyODYxNmQ2Y2QxZjVmM2ZhZmNlZjQzODRkZjZhNWNmZWRhOGFmNDk1ZTgzNjZhMTZmOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzhjZWM1ZGRiZDBmY2E5M2NkMGVmYzk2MjRlZTgxZjEyYWYzZmFlYTU2MWVkYmE1OWQ2NjE5NjFhNTZlZjJlYSJ9"
+        },
+        {
+          "resource": "repo://zotero-plugin.config.ts#L29-L46",
+          "version": "repo-lines-v1:sha256:9f05232ef3f4b730002060a0dfb8378c8b435549fa1bbcbcd24a1b88c65d7c71:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3ZmQ3ZDRjZjhiNmRjMzk4N2EzOTE5MGE2NTJmZmM3OWE2ZmRmYTkzNmE5YTBkMGI4NzNhNDc5MDdkMjg0MGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM2M2Q1MzVjZTM4MDYzZDZiNGM1MWQ4YzM4NmE3ZjliM2U1ODBhMTRhMTBjMDdiMTk4ZGZhZjE5YzkzYTNiZmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI4OTZkMjA3YjRiZDBkNjNhNzhlN2UwYWU5NDNiMDYzNWJjMmIwNjg2YTQyNGMwYjk3MjMwZDNkYzY4YmRmYTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiYWYyYjI3OTc4YzQwYzY2NmYwYzRjNTYxNGQ1MzdlN2UzZGIwZjdhNjMxY2IzNTM5NDFkYzNmNDQ4MDEwYjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3d92bf60e78f4f5a84bd3dce5c881706",
+      "statement": "The prefs script must be a separate bundle because Zotero loads pane scripts into a sandbox scope of the preferences window where only Zotero.*, window and document exist — no plugin globals like ztoolkit or addon; it is wired via the scripts entry of Zotero.PreferencePanes.register in src/hooks.ts and restricts itself to Zotero globals plus document, filling the Citavi locator menupopups and hiding unsupported options.",
+      "evidence": [
+        {
+          "resource": "repo://src/hooks.ts#L170-L178",
+          "version": "repo-lines-v1:sha256:9beb484067cba4a0b3a6422930220062aa283cfcff5f9ff1170304de8609868f:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjY5NTk1MDM0MmIwODZkMzBlMTBjMzRiNDU1NjMyZDZkNjMxZTk0NTllZGQ1NjQyMTFiMmY3YWNmYzY5ZmIxZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2EzZTQ2Zjk0Mjc2YjZmNmY0ZWQxZjAyYWY3OGJlZjZhMmVlMWM0MzlkZDU1ODRiOTczOTQ4MzEzMjE0ZDJiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDgyODc4ZjU2NzA0YTkwY2FjYjYzNWJkMzE2OThkNTIzMDQzMTFmYTM1NDJjNDk3MzBlMDY2YTQ5ZDg4N2U1MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzRhMDZkM2M5ZDJiOTgyMzVmM2Y0YTRjYzM2YjVjZjgwNTllMzVhZTg1MWU2ODY1OGNlZDAwZjY5ZDZmZjA0OSJ9"
+        },
+        {
+          "resource": "repo://src/prefs/preferences.ts#L1-L19",
+          "version": "repo-lines-v1:sha256:4bf9ca36ff235a64832495ee60e78e07e570b74153fa6b51ee536d9f32d55efb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1ZTc3ODUwZjQ1ZmE2MTUzYzUwNjFiNDBlYTZjMDQ1ODU2YjI1MDMwZDkyMjY5N2FhMDgyZTYyZGU5YmU3ZGUifQ"
+        },
+        {
+          "resource": "repo://src/prefs/preferences.ts#L79-L89",
+          "version": "repo-lines-v1:sha256:00c2ab55e51e3acad5bb9c4490973842ea9295e082ee400601fcb2e34a93c1db:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0NDcxNDk3Zjk1ZjE0NzMzN2NmNWQwY2ZmNGFlODQzZjE5ZmUzNGJlMGE2ZDFmZmU5Y2ZjNDBmZDQ2OTZmM2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5OTY3ZWMxZWQzODM2ZjhlYjE3YWZmMTcyYjViZmVmN2RlNjA0ODVhNDM5YzZjYTExYzU5MWUxNzU1NzM5YWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMzMTgzMzU0ZWZiOTVkOTVhYTQ0ZDY0YTBhNTJlYjdkMjkxNWM4MjJlY2NhYWJiYjFlOWQwOTJjMGE4MzZlZGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://zotero-plugin.config.ts#L39-L45",
+          "version": "repo-lines-v1:sha256:95ec58989a000b1defcfdf1b142cca6615465d3df42564b0774decc1a6999bf7:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDk1YjhjNWJmODYzNzQzNjcxZGVmM2Y2MzBlYjIzMmQ1OWE3YTYzNGEwNzBmYzQzNmVlYzM3YTg2NzRlNmMzMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjk3OGUyNTAzYjhjZjM3YTA2ZjdkNmYwYTNhNmI2ZmUzNTY5MWZiY2FiNTBiODc3NWNhYjZmYWJjNzFjNTkyYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWM5YjJjNzkwNTIxYjlkZjBhOGM3MmI4MmI4NTQwMWVjODllMWMyZWZkNWM0NmVlZTI5MTlmYTQxY2U2MTM4OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzcwNDhhMmJiN2JmMDM5ZDEyMTU2YjNlYzM2OWRlZjU2MWI2NWMwNjQ0ZDIyYWNjYTAzNmM3MGRjNzNlYzk2NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_5c8a62bb275642128cac3a2cfed46411",
+      "statement": "Because Zotero loads the pane script through the startup cache without ignoreCache (unlike bootstrap.js's loadSubScriptWithOptions with ignoreCache: true), edits to preferences.ts require starting Zotero once with -purgecaches or the stale copy keeps running.",
+      "evidence": [
+        {
+          "resource": "repo://addon/bootstrap.js#L30-L34",
+          "version": "repo-lines-v1:sha256:86883a05566525aa1595246d10932a930726c8aabc45c81bdef5f491f6b24ac0:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWQyZjA3ZjQzOWViMjA3ZGJmNjI2Nzg3MjUxODYyMGI0NzkzOTEwOWFhMmNhMmExZGMwYTQ2ZmU3OTU4MTJkZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTVlZjAxYmMwOGRiYzNiNjNlNGU3NWVhM2QyNmE1Yjk0MTg5MTg3N2UyN2FkODkxMzI5Yzg0MTFkN2Q4ZGM0ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGI0Yzk2NzUwNGM0MmZjODJjYjdkNDM1NGY5N2U0MTNlMGI2ZjY2MDllOTViNDM4N2IwZjdiODA2Y2NiNWFhOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjQ5M2M2OGQ4NDZlYjUwYTJiYmI4OWMxOGEwMWI0MGQxMzA3MDk1MGYwZThlODdhYzlhNDM1MmY2NzNjNmNlMSJ9"
+        },
+        {
+          "resource": "repo://docs/architecture.md#L168-L168",
+          "version": "repo-lines-v1:sha256:9913d125716be7ea66c1bc874032615aa9cf27dafe9cee36820ed809f772e595:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTkxM2QxMjU3MTZiZTdlYTY2YzFiYzg3NDAzMjYxNWFhOWNmMjdkYWZlOWNlZTM2ODIwZWQ4MDlmNzcyZTU5NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTkxM2QxMjU3MTZiZTdlYTY2YzFiYzg3NDAzMjYxNWFhOWNmMjdkYWZlOWNlZTM2ODIwZWQ4MDlmNzcyZTU5NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDgxYmJmYjRiYTQwNjc2YTA4Y2FmOGEwYThlMjdmNjY4ZmMwODdlNmVjYzRjYzhhNjI2ZDgyODM4NzFlYzBmZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDk2NWMyMmFlZWY4YzYzYWI1NTJkMTI0N2RmNzI5NGJkNDhhOThkNzFmYWZjNzczZWM0NDM1OGJhNmY3OTllMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_3565f93cadd64cad80c4d3936fa6f74e",
+      "statement": "addon/manifest.json pins compatibility in applications.zotero: id flexannotate@justanotherjurastudent.github.io, templated update_url, strict_min_version 7.0 and strict_max_version 10.*; all displayed values are __placeholder__ constants filled from build.define.",
+      "evidence": [
+        {
+          "resource": "repo://addon/manifest.json#L1-L19",
+          "version": "repo-lines-v1:sha256:f3c2101d08df7b6a7d3cf18013d41bdc930f17eaffe211bd412237dfe5efa23f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://zotero-plugin.config.ts#L16-L25",
+          "version": "repo-lines-v1:sha256:bbd28740a60dcd639ed5713c7b3140e9b4390d959f21f7022f077582e87bfc11:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkY2RkMTZmZmNiZjFkMzE4YmNiMjQzYjE5NGQxODIzMGNlNjFkMWE2NjJhMjBhMGU2MGM5YzI4NDk5YzEzYzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdlYzk4MDMxYjhiOTYwMzg1Y2E5ZGQwODM4Y2Q1M2ZlMzlmYzM1ZDQ1MTdlZmZmNjgwNjcxMmFkZTlhZTg1ODIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI4OTZkMjA3YjRiZDBkNjNhNzhlN2UwYWU5NDNiMDYzNWJjMmIwNjg2YTQyNGMwYjk3MjMwZDNkYzY4YmRmYTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_03a1c8396dea4ac5a59a01312b7005b2",
+      "statement": "strict_max_version is mandatory on Zotero 10: without it the plugin is dropped silently at manifest parsing (verified on 10.0.1 with five otherwise identical plugins; extensions.strictCompatibility is false in Zotero defaults but the toolkit sets addon.strictCompatibility for release builds). The project rule is to raise strict_max_version on a new Zotero major version and re-verify with the version suite.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L69-L69",
+          "version": "repo-lines-v1:sha256:16c92969bbb877e86f1b622a4bc45e7470aa8f450b4ef8a0cf0180312b89de2e:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTZjOTI5NjliYmI4NzdlODZmMWI2MjJhNGJjNDVlNzQ3MGFhOGY0NTBiNGVmOGEwY2YwMTgwMzEyYjg5ZGUyZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTZjOTI5NjliYmI4NzdlODZmMWI2MjJhNGJjNDVlNzQ3MGFhOGY0NTBiNGVmOGEwY2YwMTgwMzEyYjg5ZGUyZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjcyZjU0ZGZlZjQ2MTQyY2JhNGQ3MjBjMzY1NmY1MjY0MDEwZGJmZTg4YjI0ZDcwYjM0OWJkMjg5ZTc4NDA2YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjU5MWYzODE5NGRiNTEzNjIxMDBjNzU3M2ZmMjNjOTRlMmJmM2UxNDMyYmE3ZDM4NGFhNmQyZjUxNGJjOTMzMCJ9"
+        },
+        {
+          "resource": "repo://docs/architecture.md#L173-L173",
+          "version": "repo-lines-v1:sha256:6931e89f60f7d89cba7b1602154858e1dcd1fb46af06f48372dfa757b0ef3907:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjkzMWU4OWY2MGY3ZDg5Y2JhN2IxNjAyMTU0ODU4ZTFkY2QxZmI0NmFmMDZmNDgzNzJkZmE3NTdiMGVmMzkwNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjkzMWU4OWY2MGY3ZDg5Y2JhN2IxNjAyMTU0ODU4ZTFkY2QxZmI0NmFmMDZmNDgzNzJkZmE3NTdiMGVmMzkwNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODY2MjFkZWQ0MWNmNjEyMjkyMzA1YzZhMmE4Y2Q3ODdjY2YyZTE0YzhjMjEyZjBiZGFiYzQ5NTU0ZTk0ZDcyNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjg1YzA5NmNjZWNhZTA3NjFjNWUwNWVhNmE1Mjg2YzUzZTNlNDZiOWI0YWYxMGRmYmE1N2M3MTQ1YjMyYzg0NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_c35b3413acc8436fb984f6eb1fe2cb40",
+      "statement": "addon/bootstrap.js is fully templated and minimal: it registers chrome mapping content __addonRef__ to rootURI/content/, creates the sandbox context { rootURI } with _globalThis as the global root for the main bundle's addon/ztoolkit installation, loads content/scripts/__addonRef__.js with ignoreCache: true, and forwards Zotero lifecycle events to Zotero.FlexAnnotate.hooks, returning early from shutdown on APP_SHUTDOWN.",
+      "evidence": [
+        {
+          "resource": "repo://addon/bootstrap.js#L10-L57",
+          "version": "repo-lines-v1:sha256:1e2c1ea0108b9c8d5bfd622163722c7bc70d7ea34187c24fe5d8478a89c27438:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2NTcxNTgyM2VkZmE2NDllMDZmMjZjOWZjNWE0YzE2MDU2NTgzNzgzMGRhZDRjNGEyOGM5YzM4ZGQ1MDlhYTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcwNWIzMzEwYWQ2YTU3NThhNmE2MTE0NThhMTNlN2Y1NjU0OGNjYjhjZWY1MjJiZGE2ZWFlOWViNGUzNmEwNTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFlZDJkZWI1YzYzZTc3OWQ5YTNkNzMwMzdjNDExNTA4YTUwYWYwNGZlMGRiMjhkNDQzZDk1NTE4YzZhM2E5M2YifQ"
+        },
+        {
+          "resource": "repo://src/index.ts#L7-L15",
+          "version": "repo-lines-v1:sha256:9c074ec3f64bc6776ab8e4b3c6251c6e8a1aefb83ba24c715bf855b9e8638d9d:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWIxN2RjNjU0NzRlYTNkZGQyNGEyOThiZjcwMzQwODk4Mjg1ODdlNTYxMGY1NTk2ZDk5NDA3NGRiZGM5MGUyNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2ZmYmE1MGJjMWQ4YjhjZTNlZGMwZTFmM2FjOWU0MGE4NGMxNmU1MGFlZTBiMzMzMDc1ZDA3YjgzNGNiMDY2MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTc0ZTQ4NzhjMGMxYjA0ZjVmOWQ0NTBmMTQxMjYyOTViYTE4MGMxNDZlNGMzMjhkZDc1Y2Q3MjNhMjA0ZTliOSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d9dcac8abebc4f36b81998eec61efdcd",
+      "statement": "addon/prefs.js declares default preferences on the extensions.flexannotate.* branch (visibility flags, citationOnly, persistentCitationDialog, persistentWindowRect, keepEmptyPlaceholders, Citavi import keys including five locator defaults with citaviLocatorMargin defaulting to \"paragraph\"); the pane XHTML binds the same keys declaratively and src/utils/prefs.ts reads them via config.prefsPrefix, and these keys hold user data so they are never renamed.",
+      "evidence": [
+        {
+          "resource": "repo://addon/content/preferences.xhtml#L10-L100",
+          "version": "repo-lines-v1:sha256:509bbe32bd37e92a2a53364875b4c84bd0cf867f10b9a378120d19ed4baf14b1:eyJzZWxlY3RlZExpbmVDb3VudCI6OTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ODdmM2JlY2FkMDc2OWEwYjg5Y2I5YjMzOGNmMTNjYzI2YjE1N2UxZTE3NjQ0NTIxZWI0NzNhMGU4ZDkyNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2ODcwNTUxZWQ1MDUwYTdkNGE4OTNlZGEzYWRiZjUxYjk5OGZmNWEwYmVhNzIyNWY3OTcxZjI4NTkxMWE3YTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVkMGUzYTY1MDc1YmYxY2QzZjFiZmIwNjQ1NjMyZWRjMzNlMTBiMGViYjI2ODhlNDZjODM1ODJlYmIzN2FkYzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNhZmZhM2I0NzA0ZWE0OWNhOWFkNTI2MjYzMTJhZjYyNDc4ZmEyZjc4MWMwYTUzNWFlMGU5YzQ1NzczMmEyNTkifQ"
+        },
+        {
+          "resource": "repo://addon/prefs.js#L1-L37",
+          "version": "repo-lines-v1:sha256:5fe8307e7f9364ce4be1d650c08ad2b9330cf2fa82c3611445e91e6722ec7d57:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkOWMzOGNmYTRhODU1ZjA4YWFkMjFmNWEzNThkMzg2N2Y5NzE5OWUxNGM3MWRlOTQ2ZmUzYjcxOGIyNDRmMDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2MjAxYWYxNTQ1ZTc3Njk5MjU4ZTIzZTIzOThiYzk3ODUyNmQwNDEyYzcwNTE5MWZjOWY1ODllYzUzZWQ3N2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/utils/prefs.ts#L1-L27",
+          "version": "repo-lines-v1:sha256:902d96bc4ebd0df456c0988299c684dd464ef5d456a9ecc86611c98adb2d1381:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlNjJmYzM5NTA1MTk3MGVlMzRjMmI3OWQxNzdiZmIzMzY0NWI0ZDYzOWEyMmJlNDYzMmE4N2M2OTBmMGE4NmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_34862ea16cc7417087582ab6d01ca003",
+      "statement": "addon/content/preferences.xhtml is the pane fragment registered at chrome://flexannotate/content/preferences.xhtml; it declares its own <linkset> with __addonRef__-preferences.ftl for Fluent translation, declarative data-l10n-id/preference bindings, and five empty menupopups that the prefs bundle fills at runtime; content/icons/ supplies icon.svg (manifest 48/96, pane image, ProgressWindow icon) plus organizer and context-menu icons; content/zoteroPane.css is an unreferenced scaffold-template leftover.",
+      "evidence": [
+        {
+          "resource": "repo://addon/content/icons/icon.svg",
+          "version": "repo-file-v1:sha256:4cc34528c622c9105e560d68468378a5a5b8386e7c4e15613db97ccbef2b537a"
+        },
+        {
+          "resource": "repo://addon/content/preferences.xhtml#L1-L8",
+          "version": "repo-lines-v1:sha256:23cd1a930ace85fbcc97db3a8e3be181de530b97f6c1027d86a78401de7a1117:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWQxZjkxYTZmNTg3MDRkNTU2YzY0YTIxMGE2NjljZjhkOGUwYWY0M2NhMWI4ODBmNzEzOWEwNTY2ZTVmZTFjZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFlNTAzYWVhNmI2YTMwNDU0MmFjMWFkYmIxZDNkZDMyYmFhY2UyZmExODRhNmQyYmM2OTQxMDYxYTcyMTBjNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODE4Y2UyZmYyZjJlOTY0YTI5YjRkY2Q5YTIwNzk1YTQ5OGNlYmI0MTRiZWEwYWQwYTRhZTZkZDQ0Mzk1NTVkOCJ9"
+        },
+        {
+          "resource": "repo://addon/content/preferences.xhtml#L119-L174",
+          "version": "repo-lines-v1:sha256:d8d494dfed5a13f78cfa747f1e18fba48170c8bd1b57562f9cbf50bcc4aef93e:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2ZGZjZWJhODdmNzEyMmFjMmIyZGMxZjcxMWUyNmE1YTcyMjViZGI1ZTAxMWNhMjZjYTQ2NDNlNTMxODY5NTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwZWM1MzM0Y2MxNjJmYWRhOTRjMzM0MWE4ZDU0MzczNTk2MzhhY2MxNDhmZjYzODVjMTcwNjk5MWM3MGY2NjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ3ZDU5NzJkZWM0NDVhNzVmNTI3M2E4ZGE4MmQ5MmEzYmI3ZDdmYjFjMWI3YWZiOWZkNzZhYWJkYzE1YzU2YzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY0ZGJiMTIyNzljMTBmMzZjMGJiNmYxODllZTRkZGNiOWRlODdlYWE0N2NmMTE2NmYxY2MxOGFkYWNlYmM2MDEifQ"
+        },
+        {
+          "resource": "repo://addon/content/zoteroPane.css#L1-L3",
+          "version": "repo-lines-v1:sha256:3010b8e5d543db9ee9f893e0407ec18d75f4de7688738967507ee1d63e5daa45:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTc4MmQzYjdhOTNiYzJkNmE4YWNhNDRlOWIzMWExNTM5ZTU0ZTljMjdiNTRiNmQ0MjcxYTM0OWRiM2E2ZjE2NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://src/utils/ztoolkit.ts#L28-L31",
+          "version": "repo-lines-v1:sha256:3ee8b0c1fa14b4dd7b8c720278ba227de2ca8c848dd2d580057eb437a06f591f:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTA4ZGYwNWZhY2MxZWVmMDk4YWY1MTQ3M2RkYTdmOWQxMjVkZTVhNGNhZGYyZjIwYzViNmIxMWZhM2I1NTY5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTVlZjAxYmMwOGRiYzNiNjNlNGU3NWVhM2QyNmE1Yjk0MTg5MTg3N2UyN2FkODkxMzI5Yzg0MTFkN2Q4ZGM0ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDEzZjlkMjlhODJmNmY5OTZlNTlkZjQyNmI2MGFjNjIxZDRkYzA0NDY2NTI5MzYwNzRhN2JhZWQ2NjI5NDgyOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODU5NDA0Yjk0NDA0NGM4OTRiMjFjNDcyZDU5Mjk1YzA1NmM5MDViM2MwMjZlZThlZTc0Njg3NzY3YjI0MDNkNCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_740c18b2e46348f29c2668cd40ef3c4c",
+      "statement": "User-facing strings ship as Fluent files addon.ftl, mainWindow.ftl and preferences.ftl maintained simultaneously in addon/locale/de and addon/locale/en-US; onMainWindowLoad inserts -mainWindow.ftl and -addon.ftl into every main window, the pane pulls preferences.ftl via its linkset, and the organizer is the exception with texts in src/features/organizer/strings.ts because it builds its DOM in code.",
+      "evidence": [
+        {
+          "resource": "repo://addon/content/preferences.xhtml#L6-L8",
+          "version": "repo-lines-v1:sha256:1eb9ad7417f0692895b5b5af7cc1459f7c4ed2fa24265e586339c3df88b5b459:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZThkMjQwNmVlZDYzODYwZDg5NDdkNmUyODdhMjc4OTRmZDE2YWQ0NzU5MWU5NDAzNWZkZGIzYzU2YzkyYzI2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFlNTAzYWVhNmI2YTMwNDU0MmFjMWFkYmIxZDNkZDMyYmFhY2UyZmExODRhNmQyYmM2OTQxMDYxYTcyMTBjNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTJkNDJkYmEwNmJiNDU4NzUxNzY2OWVkMjhkMGZmYjIyNzQ2NjJhZTg0OWUxMDRlMzUyNjM1OWI1ZGEwNTA1NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODE4Y2UyZmYyZjJlOTY0YTI5YjRkY2Q5YTIwNzk1YTQ5OGNlYmI0MTRiZWEwYWQwYTRhZTZkZDQ0Mzk1NTVkOCJ9"
+        },
+        {
+          "resource": "repo://addon/locale/de/addon.ftl",
+          "version": "repo-file-v1:sha256:38b8478cc741c182930116072f1de81ad6dbb2bdc2308745fa5e86d525adf690"
+        },
+        {
+          "resource": "repo://addon/locale/en-US/preferences.ftl#L1-L10",
+          "version": "repo-lines-v1:sha256:d9a2d0dace38b75b0de213596b905f827b7f95943cac15ca177e5e5bb144faf5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2MTZhMDhmZmZmY2E2ZjBmZmUwMWIxNmMyNWQ5NmQ5NmJhYWMxODcyM2UxOGUwOWVlNzFlYzcyNTQwZWQ1NDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2OTJjNDZkMzA0M2QzNWJkNTIxYTMwNjMwYmFkMjhmOGRmNDZkMjFiZGZiZmFiNTRjMzFmN2FkZWI0YWFjMmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQyN2FlZWFjY2IzNGZlMTkxMTgzMTdkMDU4YzM5NTlhMjFlNGM3YzNjZjgzMTljZmFmNTFkZmU0YzA1MWYyZDEifQ"
+        },
+        {
+          "resource": "repo://src/hooks.ts#L189-L200",
+          "version": "repo-lines-v1:sha256:522ca1dd1b4fcf99bb4e3e3e0acea19502315d7dffc68cee2b0bf26bd2dcd2f6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxODI3YWZjZDRiMGIwOGM3M2VlOTViNGNjMTI5MDc1NzdhMWY0NjFlYjlhZjhjY2RkOWM5MTc0OGQ4YWNlMDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRlYzNlYWZjNDdjODkxZmNiZTU5ZWJhN2I3NmY1ZGFhZjdlMmM2NjkxMDNmNjViNTU5NDRhMmE4OTRiNjhmZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0YzEyODM4OWM1OWJhM2NlZGY2MzM0ZWM4NDNlYzcxMGNkMzM3MmQyMDkwYzM5NzhhZmExYzI5N2U2NGFmOGYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f796326b3e6b496c94a58f12e8d2a166",
+      "statement": "updates.json lists every published version (2.0.0, 1.2.0, 1.1.0, 1.0.0) newest first under the addon id, each with version, update_link to that release's xpi asset, and per-entry applications.zotero strict_min 7.0 / strict_max 10.*; the 2.0.0 entry adds a sha512 update_hash and its update_link matches the xpiDownloadLink template with the built name flex-annotate.xpi, while the 1.x entries use the pre-rebuild name flexannotate.xpi.",
+      "evidence": [
+        {
+          "resource": "repo://updates.json#L1-L48",
+          "version": "repo-lines-v1:sha256:434231d850bad87bc24fccad321d60d5e7b9a01f1f244d81e7aad04e2b54701a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://zotero-plugin.config.ts#L10-L14",
+          "version": "repo-lines-v1:sha256:8eb862f00c7a77b0cf9de4306fd79c387f8353781fb00ce055b5a3ec73279f46:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2MxZDQ2YjExZDQzMWVhNjRhNGQ0MTliNGJhNjI1MzJmYjUyOWViZDc4ZGZiYzNmN2RkNzhlOTU1ZmE3ODJmMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTUwNzIxNjY1MWY2MGJiZjQ4N2YwM2M0NTc5ZGU4NGEzMGE4MmNkODFiNjZhNGU2MGJkYzk2ZDI4YThiODUyOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGQ2MmM2OTNjMzIzNjhiZjg0N2QxYWM0ZGY4YTg4NTMxYjMyZTM2MWVhYjZlYTExN2VhOGZlZGU5ODY5YWUzMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjllODZhNzI5ODYzMmI0MGEyOWMzNDFlZDZjYTczY2NkYWFmMjgzZTNkMTc4MmU2MGFhNWJkMWI5MDc0NTBhOSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_8d0c22fb1a07485f9cf7fd680fdceaa5",
+      "statement": "The update URL scheme is templated per build: updateURL resolves to https://github.com/{{owner}}/{{repo}}/releases/download/release/update-beta.json when pkg.version contains a hyphen (prerelease) or update.json otherwise, with owner/repo from the package.json repository; the built manifest receives it via __updateURL__, so installed builds poll the release GitHub tag and version bumps alone change nothing until a release is published.",
+      "evidence": [
+        {
+          "resource": "repo://addon/manifest.json#L12-L19",
+          "version": "repo-lines-v1:sha256:47909187ecedcf6e557a4f6d28e6d736f8408083bbc4b6a5049cdd453690c1ff:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQzYzk1ODBlZTkxMWYxNTMyNjRhNGNhODNmNTM0NTc4NmMxNjE0YjNkODE4Nzc1MDI4ODJmYjQ5NWQ3YjM1NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjc5NTM3Yzk0MGMwODQ3ZjUyYTVmYTM0MGFkZDEyYjZjMmM1NDRhNmY2ZmM5NTg2YTQxZDc0Yjk2MzQ2Y2JjZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
+        },
+        {
+          "resource": "repo://package.json#L13-L16",
+          "version": "repo-lines-v1:sha256:12d63934fd307464e7dbbd9afba7c3785b61bed50ff7b47a82b60a2928359d4e:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTY5ZWI2Y2E2ZDM1NDM5ZTRmYTBmZDA3NzA1N2ZlNGVlYmQwZTQzYjc1ZmI0MTI4YjcyYmJlN2I1ZTI0NDg5YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGUwZDk3YmExMGRkZGQxOTcwZWU1MmI1MGU2OWU2YTMwOGZhM2RkZTc5OGI0NWQ5MWU1MDMyZmRkNDgwYjk5MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjcyYWNlN2FiZmQzZGFmMWI1YmE5MjVhYzFlNTA4YTMwMzY1NTY1ZjJjMzY2MTg3YTZkYmYwZDBlMGMwMTFjYyJ9"
+        },
+        {
+          "resource": "repo://zotero-plugin.config.ts#L10-L12",
+          "version": "repo-lines-v1:sha256:63a1ca2e106fcc4ab9b1f3663c09571f01b8f443da2379692004406980a7cb72:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2MxZDQ2YjExZDQzMWVhNjRhNGQ0MTliNGJhNjI1MzJmYjUyOWViZDc4ZGZiYzNmN2RkNzhlOTU1ZmE3ODJmMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2Q3NmM3M2VlOGU2MzEzOGE3NjAxOTMyODcyYTQ0N2FmNDdhYTdiNTBiZDIyNzUyN2EyNjcxYjc4MDE1ZDQ4YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGQ2MmM2OTNjMzIzNjhiZjg0N2QxYWM0ZGY4YTg4NTMxYjMyZTM2MWVhYjZlYTExN2VhOGZlZGU5ODY5YWUzMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2VjOTgwMzFiOGI5NjAzODVjYTlkZDA4MzhjZDUzZmUzOWZjMzVkNDUxN2VmZmY2ODA2NzEyYWRlOWFlODU4MiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_4aaedbd2beb1459d8034074a8eb02080",
+      "statement": "Development serving uses zotero-plugin serve (npm start) configured via .env copied from .env.example: ZOTERO_PLUGIN_ZOTERO_BIN_PATH (escaped backslashes on win32, .app path on macOS), ZOTERO_PLUGIN_PROFILE_PATH, optional ZOTERO_PLUGIN_DATA_DIR, optional ZOTERO_PLUGIN_KILL_COMMAND, and optional GITHUB_TOKEN for local publishing; .env is gitignored and can be replaced by system environment variables for multi-plugin setups.",
+      "evidence": [
+        {
+          "resource": "repo://.env.example#L1-L30",
+          "version": "repo-lines-v1:sha256:ae83beda8ced7283eba71ca616a62b226dd2d3f7ba63ad2194997b288d2e06d0:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxZjA0OTE1YTI1OTE3MDJhNzQ1NTA5Nzc5YTBmZmQxNzE5ODJjYjAwODg0MzlkYjNiYjAyYTQwYjZhMWYzMTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4OGQ5MTAwNDUwYmNlM2MxYmNkMzhlODM4NmIyYjkzZGQzNDQ4YWQwZWExYTJiZTRkYjVlMmYxZWY4OWEzNTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://.gitignore#L13-L13",
+          "version": "repo-lines-v1:sha256:69aa73cf5bc3377a7d97f2e8d2bb773195815efe225af7f1be6f5b9306bbe14f:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjlhYTczY2Y1YmMzMzc3YTdkOTdmMmU4ZDJiYjc3MzE5NTgxNWVmZTIyNWFmN2YxYmU2ZjViOTMwNmJiZTE0ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjlhYTczY2Y1YmMzMzc3YTdkOTdmMmU4ZDJiYjc3MzE5NTgxNWVmZTIyNWFmN2YxYmU2ZjViOTMwNmJiZTE0ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzI3OTRlZjBjMzQ5NmI5YWRjOWU4NzFhODIzZjc3OGE4MzZhODk2ZDg0MjkxYTQ1ZjdhODM0NjU4OGVjYjVlZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjQ4YWQ1OWQ1ZmJjMDliNTM4YWY5YTdiNzRjMDRlNDVmMzdiNzUyMmY0YWM2MjJhZmZlMmE1OTkwMmU1NzlkYSJ9"
+        },
+        {
+          "resource": "repo://package.json#L23-L24",
+          "version": "repo-lines-v1:sha256:5d4b8ca55d3c2b7883f921db0962422e215a3d67bfecfdc4fdfddec4156b4780:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQ4MzNkNTk0OWMwM2E0MGNhOTUyNDkxNjEwYTY2NTk2NDRiM2FhNDY2MzYyZjc5OTAyMGRiZjE5ODE1NDdkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzdjNDRmMDEwNDA4ZGQ3MmNmNzExYjY2MDdjNmE1NjJjM2FlYWUzMjk4NjEwMDM2MGI3MjY3Zjg3MDRhNzU0YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGNmOTcyODVhYTZmOGQyNWE2OWY0ZTlmYzU3ODAyODlmMDJmYmNhZWMyZGQwM2ExMDE0YTMyODAyNTFlOWZiNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDJmMjkxNDU0NWFlOGIyZGEyY2ZlY2QxZmM4NTBjZjYyMDQ0OTBiZTQ4Mzg2NThlZjA4ZDZiZWE4OTY2M2MyMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_1c8a53f389604723b968b2745dc50069",
+      "statement": "The verify gate runs lint:check (prettier --check . plus eslint from @zotero-plugin/eslint-config with no-unused-vars off for *.ts), build (which includes typecheck over src/typings/test-unit with sandbox typings and a second tsc -p test/tsconfig.json with mainWindow and mocha typings), test:unit and test:zotero in sequence.",
+      "evidence": [
+        {
+          "resource": "repo://eslint.config.mjs#L1-L14",
+          "version": "repo-lines-v1:sha256:544244ae48abf20233218ed056192ead65a22aa8e9c72c5b95d2f55e9fa95647:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3MWYxYzc4YTIyZmI4ZWM5ZWYwMDdiNWIzMzgyM2QzNWRiMGM0ZDU0NDNhMTQyNTRjNjQzZjAwOGVlOTAzODUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3YTJjNDk5ZGRmODUxNGM5MTY5MTRjMjgyZTAzMGYzNGZkNTIxNGExZWNlYTJhOWMxNTdmOWRjYjdhM2FhNmMifQ"
+        },
+        {
+          "resource": "repo://package.json#L23-L40",
+          "version": "repo-lines-v1:sha256:2117afa71027d01a2053f73f18fd86f754cf7f44e74561274c74a9db988e2df7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRjZjk3Mjg1YWE2ZjhkMjVhNjlmNGU5ZmM1NzgwMjg5ZjAyZmJjYWVjMmRkMDNhMTAxNGEzMjgwMjUxZTlmYjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU4Y2RkYmVjZWUzOGI1NjMxNDZmNzM2ZTVlMzNiNDAwMWFkOWUxMTcwZGJkZThjYTE5N2U3ZjAzYzcwMGQ4ZjkifQ"
+        },
+        {
+          "resource": "repo://test/tsconfig.json#L1-L10",
+          "version": "repo-lines-v1:sha256:5e3d4561318e38ee5e51396961139aafcd665a306c877bf576eefc34b091ade3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tsconfig.json#L1-L10",
+          "version": "repo-lines-v1:sha256:dd8f7d5a6be1a410d64c82bdea30c4385d540267603f4ff0afa4ca5c91adaee9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_319583a498e74c8a83b735e2531d7eb6",
+      "statement": "CI runs three jobs on push/PR to main (lint, build uploading .scaffold/build as an artifact, test), while the Release workflow fires only on v** tag pushes and delegates to zotero-plugin-dev/workflows release-plugin.yml with build \"npm run build\" and release \"npm run release\", running with contents/issues/pull-requests write and secrets: inherit; dependencies are updated by weekly Dependabot npm updates with minor/patch grouped.",
+      "evidence": [
+        {
+          "resource": "repo://.github/dependabot.yml",
+          "version": "repo-file-v1:sha256:9a94b227f51359dfc65b5c9f230f7ede688a0f90e4edbcc4743224cb1e87de7c"
+        },
+        {
+          "resource": "repo://.github/workflows/ci.yml#L1-L44",
+          "version": "repo-lines-v1:sha256:bc63b2e0559dba4311ef2afe81209632602c48032da4fcfdec38fe76a29eb58d:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2ZTFiMzJmYTA5MDc5YWUyZjAwMDFmZmYwZWNhMjdiNDk4NTk1N2Q0ZWI0ODU3OTI5YjNjZjA1OGZhYWU1NDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRmMTllMWY3ODY5MDIyM2ZiZGM5Y2UwNTdhN2EzOTVjYmEwMTMxNDRiMDVhMDVhOTkwNmFjN2QxYjI5OTUxMWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://.github/workflows/release.yml#L1-L22",
+          "version": "repo-lines-v1:sha256:97dc1dbbca9d482cf0b9c82ea1cc52e2a40fcdb8f6d3ba182ae43d9edef1de81:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEyZWVmOTAzMGQwYzcwMjkwMTBjNDYzNTY4OWY1ODMyOGQxMDllNmE4NWVkMWE5MjQ1YjIwZjM5NTViN2RiMzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZDVkZDNlOGEyNGQ1Y2VlMjhlYTIzZjdiNTRlYWY1MjQ2OGZmMWVkY2FhNWVmNTg5NzBmMWQ5NWYxMjRmNWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c0d47da5383e4426831e140785f168ac",
+      "statement": "Release constraints: never push, release or tag without an explicit ask; commit only on instruction in Conventional Commits format (feat:, fix:, docs:, refactor:, test:, chore:); documentation ships in the same changeset as the code — README.md and CHANGELOG.md always, docs/anchors.md for new Zotero internals, docs/architecture.md for new pitfalls — with CHANGELOG.md following Keep a Changelog and SemVer and the Lattice changelog kept untouched in docs/lattice-changelog.md.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L61-L70",
+          "version": "repo-lines-v1:sha256:44ccba282035aa956c3516265a63fcde422ce1624092a191ee71ff3913be0e38:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmODYwMDRmYTMwYTE2NWNiMWJlMzQ4ZTcxMGZmNjA2NDVmNDhkYjhmODBjMzg2NjExMzU2ZjQzMWE3ZWQzYTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmNWU3ZDhhYzhiYzAxODk1NzliODkwNmJkZjhhNGFmNTAwMWNmNjM4NDFhZmE4MGEwNDAyMmE5NDU2NDQ5ODAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVkYWVhN2NjMjcwY2ExOWE0OGIzNTE1YWRmNGQ3OTQ1MDRlZWJhNzdjMjA0NzUwNGIyMDMxNGRmZmVhOGM1MzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRkNjcxMmJmNWQyNDg3YmJjMDAyMDZmYzg2YTQ0NDI3NWY3ODEwOTlhZTk0NmNhODFmNDhiZTkwMmY2N2NlNjIifQ"
+        },
+        {
+          "resource": "repo://CHANGELOG.md#L1-L3",
+          "version": "repo-lines-v1:sha256:d35646ae1560bc890dce0daebbd8ca253713766218ba3fcba14707897ab1b4f5:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2U3OWM0Y2FmYjUwNGEyMWY4OTEzZTRlMGU2NmYyZmY3YjExOTJhMTI3YzZmNTY0YWFiMzc5YzhiNWZhOWJkZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMGI3ZDViY2U5NzFmOTRiMDA1NjgyOWFhZDllMTg1MjFlYzZiZjM3NDhkNjQxOTNjZjIyNmY2ZTkwOWIyZTYwYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTFiZjgyZDYzYTg2OTJmYmMzMDcwMmYzMTU3ZTM2NmE4ZWFiNmFhNWMxNTRkNjZiOTEyOWFkNDMxYjI1YjllMSJ9"
+        },
+        {
+          "resource": "repo://docs/lattice-changelog.md",
+          "version": "repo-file-v1:sha256:0f1e97cfb0ff2e48cc667d78ee7005761098be572b5c38099b60d2b91a2f80fb"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-16T19:49:13.348Z"
+  }
+}

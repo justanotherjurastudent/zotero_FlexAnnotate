@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:fba4f3237d70d0213778d9c956db7f1b3589b232eabba9672d8d2ee178935ae1",
+  "claims": [
+    {
+      "id": "claim_076a5eb93c35465a96df8d50dceeb2b0",
+      "statement": "The raw `zotero-plugin test` prints \"Test run completed\" but keeps the Zotero test instance (and itself) alive, so scripts/run-zotero-tests.mjs wraps it: it matches \"Test run completed - …\" in the accumulated child stdout/stderr, stops only the test instance via ZOTERO_PLUGIN_KILL_COMMAND, exits 0 on zero failures / 1 on a failure or a missing result line / 2 on timeout (finish is idempotent and delays process.exit 300 ms), and aborts without a result after FLEXANNOTATE_TEST_LIMIT_MS milliseconds (default 240000) because the suite is slower on older Zotero versions.",
+      "evidence": [
+        {
+          "resource": "repo://scripts/run-zotero-tests.mjs#L1-L8",
+          "version": "repo-lines-v1:sha256:5ddc93412d7e326804b9c3aa3b1437aa0338133842fbeadb7326a3e1c5d502f5:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDRkNGY0YmYwNWYxYjBiYWEyYmE3YjMwNzVkNTNmNzgzNmQ3NDljZWIwYmNkYzEzY2MwOTNmOGFkNzdlOGE2OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGFjZTViY2M1M2M3ZjI3NjdmYmNmNGY4OGVjYjdhZDQ1MGJkNTUxNDQ3OTA3YjY3ZTUyZGI1YzBlMTc1OGNmMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmVhZjdlNTExYmNjNDc3YTNlMTA5Y2FmOTE1MzA1Yzk2ZTE2ZjYzMWVmZjU4MzAyNTU4YzA4Nzg4ODU0Y2M1ZiJ9"
+        },
+        {
+          "resource": "repo://scripts/run-zotero-tests.mjs#L17-L18",
+          "version": "repo-lines-v1:sha256:3fa897723cbe31eab1cf370b893e6da15253a47e9c47078f055a6b513580ea1f:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDNkM2JhODQ4MTlmODcyMzk3MDYxOTMwYTgzYzA4ZjM5Y2QyZTg3NDE4ODU5OWYxY2VhOGRkZmNjNjhmODc0NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGFkOTA5NDQyNTU2M2FkMGFjMTY4NzBlMDNhYjI4NTgwN2ViZjc2NDA5NjA5MzgwMWQ2ZDgwZGY5NDBhODZhNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmNhNTFmMjg2N2RlOGE5NDFmNWNkMTJhMDg0NjYxZmRlZDg2YTkyNmNmODRjNDY2YWFjM2M0ODYwNmRkYzAyYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzVkYWJhMTU1NzIxYjZhNWFiMDEwMDE2YTU4YzAyMGI1ODJiZThiNWJhMmU1M2E5MjJmZWU2MWRlNGMxZmM2MSJ9"
+        },
+        {
+          "resource": "repo://scripts/run-zotero-tests.mjs#L59-L97",
+          "version": "repo-lines-v1:sha256:bc8cfe6add9a9e9519dc956005881c6c8f827500ed90cb8d2e1ed5d3405c5065:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg5MTIwMTQ1MjQ5NTVmMTJhMjViYWQ0YTIyMmFiOGFmZjEyZGZjZTc5NTU0YTA5OWY4YmY5NmYzMjdmNmUxNjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0OGFmNmRlOGFkZGViNGM4ZDFkM2Q5MDZhODc5MWExOTFiMjA2Y2NmM2JhMjRhZmQ3NGNiN2NkNGFhMDdkZmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0MDMxMzU5MzE2ODk4NjY1MjdkYmNlMDE3NjJlZmM3ODBhZDM1YjYxYTM2ODFlNDE1MjUzZDQyYzE2ZTI1YjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYyMTA5MmIwNmM0NmJkZjkyZjA2YTA5NDk3MDVkYzkwOWIwMWNlYjNmODkzODA3OGJmZjQwYjA4NThjMmU0OWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_10e72711bd5a4613b9c0a6879eaafa2f",
+      "statement": "The wrapper discovers the Zotero binary by honoring ZOTERO_PLUGIN_ZOTERO_BIN_PATH when set, otherwise taking the first existing zotero.exe among %LOCALAPPDATA%\\Zotero, %ProgramFiles%\\Zotero and %ProgramFiles(x86)%\\Zotero (falling back to the first candidate); --screenshots pre-creates .scaffold/screenshots and injects FLEXANNOTATE_SCREENSHOTS=1 plus FLEXANNOTATE_SCREENSHOT_DIR into the child environment, and --grep sets FLEXANNOTATE_GREP.",
+      "evidence": [
+        {
+          "resource": "repo://scripts/run-zotero-tests.mjs#L20-L47",
+          "version": "repo-lines-v1:sha256:4ee28036a67cdef2a2a0c1f4af9c851ae910788b6aa418c7f510b7fa01811243:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlNDkyZWI2NWRkODZiMDFjNzY4MWJkNjNmNDk5NzliYmE4YWJkMjkwNGYwZTY3MWIzOThhMjBiMjYxMjM5MGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjljZjM3MDgwOGYxZTFhNWQxYzczOTI2NTA3ZDVkNzQxMmIyZjQ2YjE1ZTk2ZTlmM2E5ZDdlMjA5NjdkYjU4NWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk1OTgxZTE2OGQzMTU2ZDhkMTU5YTg1ZDZjYjlmMTNiNTU4YjQ5OGJkODg0NWQzN2Y1OGYwNWJiYjU2NmIzZDgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_75b20e93fa0a43f988b68aea5629b8cd",
+      "statement": "scripts/kill-test-zotero.ps1, used as ZOTERO_PLUGIN_KILL_COMMAND, resolves the absolute .scaffold\\test marker path and force-kills exactly those zotero.exe processes whose command line contains that marker (taskkill /T /F), leaving the user's own Zotero untouched and always exiting 0.",
+      "evidence": [
+        {
+          "resource": "repo://scripts/kill-test-zotero.ps1#L1-L9",
+          "version": "repo-lines-v1:sha256:fd9061744e7978b46dbb379f4585579824795a667dede80aa2455de8a9ac4acf:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWRlYzE4NzUxZDgzYmVkNTQzZDU1N2VmNjgzZWVjMTcyZDU4NDc5ZjZjZGFkZWE0MWVjNmZhYjc0ZGM4Y2NhZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWUwZTYwNzcwNjU1OThlMGIzYjIwYTVkOGJkYTNjZjNkNjQxZWUxMDM5NzgwNDY3ZTQ5YWJlZWQwNGI2OTAzYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_fd3ee0cfed1940478239e2bd841dd274",
+      "statement": "npm run test:versions (scripts/run-versions.mjs) targets the installed version read from the Version= line of %LOCALAPPDATA%\\Zotero\\app\\application.ini (Program Files fallbacks, \"installed\" label on read failure) plus every sorted .zotero-versions/<version>/core/zotero.exe, deletes .scaffold/test/profile before every run (the scaffold clears only the data directory; a kept profile carried the previous version's startup cache and extension registry and made runs order-dependent — 8.0.4 failed only directly after 7.0.32), parses passed/failed from the \"Test run completed\" line but counts pending from the \"ℹ … pending\" output lines because Zotero's summary omits skips, prints a version/passed/failed/pending/exit table, and exits 1 when any version failed or produced no result.",
+      "evidence": [
+        {
+          "resource": "repo://docs/testing.md#L61-L79",
+          "version": "repo-lines-v1:sha256:870dd874e084f68099f3f3363ca774e5b185768255ba49058fff2f9f48a48ffe:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwMzk1ZTRjZGNkMjkwNGM3OGU0ODQyMDYzMzhlMWU2ODlkNjRiMzdmNjZkZjNhNTc0YWQxNmMwMTQwYjAzZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0OTMzOTVjMmJmNmUzYWViYzllYzZlZjIxYWRjMTM0NWM5YzBkZjlkNzZhZmRjYzYzYzY5Mzg4ZDFhMmE0N2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEyMDUzZTYwN2FkOGU5Zjc0OWQ1NTFiZDBiZmI1ZmQwMTMwY2I4YTM0ZDg3OTk2NDY0YjJhOWVkMmVhOTQxMzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1MDNkMjU5OGEzY2RmMTBmMGNmOWI3ODRhZjZmMzA3NGM1NDNkZjFjMDUzNGU3OTg0Yzg3ZDMwYjliNjdlYmIifQ"
+        },
+        {
+          "resource": "repo://scripts/run-versions.mjs#L15-L45",
+          "version": "repo-lines-v1:sha256:5158b0d6e727e9820bd66bc8d37713af02dc04e28c09fe3ba51b7dfa4488d56d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3YzE3Njc1NDVjOTE1MTk1NzE1MWFlYTJjZjA5OGQ5OTNmNTY1ZTMwYTM1YzE3YTZlMGRhZTQ4OWQ1MjEwNmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ1ZTY4ZWM2YjkzOWNjMjRiMjk3Y2FkYTc0OGMwMDQwZTJhYjRhMjFhNjQ5YWQxYmE2YTIyZTQxMjQwZGZkM2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEzNmY0M2QyMWFlMzk2Y2Y3MzMyNGIwNWQ5MzUxODVkM2E0MWM2ZTI3YmEyZGVhYWFlYWVhZWI4ZTMwZmIxNWQifQ"
+        },
+        {
+          "resource": "repo://scripts/run-versions.mjs#L81-L131",
+          "version": "repo-lines-v1:sha256:3c773733df207b0ebe723c52d6227917ad8aad47475d1a4656db60f3d2befbf0:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlhODhhYTY0ZThiMjFmMzA1NzE1MmVhOTEyM2ZjOWUwNzc3M2VmNjI4MGI3ODY0YjIyNzAzOGY3YzhhYmE4YjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1ODg4OGVlMmJjOWYyYWUzZWE0MmUwZjgyNTdmZGRmNTM4ZjBiYmM0OTE0NjhhNTIxNjhjOTNjOTJlMjlkODYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVkOTRhNzRhYTg0ODAwMGFlZGNhYmVjYzQwZjYwNDU5Y2UzMDg0OTZmYzQ3OGYwZjRlOGZmYjgxZGM4ZjU5Y2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8fa6eae52526484892e23e8ba916ebbc",
+      "statement": "Zotero-test skips are feature-detected, not version-compared: hasAnnotationDialog() in test/helpers.ts reads chrome://zotero/content/integration/citationDialog.xhtml and checks for \"annotations-sidebar\" (present from Zotero 9; 8.x ships the file without the mode, 7.x names it addCitationDialog.xhtml), gating the modeSelector suite and the citation-dialog parts of features.test.ts, which this.skip() below Zotero 9; the toolsMenuFallback tests gate in the opposite direction and skip once Zotero.MenuManager.registerMenu exists (8.x+); the screenshot suites skip unless FLEXANNOTATE_SCREENSHOTS=1; and the kernel32-exclusive-file-lock tests in docImport/docExport skip where ctypes is unavailable (non-Windows).",
+      "evidence": [
+        {
+          "resource": "repo://docs/testing.md#L77-L79",
+          "version": "repo-lines-v1:sha256:75273d793fc6021ac6fd852effce6308333a29d74f80ceac8ced52642aee7d50:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDExOTNkZjM5OGNlNmUyYzBkNmJkYWY4NThkMjg0NzI5ZjA3MjZiYThjZGI1ZmQ4NWQ2MDZkNGUwZjkwOTAwMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzQ5MzM5NWMyYmY2ZTNhZWJjOWVjNmVmMjFhZGMxMzQ1YzljMGRmOWQ3NmFmZGNjNjNjNjkzODhkMWEyYTQ3YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTk1OTM2MTcxY2ZhNTVjYTZjZTkwOTdlN2FmNjM5ZWY5MmIwMDk2ZTRkMGFhY2M1NGFhOGJmOWU1ODAzY2QyMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTUwM2QyNTk4YTNjZGYxMGYwY2Y5Yjc4NGFmNmYzMDc0YzU0M2RmMWMwNTM0ZTc5ODRjODdkMzBiOWI2N2ViYiJ9"
+        },
+        {
+          "resource": "repo://test/docImport.test.ts#L178-L198",
+          "version": "repo-lines-v1:sha256:8cfd16077b4e6bee6f9bdd849d6b75973e64b4eac80bc2376a51a9071918bffe:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5NjdiZTc2YmY4MGVmZDIyN2U5YWZmZWU4NTdkNGYzYWZkM2NjMDUyZDc3NDFkOWRhYmJiOTg0YmMyZTBiNDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5OTMyZjhlM2I4YjU4OTUyYWM1OTIyMDMwNzVlYmYxODBlOWNmYWEzZjNhNmE1YTliYmFjMjMxMjhjNmIxZmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY4ODYyZDgzYWIwN2ZlOTZmZGUyYTE4NmYxYmM2YzFjOTkwMDAzYzczOTAwNWI0ODU3NmU4MjZiN2MzNTk3OGEifQ"
+        },
+        {
+          "resource": "repo://test/helpers.ts#L128-L141",
+          "version": "repo-lines-v1:sha256:aac9f9b2c165d457a82038330c5d1de7c52d4eb53c5b102c547f0366a11e4d96:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNlMWVkYTJkZmI0ZGVjMzIyMzU1ZjhiNjAyMjY0NTViNGFhNmUyMjgzN2VlODk2NzYzZTcwMTA3ZDU3ZTY3YmUifQ"
+        },
+        {
+          "resource": "repo://test/modeSelector.test.ts#L57-L61",
+          "version": "repo-lines-v1:sha256:4d62b2ee264331a499709002c926958c542cc20220849c041d3332af21702963:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmRmMjhjN2U0ZWE5M2VkYTE3Y2I1NzBkZTAyYjhhMjNjMWY2OWRmZThhM2I4N2U2ZTdjYmQ5MTMzYjM4NzkwMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2EzZTQ2Zjk0Mjc2YjZmNmY0ZWQxZjAyYWY3OGJlZjZhMmVlMWM0MzlkZDU1ODRiOTczOTQ4MzEzMjE0ZDJiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWJmZTZiZDNiOTM4MTJlMmRkOGQ3Y2Q5OTJjNWVlMDdkYTBmMDgzZjQwZTIwNGU0Y2I2YWY2MjMzNDZmZjcyZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzUzYjQ5MDQwMjU0ZDg1Mzc4OTRmMzM3ZTU0MjI2Yzk3YmNhMTI5M2NlZjk0MmVlNzVhZDg4YjcxYjY5ZDgxNSJ9"
+        },
+        {
+          "resource": "repo://test/screenshots.test.ts#L14-L25",
+          "version": "repo-lines-v1:sha256:67340825feab846246833e8e2f46129fc5e933eee36250ce5794d6f466855572:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg2NzkyZDJjOGI1ODVmMjFiZjlmZDA5ODUxZDBlMWIyMTcxZmI4MTkzYTMyYjhiNzZkMzgxNWU0M2MwNjM2M2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNlNDU1ZjFkYzJkNTg1NTRiYTI5OTY1OTRhY2NlNWU1ZjZlOGYxMTBiYzQ1Yjg1NGI3MjNjMzM5NjNkMDM2NzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhZTM3YjNjNzVlMzZjNmEwYjIxZDQ0OTUyYmQwMGVhMDA1OGM2YTBjMzg5YjcxNmU2M2IyMjQ5MDdlMjEyOWEifQ"
+        },
+        {
+          "resource": "repo://test/toolsMenu.test.ts#L14-L56",
+          "version": "repo-lines-v1:sha256:81f0ecd1d2c92f243871ac657d7a4988bd5777ed9a72c68451eb8736bfef519d:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiZTFhZDQ1OTkyMjAxODFkNDZiZjNhYzJlMGQzMTU5NGU2ODdjNDU4OWE2Njc2MDk2MGQ1YTVkYzkwZDA3YTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ2Nzk5Y2MyYjczZGEyYWNiNWQxNmQxNDU1NjcwYjI4NDhiOWU5Njk4MDdkNjc4M2VkNzg5NmIwZGVlODdlMTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b3355e261e224976ac6be6024f588f95",
+      "statement": "Subset runs go through FLEXANNOTATE_GREP: the wrapper sets it from --grep, test/helpers.ts reads it at test-file load time and passes it to mocha.grep, so the full title (describe + it) is matched as a substring; run-versions.mjs forwards the pattern to every version run; and for unit tests `node --test --test-name-pattern=<pattern>` must precede the file glob (npm run test:unit -- … would append it after the glob), with direct file selection like `node --test test-unit/persistentRect.test.ts` as the alternative. The named patterns for the persistent-dialog suites are persistent, browse, stored rect, reopen, switch and wide window.",
+      "evidence": [
+        {
+          "resource": "repo://docs/testing.md#L29-L37",
+          "version": "repo-lines-v1:sha256:574ad2ef0a7746119a83219813ee0eefae7115368840bcef6ea943562a76e27d:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmM1MTdhMzdhMzYyYWIwYjFhMjFhN2VhMmRhNGU3OThjYTliMTRjYWU0MTRjOGVkMjQ2ZDc0YjUxNzJiNTFhYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmM4ZWVlMTYwZDBiNThjOGE3ZmY4ODhlYmU4NzZkMWJhM2E3MDg4ZGQ3Zjk4NTFiYTZiYTU0MTFmMzM0ZDMyNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmJkYjcyOTkyN2JlYjFmMDhmNTdmOGVmZmJiZDJlY2QzYjAzNjZiZDY1ZmM4MWEyZjIyZDY4NGRjNzVjZjVmNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGFkMzAwNmYwOGUyMjJmMTk2M2YyMGI3NjhjN2Q3NGFhODVjYzAyODJkMWRiOTM5NGIzZTBlZTNjOWIwY2Y5NCJ9"
+        },
+        {
+          "resource": "repo://scripts/run-versions.mjs#L46-L55",
+          "version": "repo-lines-v1:sha256:8bdd2e63fe36fb356828c1e73cb298d1cfc60302d148b3be8dbdf34eb5ae22fa:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0N2UwNmNlOGYyNjBiNGMzNmEzYTE2MjE2ZjEyNDk2M2E1ZDcwMTU1MDc0YWU4YjQ3Mjc5MGU3MGZjMDJhOWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg4MzQwZGI0NmE2Nzk2N2EwYTNiOTQwN2U4MjkxMGZjNmUyMzk1M2VjYTA3NjgyZTM0YTMzYjU1MTlhM2JlZjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIwYWIzMTg4YmFlMjMyMDU3NjUwYTRmMzM0MTliYmU4NmFlNzQ4N2EzYWYxOWM5NWM0NmM3NWMxYWQwYWU0MTYifQ"
+        },
+        {
+          "resource": "repo://scripts/run-zotero-tests.mjs#L38-L47",
+          "version": "repo-lines-v1:sha256:cf0cdab56482b2640ce74d5e1b802f44abe96c0cd8108b0557599d2f4b50f7c8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmNjYzZWFlZWM3MDQzZTUyODg1OGFmNzM3YzQxNGJlZDZkNWJjOWM1OGZjYTdmN2QwMGQwNDAyYjMyOWM3MmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI5MmJjMTdjM2ZhZjM3ZTQ1MDNmZTA0MmJlNTFmNTcyOTNlZDBkZTMyYmQ2MTMyMjE4ZTQxMTA3NDU3OTg5NTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk1OTgxZTE2OGQzMTU2ZDhkMTU5YTg1ZDZjYjlmMTNiNTU4YjQ5OGJkODg0NWQzN2Y1OGYwNWJiYjU2NmIzZDgifQ"
+        },
+        {
+          "resource": "repo://test/helpers.ts#L161-L164",
+          "version": "repo-lines-v1:sha256:b96a510077f83a894ea93ea5f4d8f9b25a6d01a69e23e961eff2e5580bdee31f:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmU4NDkxZTkxZjc1MWE1YjczZmViZDMxYWRkM2E4ZTZiMzc2MTQyMmViMTk3ZmQ2ZDE2NmEyNmQ5YmEyZjhiNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWQzODQ2NzQwY2Y3NmZmMGFhNGZjMTc3ZjI5ZDk1MGY4MmM0OWY5YjA2ODI0NWU1NDAxNGRjOWEwYmZlODZhNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTlmMWJmY2JkZTIzN2ExMjE0MTIwNTI0NGE5Y2E0MDMzYjg4ZWRjMDA1OWY2ZDVjMDMzZTQxNzEyZGFhMTIxYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWNkMWU0MDIyOGMyZWExYjAxOGI3MGZiNDc0YjQ0NGJkNzRlMzkwZTMzZWI5MWI1MDVhOTNiOGNmMDAzMjJiMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_52b5605615d24cec93aed4a67ba6671c",
+      "statement": "Screenshots run only with FLEXANNOTATE_SCREENSHOTS=1 into FLEXANNOTATE_SCREENSHOT_DIR (default .scaffold/test/shots): test/screenshot.ts renders a window or CSS-selected element via the chrome-only CanvasRenderingContext2D.drawWindow and writes a PNG with IOUtils; drawWindow captures only the window itself so popups and menus do not appear even with USE_WIDGET_LAYERS (hence the narrow-window case writes menu-geometry.json for an external capture); npm run screenshots:docs copies the nine curated PNGs from .scaffold/screenshots/ to docs/img/, warns above 250 KB, and exits 1 when the run failed or a curated file is missing.",
+      "evidence": [
+        {
+          "resource": "repo://scripts/docs-screenshots.mjs#L12-L56",
+          "version": "repo-lines-v1:sha256:3c41d50c4ec736e0f47b6d1de3c4de709054fb3107f43f5ea6d11cc62da429ae:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkMjJkNGRiZTg3NjRiNGMxMzg1MmUxODNlYWM5OGQ3OTFiMGExYjJmYjAyZWZmZTAxNmExNzYxOWUzMDQzNzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3MjZhYzAyNmZmM2Q1ODdlNmE4MWFiNzQ0YzkxMmM0NmI5MTk1ZTZjNjNhY2U4ZTVhZGY1YzA1MmZmYWFmMTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBjMGIwNjQyZjQxOTM2MDI2MWFiMjI1YzY2MTdkNzEwMmEwMmI1OWM4YWY2YTU2YzY4MWZhNDJlODk5NDgwMzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://scripts/run-zotero-tests.mjs#L32-L36",
+          "version": "repo-lines-v1:sha256:2654596f45d9a5a44b16ffbaf86a06d1d63e5c5200ea547414bf9792d9305a6c:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWQzYmEwZDJiMDAwYWQyMDRjNzFjOGQwMGYxZmNiMGYzYzJjNjVmOTIwZGNmNjYwNjY0MDRjZWUzMmFjOWI5ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjA3NjdkN2FjNWQ1MjJjNTNjNWJkOGUwNjFjZWY4MTkxNTdlMjgyMjAyYjBlYmYxYmQ0ZTM4YWI2MWVkMDQ0OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjg4NGJkZjdkNmI0YmViZDBiNTc0N2ZiYjk2MjU3Y2NlMmQxMmI5ZDYxNTI3ODJhYWExNzJhNzIyNDQxNTQ4YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDFmNmU1NDJjY2NmNzZmMjZiZWM5YmU1NjUxMDczMjE3MTA2YTI0MTliMDFjMWRjNThhNWE5NzAxYWM0MzQ0ZiJ9"
+        },
+        {
+          "resource": "repo://test/persistentLayout.test.ts#L321-L363",
+          "version": "repo-lines-v1:sha256:3ca08080ebe3e57b667f4b2cb875c46082cdbb647a34310e72f6f6c33d2d5498:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MGE4ZjYyNmYwZmNjZDEzOGE0ZWRjMTljNWExNmVkMzUzODEyNDdhZGE1ZTcyMDcyYzljODU0MzY5ODYyMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczYzY4MTUyMjk3M2ZjZDhlZGU4Yjc2MzdhNmJhZjhhNDA1OTdlMGIyZmEzZGZlNmJhZGI5NDczYTEyNTNiOTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRlZmU4YjNmODdhY2Y3OTNhZmY4MGEyN2Y5OTNiNTExNjdjOGJmNGEwNjg5YWYzNmVlOTJjOTk2MDJhMTYzN2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBlOWViOTAxNTQ3MTFlOWQ3MmM2OTlmZDIzYWUzOWY5Yjk0MmI1YTY4MWJlY2M0OTQ5NGU3MTIxNTMxOGZjMWUifQ"
+        },
+        {
+          "resource": "repo://test/screenshot.ts#L26-L95",
+          "version": "repo-lines-v1:sha256:d5477ef3e2a9cda8846c5bc7dccc188db3de94803063c391505e92e38a466b89:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyYjIxMTBmYTRkYzQxMDg0ZjEzMWZjMjA0ZThkYTI4ZDQ3N2U0NGVhNzMyZGQ0MzcwMzc3YjdiMmI3NDVjYTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3OTI5ZTkxZTBmOTljM2U4MjVkZTY5YjQzNWZiNjQ4NGQxYjBhMWRmMmY0NjU2MWFiZjFhMjlmMDQxODhiODgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8ed778cec5d448e9a3cc5aeed0eac607",
+      "statement": "The version matrix recorded 2026-10-13: 223 unit tests all passing; the Zotero suite green with 102 passed/7 pending on 10.0.6 (installed) and 9.0.6, 74/35 on 8.0.4 and 76/33 on 7.0.32, the higher pending counts below Zotero 9 coming from the missing annotations mode; the README feature matrix for Zotero before 10 must be derived only from this runner's output and refreshed after every fallback change.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L71-L71",
+          "version": "repo-lines-v1:sha256:5540e5ab566582d7b6eec766b9165ffaf77ee2395f81111c15ed2cabd06bf0da:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTU0MGU1YWI1NjY1ODJkN2I2ZWVjNzY2YjkxNjVmZmFmNzdlZTIzOTVmODExMTFjMTVlZDJjYWJkMDZiZjBkYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTU0MGU1YWI1NjY1ODJkN2I2ZWVjNzY2YjkxNjVmZmFmNzdlZTIzOTVmODExMTFjMTVlZDJjYWJkMDZiZjBkYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjU0NDUxOGE2YTY5MDU0MDM2NWQxOTdhMDIwMmQ2ZGVlMzY1Nzc5MTAwZGNjNzhkODIyMjE2MDA1NjVmMmFlNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWIxYmM1YmM0YTIzN2Y1NzhlNmFmNGE0MTVkMDY0N2Y5OTEwYjAzYjM2NGUxZTI3YzFmMWRiYWE3NDNkMDNiYSJ9"
+        },
+        {
+          "resource": "repo://docs/testing.md#L27-L27",
+          "version": "repo-lines-v1:sha256:8bc30aeed76fb33bee264859c44454bc66a352ee53a25cbb7f2da1104a87558c:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGJjMzBhZWVkNzZmYjMzYmVlMjY0ODU5YzQ0NDU0YmM2NmEzNTJlZTUzYTI1Y2JiN2YyZGExMTA0YTg3NTU4YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGJjMzBhZWVkNzZmYjMzYmVlMjY0ODU5YzQ0NDU0YmM2NmEzNTJlZTUzYTI1Y2JiN2YyZGExMTA0YTg3NTU4YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGI2NTc0NDRjZDNiOGY5MzE0YzgwODdhYWEzOTRhNmEzN2RmOTJkZTA3ZmU0NTcyZjQwMjdjYmE0MDM1NGMwNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDI1Y2JmZWMxMDIwNWYzZDk2MzhiYjcxNzAwYjZmZmI5N2JhOTIwOTFkOWFmMTFhOGNkOGU1ZjdlNDY0NDhmYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_27e7e761eece41d88a2071c642b854b5",
+      "statement": "The Zotero tests run in an isolated scaffold profile under .scaffold/test/ (own data directory, scaffold default port 23124) with synthetic data created by test/helpers.ts and erased by cleanup(); tests reach the plugin only through addon.api (exposed in src/hooks.ts), never through direct module imports, because the modules need the ztoolkit global that only exists via the plugin; the scaffold blocks tests on test.waitForPlugin = () => Zotero.FlexAnnotate.data.initialized, set at the end of onStartup.",
+      "evidence": [
+        {
+          "resource": "repo://docs/testing.md#L39-L46",
+          "version": "repo-lines-v1:sha256:3d47325c9dd67631d8cf629091c5372465096ef83277824b57bdef165e5f148a:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjk2NWNhYjkzMjc1NzQ5YThhYTczZDI0YzU3NGYxM2ZmMzA5NjU5MGNmNGM2MjE0ZWJjNTM1YTIxMThjYjUyYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTkzMTk1OTQ3MDYyMThkNmYxODc0NzYwMzhkOTcxYWVhZGMzNDEyOTg5MjNlN2QxOGJkYzA1Y2QxZWNhMTVlNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDYyYTRlMTAwZWVjNDEzZmM0YWNmNWZkYjNkMTE1Njg2MjRiNDIyNmVhODUzMDk0ODk4MzQ4MzZlMzk4ZGU5MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjE5NWI5ODcwMTA5Y2E5NWRkNjI2YjUyZDY2MTc0NmQwMzJmY2NjYTcxMjVjYzUwYWIwMzYwN2Q5ZDMyNDA5NCJ9"
+        },
+        {
+          "resource": "repo://src/hooks.ts#L122-L168",
+          "version": "repo-lines-v1:sha256:b8279a01d5833477320b7569ca8c0b2dd2f4adf322a981b0c9ca3e0cf094b4ec:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwMTgzNjQ4NGQ4MmQ1NmM5Yzc0MjExMDkzNDlhY2UyOTg4MDUwNmQyYjI3N2I0NjFmM2ZlYTgxYWE3ZTFiN2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiZWU0NTk1NDhlNDBjMTZiZmMwYTZjMjgzMDhiNmY1MzI0ZWE3NWI0ZmM5ZjRlZDQ1OTk5OTE2NTA0MTllODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3NzQ2NTQ2NjYwMThkNTg2Njk3NjI0MzhlMmJkZTAyMGIyODk3NjIxMmZiNWJhNTU3MDEyMmMwMzM5N2RiN2EifQ"
+        },
+        {
+          "resource": "repo://test/helpers.ts#L1-L78",
+          "version": "repo-lines-v1:sha256:3dd16cc1d8b0486585d0745f05f4e4580bc1d919e0759948a3ef596a2dc63657:eyJzZWxlY3RlZExpbmVDb3VudCI6NzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJlZjViNzQ1ZWRmZDc1ODY5NjIxZTlhMDBhMTY1OGFkMzE2NzlkY2EwYjlkM2QwZjNlMTlhNWRhNzAxZWNmZDIifQ"
+        },
+        {
+          "resource": "repo://zotero-plugin.config.ts#L49-L51",
+          "version": "repo-lines-v1:sha256:16cd0489bb3307a21dac73aedb68897a68a5c2a227b7ff99a445d5922b305b0a:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTkzNmRmN2E1YTNhYWYxODBjZmZkMWQ2NWM2NDZlZjZhZWEzNTJjYzI3Nzc0Njg2MTk5Y2Q4ZmIzZTg5OWM3YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzcwNDhhMmJiN2JmMDM5ZDEyMTU2YjNlYzM2OWRlZjU2MWI2NWMwNjQ0ZDIyYWNjYTAzNmM3MGRjNzNlYzk2NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGE5ZTg3OWU4ZWIzYWMzMzUxOWEyNGZlMDE4NzYxMTc2NmU2ZTAwMzM1ODI0NmE4MzBiNmExYWEwYWYwNTQ3NyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_90896e02cabc4da5a77ddb2ffd04931f",
+      "statement": "scripts/word-smoke.ps1 starts its own hidden Word instance via COM (refusing to continue if Word reused a pre-existing instance), requires Zotero.dotm among the loaded templates, and in a finally block quits and force-stops only the PIDs it started; it opens no document, never touches the user's running Word or Zotero, and has no npm-script wrapper.",
+      "evidence": [
+        {
+          "resource": "repo://docs/testing.md#L59-L59",
+          "version": "repo-lines-v1:sha256:d0eede0864fbe20ffe05d2ff6eee25eca6bb5d857d645953fe5d9881eb21eea9:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDBlZWRlMDg2NGZiZTIwZmZlMDVkMmZmNmVlZTI1ZWNhNmJiNWQ4NTdkNjQ1OTUzZmU1ZDk4ODFlYjIxZWVhOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDBlZWRlMDg2NGZiZTIwZmZlMDVkMmZmNmVlZTI1ZWNhNmJiNWQ4NTdkNjQ1OTUzZmU1ZDk4ODFlYjIxZWVhOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDQ2NWRmZTU3Mzk5MzYzNTYyMmM2YTE5YThmMGUzMjhkMTc2OWRlYTAwZmFjNjZmMWYxOTBjZjBlNWRiYjUzMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjY5NGQ1NWUwMWMyNjk4YjRkMzIyY2I2NTcxYjE4YWQ0MTZkMWQxYjg4YzM4M2M1ZTc4Y2E0N2RiODA4Y2I2NSJ9"
+        },
+        {
+          "resource": "repo://scripts/word-smoke.ps1#L1-L31",
+          "version": "repo-lines-v1:sha256:36bb07eaec967fd0c13c201267df9bccbf3c2a6443c1f7ff4b986883a76100a3:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwNjlhNDNlMmU4MDFlMGM1ZTJmYzFiZjAzMWVhOWVkMWI1MWMyMWVhODk0NWUxZGQ3NGVkMDg2OWQ4YzYyNTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMmZhYTUzNWJkMmVhM2Q1MmU3NDFlZDQ1NDQzNWI3ZmU0OWU4MzU4NmU5NDNkOThkODJiYmZiMjRkMWY1YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b6de0bdcf2e647cf8386849519add046",
+      "statement": "npm run test:unit:repeat (scripts/repeat-unit-tests.mjs) runs the unit suite TEST_REPEAT_COUNT times in a row (default 10) and exits with the first failing run's status as an early flake/determinism check for the Node tier.",
+      "evidence": [
+        {
+          "resource": "repo://scripts/repeat-unit-tests.mjs#L1-L22",
+          "version": "repo-lines-v1:sha256:3b3e8e23c2c991b37cf26cbc15c2a2581c0ba15c587b75ed4fbd9ed125381ed2:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiMzNkMzA5NmMzOTk5YmY1OTA4ZmYxZGM2MzQyYTMzMzM2NzczYTk2NTRmNzc0MWIzOWM5YTg2NzY0NmYyMjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5OTY3ZWMxZWQzODM2ZjhlYjE3YWZmMTcyYjViZmVmN2RlNjA0ODVhNDM5YzZjYTExYzU5MWUxNzU1NzM5YWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e5d8a62c0db54deab53f3c07e5196cf0",
+      "statement": "npm run verify chains lint:check, build (zotero-plugin build plus typecheck), test:unit and test:zotero — the gate to pass before finishing — while test:versions is not part of verify and must additionally run without arguments before finishing; CI's test job runs the raw `npm run test` (zotero-plugin test) without the wrapper.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L37-L44",
+          "version": "repo-lines-v1:sha256:fb8039e90e6b2e9b3ada91206125aa12108a49361cb5c95327ac34c9aab59f21:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjIwMDU3Nzc3NmM2NjhiNzAxZDcxNjVhOTcyY2JhYmI2ZWRlZDEyOGJiODVmYTcwYzMyNjBiNThlMGU5YjA0NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGYxOWUxZjc4NjkwMjIzZmJkYzljZTA1N2E3YTM5NWNiYTAxMzE0NGIwNWEwNWE5OTA2YWM3ZDFiMjk5NTExYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGI4MDYzM2M4ODg1YjQ1NjE5NTBhNTE0NzYxZDMwNTc5ODMwMzAyYzBkNjAzNjhjMTdlZWVjMTgyNTVlYWJhMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://AGENTS.md#L34-L34",
+          "version": "repo-lines-v1:sha256:6f688084c5223b6a5097c60fce99fbc4ae08a76bc2ff654beb1ddf6595c63724:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmY2ODgwODRjNTIyM2I2YTUwOTdjNjBmY2U5OWZiYzRhZTA4YTc2YmMyZmY2NTRiZWIxZGRmNjU5NWM2MzcyNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmY2ODgwODRjNTIyM2I2YTUwOTdjNjBmY2U5OWZiYzRhZTA4YTc2YmMyZmY2NTRiZWIxZGRmNjU5NWM2MzcyNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjQ4YTI4ZWQ5NmYyYmRkNjdiNGQ2NzgzNDgyNGIxNWFkN2ZmNmNkMmM5NGZlOGIyNmEyZmNjMDYyMThmMzkxOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWM4YjVmZDIzNjg4ZDNlMDMwMWNmZGM3MDUzZmUwNmI4NjJiYjlmZDZmMWVlMzM2MjViZTI1NDk0YmQ2Yzg0NSJ9"
+        },
+        {
+          "resource": "repo://package.json#L23-L40",
+          "version": "repo-lines-v1:sha256:2117afa71027d01a2053f73f18fd86f754cf7f44e74561274c74a9db988e2df7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRjZjk3Mjg1YWE2ZjhkMjVhNjlmNGU5ZmM1NzgwMjg5ZjAyZmJjYWVjMmRkMDNhMTAxNGEzMjgwMjUxZTlmYjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU4Y2RkYmVjZWUzOGI1NjMxNDZmNzM2ZTVlMzNiNDAwMWFkOWUxMTcwZGJkZThjYTE5N2U3ZjAzYzcwMGQ4ZjkifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-16T19:49:13.348Z"
+  }
+}

@@ -1,0 +1,306 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:e9aeb8db1c9b847a257c6f3035819d3845243955a179b709069c4aa57e2121f5",
+  "claims": [
+    {
+      "id": "claim_263785b45ee9494c98b6f642ae502eb3",
+      "statement": "src/features/organizer/externalApi.ts publishes the plugin-to-plugin interface as Zotero.FlexAnnotate with a versioned, stable contract: EXTERNAL_API_VERSION (bumped on breaking changes), EXTERNAL_NAMESPACE \"FlexAnnotate\", pluginID (the configured addon id), getHeadings (flat headings with id/title/num/path/depth/tag) and getOutline (raw { roots } tree), each accepting (libraryID, collectionKey?) where a top-level collection key picks a collection tree and null picks the library tree.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/externalApi.ts#L14-L45",
+          "version": "repo-lines-v1:sha256:dec9082a246e637d03a48e531578d27f0598a68c1192109f970cb5a6690a9be2:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkNjI3ZjAxMjg2MWIxZjQ1Y2FjNTI3ZTI0YjlmZGNjOWU5OTMwMjEzZWViNzc4YzQzY2YzZGQxMTkyOWY4NjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIwNWMxNWJhZTEwNWU5YjU2ZTliOWY1NWQxYTkyMGZkNjg3MDEzZDM4YzE2MzViYTdkMWE0ZDhkZTkwYTBmNzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE4YzBhYWNlNGFmMDAwNjRiMGVmNmRmMjg2NmZkOTkyMWIyNjZlNjc3YThkMzM5ZDBmNTk5NzE3MjFkOTAyZTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2064a1ced99b4745ad79f00b9240a215",
+      "statement": "The external API is installed on the shared Zotero namespace at feature start and removed at feature stop via the externalApi feature in hooks.ts, so the namespace never leaks after shutdown; installExternalApi is idempotent and never clobbers a namespace owned by a different plugin (the conflict is logged via Zotero.logError instead), and uninstallExternalApi deletes the namespace only when the installed pluginID is its own.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/externalApi.ts#L83-L115",
+          "version": "repo-lines-v1:sha256:e9c2399b9e6fd96bc8d56d57e77c7f05fe6bb7c388251b5a6e3e0de0becf3a5c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjMjQ5ZGU1NzQzNGRhNmVlMzJkYWZiZTdiNDZlMjdiNmQ2MzVhOWI1NDVlMzU2NTJiYTk5MTgzMTc1OTY0N2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE2NjhjNTQxMDY0ODI5MWQzMzRhNTUzNmZkYmEwYmU0NjE5ZTY5NjIxNjFiNTY5YmJhYmZlYzliYjljMGFmN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/hooks.ts#L102-L108",
+          "version": "repo-lines-v1:sha256:5c2834898854d35163fa0cf8c79219668e845442bdbece57489b45dc476c036f:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjExMWYyMzlhYzY1YzlmZWNkNGY3OTc1ZDRlZTBjNjc3YjU4YThlYTY3ODUyZWEyNWQyNzkyMzkyNTE4ZDJmOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmMzNzhmNWVkMzcxOWZiYzNmZjhhZmRjODYxNjU0ZmEyNDU4NWZlYWEzZmZlMzIyYzkxNzBhNDc4YzNiNjkxZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTk3NzI3YjQ4YWU5MzRjYThlZmJkM2FiMWY4Y2Q5NGMzOTM0MjlmYjM2YjU2NDg4YjhjMjc2YTczNzQ5MTliMSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_227ab064e7534a5e841db42b51821b3c",
+      "statement": "getHeadings and getOutline degrade gracefully on failure: both wrap OutlineModel.load in try/catch, log `[FlexAnnotate] <method> failed: <message>` via Zotero.debug, and return the empty shape ([] or { roots: [] }) instead of rejecting, so a consumer never receives an untyped error and falls back on its own logic; a missing outline note is an empty tree rather than an error.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/externalApi.ts#L47-L77",
+          "version": "repo-lines-v1:sha256:c28428c9f990bf3294112a9108f218442d1cd1455096778b4ea488e2619f32a7:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjYmM0YzU4NmQ1MDM4YWQwNjg0ZmI0MWU3YmIxMjE2NTg2YWFlMGNkNGZmMjIyODM5ZWI4MDE5ODdmMzUyNDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA3N2JmNWI2NzAzN2NjMDcwNjg2N2I0YjA5NWJjODhlYTI2ZjE0NWVkMTA1YTQ3MTk5MjRjNmRkYWU1ZWI2ZjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAwYmJjMzRjZDk1ZGMyNzEzNzU2MWZkOWQ0MzQ0M2FmNmM3ZTA3YTk2NTkyYWUzMTc5YWMzYmEyMjUyMDdlNDYifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L160-L180",
+          "version": "repo-lines-v1:sha256:55451267b15c6076e03879fbc3855ab2c23811990bc49050b6768669be2a7deb:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJlNmJkZDUxZjdmNDdmN2U3ODhiNTc4NmVlN2ZhNmRiMTlkMDM1NGU4MTg4MDdmZjEyNzA3YmJhOGU3OWQxODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM0ZWI4ZmM3OGQxNzcyZGI3NzYxNDI3NTFjM2E0NjYwMTc5NmJhNWJmMGQxZDIzZjY2ODEzZDliYTlhZjlhOWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyNTU0ZDhlNThjODI1MmU5YThhOTk4Mzc4NjkyYjNlZDIxZGVmOTQzOTQyYzlmYTZhOWZmZTVjMzRiNjViMWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bb33f7afc357481abeef6e8ccbf428c2",
+      "statement": "logic/flatHeadings.ts is the canonical, Zotero-free flattening that getHeadings returns: it reuses outline.ts numbering/flatten/headingTag so external consumers see the same decimal numbers the organizer displays, derives each FlatHeading's path in one pass via pathsFromRoots (OutlineNode has no parent pointer), and marks num as derived-never-stored; it is pinned by test-unit/flatHeadings.test.ts.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/logic/flatHeadings.ts#L1-L66",
+          "version": "repo-lines-v1:sha256:b22cbfcf582dfc4c639a3e3a79c070a11406ee5b3138e98035b80fdd65c53df4:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://test-unit/flatHeadings.test.ts#L30-L70",
+          "version": "repo-lines-v1:sha256:67cda35b06966183b3ff98288c8948f3a21bf15c72f34428adf4d3ac2e0abfb8:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM1YWFiNDdhZDcyYjRiYzUxZmY4ODNhN2Y0MDU0NGViYmJjNDIzZmIyM2YzYjgxNzE5Mjg5ZTU1ZTE2NmYyN2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc1NDEyNGRjNjBmOGM1MzRlNDU2YzgxMzQ1ZmY2ZGFiODczYWMzOTVlNDI4Yzg0MzU2ODQ3MDYzNTg1YzBkNGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJlODE0YmIxNGI4MjgxODE4MjE5NzkyNGI0YTJhMDhhOGE4YzM1M2IzOTFhNjg4MjcxZWU2ZWIwNDkyNjBiZjIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_30978ace12314b28b0340a76b7316ca6",
+      "statement": "Outline trees are selected by collection key, not name or id: the library tree is the ★outline note without any #flexannotate-outline-<key> tag, a collection tree carries #flexannotate-outline-<collectionKey>, several matching notes are resolved by pickNewest (latest dateModified, ties by higher item id), and loading idempotently re-syncs anchor § tags and the localized <h1> scope heading so older notes are repaired on open; parseOutline reads only the LATTICE-OUTLINE-V1 JSON, never the <h1>.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/logic/outline.ts#L185-L205",
+          "version": "repo-lines-v1:sha256:5a90ad73fcfab78ad5e406175b173213c6c72cae7719114021486d87d528cc67:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyNzliNjgwNTIwZWQ1MjZkY2M0YzhhYTM3MzUyNzU5MGUyODE5NWU0MGZiZTYxMDdlMWU1YjQ5NWE0NTc3MzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAxMmRkODk4ZDkwMzE5NDE2YTFiYmFjY2I1NTNkOTcwOGE3ZGM3NzE1NjA1Y2I1YjRjZjJhNjEzZDJhNDI2MDQifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/logic/outline.ts#L296-L311",
+          "version": "repo-lines-v1:sha256:bfbf695a1f255b88b2c59e1a173a798ed00b154394bc95361fef576baf86c974:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiY2VhYzVjMGFhYzIxODE3NjkwM2Y0OGQ2NmFhZDFiNzA4NDg0NDIxNGNjMTg3YWY0ZTljNWNiYmNiNDVkZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY5YmFiZDMyMTFjZWQ0N2EyZmVjOGIzNjUwZmY1YzM0Mzk2ODkzN2M5MDI4MGVlZDFlNTNlODFkNjNlYTc1YzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRiMjk1OTU4MWRjOWY5NjA4MTIxMWJhNWQ1NTUxNjJjZDcyMTM2NWMzZDAyMTExMWFhNmRjOWZkZWE0YzlmZmEifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L160-L180",
+          "version": "repo-lines-v1:sha256:55451267b15c6076e03879fbc3855ab2c23811990bc49050b6768669be2a7deb:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJlNmJkZDUxZjdmNDdmN2U3ODhiNTc4NmVlN2ZhNmRiMTlkMDM1NGU4MTg4MDdmZjEyNzA3YmJhOGU3OWQxODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM0ZWI4ZmM3OGQxNzcyZGI3NzYxNDI3NTFjM2E0NjYwMTc5NmJhNWJmMGQxZDIzZjY2ODEzZDliYTlhZjlhOWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyNTU0ZDhlNThjODI1MmU5YThhOTk4Mzc4NjkyYjNlZDIxZGVmOTQzOTQyYzlmYTZhOWZmZTVjMzRiNjViMWQifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L27-L44",
+          "version": "repo-lines-v1:sha256:0e417e4f8758abc5c3fa29bbbac56bde5332181ad623bdbd97c272516826917d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ0YmRiZDQ5NWE2NzMzNTNmMzQyZjUzN2M5MTEzNWZiYjk4ZGU5YTliYWJkYWFiNmYzMjQwYWVkZTk0YzJmY2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdhNTc2ZDY3MzAxMjcxZWE2YzM0YjY1ODJjZDExZGFkMTU5MzViNTQ1NzE5MDM2NGE5ZDA0MmVmZWE5M2ViZmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2294ccd6beec481ba6be7ac7803a73a2",
+      "statement": "docs/ai-integration.md defines the §-tag assignment contract for external AI tools and MCP servers (minimal tool set outline_get, annotations_list, annotations_assign): Zotero 10+ is required to write (local API write support), Zotero 8+ to read annotations (on 7.x annotation queries return no items and there is no fulltext route), the local API is off by default (extensions.zotero.httpServer.localAPI.enabled, port extensions.zotero.httpServer.port 23119), and a heading is a § + trimmed-title tag while the outline tree is JSON in a ★outline note.",
+      "evidence": [
+        {
+          "resource": "repo://docs/ai-integration.md#L1-L36",
+          "version": "repo-lines-v1:sha256:c1c231def057deb247e6147fa71fc732248a450033a55c6b4882a9c3aeaf9cbe:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk4NDZjYjdjNTM1MzMwZGI5MTY0ZmVjZDgxNWVmNzc4YTFlN2FmMWFjNjNmNmEyYzAzOTdkNTNkM2M1ZTZmM2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlNWMzZGU2ZGZhZjI5NjMxYzVkNWZkZmViZDJhZGJkZjFhMWQ5YzE4MzBhYTI5YjQ5YjA2MTc5YjI5NDM1NTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBjODM2M2RkOGEwNGQ5YzA4YTJkMGJjY2I0OWI4MjUxNmIwNTRhYjcyMTIxNTFmNzY5MjM4YjdjN2FiZjQzMWYifQ"
+        },
+        {
+          "resource": "repo://docs/ai-integration.md#L209-L222",
+          "version": "repo-lines-v1:sha256:94803f5d9b47734ea8934596cc5e37c4920cbecbd2a6d30e4f34a6447a8ee57f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRjMDU1M2ZiNTdlZTRjYmFlNDRmNTc4OTA5YzlmNzlhY2E1OTMyMGMyYmUzNmFkMzQ1Y2Q5MTNjZGJiMDM4ZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImViMmFkMjdmMDRiNzlmNDQyODZlOTNhZDk2NmQ5YTQwMGMwYzRlNzZhZDkzYWJjZjc1ZjAzMjcyMzE4OGIwN2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE5MDg0YjgyODU0ZGE1YzEzZDQ1MzJlZjk5MjFiYzI2ZTkxMTRmMDkyNDc3ZGRhYjIxNzkyNmU0YWFiYjQ3ZjcifQ"
+        },
+        {
+          "resource": "repo://docs/ai-integration.md#L273-L280",
+          "version": "repo-lines-v1:sha256:1e4a1c830defd7a08adfc30c781a8e1a13c2ace1f7455881c174413aaccfe2a4:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmJlYWM4NTA5ZmRkNWMxNmNiYzNlYzJiNTRmNzIzOWE4OGU2M2ZlZmMzZWY3MzlhYzRmOTE1ZGYzMDhiMzhiMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODc4NDNmZGRiODAwNzUzMTlkNTFlM2Q4ZTcwYjUwYmY4YjI3YTlkMmJjYTRlZjI3OTdmYzNmNTg5YWFmZThkMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmE4YzZkMmFmMmM4MTZiNjA4NjdkOWRjZThmY2RiMDJiMzQwOTA2ZjUzNDVlMjdlNTllNTBmZjlhYTczNGIwMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWNiZjY4NTM2NDcxODJkZWJlZDgyOTg5NmIyYWZkNzkzMzMyNGZjZTkzNGQ1MWQyOGVmNGNjZTFjMjE0M2I0OCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e5736deb4a9a40faa1ac658299789779",
+      "statement": "Under the AI contract the collection parameter is required and there is no tree fallback: a tool resolves the named collection's top-level ancestor and uses its collection key, uses only the note tagged ★outline and #flexannotate-outline-<collectionKey> (reporting 'no tree' and stopping if none exists), assigns only annotations whose work is in that main collection or its subcollections, and never creates, renames or deletes headings through tags or modifies the outline note (LATTICE-OUTLINE-V1 is read-only for tools).",
+      "evidence": [
+        {
+          "resource": "repo://docs/ai-integration.md#L153-L169",
+          "version": "repo-lines-v1:sha256:b3a98911de995d3a71c22bcabfaa79454d743bbc825af021ffa36dfb3f93c5d6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBjMDRhMjJlN2VlNTNiMTA2ZmQwYTVkZjAyZDQzY2M2NGExZTAzY2NkYmViYzkxZDBiNzIzNjI5NDc3ZGYzMWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkZTY1N2RhOTdmNDdlMDYxZWNlNDczODA1Yzk2ZjcxYThiNjExNGVmYWJmZTU5MWY5MTk5Nzg1OTFhZDZjMjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYzMWZiMWM4MTI0Y2IwNGU3MDI3MjA3ZGVmMmI2ZjZjNGFmMzgxZWNhYzVhYjMxNDE3OWFiOTMyOWEzODg2YWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRhZWM2YTM5NTk0YWU3YzllY2ZkNDNlNGY4M2E5YmIzMGU2YTg3NWIzNzU1YmU5OGU5NmI2MThiMmM5YTU3MGQifQ"
+        },
+        {
+          "resource": "repo://docs/ai-integration.md#L282-L288",
+          "version": "repo-lines-v1:sha256:75c1df452d1e19ccc06700c9912f185e3721241feccd175fe2431038ca33b24a:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGU2NTcyMzE0MWViZTE1MDc3Y2Q5MGU4NmI3NjY0ZmU4NGQwNTQ2ZjgyNmNiZDA0ZGJiYjJmMzk4ODNkMWY1YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjBiNDU4Yjg5ZWEyNjA1NWYwNmNhYmZjNmFiZTgzYWQ4MDllM2VjYTc0ZWU4YjVkNDdjM2VlY2I3Y2JlOTdjNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjU3ZDJhZTI5YjUzMWU0NjJhYWEwY2ViOGRlYzlmZTg1MzhmMGQxOTA3MzMwZDc1ZTQwNDZhYTRmYzMwOTIzMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGVjZTk2MDZjYWY4YjdkMTI4ODhjYTRhMjgzNTBhMGY3MGIzYTcyNTNjMjczNTAyY2UyNDE2ZWU5OTQyYTAxOCJ9"
+        },
+        {
+          "resource": "repo://docs/ai-integration.md#L46-L71",
+          "version": "repo-lines-v1:sha256:8adf12811dffa037f900db3cb0926969efba3ab77eb763b411f543c5946576dd:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJmOTM5MzJmNTY5MmUwNDA4M2VhZmY1ZjNmYmRhMzZlOTJkODEyMDZlNWFmNDBkM2M4NjUwYjAwNDBjZDk1ODkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkNWRlMDQ5MGI4ZmZmOTgxMDUxNmFjOTIzN2RjZTExZGJiYjE1ZTA1YjJlMThkNGY4NzFhMmRjMmY5ZDQwMWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ5NzlkMTEzNzNjZGM1MjYwYjlmZmRlMTBmNGI4MjFhYmJiMGJjMGM3MTY5MmY1YzM2NjMwY2IzMWE1NmUxMGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVlMDJiMWU0OWMxMmI3M2MzYzYyYTg4NGU0YWQyNGE4OGUxNDJhY2U3NGNiMTdkYmYwMTRkZjk2YmNlZTlhNTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fd092d5051ab43a8b24b8fad73618eb1",
+      "statement": "Assignment writes are plain tag edits: the organizer itself files through fileMany/unfileMany in panel/organizerData.ts (one transaction; items already carrying the tag and non-editable items such as other users' group annotations are skipped), while external tools use PATCH /api/users/0/items/<annotationKey> with the full tags array (204) or POST /api/users/0/items batches of up to 50 (413 above), sending the current version (stale returns 412), a Zotero-Server-ID header (otherwise 428), and a Zotero-API-Key from POST /api/local/authorize (one-use keys are consumed when checked; unregistered keys 401; read-only library 403; browser User-Agent/Origin requests need Zotero-Allowed-Request: 1).",
+      "evidence": [
+        {
+          "resource": "repo://docs/ai-integration.md#L153-L207",
+          "version": "repo-lines-v1:sha256:c1e3fc7e9a9f6a359defae5b2cea1627e6386865a95d7ee06565093b073b8896:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBjMDRhMjJlN2VlNTNiMTA2ZmQwYTVkZjAyZDQzY2M2NGExZTAzY2NkYmViYzkxZDBiNzIzNjI5NDc3ZGYzMWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzYWNlYWY2OWU2YTRhNDIzMmU4YzdjNTI1OTFjYWExMTBlYjcwNWY0Zjk5MGM4Yjk2Mjk4NjZjMTVmM2E3ZGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYzMWZiMWM4MTI0Y2IwNGU3MDI3MjA3ZGVmMmI2ZjZjNGFmMzgxZWNhYzVhYjMxNDE3OWFiOTMyOWEzODg2YWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4ZjAzYzMxYjkyYWVkYzQyYjczM2EyNzhhYTRkZDVjMzQ2ODgwODhmMGVlMGJkYzk5YzRlNWViOWI5MjQzNWYifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/panel/organizerData.ts#L133-L169",
+          "version": "repo-lines-v1:sha256:358997df56a935e585d6b19b120b0db9d01e41c37e069dfc11b63f0928d457dd:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyNzliNjgwNTIwZWQ1MjZkY2M0YzhhYTM3MzUyNzU5MGUyODE5NWU0MGZiZTYxMDdlMWU1YjQ5NWE0NTc3MzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBiOTkzM2FiZmE4ODkxMzJlNjZiMTcxZjA4YjE3ZjJlYTU4OWZlNWFlM2I4NTAzY2UzMGVmNDFlYjdkY2M1NDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4e0ca543eada40349d517f575ac45c7f",
+      "statement": "Every heading's § tag is anchored on the ★outline note itself by OutlineModel.save() → syncAnchorTags and backfilled by load()'s same sync, so heading tags exist in the library (and in the PDF reader's tag autocomplete) before any item is filed; the note is excluded from filing by isOutlineNote in gather/buildCountMap and never counts as a filed item, and the outline note stores only hierarchy and order — numbers like 1.2.3 are computed for display and never stored.",
+      "evidence": [
+        {
+          "resource": "repo://docs/ai-integration.md#L27-L36",
+          "version": "repo-lines-v1:sha256:6ae0049d5b648423cf8c43e5ab074563f4e9214038827891300a8f2b5febdec4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5ZTQ5NWY0ODE1NTZlZDYzN2Q3NjY0Zjg0ZjhhNzYxNWI5NTQwY2U5MTVhNzhiYTExOTI2ZjZkMzgxNDFhY2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlNWMzZGU2ZGZhZjI5NjMxYzVkNWZkZmViZDJhZGJkZjFhMWQ5YzE4MzBhYTI5YjQ5YjA2MTc5YjI5NDM1NTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZjNzZhYTBlMWIxYTU3ODAzYjQ0OGVmNThlMTEzYTFiMTVmYTdjNDI3YjhhNzgxYTg5ZjcxNDJlODI3ODFjNDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBjODM2M2RkOGEwNGQ5YzA4YTJkMGJjY2I0OWI4MjUxNmIwNTRhYjcyMTIxNTFmNzY5MjM4YjdjN2FiZjQzMWYifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L187-L242",
+          "version": "repo-lines-v1:sha256:6ea9abe12b6d343f7f5a1e00fc538e0d86ea770aecd4693d9c6c9af45aff6c49:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBmYWM5NmJjMDk2ZGIwYjg1MGZkMjYxYmNmYjViZWUwNTBkOGY1NDExMjQyOWQwOWM5NDU3ZDc1YWJjNGRiY2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEyM2ExY2E0Y2MyMDkyM2Y5Y2EzZmMyMjMwYTA3NTYxMmY0OWNjZmE3YTZlNWJiZjhhZjNmM2FlNjg4MjVkM2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg3OTlhM2ExOWE4YWRmMWU4MDM5OTlmMGJjZjU2YzgyZGYyN2ZhNDUxYzQyOWM5M2Q1NTM0M2U0ODkwZGJiNmMifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L437-L508",
+          "version": "repo-lines-v1:sha256:48b29faf4bca2b85a275a1971d7335169be6d7fd3888aefffa2ce36289b3516a:eyJzZWxlY3RlZExpbmVDb3VudCI6NzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4ZGFlNWU3OGE5NzIzYTVjYjZmNjVjOTRjY2NhYjUxNzBhNTgyN2YwY2M1Yzg3ZDdhMTMzODdkNmQ4ZjYwZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZWVmZGQ1MTEzZDk5MDU2ZjFlMTlkZTFiN2Q1YmVkZTZlMGEzMDFmOWU4ZjdiZTRlYWQzZjhmOGRhODY2YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA2MzA5YmMzNGRkY2U1NGZmNDA4OGM3NTdkMDc4YzA0NTc4NWM0YThiZGMxZWQyYzZlNjlmZTU4NzhiM2E4ZDYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5b9bf2b2c1604b3185b9a444b895e221",
+      "statement": "openTarget.openRow resolves deep links by row kind: annotations open at the exact annotation via Zotero.Reader.open(attachmentID, { annotationID: row.key }) — the annotationID location key makes the reader reuse an already-open tab and navigate — works are selected via ZoteroPane.selectItem, and because the organizer is a separate window activateMainWindow brings Zotero to the front (Utilities.Internal.activate with a focus() fallback); the integration test asserts the exact { annotationID: ann.key } location.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/openTarget.ts#L1-L39",
+          "version": "repo-lines-v1:sha256:dce5432c90dc776099303959483baa38a15c7c8056272dd9b7eb1d2b0836b32c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://test/features.test.ts#L45-L62",
+          "version": "repo-lines-v1:sha256:3ae2e0652961dac00d7389040a2e4a5954d3cbc58674f9a69e2f651558c15637:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhOWUyNjc2ZGE1YmEwZDJlZjZlYzFiMmM5NmFiNTBkMTM1MTdhOWVmNTcyMjM2ZWE2NGY1MzQyYzM1MTM0OTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJmYmE0MmVkZWZlMDhhMWY0MzQ4MWZhMTlhMDA2NWNiYzgyMzY3NTliYTlhM2EyYTRjYTkzYWI0OTIwNDQyNmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzY2MwM2Q2M2EyNjhkNzRmMDJhZTQ4NjgzYTZiMGYxMGZlYzZhYjNlYzEzYWE4YTA0ZGI3NzNjNmM2YTlhMmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_00955960b8174e14bfc91cb61b8eaa55",
+      "statement": "The zotero:// library path segment comes from uriLibraryPrefix (\"library\" for the user library, \"groups/<id>\" for a group library, fallback \"library\" on lookup failure), and OutlineModel builds FiledItem links from it: annotations as zotero://open-pdf/<prefix>/items/<attachmentKey>?annotation=<key> (empty when the attachment key is unknown) and filed notes/sources as zotero://select/<prefix>/items/<key>; these are the links the outline export embeds.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/annotationIndex.ts#L32-L41",
+          "version": "repo-lines-v1:sha256:e24eaf9efc21bf3a8ef3ca28a3ba3464344282d0d16e091b176383876adc7b40:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlNWRlNDBkYzk5NDNiMDYyZTVlNDczNWFhMDdjZGMyODE2NjQ1YzU1NmI0YzA3NjM3NzE3OTIwNjliOWVhNTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmMDkwY2U5ZGM5N2M2NGFkNzhjZTVlOWIwODQ0MDA0MWRjNjNlZGJhZDMyMmUxODAyYmU1NjFkYWYyMTNjMTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU0ZGI0ODM3NzE4MDRjNGQwNTVhMjczYmMzZWEzNjhhNWVmZjcwNGVlOTQ5ZDJlMzgwZDM3YjI3NTNlZjUxYTkifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L375-L435",
+          "version": "repo-lines-v1:sha256:125c17f29629fef7dbe6380ebf5d1d00795dc346332f79ea89c9c83be1c20a50:eyJzZWxlY3RlZExpbmVDb3VudCI6NjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMzQ1ZDg3YjQwNDk4YmQ0MmM3MjMyNzE5NGEzY2UzMzdmMTM5YjFkMTQyNmMzZGNjOTZiOGNlNDBlNThjY2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI5ZjZjNjIzYjUzNDFhMjUyNzFjNzlmZDM4ZjhmYzE1MGRhYjI4NzJmMmVjYWExOWUyN2M2YzRhNmZhNDUwNmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1555700392c24d9f8eb860ca448437a0",
+      "statement": "The persistent citation-dialog feature keeps a companion browse window for Word/LibreOffice and is gated to Zotero versions that have Interface.prototype.addAnnotation (9/10): persistentSupported() is false on 7.x/8.x where nothing is patched, and patchDisplayDialog/patchExecCommand/patchProgressBar wrap Zotero.Integration.displayDialog, execCommand and Progress.show via assignChecked — if either of the first two fails to install, both are unpatched and the feature stays off rather than half-working.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L119-L125",
+          "version": "repo-lines-v1:sha256:ca59e72a24d2f5cdc2c8c41296cc18da6e743f0a74e196f0c80096fa3de81f6f:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWNlZTNhY2EwODA2NzgwZTcxOGJmYmE3YTA4Yjc3NmFmM2ZmOGZhMDhkMGFmNmNkYWQ3NzQyNmJmZTRlY2IxNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzRkYTM3YTU5NWYyOWZlYzk2OGZiZjc0ODM5OWI2ZmM3MWQ4YjdjMzgxM2Q4OWVlODliN2Y0YTk2M2M2N2UxMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWFjMjA3ZjNhMmQ1NTlmODcxYWUwNmFmZGVkZjc0OTRiMGM2ZmU3OWNkNGVhMzY5ODRkM2U5ZDU1ODU2N2MyZCJ9"
+        },
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L797-L917",
+          "version": "repo-lines-v1:sha256:84ab8890a0b25cf4140b44daaa6c2303792cd94eb33207064b8b2359e3031c46:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIxOTk5OGNlZmVkYTRjMGZmM2ZiYzhlOWI5MmQ2NWJjY2U4YTVhNzFiYjdkODBhZmFhNWE1OTZkNjBlMjExOGJjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIyMmEyZjU4YTBkNjIxMzAyYjdkYzk2MjBhMDk4ZjgyODk3Zjk0MTE0NTI5MjcyNTg4NTQwZmE4ZGYzMDk5NWNiIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJjNDI0MmU3ZDRkNjU0NjYyYmQxN2NjMWI3NDc4ZmU2YWE3ZjNmMTg1YmI5MzMxNGFlZWQwNjk5OTc2NzFkNTZiIn0"
+        },
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L919-L939",
+          "version": "repo-lines-v1:sha256:dd519f33cd7fef17f8e9e5dc033897c768ad56f2aff8d03da4ee5417ecff4c73:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjMGRiOGVmODJhOTczMThmYTViNTQ0MTE1Y2M3OTU3NzI1YTBlMjg1NGEwMTE0MjIxYjlhYzk4ZjUzMGIyNDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIzNjA2M2VlYTdkYWEyM2EzNDNhYzFkYjI1ZWFiOTY2N2ZjODExOGM1ZDdjOGE1OWE0Y2Y4NjA4OTQ4ZGYxOGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJlOTAyNTM4YTk2M2YyMDU5ZmVmNjg5NDVlZjE5MGIzNzFkYzZiYTY0OTA2NTMyMTkwODYzOGU2ZTUzY2I4MDcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a8df6c14f64a458ea39b0336cc256a04",
+      "statement": "The browse-window cycle: a real request opens the dialog via openPersistent; after an accepted insert the wrapper captures the live geometry, the command's end closes the dialog and openBrowse opens a fresh citationDialog.xhtml with a synthetic CitationEditInterface (isAddingAnnotations = true, no document); inserting from the browse window cannot use the native accept (the dialog reads its io once in onLoad and accept() tears the views down), so insertFromBrowse re-runs execCommand(agent, \"addAnnotation\", docId, templateVersion) with the remembered command and the patched displayDialog copies pendingInsert into the command's io without opening a window; one real request is needed first because agent and docId are only known from a command Zotero ran.",
+      "evidence": [
+        {
+          "resource": "repo://docs/persistent-window-limits.md#L81-L100",
+          "version": "repo-lines-v1:sha256:b51ce8a8d62c5da3a67fc50c38b9ddf133a14ec0abe4ccd9b90e98784a6cfbcd:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzNzk4M2MzYTQ4ODNkYzVhYzYzYmQ1ODhiODc3ZGFiNDJhNDg3MDFlMWFlYjQ1ZWRjNjYxOWU2YTdhNWRmOGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI3MGYxNjVkM2FiNzNhODA3NWYyMzliOWU1ZDJhMGFjZDNlMGNjYzk4YWJlZmJmYjI5YTQ2MTBhODMwYjkyMTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg4YjNkYWRkYzU1ZjQwYjAwMGNkZmI0ODNhZTRkMGVkYmM0ZGFmY2NmNjQxZGRkNzBjODIzMDIzYTZhY2RjNDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyNDU4YzUzMTMxY2UxZDQzZmJjNjllYTNjMDMyYzNhYWRjZjdhODJjM2FiZThmMTA5MjJkNDE1ZmZkOGVlZDMifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L492-L615",
+          "version": "repo-lines-v1:sha256:6a563e4d362dc5bca640cd74dc0a910ec6d40f0c01af67986a72635bcd516fcc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI0YTg3YjBjN2E3MWNjZGUzNmQzOGQzMGVmNWNmYWFmYjJjYTJhZDAzYTMwYmQ4YWMyZTZhYjdiNjFiZTIwNGVhIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0OGM4NDEzNWJhZTBhZjUxYjM3NTJkODQ2NzMyMmMzZDY3ZjY4YzU0M2RkZDhiNmFjNWE1Yjg0ODU4ZDJkMjY3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlMGFmM2M0MTExNDlkZjUxY2ZhMGU5MTZiZWIzMDc2NjMzODdlMzIyNGU1NjMyOTBkMTI0MGVlNjJhZDhkZjc3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJjMzE1YmVjM2RlN2RiYTA3N2I0OWRhY2YzZGM5OWFlY2Y0MjY1ZmFjOGEwMjMyNjM2MjJmZDA4MDlmMmY2NWFkIn0"
+        },
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L661-L748",
+          "version": "repo-lines-v1:sha256:7f7b4e54c29f9dc14eec02c83e1be1f2ee94f0a97427d5d84ef53992fe0a7e04:eyJzZWxlY3RlZExpbmVDb3VudCI6ODgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEyOGY3YTk4YzZiODQ0YzNlODIwYjU0YmJiMDQ0NTZhYTk5YmU1N2JlNzRiMmI0ZGNmM2JkNTE0YzQ1NTY5NWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMTg0Y2Q0MTM5ZDFjNGVlYjNkOTRjYjVmYzhhNTE1NTE1NjAwOGMzY2Q3MDZlNzMyZTk0NDFlYzQ4NGVkYWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRhZjIxNmJkZWIxOTQ0MjI0OTFlNzYzOGVlZDg2Mjk2MTRiYzY2M2UxNGZhNGNjYTMzNTg2ZGQzMWNhN2JkM2QifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f06d59a14029489384d6f4a72f4d98cc",
+      "statement": "isPersistentAgent admits exactly WinWord, LibreOffice and MacWord; http (Google Docs) is excluded because re-running the command from the browse window leaves the HTTP server's response callback stale and hangs the server; MacWord is enabled because the macOS integration is asynchronous (ChromeWorker + Scripting Bridge) and does not block the main thread the way LibreOffice's synchronous sendCommand path does, with real-macOS verification still outstanding; the geometry handling itself is agent-independent.",
+      "evidence": [
+        {
+          "resource": "repo://docs/persistent-window-limits.md#L92-L95",
+          "version": "repo-lines-v1:sha256:93526cd517569cb8ce76203586020f9055d5cdbe4eac6cd383706bd322e4be26:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjFjM2FkMTRlYmM0OThhODJlNmNhM2IxNTczZWU0OTQzMGFiZTYzOTIwM2FhYjlmOGMxOTRhNTc3MWExNTAyMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWRiYzgwYTM4MmRmZDVmZmI5OGFhMjhkY2MzNTEzYTMyOTY4MDJjYzVkN2E4ZDhjYTg2NzFmNDIwMGYzMTQwNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmZlMjQxZTQyYmQ1ZGVmN2E0MmJhYzliYTExMWI0MDAyNTAxMDFjYzQzODU1Yjk4MDUxMzViYzAyNWMzNzk5YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWRmMzFlNWQ1MjUxZTRlZTZlOTcwNmZhODE4YThmMGVlZDE4YTYxY2JiNDY3ZGM3N2I1OGUwMWJkZmUxZDdkYyJ9"
+        },
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L66-L80",
+          "version": "repo-lines-v1:sha256:c8b291256a7b1486230e00caa912e1f17f6335ee5f03f0de9a08e1eaf2216901:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZhZDc4MWZlZmIzODI2NjQxMGI4ZmFmZTNjNDE4MTMwMGM5ZGIwN2MyODlhZTNkMWM4NWU4NDVmMTU1NTk0YzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkxY2Q5MDU1MmFkNDExOGE5ZGZlMWFhMDVkOTkyYWEzZmU5YTRkYzczMTUyMDczNjBjMmZiMTZiZDkxMjA0OGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8df907f04c804ff59b1ab6aed273c1b7",
+      "statement": "Persistent-window geometry: normalizePersistentOptions removes popup/alwaysRaised/centerscreen, adds dialog=no and resizable=yes, and sets left/top/width/height in device pixels (openWindow features are device-pixel while screenX/innerWidth are CSS pixels, differing by devicePixelRatio); pinRect holds the rect against load-time resizes with a 20 ms timer and clamped resizeTo/moveTo (position only during the load phase, size until the first foreign resize, 30-correction cap); relaxDialogMinWidth lowers the library layout MIN_WIDTH to 360 px for the persistent window only; the last live rect persists in extensions.flexannotate.persistentWindowRect (debounced 500 ms, flushed on stop) and parseStoredRect validates it — below 320x300 falls back to defaults, oversized sizes clamp to the available area, positions only when overlapping the main window's screen.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L183-L236",
+          "version": "repo-lines-v1:sha256:0dc2140f60c8fe17ba19aee9110d0139b79bbabe78132e2021555926d785d625:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ1ZjQ3Y2FhZjJkMDg2NGZjNzE0NTZiZjgwZTQ3N2QxMWE0MjMwN2YyYmYwZjIzNmVhN2M0MjFhZGJmYWE2MzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIzNjA2M2VlYTdkYWEyM2EzNDNhYzFkYjI1ZWFiOTY2N2ZjODExOGM1ZDdjOGE1OWE0Y2Y4NjA4OTQ4ZGYxOGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhmMzMyODQ3NWZiY2JhYzJlYTIwMGE1OWZiM2Q5NTMzMDQzNThjMGMyMDYzYTYxYjYyNDA1MzQxYzcyZjU1M2IifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L338-L444",
+          "version": "repo-lines-v1:sha256:0c7add395975f57ada9ebbbdcccd9d5ba23285e2e37ac22abdb692df71088b7f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI0ODExMzdmZTNlOGY2NWEzOTAzYjBhZjU5Yzg0MzYzZDNiZWVhNTBmMzc1NjVkYWI0OWRjMDNlMTE2ZDA2ZTM2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlOTRmYmZmYmZkYmViNGRlMDA0Y2NiMzRlMDJhM2ViMjIyYzk3MTkyMGJmMmY5OTdkN2NlZjQxZjUxOTJkMTBlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxYTk2NTRlYjllZmYwYTY3YjE1YTM5OGE5ODk1MTk5OWQ5NGFjZWQ5OTFmMjYwYTdlMTc3MzZhYzRiMGY2YjIzIn0"
+        },
+        {
+          "resource": "repo://src/features/organizer/logic/persistentOptions.ts#L16-L39",
+          "version": "repo-lines-v1:sha256:18155f69ff404e588a1068380a5dd6e4ce021a300fa2af45c245d12e4af10929:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyZWU4ZjgwYWIzZDU0NzM2YzM3YjljYjlhZDFjMmQ4OTBiZGVkYTZhZWQxYWZkZGU0YjMzMTlkMGRmMTQ0OTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjMzM5YjE4MDAzNGEwNGE3ZGFhM2MwMzk4ZjRjYmQ3N2Y2MzY4YTg3ZDQ0ZDEwMDA1YjQwOWYxMjAwZjAzMWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/logic/persistentRect.ts#L53-L80",
+          "version": "repo-lines-v1:sha256:58cd7208eac1c0cff326e6b582007c618c82e3049012be88ae22f908b67554c4:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2ZDgwYTBmZjI5ZTM2ZDQ4MTRjODkyYzUyYTkyNzBlYjE0NWUzZDM1ZjdlYmQ2ZGVmYWFhZjAyZmQwNWY1MmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyZjMyZDVjZjdlYjk2NTQ0YTMyNjk3MDU1MzZiMjgzZDdhMDc0ZmIzZDgxMmE3YjJmMmU4NGZhN2U1MzZlOGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3MGY0YjZhNGFmZjFjMTVlNDE0OGE1NzI3ZGJmOWMwYTg3ZTY1ZGQ5NGMzMjA5ZjE0ZTVmYTc3ZDc1OTA5MmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFkMWMxY2Y2NDFmYzFiNGE0YzM5MjEzNzE4NmExYWY0ZGFlMzhhM2Y1Yjc3YmU0ZGE5OTY4MDIxNDVmMGNmZGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a89f79c3ec324507a723ebc52ca4fade",
+      "statement": "Failure semantics and teardown of the persistent dialog: openPersistent failing before a window exists falls back to the native dialog path, failing after the window opened never opens a second dialog on the same io, a single window close without accept resolves the pending request promise Zotero waits on; stop() restores all three patched methods, flushes the rect pref, drops pendingInsert/lastCommand and closes the browse window; turning the option off closes nothing immediately (the window stays until the next insert, which does not reopen it), and turning it on mid-dialog arms the running window via activatePersistentOnOpenDialog.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L653-L669",
+          "version": "repo-lines-v1:sha256:5860d91783198b35f908ded1a9891fae3edfe79f360cc7818edfb7aaa9f5266a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhYWM0ZjNlNDUwZDIxNWQ1YjVhMjlkYTcyM2Y5NDM3ZjY1MmE0YzdhYWMzOTgwNGY3NWU0NWE0NmE0NGNmZDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRkYTE0N2EzNDc5MTg4NGM2ZmVkNWMxNzI5ZWE0MjEzZjAxZTU5MjZkNjk2ZTUyOWViMjE3NDI3MzdkYzI1NGQifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L797-L859",
+          "version": "repo-lines-v1:sha256:72d4f6fda73f1b14497d04498fd4e94f9d9e81318057a6d628cf3834dda318c9:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5OTk4Y2VmZWRhNGMwZmYzZmJjOGU5YjkyZDY1YmNjZThhNWE3MWJiN2Q4MGFmYWE1YTU5NmQ2MGUyMTE4YmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIyYTJmNThhMGQ2MjEzMDJiN2RjOTYyMGEwOThmODI4OTdmOTQxMTQ1MjkyNzI1ODg1NDBmYThkZjMwOTk1Y2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRlNmIxZDEzODljNjM5YjFkMTRhZThlZDc4NTY0Mjg0NDFjOTdiY2UyMzNlOTdmNTE1MTI1NDE2MTU5NmIyOTAifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L919-L960",
+          "version": "repo-lines-v1:sha256:e732fb3d951e13fbe7b47dd69c1c9dab647dd4f3f7b83b8725b911d10e3204df:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjMGRiOGVmODJhOTczMThmYTViNTQ0MTE1Y2M3OTU3NzI1YTBlMjg1NGEwMTE0MjIxYjlhYzk4ZjUzMGIyNDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIzNjA2M2VlYTdkYWEyM2EzNDNhYzFkYjI1ZWFiOTY2N2ZjODExOGM1ZDdjOGE1OWE0Y2Y4NjA4OTQ4ZGYxOGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e7593340d8964e3a89e4c59d0636e00a",
+      "statement": "The integration tests exercise the external surfaces end to end through addon.api: the openRow test asserts the exact { annotationID: <key> } location passed to Reader.open on the attachment, and the persistent-dialog section of test/features.test.ts covers the browse-window cycle (dialog closes after accept and a browse window opens at the same rect, browse insert runs the command which receives the citation without opening a dialog window, the browse window reopens with the user's geometry across cycles, a single close resolves a pending request, and activateOnOpenDialog arms an already-open dialog).",
+      "evidence": [
+        {
+          "resource": "repo://src/hooks.ts#L122-L168",
+          "version": "repo-lines-v1:sha256:b8279a01d5833477320b7569ca8c0b2dd2f4adf322a981b0c9ca3e0cf094b4ec:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwMTgzNjQ4NGQ4MmQ1NmM5Yzc0MjExMDkzNDlhY2UyOTg4MDUwNmQyYjI3N2I0NjFmM2ZlYTgxYWE3ZTFiN2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiZWU0NTk1NDhlNDBjMTZiZmMwYTZjMjgzMDhiNmY1MzI0ZWE3NWI0ZmM5ZjRlZDQ1OTk5OTE2NTA0MTllODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3NzQ2NTQ2NjYwMThkNTg2Njk3NjI0MzhlMmJkZTAyMGIyODk3NjIxMmZiNWJhNTU3MDEyMmMwMzM5N2RiN2EifQ"
+        },
+        {
+          "resource": "repo://test/features.test.ts#L1225-L1290",
+          "version": "repo-lines-v1:sha256:c281c769ea377078775e4bf3bfae6a0755546773bafbbffb157f04e89ab5940f:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIzMWQyOWFjNTMwODg5MzdlNDBlNGNiNGM1NDNhNDQ1OTE1ZjQxYjQ5NTA0ZTcwYmY0OTkwOTIzMGEyNmU1YTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY3NjQ2NWU3NzNiN2EwMTg5YjUxZDFkNmY3YjI1MDQzYWJlMDk1NjQxMDU5Y2ZmZjUwMGMzNGRmMTE3YjViY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2MTk4NTdlZDNhZDFjNzVkNGYxOTAwN2M0MmYyMDcyNGE4YThmMzljNmJjNzY3MWViNDZhZjc1ZGYxNTFhYmMifQ"
+        },
+        {
+          "resource": "repo://test/features.test.ts#L1639-L1715",
+          "version": "repo-lines-v1:sha256:92f8bc29b61352790bb7bbfab50fd15f380f3ae6043d73e95086cfca9f189ecc:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4NzMyNzk1MGVkYjYzYmVjZmE2ODhmMTJiYjkxNTkyYTlkYzQ4NWU4MWFlNTJkYjdmOTUwYTZiYmNhZjRmY2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY3NzRlZjVmZmJhODI5NmU2NzRhMzE5MDZlNDc3OWFhMGE1Y2NkMDY0MDFhMDBhZDIwNWM2NTU4YTc0MzljMDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAzNDMzYjU4MjI5NWM0Mjg1YjgzMzc5N2Y1NDAyMzNiYjMzNzY4ZjQ0OTUxOGEzNTc0Njk4MzQ5MjU2NjRiNjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVhZjAwNzYzYmU5ZmYwN2U3YzFjNTdkYTNmMTg0ZThjZmIzYTNjMjBkY2JhZmM5YTI3Mjc1NWIxZGM2YWU5NTIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6c92d6e7de24467a9a07ccb41deed1e8",
+      "statement": "src/hooks.ts:onStartup constructs addon.api on the plugin instance (accessible as (Zotero as any).FlexAnnotate.api via src/index.ts), exposing internal modules (organizerData, outline, flatHeadings, outlineModel, organizerStrings, OrganizerFactory, docImport, docExport, docOutline, organizerToolbar, toolsMenu, openTarget, cited, CitationDialogPatch, persistentDialog, modeSelector, citeOnly, reader, citavi, print, and externalApi) so Mocha integration tests running in a live Zotero instance can drive features and lifecycle controls without direct ES module imports that lack initialized globals like ztoolkit.",
+      "evidence": [
+        {
+          "resource": "repo://src/hooks.ts#L122-L168",
+          "version": "repo-lines-v1:sha256:b8279a01d5833477320b7569ca8c0b2dd2f4adf322a981b0c9ca3e0cf094b4ec:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwMTgzNjQ4NGQ4MmQ1NmM5Yzc0MjExMDkzNDlhY2UyOTg4MDUwNmQyYjI3N2I0NjFmM2ZlYTgxYWE3ZTFiN2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiZWU0NTk1NDhlNDBjMTZiZmMwYTZjMjgzMDhiNmY1MzI0ZWE3NWI0ZmM5ZjRlZDQ1OTk5OTE2NTA0MTllODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3NzQ2NTQ2NjYwMThkNTg2Njk3NjI0MzhlMmJkZTAyMGIyODk3NjIxMmZiNWJhNTU3MDEyMmMwMzM5N2RiN2EifQ"
+        },
+        {
+          "resource": "repo://src/index.ts#L8-L15",
+          "version": "repo-lines-v1:sha256:ee81db2827778fac9efc663cb6814161bdb1d26b8cc0858a14f3649e6621e9a0:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTAxNzhjODU2NzU1ZDIyYTg5MmU3ZTJmOTI5ZGY3OWUzMGYyN2RlZGFmMjU3MjllM2NiYTMwMjc5NDVjOTdmMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzQ3Njc0YjhhNDY3MDNiMDkwMjViNDRiZmQ0MTAxNTc1OGE0ZGYzN2ZmMmU5OWYxZmIxYWE3OTg4OWI5ODA5OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTc0ZTQ4NzhjMGMxYjA0ZjVmOWQ0NTBmMTQxMjYyOTViYTE4MGMxNDZlNGMzMjhkZDc1Y2Q3MjNhMjA0ZTliOSJ9"
+        },
+        {
+          "resource": "repo://test/features.test.ts#L22-L24",
+          "version": "repo-lines-v1:sha256:6d15253f964a35656b806f8d85dcc993b24de11f702de3e0d39fb71ca8d04e3d:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGZiMTVkMDY0NzRjYWVlNGZlZDc5ZDdkMzJkMjQ1MjZjODNlYjM1MTgyYTE1ZDA4YTZlNzEwMjBhYmM0ZTZiZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDMyZjUxMGEwODcxZTQ0YWJlMjQ2ZDQ2MzZjYjc4NzAyZjA5YmNhZTA0Y2Y3ZTk0ZDMzMTk2YzFlYWEwMjc4YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjcwNTFmYTM2ZmYyZmZmY2YyNDJjNTBlNDgyMWFjYjk0MGYxYmM1MzBhZTc0MzE2MDEwMjYwNTdhY2FiMjVhYyJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-16T19:49:13.348Z"
+  }
+}

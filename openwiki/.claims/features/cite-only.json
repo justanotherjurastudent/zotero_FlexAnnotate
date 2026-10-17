@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:043f8a1f46e5769e9b9b16f7e71a88377e48ecd1bde01783847ed6e5a2da3e7c",
+  "claims": [
+    {
+      "id": "claim_aaadb6a88105419598971b6b2f6cd06c",
+      "statement": "Cite-only mode hooks into Zotero.Integration.Session.prototype._insertCitingResult, the method that would otherwise insert cited annotations as a mock note (xpcom/integration.js:1678-1701, verified against Zotero 10.0.5); with the citationOnly preference on, the wrapper rewrites the citation and inserts it through the regular path _insertItemsIntoDocument() (integration.js:1778-1785) instead. insertAnnotations is not a patch point because it exists only on Zotero.EditorInstance, not on Integration.Session.",
+      "evidence": [
+        {
+          "resource": "repo://docs/anchors.md#L11-L11",
+          "version": "repo-lines-v1:sha256:d36e1bc1d1d64f694e33913ba34a5b48ae1efd5cc7ca5cc5853fd78f41f2c67a:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDM2ZTFiYzFkMWQ2NGY2OTRlMzM5MTNiYTM0YTViNDhhZTFlZmQ1Y2M3Y2E1Y2M1ODUzZmQ3OGY0MWYyYzY3YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDM2ZTFiYzFkMWQ2NGY2OTRlMzM5MTNiYTM0YTViNDhhZTFlZmQ1Y2M3Y2E1Y2M1ODUzZmQ3OGY0MWYyYzY3YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjI1MjNmNDc3MjBiODZhYzYwMmMxYTFhYmI0NDE2YmFhMzc3YjA5OGM5ZDNiMGY0Yzg4YzQ3ZWFlODFhMzVhNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDYzYmI4ZjljOGQ4NmZjOWU4MmUzNzc5NTk1YTNiOGEwMTg3NWE1NWUzMTY2NTJjNGNjNDkxMTM0ZGMwNmI3YyJ9"
+        },
+        {
+          "resource": "repo://src/features/citeOnly/integrationPatch.ts#L1-L60",
+          "version": "repo-lines-v1:sha256:6c9579c4969c7f986e06321aba3fd0be04175a0f27e50f273ebf34087fe14d49:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcwMjFkMjg5MzcwYTM5NjUyY2YxM2JlNzI5OTYwYjRmNjFkZmUxYjJhMTk2OWMxYzgzOGY3OWY1ZDI3MWZhZWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0b9121b71c234c61b66fea81f4326853",
+      "statement": "The pure decision function citationOnlyItems(items, refs) in src/features/citeOnly/logic/citeOnly.ts builds the new citation item list or returns null, and null means native fallthrough; it takes no Zotero imports (the caller resolves items via Zotero.Cite.getItem and locator types via tags) so it runs under the Node test runner. It returns null when the item list is empty, when refs and items differ in length, when a ref is missing (mixed selection), or when an annotation has no citable top-level item (topLevelId null).",
+      "evidence": [
+        {
+          "resource": "repo://src/features/citeOnly/logic/citeOnly.ts#L28-L63",
+          "version": "repo-lines-v1:sha256:d2042a33ca850a585eddf5f9a45a76476f6f703ba5f60b494a27460f982f800c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY2ODBmYWQ4NGRkMzIwNzIzM2FjMzVlN2U0Y2MwNGQyNjUwMzJkMDNhYjMzY2FlOGM0Yzk2MjgyODdmNGMxNTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://test-unit/citeOnly.test.ts#L17-L42",
+          "version": "repo-lines-v1:sha256:b5a624089ce262916e423c21177c919ddb4a5f27da756208085f014103462a02:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjZTFmZjkxYzJiNmU1ZTY3NjUyNmFhNzcxMTEyNjA3Mjk3MzkwODE4NTczMGE4NTZiODZlYmE2NGE1OWRkYjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3OTA0OWY3MDkyYTlkOTA2ZTA3YjhjYTU2NjExMTBhNDBlZTJmYjc1YWI1ZjQxODgxMjJmMzU3ZTkwODZlYzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEzY2JmOGFmM2JkYmRkNmIyYjQwYmIxNGNhODQ4MTQwYzU4ZmZhZjY0M2RhZGQ1ZTRhOGI0MDE3MzI2ZGU1ZmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEyZWI4Y2UwZjQxZDNkYjY3YzAwMmY0MjlhZjk2NDkxNWU5ODhjNDM2N2M4M2QzZTJlZjFhZmY3MjBlZTM5NGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3ef4df1fb4a54ae98605d4125059cef8",
+      "statement": "For every accepted entry citationOnlyItems returns a new list without mutating its input: each entry spreads the original citation item, overrides id with the parent item id, clears uris and itemData, and — only when the annotation's page label is non-empty — sets locator to the page label and label to the resolved locator type; an annotation without a page label keeps the original locator/label fields. Order and per-item parents are preserved, and every behavior is pinned by test-unit/citeOnly.test.ts.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/citeOnly/logic/citeOnly.ts#L43-L63",
+          "version": "repo-lines-v1:sha256:3eb499f1e679fdf8da032dc1289d5428434ea105d33bafa11ae8b2c0ece7749a:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5NmUyZjUyNGNlZDUxNmNhZjdkMThmODYzNWNlYWY2NDdlMjc4ODJmZWIzYWQ3MzBjYmNhMThiZWQ4NzY1NmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkMDIxNGZlZjM5YmM0ZTM5NmM3OTk3ZjJkOTgxMjA1YTY5NTFjYzI3ZGFhZWYyZWM0NTI0OTJkMTI3MWZmZGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://test-unit/citeOnly.test.ts#L39-L103",
+          "version": "repo-lines-v1:sha256:a8b9fa2ff86e4d774e7c037b2e6c47bc6fb8c7337617bd086b5f303ac18a5334:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY1NDY1ZDYyZmUyNjY5ZGE5MDA3NTk3ZmU4ZGVhNjlkOTdlYTQ2NWE3YjAzN2M5YWJhODA5NTE0YTFjN2M1MmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU2ZDM5MjQzNjdhMzUxYjU5OGU5NmJiZTZkOGE5NDljYzE2NGZkNmU3NDFiOGI4NDkzZTkzY2EwOWJiZGU5OGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ebebad06f41b4961a57aac4c762e7837",
+      "statement": "rewriteToCitationOnly mutates the citation object in place (assigning citation.citationItems) and returns the same object instead of a clone, because a clone would lose the prototype of Zotero.Integration.Citation that the session later needs for .serialize(); the mutation happens only after full validation (items present, every item an annotation, citationOnlyItems returned a list), after which citation.loadItemData() is awaited when present.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/citeOnly/integrationPatch.ts#L79-L116",
+          "version": "repo-lines-v1:sha256:91b5ac1b4702386daee77b79e7e68540cdcec9bd1d404e30723f10249a3b4c81:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVjOGZiZjcwMGM4YTNhZTU3NTE1M2QyNzU5ZWMzMjAyMzM0NWJmYjU3OTE4MjU4ZWUwNjk3NjQ1OGJjYjU1NzMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_88aa13780f7d44418504a67ad3090f81",
+      "statement": "The citeOnlyPatch feature installs the _insertCitingResult wrapper through assignChecked with feature detection of both _insertCitingResult and _insertItemsIntoDocument (a missing target logs \"cite-only stays disabled\" and returns false), guards against double installation via the module-level installed record, restores the original in unpatch() (nulling installed before restoring), re-reads the citationOnly pref on every call, captures the native function in the wrapper closure, and logs any wrapper error via Zotero.logError before falling through natively; a failed start() throws so the registry logs the failure.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/citeOnly/integrationPatch.ts#L122-L209",
+          "version": "repo-lines-v1:sha256:363c2261503e193dc9b315c3272fd6ddc83594a9281882d6d6f09c0ba2ebf7bc:eyJzZWxlY3RlZExpbmVDb3VudCI6ODgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxM2ZjNjg0NTc3MjY1MzFlNTA5NmVlOTQwM2NiYmNmMTUyNDVlZmM0MzExMDdlNDYyNzY5OTg0OTllOTA4NzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmQwNjQ0ZDM2YjZhMTE0Y2EyZTkzMzQ1N2IxZjI1YTVhYTEzZTYyZmEzY2Y3YzUzYTk4MmQwMTM1MDQ5Y2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAifQ"
+        },
+        {
+          "resource": "repo://src/shared/feature.ts#L21-L56",
+          "version": "repo-lines-v1:sha256:b763343a8bf76dae58bcb2fa054b0f85ef0fc332c498a2380d7ca3a78ae9e803:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwY2EwYzYyZmUyZDQwYWI1ZjU2ZDIyZGY4YjAxMmFiMDVlMDAwYWNlYTVhOGIyMjllZTI3ZTIxYzI4MDQ0OGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlNzlmOThkMzJjMGY4ZGRhOGY0NWJjNGExMWFjOWYwZWE4MzdlNzhlODQyOWZjYjJiODBlMWQwODAwMDhlZDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjOGZhMWYwNTExYWMyNjRhMzBlNDk3OGQ2OTE4YmI5YTY2N2YwODIyZjhlZmY4OWM5YmRiMDRlNWYyOGQ3MmMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9677b0366fbe42e5a9f972f71bc0276c",
+      "statement": "refOf builds each AnnotationRef from the annotation: topLevelId only from a topLevelItem that isRegularItem() (otherwise null, logged as \"has no citable top-level item; falling back\"), pageLabel from annotationPageLabel, and locatorType from getLocator only when a page label exists; getLocator resolves the CSL locator type as the annotation's #flexannotate-locator-<type> tag, else the attachment's #flexannotate-default-locator-<type> tag, else page.",
+      "evidence": [
+        {
+          "resource": "repo://src/core/locator.ts#L39-L48",
+          "version": "repo-lines-v1:sha256:b7bae1ac7a88f2d0be7fdd0416617329cb2a922e42269092ac7a61a0e59eb026:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2MmYyNjU5M2M3MTZmZGFkYjBhYjBhMTgyODAxZDQyMzcxZWFjOWMwODQxN2U1NWIzZjU0OTI0YzZkMzY0ZmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlmMzUwY2FjYjg1NWMwMDA3YjJiOTY0NzA3YTM4MzM0N2Y2Y2E4MWE0OGViNzZjMGUzOGQ0NWE1ZDgxNWZkMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRlZWQzZjYzODRiMWU4OGNlZTVlMmRmODc0YzVlNDBlYWUxMzk3N2MzYjRlYzFjZWI4MmQwYTliODRmNGRmNTIifQ"
+        },
+        {
+          "resource": "repo://src/features/citeOnly/integrationPatch.ts#L61-L77",
+          "version": "repo-lines-v1:sha256:2acbfd0797af879bcd8f8e086fc97337d7b5539dd9cd194822bb8e20d45dfb95:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyM2UzMjA0MGU5YzgwNjU2N2I4NjAwZGQxYWFmOWYxYzIzZDYxMmQ4MTUyMzliMjA3OGI4MjNhYjA1NzZiZTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdkNDkwNmFiMTliMGUyOWMyOWMyOWEwNDZmZjNlZDAwY2FiNDNhNzM1YTJjNzhlODU4NmIyYzVhNzQ2YTg1MTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjljNGM2MzFjZmM1ZmFiMWVlNjkxYmFiYjgyNWQ2Mzg4ZDE3MGJiY2YzZGNjYjU4NGYwZjdhOTVmYzA3YmU5ZWIifQ"
+        },
+        {
+          "resource": "repo://src/features/print/printAnnotations.ts#L139-L149",
+          "version": "repo-lines-v1:sha256:7c0a02c6aacf36feb1be10a25fb6e02b72068332a2d8e40bdb9b9403da0e778e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM1NTRiZTI4NmM1NGFmNjBkY2FkOTY1ZDM5YTBkN2FhMDU2NjM4OThlNmRmOWFjMGVmYzFjNzVlYzljMTlmMzMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2ca26e5869a443a3a4db12b2cd8bf731",
+      "statement": "citationOnly is a boolean plugin preference declared false in addon/prefs.js, stored as extensions.flexannotate.citationOnly, bound declaratively to the settings-pane checkbox in addon/content/preferences.xhtml; the patch reads it per call through getPref rather than caching, and the dialog mode selector writes it via setPref on change.",
+      "evidence": [
+        {
+          "resource": "repo://addon/content/preferences.xhtml#L12-L21",
+          "version": "repo-lines-v1:sha256:34f7e419f561bfc75d3d2ff2c4e10a7bc6000b385edcc3fe2571be390cd58337:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjMTM3NDI4MDY5MDU5MzZjNWZjNmY0ZWExM2JmNWMxMjU5YzI0NGJmMmUyZWI2MzUwY2MzZDViYjAyNjhkYjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2ODcwNTUxZWQ1MDUwYTdkNGE4OTNlZGEzYWRiZjUxYjk5OGZmNWEwYmVhNzIyNWY3OTcxZjI4NTkxMWE3YTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxOGNlMmZmMmYyZTk2NGEyOWI0ZGNkOWEyMDc5NWE0OThjZWJiNDE0YmVhMGFkMGE0YWU2ZGQ0NDM5NTU1ZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg5Njg2N2U4YmJmYjM3NjhiODU5MjU1MWQ5ZTgyYzgyZDgxMjUwNTlkOWUxNGM5ZjZhZDhjM2I5ZWI5NWM4YTAifQ"
+        },
+        {
+          "resource": "repo://addon/prefs.js#L8-L9",
+          "version": "repo-lines-v1:sha256:970ccd9495a9271636da55f2cd4d43c941e5f08dbb5b9bf0a479169d046b52ea:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzhlZDEzMmZkN2JjNjM3MDA1Njc5NGYxOTdhY2Y2MDA4MDRhMGFiMjc2NWQwOWZmNTA3YTcxMjFmN2NkOWI1NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTQ2YWY4YmVlMjJiODZhYTQ2YmFlZjg0NDVjNThhNDViNWExNjhkODUxMDU5ZDVjNTI0ZTQyOTNmNzE0OGQ1NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTYzYmIzODcyMzVmNjI0MTBlYWEyNTJkZGUxZjVhNzg2MjY1YjAxY2JiNjY4YTAwM2IyODZkYzdjZjRlNGI4YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzIxMTU0ZDhiM2IzY2YyNDMyY2Q1ZTc2NGI5NzdmZWUyZjA1NDRhMGNmYjM1NGMzYzY1ODIxYmIzOTIyMGMzNSJ9"
+        },
+        {
+          "resource": "repo://src/features/citeOnly/integrationPatch.ts#L147-L147",
+          "version": "repo-lines-v1:sha256:5502dc0b539c7dca54e9eed029ca09888901ef5540558693788d9bc1aa1a1f9a:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTUwMmRjMGI1MzljN2RjYTU0ZTllZWQwMjljYTA5ODg4OTAxZWY1NTQwNTU4NjkzNzg4ZDliYzFhYTFhMWY5YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTUwMmRjMGI1MzljN2RjYTU0ZTllZWQwMjljYTA5ODg4OTAxZWY1NTQwNTU4NjkzNzg4ZDliYzFhYTFhMWY5YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmI5MTgxNjM5YWMzNTVkZDY0OWMzY2E5ZDQ5ZTNiYzg1NjYzNWU4ODE4OGRhYWUxY2JhNWJkYzg5YmQ3YTg2ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDEwODlhYmE4MjMxMGMzYzBkYzc4ODgzNTVmZDdlMjA3ODZmNjgzNjM2NDNhYWU3MmE2MTk2M2NhYTBlNTA2YyJ9"
+        },
+        {
+          "resource": "repo://src/features/citeOnly/modeSelector.ts#L166-L171",
+          "version": "repo-lines-v1:sha256:9437fee8bf934b0ac75574d72d651614e0aa8191bd456f615bbde4118ede15ac:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTIxOTMzZDY0MWQ4YjcxM2QwOWU4OGNkOTFhMWUyNGRkODY3MjNlMjA0YjlhZTAzYTE1MmI5N2JkMzc0ZjE3YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2EzZTQ2Zjk0Mjc2YjZmNmY0ZWQxZjAyYWY3OGJlZjZhMmVlMWM0MzlkZDU1ODRiOTczOTQ4MzEzMjE0ZDJiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGUxYzEwYWRiOTJlOGRhNmYwYmE0MDM4ZjM4OTUyNmJkNDEyNzcyOTFiMTdjOWI5ZTUzMTU5MzVhNmVhZWY3YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzQwNjg5YjkwOGU1MjQ1NWUwZDdhNTJiNWJlMjE4N2U5ZDhmNWI4Yjc5NjM1MjdmMDJhNzM2MGM4MGE3YTBiYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e032c3f7f8ad48c3a4908c1fc7fac105",
+      "statement": "The mode selector is a DOM injection (no prototype hooks in the citation dialog), registered as the modeSelector injector before the outline view; the shared dialog watcher calls injectModeSelector once per citation-dialog window after the dialog's own initialization and removeModeSelector on unload or plugin stop. It builds one label+select row per injection point (settings popup #settings-popup .popup and item-details popup #itemDetails .popup before its .buttons), keeps both selects in sync on change, is idempotent via the .flexannotate-citation-mode-row check, tags rows data-dialog-type=\"annotations\", styles via one injected style element, and localizes by attaching flexannotate-addon.ftl to the dialog document with a hardcoded German/English fallback.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/citeOnly/modeSelector.ts#L140-L212",
+          "version": "repo-lines-v1:sha256:09a68b38d918b2953c97d867c1b22bdef0940a58426c8fc9c0d19c55e4605b5d:eyJzZWxlY3RlZExpbmVDb3VudCI6NzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2YTdhODM2OWVjYjhjZGQyZjcwNDhlODAyYTQ1ZTBlNzUyOTUzNTI2NjA2YzhiYjQ2MzJlMWQ2ZGMwNDFkMGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIwMjM3NzdhMDE2YzcxMDIwNjI2ZDBkOTNjMDNlZGUzYzg5ZWQzMjkwNTNmMTM4YWFiMGI1MjkzMzk2MjhmOGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhjNGVjMGQ4YTcwZDdiMjZiM2JmZTQ1Nzc5ZWMzNGUzOGJhZmE2OTNhNmUyMDAwOGFlNjEwMTQ3NzNlZmJiZTQifQ"
+        },
+        {
+          "resource": "repo://src/features/citeOnly/modeSelector.ts#L28-L88",
+          "version": "repo-lines-v1:sha256:e85ee7a0c19b84cc27db0a04a16becb2790693a173e085e6a92fe6a968960532:eyJzZWxlY3RlZExpbmVDb3VudCI6NjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3OWI2YWQzNDUwOWM3NjQ2MTcxMmNjY2I3ZTNlMTJjOGYzZTU4YzFjYzY1NDg5OGFlNmZlM2RiOGQzMzdmMjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2ZmJhMjE5MTJiM2U3YTU3OGRkMmZiNzgyZDFkMjBkNTNlYWFjNzRmYTEzM2MzZWM1ZWM3ZWM4ZWI3YjJhYzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhYTg2MjUxZThmOGYwOTViZWQ3Nzg5Nzc2ODliZmY2MmJkODIxMWZhODg3YjllNGNjNjdkYmI1NmZlMDc4ZGQifQ"
+        },
+        {
+          "resource": "repo://src/hooks.ts#L62-L68",
+          "version": "repo-lines-v1:sha256:6d6f9a617f3a3403d0538f1fa27778e2b176abd57fb18c01a575cde5d4dc845a:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTYwMDNjMDQ1YzE4OTI4ODQ5OWEzMzhhMTc3ZTI1NjczODA1MzkzZTNlMWRhOWFlNTQxNTJjZDQ0ZWM4Y2VjZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTI1YTUwYTI3OWM3ODFlMmI0ZDM1ZWQzNTJmN2EzZGI0ODIyMmQzMjIwYjA1YTEyM2U3YzE1OTY5YmFlYTE3NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDljNzVjZmQ1OThiMzE0NGYzNzYzN2E1NzdjNWY3ZjQ3NDk1Mjk2NDJkZjE4MTQ0OTFhNDc5YWIzZTRjOGE2NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMThkNWQwYjZjOTYxNzUzZDJhNDMyZDhiZjBhOTZmMjZjZjM1ZTViNjg3ZGRlYTlmMDBmZmFkYWNjNmI1NTE1MSJ9"
+        },
+        {
+          "resource": "repo://src/shared/citationDialog.ts#L26-L61",
+          "version": "repo-lines-v1:sha256:a3c72848c3f8f2a420cb05a0d98a2a981ec6d8b9c92d808692d6308e61116736:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiZjA0ZWI5YTkxMjExZDY2YzZhMjc4ZTdhY2ZiNjUxODZkNTYyMjMwZmUxZjFlNWNkN2RkZjEwNjczOGJhNzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQwMmM4NzM2Y2QzOGIxYmRjMzE1YWEyNWFlY2Q3ODk3ZDdmODhhMzliMWUzZTQxMWFlNWRhNzA4N2ZmZDg3MmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRhZjc3YzFmYTJmNDhlMmE5ZjM0YTk3M2NkNGZhNjQ5OGNiMjBlNDI5MzE4ODlkNzkyNTcxMjJjN2M1MGMyMDAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ae861ec4e09f4306aadb143de6eee156",
+      "statement": "The mode selector is injected only when the dialog document has an #annotations-sidebar (Zotero 9+); Zotero 8 lacks the annotation mode and on 7.x the dialog file is named addCitationDialog.xhtml, so the plugin stays out of the dialog on 7.x/8.x. The Zotero test skips itself via hasAnnotationDialog(), which greps citationDialog.xhtml for annotations-sidebar.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/citeOnly/modeSelector.ts#L28-L36",
+          "version": "repo-lines-v1:sha256:97e6d4af30274927b1f3e8599603b8dea6b04842a4a754fe091ccee5503966e0:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjc5YjZhZDM0NTA5Yzc2NDYxNzEyY2NjYjdlM2UxMmM4ZjNlNThjMWNjNjU0ODk4YWU2ZmUzZGI4ZDMzN2YyNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODZmYmEyMTkxMmIzZTdhNTc4ZGQyZmI3ODJkMWQyMGQ1M2VhYWM3NGZhMTMzYzNlYzVlYzdlYzhlYjdiMmFjMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjNmMTRmZTY3MjM0ZWYwZjYwZGZhZWVhNjA3OTVmM2EyNTM0NjI2ZTdjNGE5ZTZiMzYzOGZjMTM5ZDdhZWRkYyJ9"
+        },
+        {
+          "resource": "repo://test/helpers.ts#L128-L141",
+          "version": "repo-lines-v1:sha256:aac9f9b2c165d457a82038330c5d1de7c52d4eb53c5b102c547f0366a11e4d96:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNlMWVkYTJkZmI0ZGVjMzIyMzU1ZjhiNjAyMjY0NTViNGFhNmUyMjgzN2VlODk2NzYzZTcwMTA3ZDU3ZTY3YmUifQ"
+        },
+        {
+          "resource": "repo://test/modeSelector.test.ts#L57-L61",
+          "version": "repo-lines-v1:sha256:4d62b2ee264331a499709002c926958c542cc20220849c041d3332af21702963:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmRmMjhjN2U0ZWE5M2VkYTE3Y2I1NzBkZTAyYjhhMjNjMWY2OWRmZThhM2I4N2U2ZTdjYmQ5MTMzYjM4NzkwMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2EzZTQ2Zjk0Mjc2YjZmNmY0ZWQxZjAyYWY3OGJlZjZhMmVlMWM0MzlkZDU1ODRiOTczOTQ4MzEzMjE0ZDJiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWJmZTZiZDNiOTM4MTJlMmRkOGQ3Y2Q5OTJjNWVlMDdkYTBmMDgzZjQwZTIwNGU0Y2I2YWY2MjMzNDZmZjcyZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzUzYjQ5MDQwMjU0ZDg1Mzc4OTRmMzM3ZTU0MjI2Yzk3YmNhMTI5M2NlZjk0MmVlNzVhZDg4YjcxYjY5ZDgxNSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_18a8b4c2d4ac4dbea6d5c9daea34c81f",
+      "statement": "Because citationDialog.js only re-evaluates [data-dialog-type] visibility while switching modes and the plugin attaches after initialization, trackDialogType applies the rows' visibility once from the root element's dialog-type attribute and follows later changes with a MutationObserver filtered to dialog-type, stored in a WeakMap keyed by window; removeModeSelector disconnects the observer and removes rows and the injected style element.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/citeOnly/modeSelector.ts#L219-L236",
+          "version": "repo-lines-v1:sha256:b19802d60793ea342eee0f29e37bfd665faa3ffacac448f15f247eff1f1c87f6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyODkwNmYyNTQxZTg2M2I4YTQ5MzkwZWNjM2Q0Y2FmZjIzZDQwMzIxZTllMzcwOGU0NGUxMWZlMDhkMzg0ODgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQwYzIyYWViYmE5YmUwYzc2ZTE5YWU0OTFiYmY4NGU2NzlmMzY0NDY3OWRjMDMyMTVlMTM5NmIxMjNmNTIxMTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/features/citeOnly/modeSelector.ts#L75-L87",
+          "version": "repo-lines-v1:sha256:a46d25e207257b26bcfaa9ca92b85b38238addb177ca8d391908c7543971fdb8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3MDhkMTE4MDZmZTkwZmRjOTE5MjgwMjA2MmRkYWI3YzNmODhhMGU0YWVmZjBiOTYxYTJjNjMxZjEzN2MzNzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMzNGIwNWM4MDE2Nzc4ZjQzYzMwNTAwNTBkMGUzMTU5NGJmNWEzZGJjOGY1YjY0Mjc0NjU5YWY2Yjc1ODdjMDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI2NTQwZjM4MmFjOTc4MmVkNmIyNzEwNjc1MDgzYjU4ZjA3OTg2ODVjNjIyZDAxYzc1Yzg1OWYwYjFjOGNkMmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c3e36adae7fe4a01b1b034ec28ae704c",
+      "statement": "The integration tests drive the feature only through addon.api (addon.api.citeOnly with patch/isPatched, addon.api.modeSelector): test/citeOnly.test.ts asserts start replaces _insertCitingResult, a second start does not patch again, stop restores the original identity, and a synthetic insertion with citationOnly on cites the parent work with locator \"22\" and label \"page\"; test/modeSelector.test.ts asserts one row per injection point, removal, re-injection idempotence, and the citationOnly pref round trip.",
+      "evidence": [
+        {
+          "resource": "repo://src/hooks.ts#L153-L154",
+          "version": "repo-lines-v1:sha256:b8e4430c3a8cd616dbf5985cdd0a7b6ddb6ba5e6ca3b8b19cfa234f447f29bbc:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmVkMmJkMTFhNmM4MWMxMGE5MjMzMzc2ZjIzZjlmNjM5ZmIyZDVjN2VkMzgxNGY5MzI5ZjU4NDNmZDdmZTUxMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2JhOWYyNmNiOGQyYmQ1NWRkNjBkNjg3NTBjMTkxYzAyNjAwNGVhNmM5NTdiMzUwMDYxMjUwNWRmMjhhZTZmMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2EzNTM2Mjc4ZmY1MGM3MTM2YTg2OTgzYTkyMDE0OTY0NDJmNzUzNjdlMzQyNTkzNGQyM2UyMzliY2Y0ZWQzNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODE1ZmY3NzQzNDQ3NjdjOWE2ZWE5ODdlYWFkZTAwNWQ0MTAyOWFiMGViODBhZDc3YTY1NzM5ZDM4NzY1N2NiYyJ9"
+        },
+        {
+          "resource": "repo://test/citeOnly.test.ts#L31-L83",
+          "version": "repo-lines-v1:sha256:0a6f61b877b494df6dd50c70f9212845c227edb28539daceb6d560a9369a2056:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA1MDZhMjkwZmJkOTVjOWNmZWUwZjQ1NTlhNjMzOGU4ZjViYWIyZWE1ZGE4MjY0NGFhMDI2YzBlMjA3MDE1YWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNkZDI3YmYwMDk3YjhjMWE3MDk3ZDA4YzM1Yzg3ZGZiMjhjZTIxZDQwYjEyOGE5NDc4NzE1ZTc2MWI2OTEyMmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        },
+        {
+          "resource": "repo://test/modeSelector.test.ts#L68-L109",
+          "version": "repo-lines-v1:sha256:8800c49250bb851ef0e0de5983f1390301d41f721c46a3ed2ee9cb025b7be36e:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3MmIwNzExZDZiNjI5NTVkNGQ4NGY4MTgxNTBhZDRkNmE1MjY2YzY1MjBiZDFjNmUyZTkyMzEyMGRhMDZkNTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU0NGEzMWQ3MjY5N2E2NzdhM2NmZmQ1N2M2ZTZkNjkwNTgyM2RjMzcxMzcxY2NhN2Q1MDI5YTdiNWNkMTJiODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-16T19:49:13.348Z"
+  }
+}

@@ -1,0 +1,18 @@
+# OpenWiki read-boundary: paths below are never read or reproduced in the wiki.
+# Syntax: comments, blank lines, * and ** globs, directory rules, ! negation.
+
+# Build / generated artifacts
+.scaffold/
+build/
+logs/
+node_modules/
+*.xpi
+*.tsbuildinfo
+
+# Unpacked Zotero source reference (large, lookup-only)
+.zotero-reference/
+.zotero-versions/
+*.exe
+
+# Private / local
+.env

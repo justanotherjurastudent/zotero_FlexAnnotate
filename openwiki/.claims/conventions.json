@@ -1,0 +1,346 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:01b33b20ed0506ddd9ba367b211743db798943dd4c8abbb14911ceea4670311c",
+  "claims": [
+    {
+      "id": "claim_7e891b036efd4dd3b4ca4e15aa7472f6",
+      "statement": "Pure, Zotero-free logic lives in src/features/<feature>/logic/ (or src/core/ when several features need it), references no Zotero globals, and each module is covered by a Node test in test-unit/ run via `npm run test:unit` (`node --test \"test-unit/*.test.ts\"`).",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L55-L55",
+          "version": "repo-lines-v1:sha256:d1365b98a335bf35bb46247ba709ea82d86291483d8c2a8efe28df17e70a6389:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDEzNjViOThhMzM1YmYzNWJiNDYyNDdiYTcwOWVhODJkODYyOTE0ODNkOGMyYThlZmUyOGRmMTdlNzBhNjM4OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDEzNjViOThhMzM1YmYzNWJiNDYyNDdiYTcwOWVhODJkODYyOTE0ODNkOGMyYThlZmUyOGRmMTdlNzBhNjM4OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmFjMDI0N2EzNGRjZWYwNGU5Yzc3MGE0YTFkOThkMTkyZjNmMDEzMDZhMjMyNzdjYjkyMzMyYTA4ZWUxMTdhNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2Q5ODFmMDQ3ZDNlYTkxNjlkZThmMTQwOTVhMWFjN2M0N2IyN2QyODUwNGIzNjE4NGM0YzQ1MGMxNzA3MWQ0YiJ9"
+        },
+        {
+          "resource": "repo://package.json#L36-L36",
+          "version": "repo-lines-v1:sha256:d78076e055311e777aec709a8fea8b629f49c179c76069d6b45b132046a0d9dd:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDc4MDc2ZTA1NTMxMWU3NzdhZWM3MDlhOGZlYThiNjI5ZjQ5YzE3OWM3NjA2OWQ2YjQ1YjEzMjA0NmEwZDlkZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDc4MDc2ZTA1NTMxMWU3NzdhZWM3MDlhOGZlYThiNjI5ZjQ5YzE3OWM3NjA2OWQ2YjQ1YjEzMjA0NmEwZDlkZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTA0MzZkMTM2ZjJiYTUxYjEwMWM4MTBjMzE5OGNhNDI1OTQwZDg4MzY0YmE0Y2E5NmViZTc0MjQ2NzMxNTdmNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjE1NWY5NTA5ZTBlMmYzZWUyOWRmZjA2MzdjNjY3ZDQ2NGM0ZDRiZWI2NzQ0OWM4NTBiNjZhZjMzMjdkYThiZiJ9"
+        },
+        {
+          "resource": "repo://src/features/organizer/logic/outline.ts#L1-L8",
+          "version": "repo-lines-v1:sha256:5ae91484850a1708e2091595b8878313c4f67bbdab7d8f7b71b46bd4fb34abb7:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFmMjJjZjA3MzI1OTJjMjQ3MTQxY2JlNjFlZmExMTAxMjYxMmY1YTMxMjJiOWFmOWJiYWY1MmY1NzI0ZDE5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTcyYTQyOTM4MmIyZTE0NzE4ZTBlMzdiMDU3MGE4YTE3MDI5OTFmY2Q4NDk4Y2Q4NDA2MGE4YmY0ZjA1MDE3YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODRmYjQyMjQ1N2ZmNTI2NTFjOWNjYjkyOGU5NjU1OTIyOGIzOTMyMTI5MzE2YTQyMjhlMjQ2M2JhZDhhYTBmOCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_9775c0305da64555acd88815b85ae195",
+      "statement": "Import style differs by zone: Zotero-free imports carry an explicit `.ts` ending so `node --test` can load them without a bundler, while Zotero-facing files import extensionless (esbuild resolves it) — e.g. reader/logic/readerLocator.ts imports `../../../core/locator.ts` and organizer/logic/docOutline.ts imports `./outline.ts`, whereas print/menus.ts imports its logic and utils modules without a suffix.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/logic/docOutline.ts#L6-L6",
+          "version": "repo-lines-v1:sha256:58d0964f05ceb43f569d3c6973ac20db17cb6f8fbb60118751ba86568b10678b:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNThkMDk2NGYwNWNlYjQzZjU2OWQzYzY5NzNhYzIwZGIxN2NiNmY4ZmJiNjAxMTg3NTFiYTg2NTY4YjEwNjc4YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNThkMDk2NGYwNWNlYjQzZjU2OWQzYzY5NzNhYzIwZGIxN2NiNmY4ZmJiNjAxMTg3NTFiYTg2NTY4YjEwNjc4YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjFjNGRkMTExOTNjNTUyOTBiMDg4Yjk3NzkzZWM2MDVhOWM1MWFjMjAzOGE5YzMyZDQ5ODdlMzA4MGMzODE2NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWE1MmJkNzQ2YjdjYjE0YTg1ZTZiNjBhZGY5NDgzZThhYjIxYTdjYmIzZGY4MTVkYjRhMGEwZGNiNmRhOGE4NCJ9"
+        },
+        {
+          "resource": "repo://src/features/print/menus.ts#L12-L17",
+          "version": "repo-lines-v1:sha256:1f7f13e4423098b8e6a4f018aec085f77799375cdbc8443b46ad34f32bb1c742:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjgwZjg5YTFhZTVkYjNiNmVjYzRjZjM3ZjhmZGY1NDk1ZjE2OTI5YWU1M2QwNjUyYTlkMzNlM2IzZGE4OWIzNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWVjNjcwNzQ0NWQ1NTBhNzUwMTJiZDNjOGU5NDM2NWQ4ZmJlZTMyMjc0ZmUxYzk3NjgwY2I2ODBhY2E5MTljYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWEzYTdlMzM0YmZmNGViMDVlNGI4OWYyMWM4ZTBmYTY5NTE2NjFhZWNiM2UyYzg2MmM1YmQwYzBmZDJhM2VmNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzk3Mjc5ZjFmNjJlODMzMzA2ODI5YTYzZWFmMGY3YTBjOWMyMjhkMjViMTEwNzMzZWNhMmVlMjk0YjZjMzVhMSJ9"
+        },
+        {
+          "resource": "repo://src/features/reader/logic/readerLocator.ts#L6-L6",
+          "version": "repo-lines-v1:sha256:7ae90e54712780167217a21b691a3612b4aa37ae5f0b23c5c2fdc86e573b354f:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2FlOTBlNTQ3MTI3ODAxNjcyMTdhMjFiNjkxYTM2MTJiNGFhMzdhZTVmMGIyM2M1YzJmZGM4NmU1NzNiMzU0ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2FlOTBlNTQ3MTI3ODAxNjcyMTdhMjFiNjkxYTM2MTJiNGFhMzdhZTVmMGIyM2M1YzJmZGM4NmU1NzNiMzU0ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmRkYWRlOTBlZTY0ZjhlMGNiZTE4MTcxNjYzNWFhNzUwOTQ0MmMyMmIxMWY0N2M3MWNhODQ3ZGNkYjc0MzdiYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDNmN2EzOTM4NTNhMDRmMTJmMDVmNjgxOWUzYjdmODQ1YmVlYjZiZTEzZmMyZjRlMTgxNjNkNjE3MDRjYzI0NCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_0c688e5d66ba4822a189ecfd34b21c2f",
+      "statement": "Zotero integration tests reach feature modules only through `addon.api` (built in src/hooks.ts onStartup and read as `(Zotero as any)[config.addonInstance].api`), never by direct import, because the modules need the global `ztoolkit`.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L56-L56",
+          "version": "repo-lines-v1:sha256:c7a0233a99e3ae492dc7f27af0838dc0c9898e6f2da10d51f51c0fb42beb664e:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzdhMDIzM2E5OWUzYWU0OTJkYzdmMjdhZjA4MzhkYzBjOTg5OGU2ZjJkYTEwZDUxZjUxYzBmYjQyYmViNjY0ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzdhMDIzM2E5OWUzYWU0OTJkYzdmMjdhZjA4MzhkYzBjOTg5OGU2ZjJkYTEwZDUxZjUxYzBmYjQyYmViNjY0ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWFhM2ZlN2UxYzZkMWZhZDZkMzZhNGRmODA0YTQ3NDVlOGVjNWNhYTVkYzRjYWM2NmExYWNkMzdhYjBlNTUzZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDBlMGY1YjFiOTE3MzE4MzI3MDZjYWE4OWNmMTZmZjc1NjUwNDFhYTNlNjgzM2ZkYWZhNjUyNzQyOTc5MThlNyJ9"
+        },
+        {
+          "resource": "repo://src/hooks.ts#L113-L168",
+          "version": "repo-lines-v1:sha256:eb2685472633325e368ac39dc1eaa667747cc2d927be27c889f7f88ad37842bd:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwN2JkOWMwNGMxYTM4NGRhMTUyZWEzMTllY2ZmZmNhYjhiZjk1MzMyNDc2ZjkzNTg3MTFhZjg2MGVlY2NhZTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1YTAwMDRiNzEzMjJkYzAyYTczODI5ZjFkZTUzYmQxMTU3NGFmNTI1NDc4MmQwMGQ2YWQyZjIzOWI1NWIyMzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3NzQ2NTQ2NjYwMThkNTg2Njk3NjI0MzhlMmJkZTAyMGIyODk3NjIxMmZiNWJhNTU3MDEyMmMwMzM5N2RiN2EifQ"
+        },
+        {
+          "resource": "repo://test/toolsMenu.test.ts#L9-L9",
+          "version": "repo-lines-v1:sha256:68bdb72f444f56519a134a741e91b81e643d79cd0845472b07478152af16211c:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjhiZGI3MmY0NDRmNTY1MTlhMTM0YTc0MWU5MWI4MWU2NDNkNzljZDA4NDU0NzJiMDc0NzgxNTJhZjE2MjExYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjhiZGI3MmY0NDRmNTY1MTlhMTM0YTc0MWU5MWI4MWU2NDNkNzljZDA4NDU0NzJiMDc0NzgxNTJhZjE2MjExYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2QzZjJmOWZkMDE4Mjk0NzhjMDE5MWRkZjk2ZTdmMzRkNGY2ZTE5M2VhNDYxZDZjNTUyOGZiZDUxMDg3ZjE1YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjAyNWYyYzg3YjgxMDY4MTVmYzRlMDIyMzkyNzA0ZGQxYWZhZWY4MDczZTAyOWM0MWI5MzNiN2JjODgxMDc0MyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_7677296c3a334b9093f0f832964d268e",
+      "statement": "Language split: comments, user-facing texts, AGENTS.md and the German manual are German; identifiers and log output are English; docs/architecture.md is the English technical reference. The organizer is a deliberate exception — its code-built DOM gets German and English texts in src/features/organizer/strings.ts instead of Fluent files.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L65-L66",
+          "version": "repo-lines-v1:sha256:864e76f174125f2d897475eaf4bd8fc96b5c1e3d29b50233e8f76424990984f5:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjNjMmQyMGNjZTE0OWE1NWQ1MDYzYjU0NGM4YjVjYzMyM2U0NGVhM2I4MjA1MDY5OGYwNjhkYTVkMzE2NWZiZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYThkOWJiNjI4NDYyOTI1ZGNmMzUyNWM1YzI5MmM1OGI0MzVhNjRlOWViZDA4OTlmODQ2ZDdlOWI5ODM3MjliYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjNjYTM2YTY5NzM1ODlmYjEzYjljZTM1NjI3ZmI4NWI3ZmU4M2Q5NDBjZTIxOTg4MWFmMmY5Mjk0NjQ0Zjc5ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGI4MmQ0YjVjNzA1MDE1NjMxYjJlZDY4OWY3YThkN2IyZjM0MGQ0NTQ4ZTY2N2IwN2EwZGZiNGZjZWNmNGQwOCJ9"
+        },
+        {
+          "resource": "repo://src/features/organizer/strings.ts#L1-L8",
+          "version": "repo-lines-v1:sha256:e449420331c79be847500865557734d7e7ac5f56cf02916728cb34ea57813bd4:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFmMjJjZjA3MzI1OTJjMjQ3MTQxY2JlNjFlZmExMTAxMjYxMmY1YTMxMjJiOWFmOWJiYWY1MmY1NzI0ZDE5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODFjZTZmZWU5NmFiMDE1YWVlNWQ0NWExZDMzNDFmMmQ0NmJkNTEwMzBlZjM2YzI3ZDAwOTAzYzhkMjFiYzg1NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTI0NzEzOGRjZjNkODhiOWRkNWVjNmEyMzhjNGNlNmZkYmU5ZmQwOTQzNzQyZThmM2JjYjFmODBmZTdkOTY1NCJ9"
+        },
+        {
+          "resource": "repo://src/utils/menu.ts#L45-L45",
+          "version": "repo-lines-v1:sha256:325410bbc72b00bc4975942f9acf1ecd86de061299f4b73292cb67c2d1bb6077:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzI1NDEwYmJjNzJiMDBiYzQ5NzU5NDJmOWFjZjFlY2Q4NmRlMDYxMjk5ZjRiNzMyOTJjYjY3YzJkMWJiNjA3NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzI1NDEwYmJjNzJiMDBiYzQ5NzU5NDJmOWFjZjFlY2Q4NmRlMDYxMjk5ZjRiNzMyOTJjYjY3YzJkMWJiNjA3NyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODgxNDVhMWFmNmQ5MTljM2ZhMWM2ZTJjMmUxZTc0ZmIwNDhiZWVhMGFiMDljZDdlNWI2NzAyMTM4ODA0MTU0ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGUwZjcyOTNkMTU2YTZkMTI1MjhkYjEyOTMzNzllNTJhNWY4MzY3MDQ0Mjk3YjIyODJiOTdmZjJjODYwNDM4ZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d610b0a422ba423b9f19dd04fb272893",
+      "statement": "State of one interaction belongs on the element (expando or attribute), and per-window bookkeeping lives in a WeakMap keyed by window, never in a module-level object — e.g. annotationRowMenu stores the annotation id as `data-flexannotate-annotation-id` on the popup, and print/menus.ts and OrganizerFactory keep per-window listeners/contexts in WeakMaps.",
+      "evidence": [
+        {
+          "resource": "repo://docs/architecture.md#L175-L175",
+          "version": "repo-lines-v1:sha256:3f10066ed00e580d11f409306b648a5a02cdf4b37289c672fc85ee65d68e5960:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2YxMDA2NmVkMDBlNTgwZDExZjQwOTMwNmI2NDhhNWEwMmNkZjRiMzcyODljNjcyZmM4NWVlNjVkNjhlNTk2MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2YxMDA2NmVkMDBlNTgwZDExZjQwOTMwNmI2NDhhNWEwMmNkZjRiMzcyODljNjcyZmM4NWVlNjVkNjhlNTk2MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2JhOTAxODBlZDEyZWUzNTk5ZDgyOWNiMmVkOGU5OWRlNzQyNGI0Y2I3ZGZmODdmNTkyNTZjN2Y3MGY5ZGYyOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjYzOTQwMzM4MjI2ZjZlMWQyYmE0MDkwYTkzNWI1OGUyZTdlZTEyZGQ2NWExNjIzZGM3ZGM3MzcwMjc0MTYxMiJ9"
+        },
+        {
+          "resource": "repo://src/features/organizer/panel/organizer.ts#L48-L53",
+          "version": "repo-lines-v1:sha256:11bd51433252292e94c1115ab7ea2acc768dd7f6c4e06c69fa317cdbf5cee5b5:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGYyYTJmOTk2ZjA4ZTY4MGJkMjkyMTM1YTZmYTQ5NzhiZGEyNmU2MDJkODRmMzNjYjFkNTk0Nzc1ZDQzMDRiNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDM4YTU5ODY5NGJmNzQ5NjE4NTUwNmUyYzE4YzIxMzI4OTUzODQ4ZDA4MDk3YTIyMDNlMzkxYWVlMDcyMjQ3YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTk3YjIxYWUxYTI3YTk5MDNkZTNlNDI0YmM4Yzk2ZTQwNDYxNDNhNDUxZTdkODI0YWE5Yjk4NTIwOTBmN2I5NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODk3Zjk3MDY4YzVkMjhiNTE0ZThkY2Q2OGIzMTQ1OGFlMjg1YmNhYTBmMGIyODA2YWZiYjczNGY5NjExZDVjNiJ9"
+        },
+        {
+          "resource": "repo://src/features/print/annotationRowMenu.ts#L25-L29",
+          "version": "repo-lines-v1:sha256:8bc9038c99591093ca02d85237e6214f1d94dea152637d227bed5c7915f0e57a:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTFjOGU5YTBkZjY3NjA1NDI5MWNhMWI1OTI2MTQ4MzAyYTIyOTcxMzFiN2IwMWNhZTY1YzIzNjFmODdiZGJiYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWNkYjFmZWFiZDUwNGY1N2RkZGQ0NDRmMGU1NTU2YjQzNmZlNGEyMGUxZWU4MjRmMzc4ODJiYmFiN2NiOWUwYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzUyMTUwNDdlMDY5YTg0ODNiNWE2MjMyM2Q1M2NkNmFlMWZhYTVlNzg5OGY4OWZkM2VkYTU5YzMwMmIyZmVlNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYmE5ZDc2OGE2Y2JmZDE2MDc3NjkzZTZlYzMzYzMzN2Q5YWYzNDRlYzc3NTliYzczYjY0MzQ5YjMyNWRlMjJlNSJ9"
+        },
+        {
+          "resource": "repo://src/features/print/menus.ts#L27-L28",
+          "version": "repo-lines-v1:sha256:4f71ab48cb5884635f4f4b91cd520042b8f9a5c2098ccb5e41bd603ae89a1936:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDI3MTlhNTVhNzE0YWZiNTA0ZmM5MDlkN2NiMDRkMDhjYzk0NTYzZWY1YzJkM2M2MTU1YTJjYTZmNzZhODQ5OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDBhZDhiMjE4NDNlY2M5NmRiYmIwMDMxMmJjYjI3NjE2NjY5NTVlMjE1NjZiYzc3OWRlNWRiMjk5ZGI4NmQ2MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODQ4NWNkYmQ3ZjI1MmYwODQzNTRjNjVlOTEyZTczY2NmZjQ3NDg3MDg2NjNkNzUxYTFhNmZjMjFmYjRlZTliZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGU3MjFkYzZlMzYwZjBjNzAyZDBiNjlkZTIyZmJkNzBhYjNhOTE1ZjNjNGFkN2Y3MzZkYjBhYTBmNmMzNDRmMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d0d404c53b71493cac39bca6a775eed9",
+      "statement": "Zotero.MenuManager (via registerPluginMenu in src/utils/menu.ts) is used for the main-window Tools menubar entry; registerMenu() returns a key that must be stored and used for unregistration — unregistering with the raw menuID finds nothing — and registerPluginMenu feature-detects MenuManager so it is a silent no-op on Zotero versions (7.x) without it.",
+      "evidence": [
+        {
+          "resource": "repo://docs/anchors.md#L42-L42",
+          "version": "repo-lines-v1:sha256:ec9c3a0bc829a3cd9629bc25174251e69cd1fec2356c4010c173322cdf483515:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWM5YzNhMGJjODI5YTNjZDk2MjliYzI1MTc0MjUxZTY5Y2QxZmVjMjM1NmM0MDEwYzE3MzMyMmNkZjQ4MzUxNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWM5YzNhMGJjODI5YTNjZDk2MjliYzI1MTc0MjUxZTY5Y2QxZmVjMjM1NmM0MDEwYzE3MzMyMmNkZjQ4MzUxNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmFiYzU1NWM0OTc2MDlmZGMyOWI0OTQ0MWI4ODdhZWM4MGU0ODA2ZTZkNWQzMGNjYjcxNTg3ODE5YmI1ODE1YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGRmNTI2MzVmYjY4Y2YzZGRjMjZmYmJhMGI4ZjhiZjliMTU2N2I3NzBlMDQxZWRiZmNmZGQzNjAyZTdiZWQwNiJ9"
+        },
+        {
+          "resource": "repo://docs/architecture.md#L176-L176",
+          "version": "repo-lines-v1:sha256:98cef033e8ea3b08953741d1745f7c6da74475ad801f070d40209d7665545129:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOThjZWYwMzNlOGVhM2IwODk1Mzc0MWQxNzQ1ZjdjNmRhNzQ0NzVhZDgwMWYwNzBkNDAyMDlkNzY2NTU0NTEyOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOThjZWYwMzNlOGVhM2IwODk1Mzc0MWQxNzQ1ZjdjNmRhNzQ0NzVhZDgwMWYwNzBkNDAyMDlkNzY2NTU0NTEyOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjI0NmE2NTU2Nzk0NGU4ZTZlOGRkNDFkZWM1OWUxYjUxNDliZTBhMTk2MDcwZGFlZDM1YzVlNmM2MzM0ZWU3ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDhmMGRmN2RlN2M0ZjljMDI5YTUzMDI2MGY1YTMwNjgyYmViMWRhYWFhOWMxMjY1NjUzYzAxNmExZGI4YjZiZSJ9"
+        },
+        {
+          "resource": "repo://src/utils/menu.ts#L13-L48",
+          "version": "repo-lines-v1:sha256:88c919a4212733a9655ac7884405d2ebfe61c9990ae1d9a30f73d580f1ce8706:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2MzJmOTJlNzg3ZmZiZjQxYWU4M2JjMjA3YTRiMWIzOWE4NDc0NDU4NzViZTkxZjFlMGRmMTM1ODg2YjYwNzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY3NzYxYTg5OGQ2ZmJiMjk5MjcxZTNhMGNjNjYzNWJlNjc4ZTEyNzU0ZGNmYWQ4ZjNlODExMjUzYWY4ZGI5NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJiYjhmMGU0N2I4ZmQ3YWVkMmZiMDJhMTRlYmZkOWZiYzA2Zjc4ZTlkNmJlOTViZDExZjYyYWU3N2U4Y2ExOWEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c23897aa6076443d95a8e2fbb76510c0",
+      "statement": "Item-menu, collection-menu and annotation-row entries are plain DOM entries (parseXULToFragment), not MenuManager entries, because Zotero's buildItemContextMenu returns for annotation selections before MenuManager.updateMenuPopup so MenuManager entries never update there while appended DOM entries persist Zotero's menu rebuild; each feature manages its own visibility on `popupshowing`.",
+      "evidence": [
+        {
+          "resource": "repo://docs/architecture.md#L174-L174",
+          "version": "repo-lines-v1:sha256:61a8fe90d6c3730eac6653be2ba8c8c9084b04f34470a9148c98d9d436c88172:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjFhOGZlOTBkNmMzNzMwZWFjNjY1M2JlMmJhOGM4YzkwODRiMDRmMzQ0NzBhOTE0OGM5OGQ5ZDQzNmM4ODE3MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjFhOGZlOTBkNmMzNzMwZWFjNjY1M2JlMmJhOGM4YzkwODRiMDRmMzQ0NzBhOTE0OGM5OGQ5ZDQzNmM4ODE3MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWI1NTBiYjU3ZTU1Y2JmZTRjMzIzODMwZDBkNWU1NmQyZDNmMzYxNmJhNTllMjc3ZGI3Mjk5NTBiYWU1OTI1MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDAzOTkxNjJjZGMxNWJkY2IyODc2NDhmZmQ0YWIwMGY0ZjQ3MjRlYzg3NzljNzM1Mjc3ZWZjOTZkMDJlMjA3NyJ9"
+        },
+        {
+          "resource": "repo://src/features/organizer/collectionMenu.ts#L1-L9",
+          "version": "repo-lines-v1:sha256:7407d413f5cfc96d9aedf8c0795140006798de114978ff7067e4aca4386ac751:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFmMjJjZjA3MzI1OTJjMjQ3MTQxY2JlNjFlZmExMTAxMjYxMmY1YTMxMjJiOWFmOWJiYWY1MmY1NzI0ZDE5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTcyYTQyOTM4MmIyZTE0NzE4ZTBlMzdiMDU3MGE4YTE3MDI5OTFmY2Q4NDk4Y2Q4NDA2MGE4YmY0ZjA1MDE3YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMThlMTc0MGRmMTIwMjRmYTBhMjgzZGNhNTI1MWViMjZjNzhkZDUxNjlhY2Q2MDI0NWY4ZDQ0M2JjODUzMDI4OCJ9"
+        },
+        {
+          "resource": "repo://src/features/print/menus.ts#L1-L10",
+          "version": "repo-lines-v1:sha256:f186931799c34604e6beb21faeec78029db016cb1cab36335e042efe4af079f1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3MmE0MjkzODJiMmUxNDcxOGUwZTM3YjA1NzBhOGExNzAyOTkxZmNkODQ5OGNkODQwNjBhOGJmNGYwNTAxN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNhYTM2YTQ1NjdhMzViOGM5MjE4MzM3NzQwYWRkOWY0NGJlMTU2ODlhZmFlMDZmNjc3OGI0YjhhYjVhOGU0Y2EifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3d3df17cae1f4e50b3696be1385304f2",
+      "statement": "toolsMenuFallback adds the Tools-menu entry as DOM only when `Zotero.MenuManager.registerMenu` is missing (Zotero 7.x), avoiding a duplicate entry where the Manager exists, and sets the label via the `label` attribute because Fluent's data-l10n-id sets textContent, which a XUL menuitem does not display.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/toolsMenuFallback.ts#L1-L28",
+          "version": "repo-lines-v1:sha256:63274e97396a526b2d5654724fac4d64bfaef483f1ec1d34f4170dc9c78e1c8d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA1NDIyMGY4YzRjOGQxYjMyODVhYTQ0MjhhNDRjYjU0MmYzNzFiNDM1MGQ2YTBjZTFiYWE1OTAyNWU5YjMyY2MifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/toolsMenuFallback.ts#L40-L42",
+          "version": "repo-lines-v1:sha256:9254d114e244643d7c311f0d435e2aa404b4f597c5fd1f0fc36eb135a960cb4e:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODI5Y2M0MzY2NjY1NjlkOTZkYmZjZTgzNmMwMWQyNjhjZWFhM2VmMjUzN2FlMjJmOGIzNzlkMjU1YzdkMTJlMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDBlYzRjMzBhODRiMzRlNjkxOGY4MzU0OGE1MTkzZjNkYzYyM2EwOGJmOTA5NTdhMTU3Mzc2NTNhYjVjMDdlMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmE0MWQ3M2M0NTIyYmVhMzlmZjgxNWUyNGJjZjEzMTE4NTMxZDY3MWViM2NmNTMxMjE4ODVlMTFhMWM0NzI0ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWQ0YzlkZmNkYWM1OThlOGIxZGRmZGMzY2QxMDIwYWM1MTIzYzgyNmM2YjVjZDI2NWUzNjNlYTc0NmZiYThjZCJ9"
+        },
+        {
+          "resource": "repo://test/toolsMenu.test.ts#L23-L32",
+          "version": "repo-lines-v1:sha256:73bdb5ded90a900e1437c98f2fc170cb58ec9966fd3664558b628fa5620cdb79:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwMWM2YzBmYTY2ODIyOTlmODAwNzRlMTQwOWUyYmViNTAxYTYwNDZjMTNjZjdmZjU2OGUwNWM2NjA2MWYyMmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0NWUzODdkNjZhNTViZmQ5MzQ4M2U5ODI3NGExNDlhZDYxYTNlNDI1YWI2OWUzMTE5OTUyN2MzN2NkYTI4YTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4NzljOGYzM2MxYWMxMGVjYzk4NDM1ZTNhNGZjZjhiYzIxODZlOGNmMzU0ODNiOTNkZTQwNjhmNDEyYzAxODMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8dad68aed8f343058bb0672dfc759206",
+      "statement": "Fluent locale files are maintained simultaneously in addon/locale/de and addon/locale/en-US (addon.ftl, mainWindow.ftl, preferences.ftl in both); src/utils/locale.ts creates a Localization for flexannotate-addon.ftl, prefixes every Fluent id with `flexannotate-`, and onMainWindowLoad inserts mainWindow.ftl and addon.ftl into each main window.",
+      "evidence": [
+        {
+          "resource": "repo://addon/locale/de/addon.ftl",
+          "version": "repo-file-v1:sha256:38b8478cc741c182930116072f1de81ad6dbb2bdc2308745fa5e86d525adf690"
+        },
+        {
+          "resource": "repo://addon/locale/en-US/addon.ftl",
+          "version": "repo-file-v1:sha256:4895a3473ecefa45b964116e839f04c50fdcaddaf72e88aa0f1e3b5d76ac8d44"
+        },
+        {
+          "resource": "repo://src/hooks.ts#L189-L200",
+          "version": "repo-lines-v1:sha256:522ca1dd1b4fcf99bb4e3e3e0acea19502315d7dffc68cee2b0bf26bd2dcd2f6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxODI3YWZjZDRiMGIwOGM3M2VlOTViNGNjMTI5MDc1NzdhMWY0NjFlYjlhZjhjY2RkOWM5MTc0OGQ4YWNlMDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRlYzNlYWZjNDdjODkxZmNiZTU5ZWJhN2I3NmY1ZGFhZjdlMmM2NjkxMDNmNjViNTU5NDRhMmE4OTRiNjhmZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0YzEyODM4OWM1OWJhM2NlZGY2MzM0ZWM4NDNlYzcxMGNkMzM3MmQyMDkwYzM5NzhhZmExYzI5N2U2NGFmOGYifQ"
+        },
+        {
+          "resource": "repo://src/utils/locale.ts#L71-L96",
+          "version": "repo-lines-v1:sha256:9c448e12110c928e691d06654d18c34ef46d486fdff0330a5c5d0995ff3bb291:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNjNTY3OTZmODZiZTQwZjcyYzI1MDAzODc4NTYyNDQwMjk0MmM3Yjk2MzM0ZGEwOTcxNTk4YTZkODcxOThiNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg1NTFjM2Q3M2U5MWE4ZDEyMGIwY2Y4ZDJhMzg4MTZhYzBjNWFiYTVjNjViNTEzNmNlNWNjYWZhZDg2ZTE2ODIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/utils/locale.ts#L9-L18",
+          "version": "repo-lines-v1:sha256:363fdf7f116aa526c30135b0a2ae0b4c4e4948a1b7bc1bc88dba851f73e0212f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkODFhNzgxNWEzZWVkYmExODk1ZmJmYTk1OWNjOTZkNmY4OGFiNjQ3MDMwMTYxOTAwMGU2YTViZTA0YWIwMmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ0N2I1Mjk4YmQwMGU5MjJlMTk4NTgwZWMwYzcxMzljMzRmZjIxOWRjOWFlYWM0OWNjYzBkNzZjNmNiYmY0MTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM1ZDhmNjgxZTlmOTJhNTFmZTRkODY0YzAyNzA3NjYwN2Y2M2M4N2MyNjFiYjhkNDE5MzMyMjNhMGQ3OTY1MDUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4a3a6185f9ca4d88bb428ddd3bcfe01c",
+      "statement": "Preference keys live under `extensions.flexannotate.` (src/utils/prefs.ts prefixes every key with config.prefsPrefix; defaults in addon/prefs.js) and are stable user data that must never be renamed, as must the plugin's tags: `#flexannotate-*`, the `§` heading prefix, `★outline`, and `#flexannotate-outline-<collectionKey>` (key-based because the key survives sync).",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L68-L68",
+          "version": "repo-lines-v1:sha256:260879172bbcd64099a575f21ba423fbf1bcaeeba2dd2ddbcb9b005ee51fd015:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjYwODc5MTcyYmJjZDY0MDk5YTU3NWYyMWJhNDIzZmJmMWJjYWVlYmEyZGQyZGRiY2I5YjAwNWVlNTFmZDAxNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjYwODc5MTcyYmJjZDY0MDk5YTU3NWYyMWJhNDIzZmJmMWJjYWVlYmEyZGQyZGRiY2I5YjAwNWVlNTFmZDAxNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWM2Zjg0ZjM2MjVkYjU0ZjE3OTMxMTRlN2I0NWQxNDk3ZTYwM2U1YTNmZDJkZDhhOWNhOGU2MDk3OTBkMTg3NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjMwMGQzYzJlNmVjYWMwY2FlNGU4NWU1NGMzZjU2OWRiZGU3ZGZmZDBmNjc2YzZhMzZkMGY4ODM1OThlNGY4YiJ9"
+        },
+        {
+          "resource": "repo://addon/prefs.js",
+          "version": "repo-file-v1:sha256:5fe8307e7f9364ce4be1d650c08ad2b9330cf2fa82c3611445e91e6722ec7d57"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L27-L36",
+          "version": "repo-lines-v1:sha256:93335d4223b5acb5003a3ae1f7cb7d629105bd77db9a26d9604f5996b0adf939:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ0YmRiZDQ5NWE2NzMzNTNmMzQyZjUzN2M5MTEzNWZiYjk4ZGU5YTliYWJkYWFiNmYzMjQwYWVkZTk0YzJmY2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMwNjkwODQ0MWJjMmQzNTJiOTJjYmNiNzc3NTcyMzA3MzEzMDkyYmYwZDJmZTA4ZDUyZjc0ZjJkYmQ3NjY3ODcifQ"
+        },
+        {
+          "resource": "repo://src/utils/prefs.ts#L5-L14",
+          "version": "repo-lines-v1:sha256:6d63674163b8264d0b92f86be0ad94ce8300e6d7905f964a4ea6a33609372b11:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkyZDIzNDkwMzA3ODJhNWY3ZTIzMzA3NzNiYTNjMzYxZWMwZDNmMzczZWIzNGU5YmZjYjk1MmIyNTZmNWIwZGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg3MmEyYjk5M2RmMjZlNWZkNGY2ZDc4OWIyNzJjYzJhMjQyMWIxMTY2YTU3NmQ1NTc5MWU5YzA1NDMyZGE0ZWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI5NjJlYzY5YmI5OTg3M2UxMjI0YmU1ZmU1Mjk5MGZhYzkzYzNlOWNlNmI4ODRmNTVlYzM2OTQ4MTRmMmY5OGEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cb281768bd414a2f8b10c026ebad28a6",
+      "statement": "`strict_max_version` in addon/manifest.json (currently \"10.*\") is mandatory on Zotero 10 — without it the plugin is dropped silently at manifest parsing — and must be raised and re-verified on a new Zotero major.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L69-L69",
+          "version": "repo-lines-v1:sha256:16c92969bbb877e86f1b622a4bc45e7470aa8f450b4ef8a0cf0180312b89de2e:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTZjOTI5NjliYmI4NzdlODZmMWI2MjJhNGJjNDVlNzQ3MGFhOGY0NTBiNGVmOGEwY2YwMTgwMzEyYjg5ZGUyZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTZjOTI5NjliYmI4NzdlODZmMWI2MjJhNGJjNDVlNzQ3MGFhOGY0NTBiNGVmOGEwY2YwMTgwMzEyYjg5ZGUyZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjcyZjU0ZGZlZjQ2MTQyY2JhNGQ3MjBjMzY1NmY1MjY0MDEwZGJmZTg4YjI0ZDcwYjM0OWJkMjg5ZTc4NDA2YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjU5MWYzODE5NGRiNTEzNjIxMDBjNzU3M2ZmMjNjOTRlMmJmM2UxNDMyYmE3ZDM4NGFhNmQyZjUxNGJjOTMzMCJ9"
+        },
+        {
+          "resource": "repo://addon/manifest.json#L12-L19",
+          "version": "repo-lines-v1:sha256:47909187ecedcf6e557a4f6d28e6d736f8408083bbc4b6a5049cdd453690c1ff:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQzYzk1ODBlZTkxMWYxNTMyNjRhNGNhODNmNTM0NTc4NmMxNjE0YjNkODE4Nzc1MDI4ODJmYjQ5NWQ3YjM1NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjc5NTM3Yzk0MGMwODQ3ZjUyYTVmYTM0MGFkZDEyYjZjMmM1NDRhNmY2ZmM5NTg2YTQxZDc0Yjk2MzQ2Y2JjZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
+        },
+        {
+          "resource": "repo://docs/architecture.md#L173-L173",
+          "version": "repo-lines-v1:sha256:6931e89f60f7d89cba7b1602154858e1dcd1fb46af06f48372dfa757b0ef3907:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjkzMWU4OWY2MGY3ZDg5Y2JhN2IxNjAyMTU0ODU4ZTFkY2QxZmI0NmFmMDZmNDgzNzJkZmE3NTdiMGVmMzkwNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjkzMWU4OWY2MGY3ZDg5Y2JhN2IxNjAyMTU0ODU4ZTFkY2QxZmI0NmFmMDZmNDgzNzJkZmE3NTdiMGVmMzkwNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODY2MjFkZWQ0MWNmNjEyMjkyMzA1YzZhMmE4Y2Q3ODdjY2YyZTE0YzhjMjEyZjBiZGFiYzQ5NTU0ZTk0ZDcyNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjg1YzA5NmNjZWNhZTA3NjFjNWUwNWVhNmE1Mjg2YzUzZTNlNDZiOWI0YWYxMGRmYmE1N2M3MTQ1YjMyYzg0NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_94d90162e9c649a6b0f4f8cedc2cb490",
+      "statement": "Prettier (configured in package.json: 80 columns, 2-space indent, LF, xhtml override) and ESLint (@zotero-plugin/eslint-config with no-unused-vars off for *.ts) gate changes via `npm run lint:check`; `npm run verify` runs lint, build, unit tests and Zotero tests together. Commits follow Conventional Commits and are made only on instruction; no push, release or tag without an explicit order.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L61-L61",
+          "version": "repo-lines-v1:sha256:7f86004fa30a165cb1be348e710ff60645f48db8f80c386611356f431a7ed3a0:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2Y4NjAwNGZhMzBhMTY1Y2IxYmUzNDhlNzEwZmY2MDY0NWY0OGRiOGY4MGMzODY2MTEzNTZmNDMxYTdlZDNhMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2Y4NjAwNGZhMzBhMTY1Y2IxYmUzNDhlNzEwZmY2MDY0NWY0OGRiOGY4MGMzODY2MTEzNTZmNDMxYTdlZDNhMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWRhZWE3Y2MyNzBjYTE5YTQ4YjM1MTVhZGY0ZDc5NDUwNGVlYmE3N2MyMDQ3NTA0YjIwMzE0ZGZmZWE4YzUzMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjNjYTM2YTY5NzM1ODlmYjEzYjljZTM1NjI3ZmI4NWI3ZmU4M2Q5NDBjZTIxOTg4MWFmMmY5Mjk0NjQ0Zjc5ZSJ9"
+        },
+        {
+          "resource": "repo://AGENTS.md#L67-L67",
+          "version": "repo-lines-v1:sha256:fad544b9e5b858832677a237e11a95a719b78db1d8319556b6b5b4a2372c2d86:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmFkNTQ0YjllNWI4NTg4MzI2NzdhMjM3ZTExYTk1YTcxOWI3OGRiMWQ4MzE5NTU2YjZiNWI0YTIzNzJjMmQ4NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmFkNTQ0YjllNWI4NTg4MzI2NzdhMjM3ZTExYTk1YTcxOWI3OGRiMWQ4MzE5NTU2YjZiNWI0YTIzNzJjMmQ4NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDQzOTRhNTgwZGQ3ZjNjMjI0NjM4ZjFlYjZkMTRlZGI5MzMxM2ZiYzIwZGQ3NzVmNjY4MTNhMDU3NWE3ZjY4MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjU0NDUxOGE2YTY5MDU0MDM2NWQxOTdhMDIwMmQ2ZGVlMzY1Nzc5MTAwZGNjNzhkODIyMjE2MDA1NjVmMmFlNiJ9"
+        },
+        {
+          "resource": "repo://eslint.config.mjs",
+          "version": "repo-file-v1:sha256:8f39cffa78ee70020495963ec54cbdce5aa2f9d149da18cd41fec00bf82dce12"
+        },
+        {
+          "resource": "repo://package.json#L57-L71",
+          "version": "repo-lines-v1:sha256:283eccad754661e960a4b9f1fe06898ade2f0f89b5a725a221617219163d3ef1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwOWM1ZGFlOTY1Mzk5NDA0NzY4ODE4ZDM0ZThkN2M2OWIwYjMxMjMxMDFhMzJmYTg5NDI1ZTcxN2ViMjFjZWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ1ZjA0ZTkxMjM5ODc3ZjhlYTMyZWNlZGQ0YjI0MmM0Yzc3MDQ2NzI2ZDQ3NzgzYzM1Y2IyNmFkNGE4OWE4ZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7d9c6c1b8a5b47bc9e1f466b45eba8e3",
+      "statement": "Documentation ships in the same changeset as the code: README.md and CHANGELOG.md update together with a change, new Zotero-internal anchors go into docs/anchors.md, and new pitfalls go into docs/architecture.md; the README feature matrix for Zotero before 10 is derived only from `npm run test:versions` output and refreshed after every fallback change.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L70-L71",
+          "version": "repo-lines-v1:sha256:f2c323ee6acce843825ed4322b58c42e0d6ef4682332c71e9397b791fd138027:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2Y1ZTdkOGFjOGJjMDE4OTU3OWI4OTA2YmRmOGE0YWY1MDAxY2Y2Mzg0MWFmYTgwYTA0MDIyYTk0NTY0NDk4MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTU0MGU1YWI1NjY1ODJkN2I2ZWVjNzY2YjkxNjVmZmFmNzdlZTIzOTVmODExMTFjMTVlZDJjYWJkMDZiZjBkYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGI4MmQ0YjVjNzA1MDE1NjMxYjJlZDY4OWY3YThkN2IyZjM0MGQ0NTQ4ZTY2N2IwN2EwZGZiNGZjZWNmNGQwOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWIxYmM1YmM0YTIzN2Y1NzhlNmFmNGE0MTVkMDY0N2Y5OTEwYjAzYjM2NGUxZTI3YzFmMWRiYWE3NDNkMDNiYSJ9"
+        },
+        {
+          "resource": "repo://CHANGELOG.md#L1-L3",
+          "version": "repo-lines-v1:sha256:d35646ae1560bc890dce0daebbd8ca253713766218ba3fcba14707897ab1b4f5:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2U3OWM0Y2FmYjUwNGEyMWY4OTEzZTRlMGU2NmYyZmY3YjExOTJhMTI3YzZmNTY0YWFiMzc5YzhiNWZhOWJkZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMGI3ZDViY2U5NzFmOTRiMDA1NjgyOWFhZDllMTg1MjFlYzZiZjM3NDhkNjQxOTNjZjIyNmY2ZTkwOWIyZTYwYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTFiZjgyZDYzYTg2OTJmYmMzMDcwMmYzMTU3ZTM2NmE4ZWFiNmFhNWMxNTRkNjZiOTEyOWFkNDMxYjI1YjllMSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_bc5b26661de44e2599a37877a424103e",
+      "statement": "docs/img/ is produced only via `npm run screenshots:docs`, never by hand; scripts/docs-screenshots.mjs runs the Zotero test suite with window captures and copies a curated list of nine PNGs into docs/img/, failing when the run fails or a curated file is missing.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L52-L52",
+          "version": "repo-lines-v1:sha256:e14a59983d027702a1d6084d8217146e39f47d9e538f655d40b034001a1479c1:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTE0YTU5OTgzZDAyNzcwMmExZDYwODRkODIxNzE0NmUzOWY0N2Q5ZTUzOGY2NTVkNDBiMDM0MDAxYTE0NzljMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTE0YTU5OTgzZDAyNzcwMmExZDYwODRkODIxNzE0NmUzOWY0N2Q5ZTUzOGY2NTVkNDBiMDM0MDAxYTE0NzljMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjllNmMzNDMwMGIzY2E4NzM4ZTZlZmZhZjUxZWM1ODIyMDJjMWQzZDVmMDgyYzY4NjdlYzk2NjA0YmQzN2VkYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWFhM2ZlN2UxYzZkMWZhZDZkMzZhNGRmODA0YTQ3NDVlOGVjNWNhYTVkYzRjYWM2NmExYWNkMzdhYjBlNTUzZSJ9"
+        },
+        {
+          "resource": "repo://scripts/docs-screenshots.mjs#L12-L22",
+          "version": "repo-lines-v1:sha256:06b8154e439c9d583d2e344d19357f0337a03f0ecc57bc4b03b7e184a09c075c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkMjJkNGRiZTg3NjRiNGMxMzg1MmUxODNlYWM5OGQ3OTFiMGExYjJmYjAyZWZmZTAxNmExNzYxOWUzMDQzNzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBjMGIwNjQyZjQxOTM2MDI2MWFiMjI1YzY2MTdkNzEwMmEwMmI1OWM4YWY2YTU2YzY4MWZhNDJlODk5NDgwMzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI2Y2ZjODE1Nzk2OWQ5NDhmYzRjZjg2OTQ2YzI4NTA2ZjRkZWVmMmI4MTAzNzdiYWFlNmM2MTQxNjUxMDc5NWEifQ"
+        },
+        {
+          "resource": "repo://scripts/docs-screenshots.mjs#L35-L56",
+          "version": "repo-lines-v1:sha256:ab885c199334e22179d9202f4979894f893a20874c7222fade4c0d2ad8d8f49c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEyYTRhMjQ0YTYzY2Y3NTcwM2UxMWE4ZjA3M2NiYTJiMDFlYzljMzIzMDNiMmI2MTkxNGFhMmFmYmYxYTRjMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3MjZhYzAyNmZmM2Q1ODdlNmE4MWFiNzQ0YzkxMmM0NmI5MTk1ZTZjNjNhY2U4ZTVhZGY1YzA1MmZmYWFmMTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlMjMyMTA2ZTYwNzUwMDU0YzEyMGZlMWMyNmRhMTE3OTM2YTg4ZTU0MjdlMGVkMmFlNTA0NDc3Nzk4NTc1YTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a36bc6b36f134bd9a3fee69d054d6f27",
+      "statement": "Prototype patches are applied only via `assignChecked` (assign in try/catch, read back, compare identity), because a silent no-op (frozen target, Xray expando) is otherwise indistinguishable from a successful patch; patches check the target before patching, log failures, are reverted in stop/removeFromWindow, and require evidence (a test or source anchor).",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L54-L54",
+          "version": "repo-lines-v1:sha256:71fb39f1547c5b3607e304de95dce39a31ff27b1594089ff0b0734412d83dbbc:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzFmYjM5ZjE1NDdjNWIzNjA3ZTMwNGRlOTVkY2UzOWEzMWZmMjdiMTU5NDA4OWZmMGIwNzM0NDEyZDgzZGJiYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzFmYjM5ZjE1NDdjNWIzNjA3ZTMwNGRlOTVkY2UzOWEzMWZmMjdiMTU5NDA4OWZmMGIwNzM0NDEyZDgzZGJiYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDMyMzA1NWFmNGZiYjliZGMyMjcyZDgyNTliNWNjM2E4NWExN2FmNjM1M2M1NGY0ZGU3MDgzZjdlZTYwZTFiZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjRmNDFmMjAzMDA0ODMwYjdhZTkwMGM0NWI1MjJkMDZkMzI3Y2UzNmFkYWUxYjBiZDg2ZjFjOWM4YzQ3OTY5ZCJ9"
+        },
+        {
+          "resource": "repo://docs/architecture.md#L165-L165",
+          "version": "repo-lines-v1:sha256:527a81b5e969ed75504557db4dd68eff7cb545581047e39b8b2624b56c46b185:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTI3YTgxYjVlOTY5ZWQ3NTUwNDU1N2RiNGRkNjhlZmY3Y2I1NDU1ODEwNDdlMzliOGIyNjI0YjU2YzQ2YjE4NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTI3YTgxYjVlOTY5ZWQ3NTUwNDU1N2RiNGRkNjhlZmY3Y2I1NDU1ODEwNDdlMzliOGIyNjI0YjU2YzQ2YjE4NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2VjYzkwYzU0ZTUwMmM5ZjE1MWZjZWViNTg5ODRkODkxNDI4YjdiODFkOTEzYWExYjQzMGM4ODRlYjA3ZjYxOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzNlMjdiM2NiMTJjYmYwMGIxMWNhOGFjNzk1NWIzZmMwMmEwNDhmYjQ1NmU3MjIyZmMzMDMzYjI5NWY1YjRhMyJ9"
+        },
+        {
+          "resource": "repo://src/shared/patch.ts#L1-L22",
+          "version": "repo-lines-v1:sha256:dd64f6d8e080ed147b708d0700113b9da147c107605469903e179a633eeb33c9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7c820304f94249b481ac2197dda3011a",
+      "statement": "Tests never touch the user's productive Zotero or Word: they run in the isolated profile .scaffold/test/ (test:versions deletes its profile/ per version), and Zotero internals are verified only against extracted source in .zotero-reference/<version>/ with anchors logged (file, lines, version) in docs/anchors.md.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L40-L49",
+          "version": "repo-lines-v1:sha256:c8a05f1676771558c5a22b6ca8c5c21d941ec1e0244e8cd055cb2f26bb93ff33:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1MThiNmUxYWNmZDBjYzczMDE1Zjg0OWQ3ZWJhNmRiODc0NTBjYTAwMWRlNjRlNGM0YzE0ZDFjMWNmMzdiNTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiZTI5Yzg4MTkxOThkYzAyZWEyOWQyNTc1ODYyN2VmYzNlMjA4NmM2YzM5MGI0ZjZhMmM0YjAwYzQ5Y2JkODAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFjMzNiMjI5ZGNkZDI4ODlmNGU4YTQxZmZlMDI3YmE4MDcwMjMyMTFjMzQyOGNlZjQxMjczNzNmNDNhNzhlNmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzODFlZTI1MDA0ODAwYmJmYjE1ZWM4ODE4YTA2MzZkY2IxMmU3ZGZhOTI2MDI4YjU5M2Y0NzYyMGMxMzM3NjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_92fa029dc5634cc3ad6adbcf0276680d",
+      "statement": "A new feature is a Feature object added to the ordered array in src/hooks.ts — global work in start/stop, per-window DOM in addToWindow/removeFromWindow, both idempotent — and nothing else wires it up; the module is exported through addon.api for the Zotero tests.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L57-L57",
+          "version": "repo-lines-v1:sha256:cad00f3e3a14a10417cda1c0d53d777cb43d671b3380b6e59f0063c33e4c0f5f:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2FkMDBmM2UzYTE0YTEwNDE3Y2RhMWMwZDUzZDc3N2NiNDNkNjcxYjMzODBiNmU1OWYwMDYzYzMzZTRjMGY1ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2FkMDBmM2UzYTE0YTEwNDE3Y2RhMWMwZDUzZDc3N2NiNDNkNjcxYjMzODBiNmU1OWYwMDYzYzMzZTRjMGY1ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjZhMDkzMzZlZmU4YWQzOTEwMjllMmQ1ZjQ3Y2RiYmE5ZjY4MGRlZWVjZDIyNzA3MDk0ZDliZWNkZDAyYmNhZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWRhZWE3Y2MyNzBjYTE5YTQ4YjM1MTVhZGY0ZDc5NDUwNGVlYmE3N2MyMDQ3NTA0YjIwMzE0ZGZmZWE4YzUzMCJ9"
+        },
+        {
+          "resource": "repo://src/hooks.ts#L74-L111",
+          "version": "repo-lines-v1:sha256:86997c25cca8b861f4fe6f65461f23d4d8c645321e4b5f097e904a1cc200f984:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyYzZkODRjYWM4MWM4OWI2MjNhOGI5ZTQ4OGY2ZWNhYTZkOWM1NmM1NGQ0ZDk0OWQyYWUzM2M1MzFjNWQ3ZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4NDAwOGE4ZTQ2ZTdiN2JiMjliN2VkNmI0NzAzZjliZTg4MWJjOTA3YzhiYTc0ZTUxNjA1MzhiNTZmYTQ2ZjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk2NzU1YmQ2MmRkZWQ1M2I3NmVkMmYxNjRjZGEyYjRkZGE4YzcxMzAzNGFlOWZhYjM2YWYwYjBkMTAzMGY2NDAifQ"
+        },
+        {
+          "resource": "repo://src/shared/feature.ts#L7-L13",
+          "version": "repo-lines-v1:sha256:bb8363a646ec568680d99410edd9ed66adf0a1c8226d298f3c9be8daf8e68f04:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQ0ZDJmM2IyOGNkMzY0OGQ5MTYxN2Y2MjI4NWQ2NjA0YjQwMDE2MTc1ZDQ5NDU3MGQ1YjAxYWY5OThkOGE2YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmRlMmU0ZWIyNzUzOWVmNzNiZjE4MWU2YjMzMmMyNGI0OGQzZDhhODM2MjU2OTAyOWE3NmZmNDI0NjM1NGMyYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWIwMWE3NTg1NTM2NmVmZmUwNDcxYTVmYjQyYzlmYzMxOTg3MGEzMTExYmQ4MGI3YWNjY2U2NzE3YTczYTUzZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_57f0e7dbe389409e943e9c2a33ff4028",
+      "statement": "The organizer is a fork of Lattice (birugit, AGPL-3.0-or-later, base version 4.1.0); organizer files derived from Lattice carry the header 'Derived from Lattice (birugit, AGPL-3.0-or-later); see NOTICE.md', provenance is maintained in NOTICE.md, and license/attribution statements are never invented — FlexAnnotate is AGPL-3.0-or-later unchanged.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L60-L60",
+          "version": "repo-lines-v1:sha256:26c12cc3905c2fda1f54ceecdbd980a478ca8f2c6a016ea18042754a5d9cdbec:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjZjMTJjYzM5MDVjMmZkYTFmNTRjZWVjZGJkOTgwYTQ3OGNhOGYyYzZhMDE2ZWExODA0Mjc1NGE1ZDljZGJlYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjZjMTJjYzM5MDVjMmZkYTFmNTRjZWVjZGJkOTgwYTQ3OGNhOGYyYzZhMDE2ZWExODA0Mjc1NGE1ZDljZGJlYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDBlMGY1YjFiOTE3MzE4MzI3MDZjYWE4OWNmMTZmZjc1NjUwNDFhYTNlNjgzM2ZkYWZhNjUyNzQyOTc5MThlNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjE3ZWI0M2Y5MTU4YjVhNjMzZGQwOGM2Zjg4NDRkZWNmNTNiN2E4ZmE3Y2ZlN2IyNGZjMWZhZWU3ODk4OTk3MSJ9"
+        },
+        {
+          "resource": "repo://NOTICE.md#L1-L15",
+          "version": "repo-lines-v1:sha256:9fc05b8c3abc203f463a336a74bda5823953797aaee10a3bb9deca111089d50d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlZjkxYmQzZGRkYWRhNWI4ZGNjYzJjMzhlYWIyNGQ4Y2NhZDhjNmFmODE1ZGZiNmJiYzQzZTY5YTc3OWIxYzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0OTI4OGI3YzczMjFhNDFiOTgwMjQyMTlmYjlkMTFjYTVhOTVjNjgzMDQxMjVjN2IzZTVhMTliMzIwZDViZDAifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/logic/outline.ts#L1-L8",
+          "version": "repo-lines-v1:sha256:5ae91484850a1708e2091595b8878313c4f67bbdab7d8f7b71b46bd4fb34abb7:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFmMjJjZjA3MzI1OTJjMjQ3MTQxY2JlNjFlZmExMTAxMjYxMmY1YTMxMjJiOWFmOWJiYWY1MmY1NzI0ZDE5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTcyYTQyOTM4MmIyZTE0NzE4ZTBlMzdiMDU3MGE4YTE3MDI5OTFmY2Q4NDk4Y2Q4NDA2MGE4YmY0ZjA1MDE3YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODRmYjQyMjQ1N2ZmNTI2NTFjOWNjYjkyOGU5NjU1OTIyOGIzOTMyMTI5MzE2YTQyMjhlMjQ2M2JhZDhhYTBmOCJ9"
+        },
+        {
+          "resource": "repo://src/features/organizer/panel/organizer.ts#L19-L19",
+          "version": "repo-lines-v1:sha256:bca52def6801fbd9005088e3201cf1507eb71a48ccec8e25101ab6fbe5ed5686:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmNhNTJkZWY2ODAxZmJkOTAwNTA4OGUzMjAxY2YxNTA3ZWI3MWE0OGNjZWM4ZTI1MTAxYWI2ZmJlNWVkNTY4NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmNhNTJkZWY2ODAxZmJkOTAwNTA4OGUzMjAxY2YxNTA3ZWI3MWE0OGNjZWM4ZTI1MTAxYWI2ZmJlNWVkNTY4NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzNlYTdjN2U1Zjg1MzY2MzhiYTVkYWQyNzgzOWRmYmNlNjY3MWIyN2Y3ZDJkYjhhMTU0YTVmMGU0NTBkM2ZiYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjMwOWM4ZTc1OTUyNDUzZDQ0MmYxOTQyNGNlYTdhMGRmOWQ0MDgwMzEzZjRlMTJjNmIxYjVlZDA0YzBkNTFmZSJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-16T19:49:13.348Z"
+  }
+}

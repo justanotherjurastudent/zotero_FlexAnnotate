@@ -1,0 +1,414 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:c8170b834698f85005871fca0f722acaf894210fa27e75cce66196e2c2089271",
+  "claims": [
+    {
+      "id": "claim_9143c86b5d8a44468a9560738830eec1",
+      "statement": "All FlexAnnotate persistence lives in Zotero's own structures (tags, notes, child items, preferences), so data syncs and survives plugin removal; the only cross-feature data layer outside Zotero storage is the in-memory AnnotationIndex, which is built from Zotero items on demand and never written to disk.",
+      "evidence": [
+        {
+          "resource": "repo://docs/architecture.md#L58-L70",
+          "version": "repo-lines-v1:sha256:16d8a34399009e60724cf74cce3f7dbacaf1a01ada48829be6086f84227ed852:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2OWNlMDM0YmY3MGExODgxODhjNTFjMmI5MjAyNDVlM2EwODlhOTEyMGMwM2RhYzMzNGU5ZGQ4NTA3YzZkMzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkYWExNmQxMmNmNGE3YTk5ZDQ1MWEzOGMzMTA2NTE5YWFhZGQ3ZWI3MTU0YmRiY2E0YjEyNTFiMGU5Y2RhZDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1YjBmMGIyZDhkNWNiNGU0Mzk4YjYzMzNkYzg2MjNjNzg1YWRjOGRhNGYxZDZiNzU2ODdiMTk1ZDUxY2VmMGEifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/annotationIndex.ts#L1-L12",
+          "version": "repo-lines-v1:sha256:af66aa48dc6db28d7fb359ac62100108fabe5c88a514b63a41d4468c68ec7333:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3MmE0MjkzODJiMmUxNDcxOGUwZTM3YjA1NzBhOGExNzAyOTkxZmNkODQ5OGNkODQwNjBhOGJmNGYwNTAxN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYyODc1N2VkZDdjZWJjOWIyY2JmMWQ1MjliYjkyNGM4NDRlZjc0NmMzNjM5YmUyZjQ3NzJiYmEyNjY1NTUzMzMifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/annotationIndex.ts#L43-L49",
+          "version": "repo-lines-v1:sha256:fdecd01cf1a42a0b01943c41f864f0c0c7fe99bd9cf4b4afa5d0d656975d997b:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGFiZGNmNzAwYTE1M2M4MmVhNTYwN2VmODMzZjEyMzM4YjE4OGIyMWNlZGQ4MjlhY2U3YmEwMGRmMDg1NzI0OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTE4YmZiZWMwODc1YWNiMjJhZWMyYmQyMTJmYzU2ZTM4NjYwODAwNDM4OTcxNjBlNjljZmUzNTMxYzM2NzIxZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmI1ODBlOTY0ZjgzYTQ3M2Y0M2Q0NDM4NDYyOTQ5ZDY4YjU2MDBmZGE3ODdmMTYzNzQ1ZDAwZGU4OWNiZjM2YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTRmYTgzMGQ4MTdmYWEzZDQyNmFhN2I0ZmY5NzlhYTNlODMzMTk3NjEwNTU4YmU2YzA5M2FlZjQwMWFmMWQ0YiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_55bd2b6e40de42c3baf4870a7974358a",
+      "statement": "Zotero accepts annotation items only under a file attachment with an attachmentReaderType (pdf, epub, snapshot); because print sources have no file, placeholder.create() imports a generated one-page PDF as a child of the regular item, titles it from the placeholder-title locale string, and tags it #flexannotate-placeholder (automatic).",
+      "evidence": [
+        {
+          "resource": "repo://docs/architecture.md#L71-L73",
+          "version": "repo-lines-v1:sha256:65b0f0b2d8d5cb4e4398b6333dc8623c785adc8da4f1d6b75687b195d51cef0a:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmRlM2I1NzVkYzc0YjM3NmQzNTMzNGRmN2VlNDViNDBmNDdjYTljM2Q0MWM2YTY3YjFhYWJkNWZiNzg5YjM1MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDNjMmJiYmZkNGM4NzhjYjdlM2QwYTY3MDczZTExNWM0YzkwMmNiMDVmZjVlN2M5Nzk4ZWM2NzlhYjljZjU4MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjA3MWIzNWRjN2I4M2Q3MWQ1YzQ1Y2MzMzhhODJlM2VhNWMxNTA2ZmYxMDQ0ZDc1MTkyNTllYzZjZjgwMDdmZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWYwMWEwNzU2NTJjMmM4NDkzZmFjNzAyNjk3NGQzNmYyOGM3NTU5NDc3YjdjNjdiNmJmYzdlOTBjMzA4YjU1NCJ9"
+        },
+        {
+          "resource": "repo://src/features/print/logic/printAnnotation.ts#L74-L99",
+          "version": "repo-lines-v1:sha256:9e56c553bb74f3d7e02b192c89e90ec02084064c06663efacae654b54e4831ca:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5YzUwN2YxMGQxNGY1YjNkYTM5MGY1NjdmOWQwMDk4NWNkODkxMmU2Zjc4OWEyYTg3MzM2NmE0ZjY3OWFiOWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhhYTg2ODU2MTk5NTFlYzAyNmEzN2FkNGY5MjE5Y2QzNTc4NjlhZTUwMDZlZmU0OWI4YjgzMWE5YzI4ZGE1NWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/features/print/placeholder.ts#L48-L77",
+          "version": "repo-lines-v1:sha256:0aecbf07db72784ac7495222c691329341bb257837a62431b30dd3ad9b000a2e:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwNmYzZDkzYzhhMDNiYjI0Njc5Zjc1ZDYwNjU5YjFiZjM3NjM5MjhkMDZhZTNhOTU1Mzc0OWQ5ZTk1Y2RjODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ4ZTRiNmM2NzY3Yjc2YTMyYTlmYWJkYTgzZGEzNzg5NzMzNjQzY2NlYTJkZThlZWEwYmZkNzAxYjViMzY5ZjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFkZGJhNmQ5M2U1NGI4N2ExMTc4MDkzYTgxMDAwMzEyMTAwMWNlMjc4ZWQ4ZjE2YzM2ZWQ0YzBmOTM5ODdlZWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_779eb63ab47b436aa40d9d09ea083674",
+      "statement": "The placeholder PDF is built at runtime by buildPlaceholderPDF() (minimal A4 page with computed xref offsets) instead of shipped as an asset, because Zotero.Attachments.importFromFile() needs a real file path and rootURI inside an installed XPI is a jar: URI; the temp file is removed after import.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/print/logic/printAnnotation.ts#L74-L99",
+          "version": "repo-lines-v1:sha256:9e56c553bb74f3d7e02b192c89e90ec02084064c06663efacae654b54e4831ca:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5YzUwN2YxMGQxNGY1YjNkYTM5MGY1NjdmOWQwMDk4NWNkODkxMmU2Zjc4OWEyYTg3MzM2NmE0ZjY3OWFiOWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhhYTg2ODU2MTk5NTFlYzAyNmEzN2FkNGY5MjE5Y2QzNTc4NjlhZTUwMDZlZmU0OWI4YjgzMWE5YzI4ZGE1NWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/features/print/placeholder.ts#L15-L24",
+          "version": "repo-lines-v1:sha256:049893fcc80416b37f8fd3bd63d3165a268f3d74170dcb6461adafa56abb3760:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzODNkOWE2OGFmYjViYWRjOGUxMDFjZDczNWVjMTcwNjMwOWQ3OTgwZTkxZDM3Y2NjZDBiNGFiNmUwMjY2MjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIyZmMzMmVlYjA0ZTdmNWY5ZDBkMzNkN2UwZDAzMWE5ZWM4OGRkNjRjZTdiZTljZGVlOTY1MDg0YzAyMGZlNWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgyZDMxNzEwYTgyODIwMmM2MTExOTUyZmZkY2IxOGM3NzhkMmU5MDU5ZDI4NTEyOTc4NTBhOWM4NjAzN2UwYWQifQ"
+        },
+        {
+          "resource": "repo://src/features/print/placeholder.ts#L53-L56",
+          "version": "repo-lines-v1:sha256:4e02ee4946d0d9358f24244efbc655f3472f7ce8e22bb5b5b631aaecb13d9c21:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDMwOWYxZDkxZDNmZGQ3MjYxNTliYjM0YzJmOTVlYjBhZTkxZjZjYTk4NmExYzJjZTAyOTk0MGJmNzk5YmMzMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWEwNWExYWU2OTYzZWVlMDZhNDMwM2ZmNmNjOWJiM2ZlNGYxMDUzMTQ0M2EyOGI0MDdhY2RhYjFkMTlkNzUyZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGE3MzQ3OTNkZWEyOTA4ODhhMWZiYjUyZmExZmU3YzBjMjAxOTQ2YWQxNmY4NzFjOTYxMmIyYWU5ZGU5NDBlYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGM5MzMzMDU4NThlYzRlNTlhOWE5ZDIwZmMyODg3YTEyNTY1OGI5MzEzMWJhYzRkMjdkYzQ4MDBlZjEwZjdjYiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_1f53f19d3eac4622a01c66b5a5791f48",
+      "statement": "Placeholder detection is by the #flexannotate-placeholder tag, never by title (a locale switch must not invalidate older attachments); cleanUpIfEmpty() erases the placeholder once it has no annotations left, unless the keepEmptyPlaceholders preference is set.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/print/placeholder.ts#L15-L24",
+          "version": "repo-lines-v1:sha256:049893fcc80416b37f8fd3bd63d3165a268f3d74170dcb6461adafa56abb3760:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzODNkOWE2OGFmYjViYWRjOGUxMDFjZDczNWVjMTcwNjMwOWQ3OTgwZTkxZDM3Y2NjZDBiNGFiNmUwMjY2MjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIyZmMzMmVlYjA0ZTdmNWY5ZDBkMzNkN2UwZDAzMWE5ZWM4OGRkNjRjZTdiZTljZGVlOTY1MDg0YzAyMGZlNWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgyZDMxNzEwYTgyODIwMmM2MTExOTUyZmZkY2IxOGM3NzhkMmU5MDU5ZDI4NTEyOTc4NTBhOWM4NjAzN2UwYWQifQ"
+        },
+        {
+          "resource": "repo://src/features/print/placeholder.ts#L85-L100",
+          "version": "repo-lines-v1:sha256:20a48ca74bf3eeb09be2b85caaaa9c7081090930e8e55817995f7ef5f68cf334:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmZDZkODNjY2JjNmMzZGY5NWFlOTA2MjAwYjZlYTVkZmNlNDNlMmY3ZWZhNTlhZmY1ZmI3NWJjNmM1MDZmNzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkwOTdiNzBjNzVlOGY0NjExNzViZWJlZWZkM2M0ZDYxMDFlMGIzNTI0ZTIzNmQzMDA1NDRhNWFlMDZkNWYyMjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_105de705faf1478ebd2dfd76164fe8ca",
+      "statement": "Zotero annotations carry only a page label, so the locator type lives in tags: locatorOf() resolves the annotation's own #flexannotate-locator-<type> tag first, then the attachment's #flexannotate-default-locator-<type>, then falls back to page; this order applies to print annotations and reader annotations alike.",
+      "evidence": [
+        {
+          "resource": "repo://src/core/locator.ts#L39-L48",
+          "version": "repo-lines-v1:sha256:b7bae1ac7a88f2d0be7fdd0416617329cb2a922e42269092ac7a61a0e59eb026:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2MmYyNjU5M2M3MTZmZGFkYjBhYjBhMTgyODAxZDQyMzcxZWFjOWMwODQxN2U1NWIzZjU0OTI0YzZkMzY0ZmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlmMzUwY2FjYjg1NWMwMDA3YjJiOTY0NzA3YTM4MzM0N2Y2Y2E4MWE0OGViNzZjMGUzOGQ0NWE1ZDgxNWZkMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRlZWQzZjYzODRiMWU4OGNlZTVlMmRmODc0YzVlNDBlYWUxMzk3N2MzYjRlYzFjZWI4MmQwYTliODRmNGRmNTIifQ"
+        },
+        {
+          "resource": "repo://src/core/locator.ts#L4-L14",
+          "version": "repo-lines-v1:sha256:ba207ec2795f06bf6ad80dc06750dbec02b0a59a7f4b21999e09c867d26cc3c9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5NGQ3M2UyZDhiMjMxOTBlZmMzYjY3NTczZGIwNGVmNWVlOTFmODc4YTU2OTFjZjk3M2VhYmRiOTcxNmQ3ZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFmNjhjMmNhZGU2YTRmNTk2MTM5N2RiNjhlN2Y4MjY1MGY0MzFkZjk3ZWI0NzMxZmM0YWFlN2QyMDEzNDE3ZDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkMzM4N2FmNjI2YTYxNjI4OGE4OTJmNzVmZGVlNmNkNzU1NTY5YzQ2NzYwYmU3Y2M2MDQzOWI0ZTNkNTk2N2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc4N2YxNzcyZDVhMTBkYTBlYWIwYzhiMWEzYjJhYmQzOThlMjNlOTlkMTI3YzZiYTUyY2MxZTgxZjIxNGNhOTYifQ"
+        },
+        {
+          "resource": "repo://src/features/print/printAnnotations.ts#L144-L162",
+          "version": "repo-lines-v1:sha256:18b930b8e312c0b55193e9df27eedc8f406c337ef9b40ec0d00de3074a65c99b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY4NDdhZDBiOThlMWE4NjYyMzhmNTY2ZDY1MjViYTQxMWE5OWEwYmY2NDYwYzA1OTE1MjYzNjAzNTE1NzQ2N2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI3ZTgyYjMxMmRiMGYwOTE2YzA4NmU1N2YwMjcyNGVmM2QzZGE2ZjMxMDYzZTdmODhhNjViMWZiZDQxY2RiNmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNmYWUzOTY2MDA1MjIwM2FmOTRmZmFiMmMwNzRiMTVkMWJjY2ZjMWI3NzYwNjJiMjVlNjBkZjg0NmZhZmNhM2UifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d5eccd298cc54b868752c89d93b8b16e",
+      "statement": "Locator tags are written sparsely: locatorTagChanges() emits a tag only when the chosen type differs from page or the document default differs from page (otherwise no tag), always removes all existing #flexannotate-locator-* tags first, and an unknown locator value removes old tags without adding a new one (applyLocatorTag).",
+      "evidence": [
+        {
+          "resource": "repo://src/core/locator.ts#L60-L74",
+          "version": "repo-lines-v1:sha256:367d82fb6dfb737fd44696b95d01f8ca71071f5b3f3a6aa5a8edd3c5a6eaa0ef:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5Mjk3YThjNDhlN2IyYTdkNGI2ZWFiMjhhOWRjM2ViN2E3YTE0YWE3NmFiZTBhNjY1MTQzMTMzMmU0NjQ1M2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhNzhhZWUwYzg0MWI3YmM2NDU1YWI5ZmI2OTcyNThlM2E0OTE5OWFlMjMwODVmZGY4YmIyZDZlNTFhYzk2MjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ3NTNiNWNmMTgyYTdmZGU0MTBhOTJlYzJiZThiMzljMjgxMGJlNGFlNWNmZmM0MGRkMDFlNmQ2Yzk1ZDYwNzAifQ"
+        },
+        {
+          "resource": "repo://src/features/print/printAnnotations.ts#L226-L243",
+          "version": "repo-lines-v1:sha256:7d7aaaa17b6bbff083820789806824877e83c2b83f2e2cc1d4b61a2a6578088b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlYzM1ZDExOGI1ZThjZmFhZjQ2Njk4NmE5MzMyNjE3ODIwZTc4YTlmZTc1OWVkZmFkODNlOGNmZWZkZTM2MGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJhNGFkY2I2MjIxNjFhMDBkYmRjZjg0MWZlMjk4YzU2MjdiN2FhMWQ2YmZmM2NiMzRlM2FjN2VhM2E4ZTAxZmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4NDE0Y2EyZjEwZjBhYzM5NTViNjM2YjliMjkzZGQwOGRjYzkyYzk0MWRmNGFkYmJiYTUzOTQxNDY0YjAxNDMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0440f472cc1749a08be193e8f225ed65",
+      "statement": "Locator read-back accepts only known values — Zotero.Cite.labels plus margin (Randnummer, which has no CSL equivalent) — so unknown or legacy locator tags are ignored by knownLocatorTags rather than propagated.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/print/printAnnotations.ts#L144-L149",
+          "version": "repo-lines-v1:sha256:c7af94674a48040a7fe23e7c0237ec322fc12ea2cd026f872fe55fcbf417375d:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjg0N2FkMGI5OGUxYTg2NjIzOGY1NjZkNjUyNWJhNDExYTk5YTBiZjY0NjBjMDU5MTUyNjM2MDM1MTU3NDY3YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjdlODJiMzEyZGIwZjA5MTZjMDg2ZTU3ZjAyNzI0ZWYzZDNkYTZmMzEwNjNlN2Y4OGE2NWIxZmJkNDFjZGI2ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzU1NGJlMjg2YzU0YWY2MGRjYWQ5NjVkMzlhMGQ3YWEwNTY2Mzg5OGU2ZGY5YWMwZWZjMWM3NWVjOWMxOWYzMyJ9"
+        },
+        {
+          "resource": "repo://src/features/print/printAnnotations.ts#L251-L260",
+          "version": "repo-lines-v1:sha256:252f50bd25ec82eed5bc9d6f0898a351015339bee602a1fb797ab1c0288c0411:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlNTg3MGZmZjUxNmNmYzUzN2Y1MTk0MjhiZWQ5NmRkYTNlMDYzZGM2ZjNiZmZjNjJjMGMxMjNlYTBlMTFiYmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZkZDhkYTRiNDk0NDQ4ZWZlYTQzYTJjMTQ3N2IwOWI1YTc3NGMwYWVlYzUxNWEyNGFiMzU4Yjk5OTE1ODNlYmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_100cbe8f44864a9a8575bff400afd129",
+      "statement": "setDefaultLocator() first freezes every existing annotation that carries no explicit locator tag to the previous default (as an automatic #flexannotate-locator-<previousDefault> tag) before changing the attachment's default, so changing a document default never alters the type of older annotations; page is the ground state and removes the attachment tag.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/print/printAnnotations.ts#L180-L219",
+          "version": "repo-lines-v1:sha256:8ec1556f2a1f1269d57d3aefa8736cf4725117038176f978f44f28eb4d210cca:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiOGY4MjNjMWIzZGJiMTdhYjhlM2FlZWJhZWQ0YjMzODliNjkyOTJlM2ZlN2ExZjU2OTgzODA3MWYxN2Q3ZjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlNjJlMTYwMmY2NDRjNzcyNWJiMjY1MWM3YzUxZTQxZWE4ZmM3Y2RhYTI2MmMxZDZiMWI5YTcxODU1YWU4MTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBjZGEyZjBjYjJhMzQ3ZWM3MGU0ZWM1MDk0Y2YwN2JiZTY0NzJiNGYzOWQyYTAxN2NhY2YyNTU3MzgwYzBkZDQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c720587f72e04515bf39b9fba6c7a90e",
+      "statement": "Outline storage: a heading is the Zotero tag §+trimmed title; the tree (hierarchy and order) is the JSON {\"v\":1, \"roots\":[...]} stored in one standalone note tagged ★outline after the sentinel LATTICE-OUTLINE-V1; a collection tree's note carries the additional tag #flexannotate-outline-<collectionKey> (collection key, not id, so it survives sync), while the library-wide tree is the note without that tag.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/logic/outline.ts#L10-L17",
+          "version": "repo-lines-v1:sha256:5423d3769b0b09fb9155255097ac0904844f3e785259b50ea0135e88d8722d01:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2Q4ODljZmMwOTI0YmU5YzkzNGM3NmU1YmYzNjI5OWMyYjcwZjM0MjU3ZjgzOTcwMjY4NjM4MWIwOWNhNDlhOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjg0MjI0YzA4MGI5ZWZlMzA1YzlmM2VhZmI3OWU3ZWNkN2EzNTIxYWNhNjYwMTdhZmFmN2E0ZTUyMjM2YTdkZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWUzNDU1ODBiNGEwNjg5NjY3Yjk0MTViOTZhMjRlMjg0N2Q2MDdjYmE4ZGY1NzVmOTExYzA3MTc0ZjU5OTEzYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDdhNGQxOTJiOTdjNjIzMmI1Mzg5NzRmYmJkZDBmZTNmMDA1NGM0MWU1ZmIzYzI2MzNiYjE4ODUyNzgwMDg0OSJ9"
+        },
+        {
+          "resource": "repo://src/features/organizer/logic/outline.ts#L246-L260",
+          "version": "repo-lines-v1:sha256:11fe14c4cc0bad975d710a0d984c5ff51239fe922c5724dc4d4e156a04a7de67:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4Nzg2MTVkODk5NjUxOTAxMjRmYThmYmRmYjA3NDY1MjFiZWEwYjAyZGNlNjNkZGFjYWEyNTgyNzY0ZjgxOGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc4NDQyNjAzZGJkYWJlYjgyZmJmYzA5YzdiNWMxODIyMTIxNGM2N2M2NjllZmM0NTEzODcxYjQxMGVhZjM2ZTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAyNDE4OTEyMzYzMzNhNTBmYWZmZDE3ZGMwMzI3OWUwMDUwZDM4ZTQyZGNkMTI3Y2RmZDMyN2Q5MzQxYmUyOGQifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L123-L137",
+          "version": "repo-lines-v1:sha256:eccbaa7818c0fc06c23d005636a29a89b794949f7c40f1e7f4e4b319b4ae8f5f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0ZDBlNjJlZjhmMTI2MzVkZWQxYzdhZDc5Y2U4ZWE3NWMxNWIzYThiNTFkMGEyMjNmNWNiMTMyMmI1Mzc0MjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFkYjNlN2NkMGMzYTYyMzA0NzY2ODE2MWQxMDRlOTlkODYyMDljYTNlNzc1NGEyNWIxMTlhNDkwNzg3ODA0MjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM4MWQ5MWRjNmM4ZjViMjliOWZkZGExODE0NzY5ZWU1OWNlYmQwMTAwMTNhMDZlMzA5ZWEwNzUxZDk3MDk1YzQifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L27-L44",
+          "version": "repo-lines-v1:sha256:0e417e4f8758abc5c3fa29bbbac56bde5332181ad623bdbd97c272516826917d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ0YmRiZDQ5NWE2NzMzNTNmMzQyZjUzN2M5MTEzNWZiYjk4ZGU5YTliYWJkYWFiNmYzMjQwYWVkZTk0YzJmY2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdhNTc2ZDY3MzAxMjcxZWE2YzM0YjY1ODJjZDExZGFkMTU5MzViNTQ1NzE5MDM2NGE5ZDA0MmVmZWE5M2ViZmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2b87d229a2744e4a84856c5367fb6907",
+      "statement": "parseOutline() reads only the JSON block of the outline note, accepts both </code> and </pre> closings because Zotero rewrites <pre><code> to <pre> when a note is saved again, and sanitizeTree() defensively coerces malformed payloads (missing ids, non-array children, broken JSON) into well-formed nodes or an empty tree.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/logic/outline.ts#L296-L325",
+          "version": "repo-lines-v1:sha256:1aba1fef7810a00477ea734aa239c5fdaa8faf960bf0f0f988b220f3efd9fd06:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiY2VhYzVjMGFhYzIxODE3NjkwM2Y0OGQ2NmFhZDFiNzA4NDg0NDIxNGNjMTg3YWY0ZTljNWNiYmNiNDVkZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY5YmFiZDMyMTFjZWQ0N2EyZmVjOGIzNjUwZmY1YzM0Mzk2ODkzN2M5MDI4MGVlZDFlNTNlODFkNjNlYTc1YzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk3NmEyYmI2MzlhZWI0OWU2MDA3N2JhNzczNDdiMDdlNGIzNjQ2NTAxOWY1MDE2N2JiN2ExNWEzODAyOTI2ZGMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ea8e9e40c2b24f4b9cd1d7f1780a7e4b",
+      "statement": "OutlineModel.save() creates the note with saveTx({ skipSelect: true }) so Zotero's note editor does not open it and later write a stale copy back over organizer saves; save() and load() both run syncAnchorTags() — adding a §-tag per heading onto the note and removing stale ones, idempotently — and load() also runs syncNoteHeading(), which rewrites only the first <h1> when it differs so older notes get their scope name backfilled without touching the JSON.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L160-L180",
+          "version": "repo-lines-v1:sha256:55451267b15c6076e03879fbc3855ab2c23811990bc49050b6768669be2a7deb:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJlNmJkZDUxZjdmNDdmN2U3ODhiNTc4NmVlN2ZhNmRiMTlkMDM1NGU4MTg4MDdmZjEyNzA3YmJhOGU3OWQxODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM0ZWI4ZmM3OGQxNzcyZGI3NzYxNDI3NTFjM2E0NjYwMTc5NmJhNWJmMGQxZDIzZjY2ODEzZDliYTlhZjlhOWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyNTU0ZDhlNThjODI1MmU5YThhOTk4Mzc4NjkyYjNlZDIxZGVmOTQzOTQyYzlmYTZhOWZmZTVjMzRiNjViMWQifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L187-L217",
+          "version": "repo-lines-v1:sha256:e0d6bb8eb3e91b59748a861ec15fe3cd45364ca5f6be9b778e5939443871e24e:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBmYWM5NmJjMDk2ZGIwYjg1MGZkMjYxYmNmYjViZWUwNTBkOGY1NDExMjQyOWQwOWM5NDU3ZDc1YWJjNGRiY2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEyM2ExY2E0Y2MyMDkyM2Y5Y2EzZmMyMjMwYTA3NTYxMmY0OWNjZmE3YTZlNWJiZjhhZjNmM2FlNjg4MjVkM2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgzNjUzMTFkZTQ2MjA1ODJmYTVhYjM1YTJkNzUzODg5N2Q1YjAyZTI3MzEyZTcxNTZlOWZiZWYyNzgyMGYwMzEifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L219-L242",
+          "version": "repo-lines-v1:sha256:2633d2081f326f218850d2b760ed092309f23d0f1eb0588d1259578bfeaf3b1b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmMmEyZjk5NmYwOGU2ODBiZDI5MjEzNWE2ZmE0OTc4YmRhMjZlNjAyZDg0ZjMzY2IxZDU5NDc3NWQ0MzA0YjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY2NTZiNDNkYzBkNTI0YTJjNjZmYzMwMGZlOTQ1MDhmNzlmY2NjMzY1MjY5MTZjZGZkYWY0MmZkMGVmMTA4ZjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg3OTlhM2ExOWE4YWRmMWU4MDM5OTlmMGJjZjU2YzgyZGYyN2ZhNDUxYzQyOWM5M2Q1NTM0M2U0ODkwZGJiNmMifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L260-L288",
+          "version": "repo-lines-v1:sha256:db19931063a7f66614efcecad4aa1680f195a0015373148eede5e42927355540:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmMmEyZjk5NmYwOGU2ODBiZDI5MjEzNWE2ZmE0OTc4YmRhMjZlNjAyZDg0ZjMzY2IxZDU5NDc3NWQ0MzA0YjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRhODkzM2E3YmIyOGQ1NmQ2ODA0MGFmNWU5YmViY2E0ZGYwZTZlZGVjZGJiN2U4NDBlNDcyMzAxNDE2NWUxZTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY1MDUxYmYzOTQ4MGZkOTVjOTdiN2FlMWEzMzgxMzJiYTk1ZDA4MDI2ODkzMjQ0OWI3YzBkOGI5ZTdjMTc2NDgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d72edffbcd91422cbb0d338fc647e0a8",
+      "statement": "Decimal outline numbers (1, 1.1, 1.2.3) are computed for display from tree position by numbering() on every render and are never stored; every consumer recomputes them (organizer panels, citation-dialog outline, Word/ODT export, and the external flat-heading API whose num field is documented as derived), so moving or indenting a heading needs no data migration.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/logic/flatHeadings.ts#L13-L27",
+          "version": "repo-lines-v1:sha256:d7ba2893803deafb696c3f582d859c46e7fb730faa1d13d2dbe13e9a5b62f33f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3NmQwMTBmOTg2NjhjZjNlZTA1ZmY4OTA3NmI2MzQ0NTQ5MmMwMjMwZDlhM2EzYTJkMzAwZDBiNzE4NmNhNzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEyNWRlMzhkMGU2MWJhMDRmMzY4ZTdkZDQwZTVlMGFkNDc4MGUwYjRmMDBkYWI5NzdiMjRlOWU5NjgwNmUwZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg2Njk1NDRjODk0NGVhMTI2MTdlOGYxNGUzMGZkNWY5YmMyNDBjY2ExZjg5MzVjNTg3NWUxMTg5YzUxMjMyOTQifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/logic/outline.ts#L327-L341",
+          "version": "repo-lines-v1:sha256:058dabf837a4927992d71639d73860ee99515c1dc52c2a652d50da9833f1b6fd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJmMjMxOTk2OTRjMmM5YjU1NjliYWM3MmMxMmI5ODFmYzYyMTVjMGNjODU4YWRkOWZkYTQwNmM5NGI0MGRmYzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyNzliNjgwNTIwZWQ1MjZkY2M0YzhhYTM3MzUyNzU5MGUyODE5NWU0MGZiZTYxMDdlMWU1YjQ5NWE0NTc3MzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk2MTQ5MTRkNzAwMjRjMzZmOTNhZDdkZTE3MzNjNGI0NGY3ZjA3N2YzYWRjNGFjZGVmNGEzMGQyNWJiMjY4OTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c1fbd577a73a4552bc061372465744be",
+      "statement": "The outline note itself never counts as a filed item: isOutlineNote() (a note carrying ★outline) is excluded in gather() and buildCountMap(), necessary because the note carries the headings' own §-tags as anchors.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L437-L470",
+          "version": "repo-lines-v1:sha256:54111d9aae2fa602bd03f89eae342ac26847cf4b80ea47f241fb6a2d9a90530d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4ZGFlNWU3OGE5NzIzYTVjYjZmNjVjOTRjY2NhYjUxNzBhNTgyN2YwY2M1Yzg3ZDdhMTMzODdkNmQ4ZjYwZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZWVmZGQ1MTEzZDk5MDU2ZjFlMTlkZTFiN2Q1YmVkZTZlMGEzMDFmOWU4ZjdiZTRlYWQzZjhmOGRhODY2YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkyYjQwZTlhN2UzZjY3YmRhY2VlNzUwYjhlZDg5ODQzNDQwY2FiMTRiNWFiYjBkYjFmM2NiNTZlNzM1ZjdiMTMifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L477-L508",
+          "version": "repo-lines-v1:sha256:d2c42f0a5cbb2d9d41ac0da6a9767d6dea3809bfa4376106c96121ff36735402:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjYmIxOWRiNGY3MTFmZDdiMzZhYzJjY2NhYjkxZDZlNmRmMjYyNDQ4OThhZmRjZjlhZTU4YmVjYjk5NDRlNGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJmNWIxZWY3NWU0MTkzZmYzZjJjZTYzMjY1ZjYwMmUxNzQxNjE4YWM3MjdkMjcwMDE2MjYwZjk2N2VlOTY4NmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA2MzA5YmMzNGRkY2U1NGZmNDA4OGM3NTdkMDc4YzA0NTc4NWM0YThiZGMxZWQyYzZlNjlmZTU4NzhiM2E4ZDYifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L96-L109",
+          "version": "repo-lines-v1:sha256:583b560b9b60681eddfe2f077eeae9ae430fbb044a6c03ec1d15001b2f0d0b5c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRhMDZiZDJiY2Q4YmM2OTMxYjE0MGIyMDIwNTg1MWI0NmZiM2I3YjFiYmI1OGY5YjNlNTEwMDFhZDNkYTQ5ZjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA5NGZjMGMxNzNkMWVjM2ZjNTAxZDdkZmE5Mjg1NTAxYzUyN2NmYjQ3MTI1ODNkYTNjYzM2MTgwNTY2YjRiZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUwNDY5MTIyOTkyNDM3YzdiYTAyMzBmNWIzZTRhNWRiYTcwMTBmNjY3MzU3MGJkZTJiMWI2YzNjZWRmNzI1NzQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9f82f3a339ad472ebb2d8e982da7eadd",
+      "statement": "Heading tags are library-wide with no collection part, so renaming (renameTag) and stripping (purgeTag) take a TagScope — the work ids of the tree's top collection including subcollections, null meaning the library tree (unrestricted) — so a rename in one tree cannot touch a same-named heading in another tree whose works differ.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L329-L353",
+          "version": "repo-lines-v1:sha256:c42ce36acb67842fb35c1a4b3ac9bcea2449150368aaed53f559f87cbc69f285:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmMmEyZjk5NmYwOGU2ODBiZDI5MjEzNWE2ZmE0OTc4YmRhMjZlNjAyZDg0ZjMzY2IxZDU5NDc3NWQ0MzA0YjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE3MWQ5MDU4MGUxOWE2NTc3NjA2MWUyMDFiYWNjZWIzZWQyZTE1YjQ5MGRkMmNkMGU2YThkNDk1M2ZkOGU1ZDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk2M2UxYzcwMzY1YjJjYzhlNzhkNGY3Mzg2ZmM3YzNmM2JiMzdkYWU0ZDE0ODhhYzc3NWZiYmUzMWY0YTMxNDcifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L355-L373",
+          "version": "repo-lines-v1:sha256:6b692dea744e075f189d9a6a809821899dfdef3e9e380df3deac076ef06ffef9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2YWRlZDNmMjE2Nzg0N2Q1ZjExOTEzMjg1ZTI5MzgwMzBhOGI1ZmUzN2ExYzExOTg0NjYzN2U5ZDFhNTJjYzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMwYTY5ZjI0ZmU1MjliMjQ5YjVlZTc1ZmY5MWUzMDU1NGFjNmJlNTRiNmMxZWQ4YzU3N2UwN2EyM2E1NWY3YjAifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L59-L65",
+          "version": "repo-lines-v1:sha256:91bbd5c9960051476668029307640e36503df4de43764e87f114152d6fe72292:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFmMjJjZjA3MzI1OTJjMjQ3MTQxY2JlNjFlZmExMTAxMjYxMmY1YTMxMjJiOWFmOWJiYWY1MmY1NzI0ZDE5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMGUxMzRmMTUyNDAxMjk2NGFkYTcyMGQwNWQ5ODEyNTU4NDRjMjNmNGY2NmU4MTY2ZTllOTM0MTA2ODg4OGQ1NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDY2NDRhZWM4NjFjNDJlYmI2NzgyYzNkMGQxNGE4NDRkZTFiMmI5MWI1NjhkYzcyM2FkZjc1MmU4MjZjZDZiNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjllNDFjNjlmNWU0MTJmMzA5NjgwMjA2ZGZkZTI1ZjRjMmZjM2MwMTgwZDQyMjhmMDk1YTFlYWZmZTE2MmIyYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_7dd04780f3e54587b7a1257bd318a632",
+      "statement": "If several notes carry ★outline (e.g. after a sync conflict), findNote() resolves via pickNewest(): latest dateModified wins, ties go to the higher item id, so the selected note never depends on input order.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/logic/outline.ts#L185-L205",
+          "version": "repo-lines-v1:sha256:5a90ad73fcfab78ad5e406175b173213c6c72cae7719114021486d87d528cc67:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyNzliNjgwNTIwZWQ1MjZkY2M0YzhhYTM3MzUyNzU5MGUyODE5NWU0MGZiZTYxMDdlMWU1YjQ5NWE0NTc3MzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAxMmRkODk4ZDkwMzE5NDE2YTFiYmFjY2I1NTNkOTcwOGE3ZGM3NzE1NjA1Y2I1YjRjZjJhNjEzZDJhNDI2MDQifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L123-L137",
+          "version": "repo-lines-v1:sha256:eccbaa7818c0fc06c23d005636a29a89b794949f7c40f1e7f4e4b319b4ae8f5f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0ZDBlNjJlZjhmMTI2MzVkZWQxYzdhZDc5Y2U4ZWE3NWMxNWIzYThiNTFkMGEyMjNmNWNiMTMyMmI1Mzc0MjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFkYjNlN2NkMGMzYTYyMzA0NzY2ODE2MWQxMDRlOTlkODYyMDljYTNlNzc1NGEyNWIxMTlhNDkwNzg3ODA0MjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM4MWQ5MWRjNmM4ZjViMjliOWZkZGExODE0NzY5ZWU1OWNlYmQwMTAwMTNhMDZlMzA5ZWEwNzUxZDk3MDk1YzQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3700a76e41704fcfbceddf51c19d0c3b",
+      "statement": "Zotero enforces annotation field rules on save: annotationType must be set before any other annotation field, type changes only between highlight and underline, annotationText is only allowed for highlight/underline, annotationColor must match /#[a-f0-9]{6}/ (lowercase), annotationSortIndex must match /^\\d{5}\\|\\d{6}\\|\\d{5}$/ for a PDF parent, and annotationPageLabel is saved as pageLabel || null and reads back as null when empty.",
+      "evidence": [
+        {
+          "resource": "repo://docs/architecture.md#L75-L87",
+          "version": "repo-lines-v1:sha256:fbfa535235a6bc8948f16375a08cdc540e47032de1d7581fe57623fdf6b4d92a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2OTlkODI4OGE1ODNkODIzMjljNjdjZmRlNTExMGJiODQwMDYzM2M2OGMxNjhkYTcyYWU1OTUwZGY5YmE0NWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFhY2QxNjMzZTEyNDM4MDljODI4NjNiZWM0YzIzZTgzMzY2NmFjNzZiNTIxMTVkNmEyNDdmNTM1MDJjMDhjNzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY1ZDhmYzdhNmEzZjRkYzliNmFkYTg1NTE1ZjYyYWUwNmNiYzBiZDBhYTMxZTE4MTkzNDBjODQ4MmQ1YWUyMjMifQ"
+        },
+        {
+          "resource": "repo://src/features/print/printAnnotations.ts#L1-L9",
+          "version": "repo-lines-v1:sha256:8d305c0a0cef06ca3a62539d1240b3528bc596e2341dae6bb2047207b25e9d68:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFmMjJjZjA3MzI1OTJjMjQ3MTQxY2JlNjFlZmExMTAxMjYxMmY1YTMxMjJiOWFmOWJiYWY1MmY1NzI0ZDE5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTcyYTQyOTM4MmIyZTE0NzE4ZTBlMzdiMDU3MGE4YTE3MDI5OTFmY2Q4NDk4Y2Q4NDA2MGE4YmY0ZjA1MDE3YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTA5MTc0OWM5YjJjMTI0MGVjNmY3OWRhZjg1NzE2YzEzMDhhZWJhYTgwYzdiNWIwZTM5ZDc1YjQ0NjUwMmU5ZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_fbb054d26b274d2094abf537898495b3",
+      "statement": "printAnnotations.create() complies with Zotero's field rules by assigning annotationType first, folding quoted text into the comment for type note (Zotero has no quote field there), normalizing colors via normalizeColor() (trim, lowercase, fallback to #ffd400 for anything invalid), and writing a fixed annotationPosition (pageIndex 0, one zero rect) because the PDF parent requires the field although a printed page has no geometry.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/print/logic/printAnnotation.ts#L44-L47",
+          "version": "repo-lines-v1:sha256:df79654c3861a41b0df26d1e627fea621a68c71224fc135d8013a4a09a0fd7a8:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGY4YTRhNmViNmQ1MjY2NGFjMDVlODgzZmRlMGQ1NjM1MDQ4YmQ5MWFhMTI2ZjhhZTg5NDhmZWZkYjRkZmZmYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGI4NmQ2MzNlYmNmYmIwYTU5ZDEyOTFjZmQ1ZjYwZmQ1MmE2Y2E1MGE1NWU1M2RlMjJhODQwODA4MjExZjljOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjAxZDZkM2YxMTNmMzYyNjIyMjgwZjk5YTdiMWEwYjczMjllMTY1ZWMwYzBkMmEwNDk2YWVjNjhkMWI0NWNhMSJ9"
+        },
+        {
+          "resource": "repo://src/features/print/logic/printAnnotation.ts#L62-L68",
+          "version": "repo-lines-v1:sha256:b9e5b8f6183295befb661b403c924b18d09025893d193b0db03c06b2b32a583d:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGZjNDYxMjY1MWI3YTI0ZmY5MzdjY2UyOTAwOWI0OWU5NzlmY2VjMWFmYWZhMTg0OTE3NGY2ZjBlNGFmYmEyYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjMzNGY3MWFmZGViNTllMGE4MzBkYjgxNjE5MDVhNTAwMjhiYTFlMDQwYmFiMTdmODFkNGQxNDNkOTM0YmM0OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzA2YzdlM2NhNTBiMjMxNTNiYWFjZTA0ZDQ5OWFjYjU2MWM3NTIzYTU1MTlkNmI4ZmYxNTViMDI4NjgyZWUzNSJ9"
+        },
+        {
+          "resource": "repo://src/features/print/printAnnotations.ts#L45-L89",
+          "version": "repo-lines-v1:sha256:5cdfd147a6dc4f2a397d6b6b1ce35b57cab2a06cf3477765d27940ab89e26464:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkNmM2NjljNTFlN2UxOGUzNDk1MmYzM2QwNjFlZGFjYTBmYmM4MDZlZWMyOTFlODI0NTk2NTFjZTM3ZDE0ZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQxYWZmNTVmYTNhMjBiZTY1NTY5MTU3YWIwOTllZTMyMWQ1M2Y4YzE4NmFmYWNhYjViY2U5NDQ5MzcxNDU2NjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM5NjNkY2ZkMWZhNmUwMTQ5ZTQ2MDIxNWM2ZjQ4N2QyYWIyZDI1ODkwMWFkZjU1NjU5Zjg0ZTM2MzQ4YjU1OTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_28b653b18a854f55aad3b03c72a0348c",
+      "statement": "buildSortIndex() derives the PDF-parent sortIndex from the first digit run of the page label, clamps it to 99999, and zero-pads it to the required \\d{5}|\\d{6}|\\d{5} format, so labels without digits (e.g. XIV) get 99999 and sort last, and pages order numerically rather than as text.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/print/logic/printAnnotation.ts#L50-L60",
+          "version": "repo-lines-v1:sha256:3596019d288f3f268d0f0872f8895b8a710364bf3a8e093c63c9c22d810ff470:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiNzhjODEwMmVhZGY3NDlhM2ZhODkyZTYzMTBiMjBmNTUyY2IwODQ0OGMwMTRiYmY5MWYwZTYyYjk5NTAyMTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3OTI5ZTkxZTBmOTljM2U4MjVkZTY5YjQzNWZiNjQ4NGQxYjBhMWRmMmY0NjU2MWFiZjFhMjlmMDQxODhiODgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFkNDU2ZWEwMmJjZmU3MjU3MGE4ZjA3ZmM0OWI1ZDBkODgxM2VhZmJkYzVlYjE1Nzc3OTliZjZmY2M0YTA5MzkifQ"
+        },
+        {
+          "resource": "repo://test-unit/printAnnotation.test.ts#L38-L63",
+          "version": "repo-lines-v1:sha256:df0c5a369e1c406c3315f9d8c79bd5b639a471e2cb49234f4141bc7d1acb2096:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNkMzFjOThiNzM0OTIzNTMwNzM1ZDgzZjg0ZTVhMTBkODgyY2JjYTc1OWYxZTZkNjdlMWRmMzA4OTkzMjA1M2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEwYmRkYmIzNmI0ZDAzNzI0Y2Y0NWE5ZjBhOTZhOTUyYTQ0NTRlNjI5MGM4ZGZjMmZkZGRjNjcwZDUyY2ExMjYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e6fe60b28f1f47549312ebc53429bb32",
+      "statement": "printAnnotations.update() rewrites annotationSortIndex from the page label only when the parent is the FlexAnnotate placeholder; a native annotation's sortIndex encodes its real position in the document and must never be overwritten from the page label.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/print/printAnnotations.ts#L111-L118",
+          "version": "repo-lines-v1:sha256:0b4aa9edab7ac3b20d73812c8863347aaaf9a60ce672169982dbe8adc7a67c23:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODFkODU4MjdiZTg2MGZmNDc2NmRjOTM5ZGNiNTE5YjY5MjRmMzY2MTI1NmVhNmJhZDVjNjUyZDY2MzMyYzIxMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjczYmEwZTBjMTMyNmQ2OTZlNDI4OTE3OTVlOGMzNGNhOWU3YmNjMGIxMDI1YWM5ZmJlYTBkZDZlZWQ1ZjU0MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmYwMGUyZTcxMzBkYTIyZDk2YzEyYmI3MTBlYjAzNzA1ZGM4MjA5MzgwNGM3NzVkOTVjNWNlM2VjMjY3ZTU0YiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_6d50239ad6f64611b5d319515a63cdf9",
+      "statement": "All preference keys live under extensions.flexannotate (prefsPrefix in package.json) with defaults in addon/prefs.js; getPref/setPref wrap Zotero.Prefs with the global flag, so values are stored in Zotero's own preferences rather than per window.",
+      "evidence": [
+        {
+          "resource": "repo://addon/prefs.js#L1-L37",
+          "version": "repo-lines-v1:sha256:5fe8307e7f9364ce4be1d650c08ad2b9330cf2fa82c3611445e91e6722ec7d57:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkOWMzOGNmYTRhODU1ZjA4YWFkMjFmNWEzNThkMzg2N2Y5NzE5OWUxNGM3MWRlOTQ2ZmUzYjcxOGIyNDRmMDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2MjAxYWYxNTQ1ZTc3Njk5MjU4ZTIzZTIzOThiYzk3ODUyNmQwNDEyYzcwNTE5MWZjOWY1ODllYzUzZWQ3N2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://package.json#L6-L12",
+          "version": "repo-lines-v1:sha256:12dbca70949a9ee242844210b11bacc8043a2bd857f73e835aa2e28d03023388:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODJjMTEyMTJkMjM1MjdiYWI1NjQzZjVjMjY5ZGNmMDJkMzA2ZGIzNjUzYmE1OWVkZTFkM2FhNmZkMWZjM2I1MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTQ4NDViNzEzODNkODYyMDJjOWNjOThiNjRlMTg4YzNiZGM4YTc0ZTMzMGM2MmRjZGU4ZjE5NzQ5OTAyYjU0NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTVlODRmODM5NzEzNzU3MTdmZGUxZmE3OGE0ZjlhMjE3NjI3OGQxZTNmOTY0YzNhMzgzYjBlZWZkMDhiNTEwMyJ9"
+        },
+        {
+          "resource": "repo://src/utils/prefs.ts#L5-L27",
+          "version": "repo-lines-v1:sha256:eb26ba4a02ccc8b7d55411c1ba735f8d5983c0c399a21353b7c958fdbd27d204:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkyZDIzNDkwMzA3ODJhNWY3ZTIzMzA3NzNiYTNjMzYxZWMwZDNmMzczZWIzNGU5YmZjYjk1MmIyNTZmNWIwZGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg3MmEyYjk5M2RmMjZlNWZkNGY2ZDc4OWIyNzJjYzJhMjQyMWIxMTY2YTU3NmQ1NTc5MWU5YzA1NDMyZGE0ZWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ea222afb6b5f4f45a531c43fb9d5bf8f",
+      "statement": "The citedAnnotations preference stores a JSON map sessionID → annotationID → workID backing the 'already cited' check: record() moves the current document's entry to the end and drops sessions beyond the oldest 50, and activeIds() treats an entry as valid only while its work is still cited in the document (or when that set is unknown); the session id comes from Zotero.Integration.currentSession.sessionID.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogCited.ts#L10-L33",
+          "version": "repo-lines-v1:sha256:781b35d7a79c9f16c596f9edc26b70f1d3f4a606592630ba4e6234c5c5c7ab30:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkYmY2ZjFhNTkzZjZhMTM2OWQ5M2RjZGRkZjczYjNmYjU4Yzc4M2Q0YjdhZmIzY2M3YjU2MDgzNmM1ZTg1NTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxNzdlM2EyNWI3MTQ4ODJmNTdkMjQwM2Y3YzZhNzBiYjIwNjc3ZTIxMjBjZDc1YTc5MDc4OTVjODA4ZmYzNzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJiYzA3YjIxNDIzN2MyMmQ2YzE2YTY4MTA0YmMxZjFiZDAwNjc3YzFiODhjYWY3MGNjM2RkNGUyNWViZjAwNGYifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/logic/cited.ts#L12-L59",
+          "version": "repo-lines-v1:sha256:edf9072fe3ef671514a44a6a6c41c62ab0267bc08209dc04eb6f62d3d35a6a5f:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3ZDBlMDdiM2I1ZjFhZjFkZmVkNmYxM2E4ODI4ZGUxZjc4M2E4ZmRjMzU1Nzc4NDc0NWU1YjQ0NjQ0MWJmMmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5OTVlMTI3MTQ5YzVlMzkyZTUzOGEzZjBjZDYxZWNmNzk0NTBlY2M3MWNlOWI4YWFmMTVjNjM1YzQ3MWFlMDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdjMmU5OTRiYjU1YjM5ZjVlMGIzYzU1NWQ1NmIxZDdkM2E4ZjJlMjlmYjM5MTEyYzNhMDJjZmZiNTYxZWU3NjUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3c9a54f6c5ba469d9447702bc1ca20eb",
+      "statement": "The dialogOutlineCollection preference remembers which collection the citation-dialog outline comes from (0 = whole library); if the stored collection was deleted, readCollectionID() falls back to 0.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogOutline.ts#L133-L156",
+          "version": "repo-lines-v1:sha256:b18e7dbdfc7762155d4c01d21bfb9fede30a2939c819872699400e13b6385ad0:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMzZDlhNzRlOTFhMmM5MzM1YWUxOTIwZDAyNTc2ZjZhY2QxMjA3YTZkODhjZDkyM2M4ZmM5YmZmZDNhMjQyYjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d15bdf24136149a082befb01ee0ad68c",
+      "statement": "Two stored values are consumed downstream as citations: citationOnlyItems() maps annotationPageLabel to the citation item's locator and the locator tag's type to its label, and organizer annotation rows resolve the same pair via locatorOf() over the annotation's and attachment's tags.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/citeOnly/logic/citeOnly.ts#L35-L63",
+          "version": "repo-lines-v1:sha256:0f68bec107d77aafb3747c11e3302ae06605efc4e74122a762d606d618ca9dd7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhMTFkYjYzYjk1ZjViMmI0YjM1Njk4M2IwYTYzZGRmZGQwOTE3NWM2YTNiZDkxMmQ0ODIzZTk2YWU1YWFkMGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY5Mjc2ODJhZWFmZTdkZGVmYWM5ZGUzNzdkZjc2NTkzNDJlZTEwOTZjZjI5Y2E5NDFhNGE3YjEwZmE3YWRmZmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/panel/organizerData.ts#L58-L96",
+          "version": "repo-lines-v1:sha256:2579a4bdf2a020f4fefe95699748e00213e43fb184c54bd4a9bfe1730b1539ad:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmMjU0NWNjZWM2YjRhZGVkZGVhNGQyYmViYjJiZGQxYzg1MjI4MzU2M2FmODM2ZDAxMzAwZTBkNmIwMGU0YzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyYzc3ZGRjMzcyNGM2OWFjNTZiNzJkMjQ5NjIxMzc3Y2ExZmIyZWQ1OTgxOWY5OGQxNTcwNmU4ODA5NTkzNWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE4MDI4ODEyOWFkMTA4MTEzMGY2ZGRkOTUzMzA2ZTY2ZWE0MWJjYTk3YTliZDA5NDBkMmYxOTg4NDczMTZhZTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ5MWU5NTViNmM4Y2YwNDM5NTRlOGY2OWI4NTAzYmRiMTkyOTAwMDgwZWE2MWJmZTZlZmNkNWU3ODQzYzRlMmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f365813aa68c41128f6b1d87273324e4",
+      "statement": "The tags #flexannotate-*, §Title, ★outline, the LATTICE-OUTLINE-V1 sentinel, and the extensions.flexannotate.* pref keys are stable user data written into users' libraries and read back by the plugin, Lattice-compatible tooling, and external consumers; they have not changed since version 1.x and must not be renamed, since renaming would orphan existing data.",
+      "evidence": [
+        {
+          "resource": "repo://docs/guide.md#L93-L101",
+          "version": "repo-lines-v1:sha256:d526d77b156bc6bb9f5006b7d084dbb00ed5ba364aaee50c4306ae7ef372304b:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTkyNzE4MzgxYzQ5MmJmYmE4OGU4Y2MzZGJiMWQ1OTBkMGY2MjI3MWVmOTYwM2Q0OTRjMTc3OWU4ODM4NjdjOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDA3NTc3OTEzMTJlMDRkNjZkOWQ4ZDcyZDgxNjMxYTUzZmEzNTM2YjhjNGI5ODVjZDQxZDUxOWExZWRiY2JlZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzJlNmJlNjAwNWJhZDZlYjA0MTliMzljZmZjNTNmYThlMzQ1ZTNiMGNmMmZiNGI0Y2MzMTEwNzc1NGE1NTZiNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTk0YmY5YzRjZWMwNGM3YTRiYzhmYjhlYzI4NWQ5ZmNjYjIyOGRiYWQ1NzhhYTU4Mjc1ZWY2MWU4ODVhMzBjMiJ9"
+        },
+        {
+          "resource": "repo://src/features/organizer/logic/outline.ts#L10-L14",
+          "version": "repo-lines-v1:sha256:b18f687daf1fe12c98c7473644fab3ffdd601f936a3ee40edf4b67acb8dc4a1b:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2Q4ODljZmMwOTI0YmU5YzkzNGM3NmU1YmYzNjI5OWMyYjcwZjM0MjU3ZjgzOTcwMjY4NjM4MWIwOWNhNDlhOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTVjM2ViYTNjODA1MGFlYzc2MzNmNTdmM2M2YzQzNTIxZjQ0MjIyODdhY2U5YWE1YzdjNjNiZjBiMjE1MzhmMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWUzNDU1ODBiNGEwNjg5NjY3Yjk0MTViOTZhMjRlMjg0N2Q2MDdjYmE4ZGY1NzVmOTExYzA3MTc0ZjU5OTEzYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmYwMjI0NzlkMjRhYzYwZTg1ZmRjMjFkMDhmYTc3MDAxYTUyMDYzMTc0NjhkNTg1NWIzMWYxMzIzMmNlMjk4MyJ9"
+        },
+        {
+          "resource": "repo://src/features/print/placeholder.ts#L15-L16",
+          "version": "repo-lines-v1:sha256:f6ba2568e4d437d5d19d6278421d7a124e782e02525b79bcfbf640509448266f:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDM4M2Q5YTY4YWZiNWJhZGM4ZTEwMWNkNzM1ZWMxNzA2MzA5ZDc5ODBlOTFkMzdjY2NkMGI0YWI2ZTAyNjYyOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmMwMTU5YWQwMmM1ZDZkYzJhYmVkOTVhYTEwMjNhYjc5OWM1NGQ3N2EyZWNkMjEwMWRkM2EyMGQyNTM3Y2M1ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjJmYzMyZWViMDRlN2Y1ZjlkMGQzM2Q3ZTBkMDMxYTllYzg4ZGQ2NGNlN2JlOWNkZWU5NjUwODRjMDIwZmU1ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYThhMmQ0MDY4NzhlZDg1MTczNzg1ZTJmNWMwMGFiYmQ4ZGIxMjMzMDYyMDIwNGI2YjIxZTIwN2RhYTEyOTRlMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_bdaf47c57195412d9f5a28481a16f71d",
+      "statement": "AnnotationIndex indexes both native reader annotations (PDF/EPUB) and print annotations identically into in-memory AnnRecord structures, resolving the parent work via parentItem hierarchy and keeping the index synchronized across library items through Zotero Notifier item events.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/annotationIndex.ts#L1-L30",
+          "version": "repo-lines-v1:sha256:de6521505c5e9de1eaab26dd53185359bc077bd6a29474767f47e3b99161f8ba:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNlYzZkYzVkMWNmYmZmMmVhNGM1YmZhYTQ0ZDNkYTU3ZTYzODU1ZmI0NzJiNmFhZjNjZWNjZTA3MTE2ZDViNDAifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/annotationIndex.ts#L176-L205",
+          "version": "repo-lines-v1:sha256:088b46a3d3f5e0d0925d3ecd956e43db05561acf24cba0e51e254305ce528694:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2OWU0MTJkODMyOGI0N2U5ZWU2Y2U5OGNkZDRlMzc3YmNkMTgwMTIwMmZlMjQzMzMxM2RhZjIyNmE3OWQ4ZTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVlNDQ0ODVjNjZjOGRjZjEzOWYyZmVmNDhhODU1ZjJlMmNjMGY2MDA3MzRhNjNjNTVmN2Y2MmQwYzkzMzk3YmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU4OGU5MmFiZjk2NWRmYTRjY2MwYTAxYjgwOTc5ZGFlZmM5MDg3NGFkMjkwOTQzNWM1NzA1OTk0YTljODFkYWYifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/annotationIndex.ts#L217-L242",
+          "version": "repo-lines-v1:sha256:698aaf0d0369daed906e62026a1e8886d1f86af6f23a3b9c43d984a4e0b04f0b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1NjExN2I2MWI5Y2QwMTI0MWNjODE4NTk5ZGUyZjdhNDA2MWM1Y2E0YWQyMzJiOGYzYTk4MWJjZDFiMmUzM2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxYjUxYTE2NDhjMzY0NzI3M2UzNzFkZGRiYzY2MDY0MTc0YzIxYzNhNDMzNThjYWEwNjI0NWY2MDc1NjliOTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ2ZTY3ZTEwMGQ3OTEzNzdiZTBhZTJjMGY4YTYyZTM0NmEzMGNhM2JiMGY2NzQyYmVjODg3N2MzZTgxNGYwZTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMxOGQxYzNiM2YxN2NlOThhMmY5Zjg5YTYyMThlYzQxNDk2ZWE4ZDc5ZTM0ODlhNzQ1NWFlOWM3YzliMjJmZTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_219f9f8939034010af2efeca5d5dad34",
+      "statement": "Item relations (Zotero relatedItems) link parent works and contribution items during Citavi import via addRelatedItem(), and when a note is filed under an outline heading, noteToFiled() resolves the note's first related regular item to supply the bibliographic citation for export.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/citavi/citaviLinks.ts#L146-L173",
+          "version": "repo-lines-v1:sha256:10b2c99759be3688b6804438133031f0a335eb31362510bfe4811bb198b6466b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3NzBmYjQyYzc2NDBkODk3MDAxNzg5NzU0NjJmMmQ4Nzk1OGRkNDZkOGQzNGI4ZDYyNmRkYTcyZGM4YmYzNTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmYTA5OTNlZTZkNThmNTQ4MmM1N2JhYWUyOGU2ZDgwNTBjNjE1MmU4MGM5ZTdkZDA1N2E1YWY1NDlkZjk0NjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI2YjBiZDkwNGEzYTY2MTMwYWZkZjA5MzU3ZmRlYmQzNTYwMmEzMjBhNjViYTg5OTRmMmI1Y2I5NDM3NTliMGYifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/outlineModel.ts#L394-L405",
+          "version": "repo-lines-v1:sha256:daeab1acd693046660e85be5b9f9d88ba2c0080ab48d5a42033e304d2f0319b6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4MjIzOWFlMGEwMzNkZDM1MWE5ZjU3NmQ3MjY4MzlhNzk0MTYzYmZiYzRlY2RiMDY3MTc5ZTU1NWMwMDYzMDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZWVmZGQ1MTEzZDk5MDU2ZjFlMTlkZTFiN2Q1YmVkZTZlMGEzMDFmOWU4ZjdiZTRlYWQzZjhmOGRhODY2YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0MTE4ZDk0OTM4YTYyOTQ5YzgzY2E4MDc5NzQ4YWYzZWIyOWFjMDVhMDU3ODA5ZDhiYjM5MDQ2YTljODE1OWYifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-16T19:49:13.348Z"
+  }
+}
