@@ -35,6 +35,14 @@ even before any item is filed. You therefore never need to create a heading tag
 yourself; assign it to an item and it already exists. The note never counts as
 a filed item for `gather`/`buildCountMap`.
 
+The note's `<h1>` heading carries the scope — the library name for the
+library-wide tree or the name of the main collection — so several outline notes
+are distinguishable in the item list (Zotero derives a note's list title from
+its first line). It is localized (`de`/`en`). This heading is **irrelevant for
+reading the tree**: `parseOutline` only looks for `LATTICE-OUTLINE-V1` + JSON,
+never at the `<h1>`, so the scope name does not affect the external API,
+Confucius or any other consumer.
+
 ## Choosing the outline tree
 
 A library can hold several outlines. Each is a note tagged `★outline`:
