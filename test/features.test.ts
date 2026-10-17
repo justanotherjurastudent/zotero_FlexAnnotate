@@ -2253,17 +2253,19 @@ describe("FlexAnnotate features", function () {
       try {
         // browse window
         const bw = api().persistentDialog.openBrowse({
-          x: 220,
-          y: 140,
+          x: 120,
+          y: 50,
           w: 520,
-          h: 800,
+          h: 600,
         });
         await waitFor(() => (bw as any).DIALOG_STATE?.loaded || null);
         await Zotero.Promise.delay(2000);
-        const seenB = await moveAndSample(bw, 420, 260);
+        const bx = bw.screenX + 60;
+        const by = bw.screenY + 40;
+        const seenB = await moveAndSample(bw, bx, by);
         for (const p of seenB) {
-          assert.approximately(p.x, 420, 4, "browse x after the move");
-          assert.approximately(p.y, 260, 4, "browse y after the move");
+          assert.approximately(p.x, bx, 4, "browse x after the move");
+          assert.approximately(p.y, by, 4, "browse y after the move");
         }
         bw.close();
         await waitFor(() => (bw.closed ? true : null));
