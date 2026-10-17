@@ -27,6 +27,7 @@ const de = {
     "Legt eine neue Zotero-Notiz an: alle Überschriften in Reihenfolge, darunter die zugeordneten Zitate mit Quellenangabe.",
   exportDone: "Notiz angelegt: {h} Überschriften, {n} Einträge.",
   exportNoteTitle: "Gliederung mit Zitaten",
+  outlineTitle: "Gliederung",
   newHeading: "Neue Überschrift",
   deleteTitle: "Überschrift löschen",
   deleteConfirm:
@@ -148,6 +149,7 @@ const en: Record<Key, string> = {
     "Creates a new Zotero note: all headings in order, with the assigned quotes and their sources below.",
   exportDone: "Note created: {h} headings, {n} entries.",
   exportNoteTitle: "Outline with quotes",
+  outlineTitle: "Outline",
   newHeading: "New heading",
   deleteTitle: "Delete heading",
   deleteConfirm:

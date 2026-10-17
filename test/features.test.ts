@@ -2543,5 +2543,77 @@ describe("FlexAnnotate features", function () {
         await (Zotero.Items.get(oldNote.id) as Zotero.Item).eraseTx?.();
       }
     });
+
+    it("names the library-wide note after the library", async function () {
+      const model = api().outlineModel.OutlineModel;
+      const lib = Zotero.Libraries.get(libraryID()) as { name: string } | false;
+      const libraryName = lib ? lib.name : "Meine Bibliothek";
+      const loaded = await model.load(libraryID());
+      const note = Zotero.Items.get(loaded.noteID!) as Zotero.Item;
+      const html = note.getNote();
+      const heading = api().outline.outlineHeadingOf(html);
+      assert.match(
+        heading,
+        new RegExp(`${libraryName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`),
+        "the note heading carries the exact library name",
+      );
+    });
+
+    it("titles a collection tree by its main collection", async function () {
+      const model = api().outlineModel.OutlineModel;
+      const label = api().organizerStrings.tr("outlineTitle");
+      const col = new Zotero.Collection({
+        name: "Meine Thesen",
+        libraryID: libraryID(),
+      } as any);
+      await col.saveTx();
+      try {
+        const colID = await model.save(libraryID(), null, [], col.key);
+        const note = Zotero.Items.get(colID) as Zotero.Item;
+        assert.match(
+          note.getNote(),
+          new RegExp(`${label} — Meine Thesen`),
+          "the collection tree note is named after the main collection",
+        );
+        // load resolves the heading back from the key (rename survives reload)
+        const reloaded = await model.load(libraryID(), col.key);
+        const reloadedNote = Zotero.Items.get(reloaded.noteID!) as Zotero.Item;
+        assert.match(
+          reloadedNote.getNote(),
+          new RegExp(`${label} — Meine Thesen`),
+        );
+      } finally {
+        await col.eraseTx();
+      }
+    });
+
+    it("backfills the heading for an old note on load", async function () {
+      const core = api().outline;
+      const model = api().outlineModel.OutlineModel;
+      const label = api().organizerStrings.tr("outlineTitle");
+      const oldNote = new Zotero.Item("note");
+      oldNote.libraryID = libraryID();
+      // alte Notiz: Überschrift ohne Geltungsbereich und mit anderem Label
+      oldNote.setNote(
+        core.serializeOutline([core.makeNode("Titel Alt")], null, "Anything"),
+      );
+      oldNote.addTag("★outline");
+      await oldNote.saveTx({ skipSelect: true });
+      try {
+        await model.load(libraryID());
+        const loaded = Zotero.Items.get(oldNote.id) as Zotero.Item;
+        assert.match(
+          loaded.getNote(),
+          new RegExp(`${label} — `),
+          "the heading is rewritten to include the localized label and the library name",
+        );
+        assert.notMatch(
+          loaded.getNote(),
+          /<h1>📚 FlexAnnotate — Anything<\/h1>/,
+        );
+      } finally {
+        await (Zotero.Items.get(oldNote.id) as Zotero.Item).eraseTx?.();
+      }
+    });
   });
 });

@@ -235,17 +235,46 @@ export function htmlToText(html: string): string {
     .trim();
 }
 
-/** Render the outline note's HTML: a human-readable list + the JSON payload. */
-export function serializeOutline(roots: OutlineNode[]): string {
+/**
+ * Render the outline note's HTML: a human-readable list + the JSON payload.
+ * `scopeName` (Name der Hauptsammlung bzw. der Bibliothek) wird, falls
+ * angegeben, in die Überschrift aufgenommen, damit mehrere Gliederungsnotizen
+ * in der Item-Liste unterscheidbar sind. `label` ist der lokalisierte Titel
+ * für "Gliederung" (Default "Outline"). `parseOutline` liest nur das JSON im
+ * <pre>-Block, die Überschrift ist reine Darstellung.
+ */
+export function serializeOutline(
+  roots: OutlineNode[],
+  scopeName: string | null = null,
+  label = "Outline",
+): string {
   const json = JSON.stringify({ v: 1, roots });
   const readable = renderReadable(roots);
   // The <pre><code> block is the source of truth on read; the list above it is
   // just so the note is glanceable inside Zotero itself.
   return (
-    `<h1>📚 FlexAnnotate — Gliederung</h1>` +
+    `<h1>${outlineHeading(scopeName, label)}</h1>` +
     readable +
     `<pre><code>${SENTINEL}\n${escapeHtml(json)}</code></pre>`
   );
+}
+
+/**
+ * Die `<h1>`-Überschrift der Gliederungsnotiz (bereits HTML-escaped).
+ * `label` ist der lokalisierte Titel für "Gliederung".
+ */
+export function outlineHeading(
+  scopeName: string | null,
+  label = "Outline",
+): string {
+  return scopeName && scopeName.trim()
+    ? `📚 FlexAnnotate — ${label} — ${escapeHtml(scopeName.trim())}`
+    : `📚 FlexAnnotate — ${label}`;
+}
+
+/** Vorhandene `<h1>`-Überschrift aus Notiz-HTML, oder "" wenn keine. */
+export function outlineHeadingOf(html: string): string {
+  return html.match(/<h1>([\s\S]*?)<\/h1>/)?.[1] || "";
 }
 
 function renderReadable(roots: OutlineNode[]): string {

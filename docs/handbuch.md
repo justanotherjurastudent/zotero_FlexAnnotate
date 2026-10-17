@@ -98,7 +98,7 @@ Nutzerdaten der Version 1.x gelten unverändert weiter; die Preference-Schlüsse
 - `#flexannotate-default-locator-<typ>`: Standard-Locator eines Anhangs für künftige Annotationen.
 - `#flexannotate-placeholder`: kennzeichnet den Platzhalter-Anhang der Print-Annotationen.
 - `§Titel`: Überschrift der Gliederung als Tag an zugeordneten Annotationen und Werken (Lattice-kompatibel). Der Organizer verankert zusätzlich zu jeder Überschrift einen `§`-Tag an der `★outline`-Notiz (beim Speichern und beim Laden, sodass auch bestehende Notizen nachträglich befüllt werden), sodass der Tag auch ohne zugeordnete Einträge existiert: In der PDF-Ansicht genügt ein `§` in der Tag-Zeile des Anmerkungs-Popups, und die Überschriften dieses Baums werden vorgeschlagen. Umbenennen oder Löschen einer Überschrift verschiebt bzw. entfernt den Tag automatisch. Da Zotero Tag-Vorschläge bibliotheksweit vorschlägt, erscheinen dort auch `§`-Tags aus anderen Hauptsammlungen mit eigener Struktur.
-- `★outline` und `LATTICE-OUTLINE-V1`: Notiz mit dem Gliederungsbaum als JSON (Lattice-kompatibel); mit dem zusätzlichen Tag `#flexannotate-outline-<collectionKey>` gehört die Notiz zum Baum der jeweiligen Sammlung.
+- `★outline` und `LATTICE-OUTLINE-V1`: Notiz mit dem Gliederungsbaum als JSON (Lattice-kompatibel); mit dem zusätzlichen Tag `#flexannotate-outline-<collectionKey>` gehört die Notiz zum Baum der jeweiligen Sammlung. Die Überschrift der Notiz nennt den Geltungsbereich — für die ganze Bibliothek den Bibliotheksnamen, für eine Hauptsammlung deren Namen —, sodass mehrere Gliederungsnotizen in der Item-Liste unterscheidbar sind.
 
 Die alte Version 1.2.0 ist über den Git-Tag `pre-merge` erreichbar.
 

@@ -15,10 +15,13 @@ import {
   htmlToText,
   OUTLINE_TAG,
   OutlineNode,
+  outlineHeading,
+  outlineHeadingOf,
   parseOutline,
   pickNewest,
   serializeOutline,
 } from "./logic/outline";
+import { tr } from "./strings";
 export * from "./logic/outline";
 
 /**
@@ -170,6 +173,9 @@ export class OutlineModel {
     // die vor der §-Tag-Synchronisierung angelegt wurde, ihre Überschrift-Tags
     // nachträglich. Idempotent — ohne Unterschied wird nichts geschrieben.
     await this.syncAnchorTags(note.id, roots);
+    // Überschrift (Name der Hauptsammlung/Bibliothek) bestehender Notizen
+    // nachziehen, damit mehrere Gliederungsnotizen unterscheidbar sind.
+    await this.syncNoteHeading(note.id, libraryID, roots, collectionKey);
     return { noteID: note.id, roots };
   }
 
@@ -184,7 +190,11 @@ export class OutlineModel {
     roots: OutlineNode[],
     collectionKey: string | null = null,
   ): Promise<number> {
-    const html = serializeOutline(roots);
+    const html = serializeOutline(
+      roots,
+      this.scopeName(libraryID, collectionKey),
+      tr("outlineTitle"),
+    );
     let note = noteID ? (Zotero.Items.get(noteID) as Zotero.Item) : null;
     if (!note || !note.isNote?.()) {
       note = new Zotero.Item("note");
@@ -228,6 +238,52 @@ export class OutlineModel {
       if (note.getTags().some((x) => x.tag === t)) note.removeTag(t);
     for (const t of add)
       if (!note.getTags().some((x) => x.tag === t)) note.addTag(t);
+    await note.saveTx();
+  }
+
+  /** Anzeigename des Geltungsbereichs (Hauptsammlung oder Bibliothek). */
+  private static scopeName(
+    libraryID: number,
+    collectionKey: string | null,
+  ): string | null {
+    if (collectionKey) {
+      const col = Zotero.Collections.getByLibraryAndKey(
+        libraryID,
+        collectionKey,
+      );
+      return col ? col.name : null;
+    }
+    const lib = Zotero.Libraries.get(libraryID);
+    return lib ? lib.name : null;
+  }
+
+  /**
+   * Schreibt die `<h1>`-Überschrift der Notiz auf den Geltungsbereich um,
+   * falls sie abweicht (z. B. bestehende Notizen aus einer Version vor der
+   * Überschriften-Erweiterung). Nur der Titel wird neu geschrieben, der
+   * Gliederungsinhalt (JSON + Liste) bleibt unverändert und idempotent.
+   */
+  private static async syncNoteHeading(
+    noteID: number,
+    libraryID: number,
+    roots: OutlineNode[],
+    collectionKey: string | null,
+  ): Promise<void> {
+    const note = Zotero.Items.get(noteID) as Zotero.Item | null;
+    if (!note || !note.isNote?.()) return;
+    const current = note.getNote();
+    const wanted = outlineHeading(
+      this.scopeName(libraryID, collectionKey),
+      tr("outlineTitle"),
+    );
+    if (outlineHeadingOf(current) === wanted) return;
+    // Nur die erste <h1>…</h1>-Zeile ersetzen, den Rest unangetastet lassen.
+    const replaced = current.replace(
+      /<h1>[\s\S]*?<\/h1>/,
+      `<h1>${wanted}</h1>`,
+    );
+    if (replaced === current) return;
+    note.setNote(replaced);
     await note.saveTx();
   }
 

@@ -29,6 +29,7 @@ import * as organizerData from "./features/organizer/panel/organizerData";
 import * as outlineCore from "./features/organizer/logic/outline";
 import * as flatHeadingsCore from "./features/organizer/logic/flatHeadings";
 import * as outlineModelModule from "./features/organizer/outlineModel";
+import * as organizerStrings from "./features/organizer/strings";
 import * as printPlaceholder from "./features/print/placeholder";
 import * as printAnnotations from "./features/print/printAnnotations";
 import * as printDialog from "./features/print/dialog";
@@ -124,6 +125,7 @@ async function onStartup() {
     outline: outlineCore,
     flatHeadings: flatHeadingsCore,
     outlineModel: outlineModelModule,
+    organizerStrings,
     externalApi: {
       install: installExternalApi,
       uninstall: uninstallExternalApi,

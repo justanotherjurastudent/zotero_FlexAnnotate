@@ -13,6 +13,8 @@ import {
   moveUp,
   numbering,
   outdent,
+  outlineHeading,
+  outlineHeadingOf,
   parseOutline,
   removeNode,
   serializeOutline,
@@ -99,6 +101,38 @@ describe("serialization", () => {
       parseOutline("<pre><code>LATTICE-OUTLINE-V1\n{broken</code></pre>"),
       [],
     );
+  });
+
+  it("includes the scope name in the heading and round-trips", () => {
+    const r = tree();
+    const html = serializeOutline(r, "Meine Bibliothek", "Gliederung");
+    assert.match(
+      html,
+      /<h1>📚 FlexAnnotate — Gliederung — Meine Bibliothek<\/h1>/,
+    );
+    // der JSON-Payload ändert sich nicht durch die Überschrift
+    assert.deepEqual(parseOutline(html), r);
+  });
+
+  it("keeps the default heading when no scope name or label is given", () => {
+    assert.equal(outlineHeading(null), "📚 FlexAnnotate — Outline");
+    assert.equal(outlineHeading("   "), "📚 FlexAnnotate — Outline");
+    assert.equal(
+      outlineHeading(null, "Gliederung"),
+      "📚 FlexAnnotate — Gliederung",
+    );
+  });
+
+  it("escapes the scope name and reads a heading back out of HTML", () => {
+    assert.equal(
+      outlineHeading("Sammlung <A> & B", "Gliederung"),
+      "📚 FlexAnnotate — Gliederung — Sammlung &lt;A&gt; &amp; B",
+    );
+    assert.equal(
+      outlineHeadingOf(serializeOutline([], "X", "Gliederung")),
+      outlineHeading("X", "Gliederung"),
+    );
+    assert.equal(outlineHeadingOf("<p>no heading</p>"), "");
   });
 });
 
