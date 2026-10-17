@@ -336,6 +336,7 @@ function readStoredRect(): { rect: Rect; placed: boolean } | null {
  * einen Fenstertimer nachgezogen. Die Lage nur in der Ladephase, die Größe bis zur ersten fremden Größenänderung danach.
  */
 function pinRect(win: Window, rect: Rect, placed = true): void {
+  const host = mainWin() || win;
   const start = Date.now();
   liveRects.set(win, rect);
   let fixes = 0;
@@ -369,16 +370,24 @@ function pinRect(win: Window, rect: Rect, placed = true): void {
     (win as any).resizeTo = nativeResize;
     (win as any).moveTo = nativeMove;
   };
-  const timer = win.setInterval(() => {
-    if (win.closed) return;
+  const timer = host.setInterval(() => {
+    if (win.closed) {
+      host.clearInterval(timer);
+      release();
+      return;
+    }
     if (stopped || fixes >= MAX_FIXES || Date.now() - start > PIN_MS) {
-      win.clearInterval(timer);
+      host.clearInterval(timer);
       release();
       pinEnded.add(win);
       trackLive(win);
       // ab jetzt die Geometrie laufend mitschreiben (nur lesen): der Nutzer darf verschieben und vergrößern
-      win.setInterval(() => {
-        if (!win.closed) trackLive(win);
+      const tracking = host.setInterval(() => {
+        if (win.closed) {
+          host.clearInterval(tracking);
+          return;
+        }
+        trackLive(win);
       }, 200);
       return;
     }
@@ -529,6 +538,7 @@ function openBrowse(rect: Rect): void {
   browseWindows.add(win);
   openWindow = win;
   trace("browse window opened", `rect=${rect.x},${rect.y} ${rect.w}x${rect.h}`);
+  (Zotero as any).Utilities.Internal.activate(win);
   pinRect(win, rect);
   win.addEventListener("unload", () => {
     // about:blank wird vor dem Dialog entladen (integration.js:498), das ist kein Schließen
