@@ -2243,6 +2243,11 @@ describe("FlexAnnotate features", function () {
       /** Moves `w` to (x, y) after the load phase and samples its position for 1 s. */
       const moveAndSample = async (w: Window, x: number, y: number) => {
         w.moveTo(x, y);
+        await waitFor(
+          () => (Math.abs(w.screenX - x) <= 4 ? true : null),
+          4000,
+          "move to settle",
+        );
         const seen: { x: number; y: number }[] = [];
         for (let i = 0; i < 10; i++) {
           seen.push({ x: w.screenX, y: w.screenY });
