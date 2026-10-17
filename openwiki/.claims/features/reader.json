@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:b0f4a6bc390042b77cf1eac186ece3e0681c7d0f5822ea1721668a1945bf8e06",
+  "pageVersion": "sha256:5bed386fecf2bffff26e0f36e614d7bc6d1e6e2407bbf4cd3ecb86b9067a81e2",
   "claims": [
     {
       "id": "claim_f88e6e2e292d4e5ea94ef3d5c1f3d906",
@@ -8,15 +8,15 @@
       "evidence": [
         {
           "resource": "repo://src/features/reader/readerMenu.ts#L111-L190",
-          "version": "repo-lines-v1:sha256:2e120c04d27c47bb88b146b91ba8140a2e00a183000a4ce16fa33fb952585a53:eyJzZWxlY3RlZExpbmVDb3VudCI6ODAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNmZmNmYzc0YmM2Yjk0NTYyNWEzYjczODBlOTc0MzEwMGJmZTZkNGI1ZGEwYzUwZDZkMmRkNjQyZDIyNTkxNzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY5YmM0Mzc5ZTJiYjI1ZDdhNDliN2FkOWVhNThlNTUwZGEyOThkZDI4NTY4NzU4NTU5MmQ3NGJlNjc2YjliZmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjczN2Q1MmVkMDIzNjhhMmZhYWZkZDAwNzRhMzViMjRlZWUwMTVmYWRlNDliZjkyZmIyMWNmZmM5ZmE3YWFkYzMifQ"
+          "version": "repo-lines-v1:sha256:2e120c04d27c47bb88b146b91ba8140a2e00a183000a4ce16fa33fb952585a53:eyJzZWxlY3RlZExpbmVDb3VudCI6ODAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNmZmNmYzc0YmM2Yjk0NTYyNWEzYjczODBlOTc0MzEwMGJmZTZkNGI1ZGEwYzUwZDZkMmRkNjQyZDIyNTkxNzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0NzBlMTYzYjMxYzYxYjY2ZjY0NTgwY2Q3Zjg4OGIwOTIxNTMwNDAzZWNjMGY1YmMwMmJmZTU4OWJjMTNhZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjczN2Q1MmVkMDIzNjhhMmZhYWZkZDAwNzRhMzViMjRlZWUwMTVmYWRlNDliZjkyZmIyMWNmZmM5ZmE3YWFkYzMifQ"
         },
         {
           "resource": "repo://src/features/reader/readerMenu.ts#L192-L257",
           "version": "repo-lines-v1:sha256:0c5c57228d230c626dd3c809a875a5fd8119f1e77a1212e4891be94f85bb21ee:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxMzdjYzg1MzE2ZmQ5OTM5Mzg3NTcxNzUzNzAxY2VhODI0ZDIyMzM3NmRiYzczY2QyOTJhMDEyOWRkYjZkNmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRmMGQxMzk5Mjg4YmY2ODVhZTgzOWJkNzhmYjhhNGMyYWVmZWRiM2U5MmVjMjRkNDQ1MjE3MGUyODFjODg1OWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI4YzY3ZWZhNWNmNjQ3YzZiYmI4YjNkY2JjNzRmMTA3NWI0M2ZkZmY1ZGJmZGE1YmM3NmU1MTAzNzgwZGQ1ODUifQ"
         },
         {
-          "resource": "repo://src/hooks.ts#L74-L111",
-          "version": "repo-lines-v1:sha256:86997c25cca8b861f4fe6f65461f23d4d8c645321e4b5f097e904a1cc200f984:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyYzZkODRjYWM4MWM4OWI2MjNhOGI5ZTQ4OGY2ZWNhYTZkOWM1NmM1NGQ0ZDk0OWQyYWUzM2M1MzFjNWQ3ZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4NDAwOGE4ZTQ2ZTdiN2JiMjliN2VkNmI0NzAzZjliZTg4MWJjOTA3YzhiYTc0ZTUxNjA1MzhiNTZmYTQ2ZjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk2NzU1YmQ2MmRkZWQ1M2I3NmVkMmYxNjRjZGEyYjRkZGE4YzcxMzAzNGFlOWZhYjM2YWYwYjBkMTAzMGY2NDAifQ"
+          "resource": "repo://src/hooks.ts#L83-L129",
+          "version": "repo-lines-v1:sha256:1cf5a77c4ea4124813aefc5bfd3407098bc43a195ffcb5ace31d425c127e00f2:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyYzZkODRjYWM4MWM4OWI2MjNhOGI5ZTQ4OGY2ZWNhYTZkOWM1NmM1NGQ0ZDk0OWQyYWUzM2M1MzFjNWQ3ZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4NDAwOGE4ZTQ2ZTdiN2JiMjliN2VkNmI0NzAzZjliZTg4MWJjOTA3YzhiYTc0ZTUxNjA1MzhiNTZmYTQ2ZjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk2NzU1YmQ2MmRkZWQ1M2I3NmVkMmYxNjRjZGEyYjRkZGE4YzcxMzAzNGFlOWZhYjM2YWYwYjBkMTAzMGY2NDAifQ"
         }
       ]
     },
@@ -25,12 +25,12 @@
       "statement": "readerMenu is registered in the ordered feature array of hooks.ts (start/stop, no per-window hooks) and is the only reader surface exposed to the Zotero integration tests, as addon.api.reader.readerMenu.",
       "evidence": [
         {
-          "resource": "repo://src/hooks.ts#L155-L155",
+          "resource": "repo://src/hooks.ts#L173-L173",
           "version": "repo-lines-v1:sha256:83a51563b5883666a945f12e9177b380cd2ce8a9b0576f807c20677a171f27e9:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODNhNTE1NjNiNTg4MzY2NmE5NDVmMTJlOTE3N2IzODBjZDJjZThhOWIwNTc2ZjgwN2MyMDY3N2ExNzFmMjdlOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODNhNTE1NjNiNTg4MzY2NmE5NDVmMTJlOTE3N2IzODBjZDJjZThhOWIwNTc2ZjgwN2MyMDY3N2ExNzFmMjdlOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWM1Yzk0YjY2MjNjM2NkZDJhMmRiOTVmOWY0NGZjY2Q1NDgwNmU2YzExN2I3OGI5ZGEzNDE1ODExZDIzNDA0OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmExMDg0M2NlNTdkMTlhZmZjNGQ1M2M3Njg0ZTAxNjg2YTA1NmZlNmZhZWExYjJkMjYyMzVlOTc4YzFjNzU2NiJ9"
         },
         {
-          "resource": "repo://src/hooks.ts#L74-L111",
-          "version": "repo-lines-v1:sha256:86997c25cca8b861f4fe6f65461f23d4d8c645321e4b5f097e904a1cc200f984:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyYzZkODRjYWM4MWM4OWI2MjNhOGI5ZTQ4OGY2ZWNhYTZkOWM1NmM1NGQ0ZDk0OWQyYWUzM2M1MzFjNWQ3ZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4NDAwOGE4ZTQ2ZTdiN2JiMjliN2VkNmI0NzAzZjliZTg4MWJjOTA3YzhiYTc0ZTUxNjA1MzhiNTZmYTQ2ZjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk2NzU1YmQ2MmRkZWQ1M2I3NmVkMmYxNjRjZGEyYjRkZGE4YzcxMzAzNGFlOWZhYjM2YWYwYjBkMTAzMGY2NDAifQ"
+          "resource": "repo://src/hooks.ts#L83-L129",
+          "version": "repo-lines-v1:sha256:1cf5a77c4ea4124813aefc5bfd3407098bc43a195ffcb5ace31d425c127e00f2:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyYzZkODRjYWM4MWM4OWI2MjNhOGI5ZTQ4OGY2ZWNhYTZkOWM1NmM1NGQ0ZDk0OWQyYWUzM2M1MzFjNWQ3ZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4NDAwOGE4ZTQ2ZTdiN2JiMjliN2VkNmI0NzAzZjliZTg4MWJjOTA3YzhiYTc0ZTUxNjA1MzhiNTZmYTQ2ZjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk2NzU1YmQ2MmRkZWQ1M2I3NmVkMmYxNjRjZGEyYjRkZGE4YzcxMzAzNGFlOWZhYjM2YWYwYjBkMTAzMGY2NDAifQ"
         },
         {
           "resource": "repo://test/readerMenu.test.ts#L11-L48",
@@ -131,12 +131,12 @@
       "statement": "locatorLabelText() turns the raw locator into display text with a fallback chain: Zotero's Zotero.Cite.getLocatorString() wins; without it the translated reader-locator-page/-margin/-opus Fluent strings are used; an unknown locator falls back to its capitalized name. An empty or page locator always renders as the page label. The fallback chain exists because in a fresh profile Zotero.Styles.locales is not yet loaded and getLocatorString returns undefined.",
       "evidence": [
         {
-          "resource": "repo://src/features/reader/logic/readerLocator.ts#L41-L54",
-          "version": "repo-lines-v1:sha256:d4d2e078bf106e475239aab977ecdf50209d49a2e7e62cd1b445c09e3ea829b9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3OWE5NTE3ZWU3NjY1ZmYwZGY5MDUxMmViZDBiMDZmZjA0ZTkzOWM3ZDA0MGEwYmEzOGRiNTFhMTZkN2JkMTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMzM2Y3ZmUyMzNkMDkzZmQ2OTA1Mjg3ZThmMWMwYWVjMzhhYzFmMzY4NWU2ZGRmMzQ4NjY4ZDhkZmNmNjZkZjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/features/reader/logic/readerLocator.ts#L41-L64",
+          "version": "repo-lines-v1:sha256:606fd15e95369b0dc649ec21e7e5692a43415a792ff2a7dc902085b9c5a8f1d7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3OWE5NTE3ZWU3NjY1ZmYwZGY5MDUxMmViZDBiMDZmZjA0ZTkzOWM3ZDA0MGEwYmEzOGRiNTFhMTZkN2JkMTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMzM2Y3ZmUyMzNkMDkzZmQ2OTA1Mjg3ZThmMWMwYWVjMzhhYzFmMzY4NWU2ZGRmMzQ4NjY4ZDhkZmNmNjZkZjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
           "resource": "repo://src/features/reader/readerMenu.ts#L104-L109",
-          "version": "repo-lines-v1:sha256:4dc5b029a6b00cd3c059965931c5d4a1d8ec747e363c82cde2a5a17dc39ec0b8:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjUwZDk5OWExMWVmYjM5YzUxMGE3NDk2YjQ1ZWQ4N2Q4NWE4Zjc4ZWUwYTY5NGFkYjAyNTJiYTZiNjFlY2E0MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2M0MDViZTA1MzM2MjdlMDY0OGMyZGJhMzQ2ZmQwMDU5YjAxMzU5ZDM2NzgxYTM4MmUyMmJhYzZmN2Q4ZmVkNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDdmNDQwYjU1Nzg0YjM2Mjc2MTQ5YjZlY2E4NDdiODlmMGY4NjRmODc4NDI2Y2QyNzlhNDVmZTdmZjUzZjE3OCJ9"
+          "version": "repo-lines-v1:sha256:aa7d57425a5958765350aeddfb0d35e183ada701f3e4338789fdd245cc361e88:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjUwZDk5OWExMWVmYjM5YzUxMGE3NDk2YjQ1ZWQ4N2Q4NWE4Zjc4ZWUwYTY5NGFkYjAyNTJiYTZiNjFlY2E0MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2M0MDViZTA1MzM2MjdlMDY0OGMyZGJhMzQ2ZmQwMDU5YjAxMzU5ZDM2NzgxYTM4MmUyMmJhYzZmN2Q4ZmVkNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDdmNDQwYjU1Nzg0YjM2Mjc2MTQ5YjZlY2E4NDdiODlmMGY4NjRmODc4NDI2Y2QyNzlhNDVmZTdmZjUzZjE3OCJ9"
         },
         {
           "resource": "repo://src/features/reader/readerMenu.ts#L519-L531",
@@ -320,15 +320,15 @@
     },
     {
       "id": "claim_6106eb2f0aff44ffb12ac6b1f0e3a10b",
-      "statement": "The reader's pure logic has full Node unit coverage: test-unit/readerLocator.test.ts pins explicitLocatorFromTags (string tags and {name}/{tag} objects, unknown labels ignored, margin always accepted, null without a tag) and the locatorLabelText fallback chain; test-unit/labelPopup.test.ts pins buildLocatorOptions sorting, the default-checkbox lock semantics, planApply including the unknown-value rejection, the radio target matrix (selectTargets, preferredRadio, isPageLocator) and shouldSetPageLabel.",
+      "statement": "The reader's pure logic has full Node unit coverage: test-unit/readerLocator.test.ts pins explicitLocatorFromTags (string tags and {name}/{tag} objects, unknown labels ignored, margin always accepted, null without a tag), locatorLabelText fallback chain, and formatAnnotationTitle; test-unit/labelPopup.test.ts pins buildLocatorOptions sorting, the default-checkbox lock semantics, planApply including the unknown-value rejection, the radio target matrix (selectTargets, preferredRadio, isPageLocator) and shouldSetPageLabel.",
       "evidence": [
         {
           "resource": "repo://test-unit/labelPopup.test.ts#L20-L160",
           "version": "repo-lines-v1:sha256:806b848afbd6a7184df88b37dd9ba0d4340137410d177a63da9db3f4ca252208:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJmY2Q4MDlmNTIyNjRmYTM3ZjI4NjMwOTM0NDkxN2UxNTBlMzIxODk2MGU3ZGU0MTIzNzJjMDc0ZmM4MTEyYjk3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJmMzZjMTBiMWU5Y2Y2YzM5Zjk5NjY1OGIwMGJjNGNlMDdhOTAxNWYxNzU5YmFlNDEwYjI3NzgzMWFhZmM0MWQzIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
         },
         {
-          "resource": "repo://test-unit/readerLocator.test.ts#L11-L75",
-          "version": "repo-lines-v1:sha256:d0f855fdd94ee74d991d9f738aa5d8b419fe3065f73283fad9810b524ee89efd:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2N2MxMDdhYTI3NTQ3NjI2NjZiNjlhNDEwOWFmMTgzOTUxMWY3NGE1ODY2OTExNTk0NjJhNzllNGE5OTEyZmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE1Y2IxOWRjYmRjMjliNTBhMTNlZTc2NjRiMGIyM2EzMjU5YjBmOTNhZjExZjI0Njc0YTU1NDYwODVjMzMwOGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://test-unit/readerLocator.test.ts#L12-L91",
+          "version": "repo-lines-v1:sha256:149aa93a0c33283b907e5d09402d5120c9be2a25318a338875018f1acd286132:eyJzZWxlY3RlZExpbmVDb3VudCI6ODAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2N2MxMDdhYTI3NTQ3NjI2NjZiNjlhNDEwOWFmMTgzOTUxMWY3NGE1ODY2OTExNTk0NjJhNzllNGE5OTEyZmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE1Y2IxOWRjYmRjMjliNTBhMTNlZTc2NjRiMGIyM2EzMjU5YjBmOTNhZjExZjI0Njc0YTU1NDYwODVjMzMwOGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
     },
@@ -395,10 +395,24 @@
           "version": "repo-lines-v1:sha256:2904431ef529d7a64ad0ff2d034821cd3e4f139aefa2d28a7ef6b9da4f3c6a0f:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDJiMjU5OTkyMGU5MmU2ZmFkNTNjOTAzZGRhYTlkMjVkNzM4NTE3ODQ0NzFkZTg5NjVmMjc5NzQ3YWU2OGIwNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDRkMTRkN2UzZDk4NTMwNDExMDQzMTk3NzliZmJiMzAxNTQwZGIzMGFhMmE1ZTlhNmMyZGY1NDEyMGFiYzVhMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGU2NGIyMDkzYjI1YTU2NjY0NjEyODc4NGViYzg0ZjE4N2ZmMjFhYjY1ODlkYzUyZDEyNGM4NTU5OTljNDNkMiJ9"
         }
       ]
+    },
+    {
+      "id": "claim_2c02d04c76bb4149b56e96e2efc9f9d0",
+      "statement": "formatAnnotationTitle formats an annotation row title as '<Label> <PageLabel>', substituting a hyphen ('<Label> -') when the page label is empty or undefined.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/reader/logic/readerLocator.ts#L56-L64",
+          "version": "repo-lines-v1:sha256:11f12262416c20d7201379e6f07ffb4585e5e0b3cc16ad2cfb09a18127cf35f6:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFmMjJjZjA3MzI1OTJjMjQ3MTQxY2JlNjFlZmExMTAxMjYxMmY1YTMxMjJiOWFmOWJiYWY1MmY1NzI0ZDE5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTJlY2NmMWFjMWY5MDE5NDQ5ODA3ODdlNDgyMjA2NWNmYzU4MjBmZmEyNDE5MGNmOWM5M2FhNjEzOTEzOTcxOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://test-unit/readerLocator.test.ts#L85-L91",
+          "version": "repo-lines-v1:sha256:ebda341ad90d3bace10eb5a878f18a4eef71b324fceba150bd6b39b9f90f3a7b:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTRkZDZjYzQxN2QyZmFjNGRlM2Y3OTg3ZjI4YTVkMGNmYzgyM2E3YjQ4ODQzZWQ0NTQ2ZmE4YjE4N2QxYTFkYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjc3OWQxMThkNmUzY2JmNDUwNTM5NzQ4ZGVlN2E0MzA3YWNiZTY0NDZjYmEyOTdmMjc2MGZhNWQwYmJhMWJjMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-16T19:49:13.348Z"
+    "at": "2026-10-17T22:13:14.642Z"
   }
 }

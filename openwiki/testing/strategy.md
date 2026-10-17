@@ -5,7 +5,7 @@ description: Dual testing architecture separating fast isolated Node.js unit tes
 tags: [testing, unit-tests, mocha, integration-tests, zotero-plugin-scaffold, test-isolation, synthetic-data, coverage-gaps]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-16T19:49:13.348Z
+    at: 2026-10-17T22:13:14.642Z
 sources:
   - id: openwiki-source-8037e2358a2c4f9b2c722a11
     resource: repo://AGENTS.md
@@ -21,12 +21,24 @@ sources:
     resource: repo://scripts/run-zotero-tests.mjs
   - id: openwiki-source-8b41d882c77dd329923b64ca
     resource: repo://scripts/word-smoke.ps1
+  - id: openwiki-source-57ecce2df247c54f59c24e3c
+    resource: repo://src/features/organizer/logic/dialogView.ts
+  - id: openwiki-source-67599eb667e1f64382e23813
+    resource: repo://src/features/print/annotationRowPatch.ts
+  - id: openwiki-source-dba1be838791c39bc441be42
+    resource: repo://src/features/reader/logic/readerLocator.ts
   - id: openwiki-source-203c7dd08ccb7d6de0448e34
     resource: repo://src/hooks.ts
+  - id: openwiki-source-4db0e814c71d68f43982b52f
+    resource: repo://test-unit/dialogView.test.ts
   - id: openwiki-source-8ea7bae1bbb5fe5c7499d3b4
     resource: repo://test-unit/feature.test.ts
   - id: openwiki-source-a55b53434e0734aa17149f90
     resource: repo://test-unit/outline.test.ts
+  - id: openwiki-source-f673851e98d91a8b2fff9653
+    resource: repo://test-unit/readerLocator.test.ts
+  - id: openwiki-source-66f452a7fa1e672a690ab712
+    resource: repo://test/annotationRowPatch.test.ts
   - id: openwiki-source-dd828676f0f6365b2013c250
     resource: repo://test/citavi.test.ts
   - id: openwiki-source-1239ee0592fe08bc41c94d58
@@ -53,18 +65,18 @@ sources:
     resource: repo://test/toolsMenu.test.ts
   - id: openwiki-source-64ea321d3689c35b39d43e01
     resource: repo://zotero-plugin.config.ts
-generated: { by: "openwiki/0.7.2", at: "2026-10-16T19:49:13.348Z" }
+generated: { by: "openwiki/0.7.2", at: "2026-10-17T22:13:14.642Z" }
 ---
 
 FlexAnnotate keeps two test tiers strictly apart, and the split follows one
 question: *does the behavior need Zotero?* Pure logic — outline trees,
-numbering, locators, Citavi page ranges, dialog view models, the feature
-registry — runs under Node's built-in test runner, with no Zotero anywhere in
-the process. Everything that touches Zotero — items, tags, menus, windows,
-prototype patches — runs as Mocha tests inside a real Zotero instance that
-zotero-plugin-scaffold launches on an isolated profile. Both tiers use
-synthetic data only, and neither ever touches the user's own Zotero, its
-library, or a running Word.
+decimal numbering, locators, Citavi page ranges, dialog view models, works
+grouping, and the feature registry — runs under Node's built-in test runner,
+with no Zotero anywhere in the process. Everything that touches Zotero —
+items, tags, menus, windows, custom element prototype patches — runs as Mocha
+tests inside a real Zotero instance that zotero-plugin-scaffold launches on an
+isolated profile. Both tiers use synthetic data only, and neither ever touches
+the user's own Zotero, its library, or a running Word instance.
 
 ```mermaid
 flowchart TD
@@ -87,25 +99,57 @@ carry an explicit `.ts` suffix. The modules under test are the Zotero-free
 zones (`src/features/<feature>/logic/`, `src/core/`, plus
 `src/shared/feature.ts`); none of them may reference a Zotero global, or the
 tier would not run in plain Node. Tests use `node:test` with
-`node:assert/strict` — a different stack from the Mocha + chai Zotero tier.
-`test:unit:coverage` adds `--experimental-test-coverage`; `test:unit:repeat`
-runs the suite 10× to catch nondeterminism (runner mechanics on
+`node:assert/strict` — a completely separate test harness from the Mocha + chai
+stack used in the Zotero integration tier. `npm run test:unit:coverage` adds
+`--experimental-test-coverage`; `npm run test:unit:repeat` runs the suite 10× to
+verify determinism and catch flakiness (runner mechanics detailed on
 [Test commands & runners](commands-and-runners.md)).
 
-The suite mirrors the pure zones one-to-one: outline core (tree operations,
-decimal numbering, the `LATTICE-OUTLINE-V1` serialization round-trip, grouping
-items under headings, Zotero note normalization), `flatHeadings`, .docx/.odt
-import and export parsing, Citavi logic (`parsePageRange`, duplicate and
-keyword handling), cite-only item mapping, the core `locator` / `labelPopup` /
-`printDialog` modules, print placeholder and sort-index construction, the print
-menu state machine, persistent-dialog options and stored-rect parsing, the
-reader locator, organizer selection/collections/cited state, the dialog view
-model, and the Feature registry itself (reverse-order stop, error isolation).
+The unit suite mirrors the pure zones one-to-one:
+
+- **Outline and headings core:** Tree operations, decimal numbering, the
+  `LATTICE-OUTLINE-V1` serialization round-trip, grouping items under headings,
+  Zotero note normalization ([test-unit/outline.test.ts](../../test-unit/outline.test.ts)),
+  `flatHeadings` ([test-unit/flatHeadings.test.ts](../../test-unit/flatHeadings.test.ts)),
+  and `.docx`/`.odt` import and export parsing ([test-unit/docOutline.test.ts](../../test-unit/docOutline.test.ts),
+  [test-unit/docExport.test.ts](../../test-unit/docExport.test.ts)).
+- **Dialog view models and works grouping:**
+  [test-unit/dialogView.test.ts](../../test-unit/dialogView.test.ts) tests pure
+  view partitioning in `src/features/organizer/logic/dialogView.ts`. It pins
+  `buildDialogSections` (grouping annotations under outline headings, with
+  unassigned annotations landing in the trailing "no category" bucket where
+  `node === null`), `effectiveTags` (merging an annotation's own tags with its
+  parent work's tags without duplicates when work items are displayed),
+  `nodeCounts` (computing distinct item counts per heading recursively
+  including subheadings), and `buildWorkDialogSections` (grouping works/regular
+  items by their outline tags and placing unassigned works in the no-category
+  section).
+- **Reader locator and title formatting:**
+  [test-unit/readerLocator.test.ts](../../test-unit/readerLocator.test.ts) tests
+  pure locator logic in `src/features/reader/logic/readerLocator.ts`. It pins
+  `explicitLocatorFromTags` (extracting locator types from `#flexannotate-locator-*`
+  tag strings or tag objects `{ name }` / `{ tag }`, recognizing known labels,
+  always accepting `margin`, and returning `null` for unknown or missing tags),
+  `locatorLabelText` (resolving locator labels via Zotero's citation label
+  function with fallback to translated labels or capitalized identifiers), and
+  `formatAnnotationTitle` (formatting title strings such as `"Randnummer 318"` or
+  `"Seite -"` when page labels are empty or missing).
+- **Citavi and cite-only logic:** Citavi page range parsing (`parsePageRange`),
+  duplicate and keyword handling ([test-unit/citavi.test.ts](../../test-unit/citavi.test.ts)),
+  and cite-only item mapping ([test-unit/citeOnly.test.ts](../../test-unit/citeOnly.test.ts)).
+- **Printing and selection models:** The core `locator` and `labelPopup` modules,
+  print placeholder and sort-index construction, the print menu state machine,
+  organizer selection, collection scoping, and cited state.
+- **Persistent dialog and feature registry:** Persistent-dialog options and
+  stored-rect parsing ([test-unit/persistentRect.test.ts](../../test-unit/persistentRect.test.ts),
+  [test-unit/persistentOptions.test.ts](../../test-unit/persistentOptions.test.ts)),
+  and the Feature registry itself (`test-unit/feature.test.ts`, verifying
+  reverse-order shutdown and error isolation across independent features).
 
 ## Tier 2 — Zotero integration tests
 
-`npm run test:zotero` starts a real Zotero through zotero-plugin-scaffold and
-runs the Mocha suite in `test/` inside it. The scaffold gates on
+`npm run test:zotero` starts a real Zotero instance through zotero-plugin-scaffold
+and executes the Mocha suite in `test/` inside it. The scaffold gates on
 `() => Zotero.FlexAnnotate.data.initialized`, which
 [src/hooks.ts](../../src/hooks.ts) sets at the end of `onStartup` — tests only
 start once the plugin is fully initialized, and
@@ -117,31 +161,55 @@ as `(Zotero as any)[config.addonInstance].api`
 ([test/features.test.ts](../../test/features.test.ts)); direct imports of
 plugin modules are forbidden because those modules depend on the `ztoolkit`
 global, which only exists through the running plugin — importing them into the
-test bundle would exercise a copy, not the plugin
+test bundle would exercise a separate copy, not the active plugin
 ([test/citeOnly.test.ts](../../test/citeOnly.test.ts) states this in its
-header). `addon.api` is assembled in `onStartup` and exposes one sub-object
-per feature area (`organizerData`, `outline`, `outlineModel`, `docImport`,
-`docExport`, `print`, `citavi`, `modeSelector`, `citeOnly`, `persistentDialog`,
-`reader`, `toolsMenu`, `organizerToolbar`, `OrganizerFactory`, `openTarget`,
-`cited`, `externalApi`), so tests exercise exactly the surface a consumer
-would.
+header). `addon.api` is assembled in `onStartup` ([src/hooks.ts](../../src/hooks.ts))
+and exposes one sub-object per feature area (`organizerData`, `outline`,
+`flatHeadings`, `outlineModel`, `organizerStrings`, `externalApi`,
+`OrganizerFactory`, `docImport`, `docExport`, `docOutline`, `organizerToolbar`,
+`toolsMenu`, `openTarget`, `cited`, `CitationDialogPatch`, `persistentDialog`,
+`modeSelector`, `citeOnly`, `reader`, `citavi`, `print`), ensuring tests
+exercise the exact integration surface available to consumers.
 
-The Mocha suite covers: startup and the feature lifecycle, the preferences
-pane, print annotations (placeholder lifecycle, input mask, item menu),
-the cite-only patch and mode selector, Citavi import (exact tags, duplicates),
-the reader-menu registration lifecycle, the tools-menu fallback, and the
-organizer end to end — data and filing, the window (selection, drag and drop,
-keyboard, tabs), the toolbar button, and the citation-dialog view with search,
-green cited-checks, and "Zitatstelle anzeigen". The outline import runs against
-real `.docx`/`.odt` ZIP fixtures; its pure parsing logic is pinned separately
-in `test-unit/docOutline.test.ts`.
+The Mocha suite covers:
 
-Integration tests drive the real Zotero windows instead of stubbing the DOM:
-helpers dispatch synthetic `MouseEvent`/`KeyboardEvent`s (`click`, `key`) on
-the live document and poll conditions with `waitFor`/`waitForAsync` (default
-8 s, 25 ms steps). Assertions mostly inspect real state afterwards — item tags
-via `getTags()`, the outline note via `getNote()`, window geometry via
-`getBoundingClientRect`.
+- **Startup and preferences:** Plugin initialization, feature registry
+  orchestration, and preferences pane registration ([test/preferences.test.ts](../../test/preferences.test.ts)).
+- **Print annotations and custom element row patching:** Placeholder lifecycle,
+  input mask, and item menus ([test/print.test.ts](../../test/print.test.ts),
+  [test/printDialog.test.ts](../../test/printDialog.test.ts),
+  [test/printMenus.test.ts](../../test/printMenus.test.ts)). Furthermore,
+  [test/annotationRowPatch.test.ts](../../test/annotationRowPatch.test.ts)
+  tests the prototype patch applied to `<annotation-row>` custom elements in
+  live Zotero windows: when an annotation item has an explicit locator tag (e.g.
+  `#flexannotate-locator-opus`) and page label `"318"`, setting `row.annotation`
+  dynamically rewrites `row._title.textContent` to include the resolved locator
+  label and page number (such as `"Opus 318"`), whereas annotations with default
+  page locators retain standard page presentation.
+- **Citation mode and cite-only patch:** The cite-only patch toggle and
+  citation result transformation ([test/citeOnly.test.ts](../../test/citeOnly.test.ts)),
+  along with the mode selector dropdown in the citation dialog
+  ([test/modeSelector.test.ts](../../test/modeSelector.test.ts)).
+- **Citavi import:** Real item creation, tag parsing, duplicate checking, and
+  print quotation linking ([test/citavi.test.ts](../../test/citavi.test.ts)).
+- **Menu integrations:** Reader-menu registration and deregistration
+  lifecycle ([test/readerMenu.test.ts](../../test/readerMenu.test.ts)), and the
+  tools-menu fallback mechanism ([test/toolsMenu.test.ts](../../test/toolsMenu.test.ts)).
+- **Organizer end-to-end:** Data management and filing, the organizer window
+  (tree selection, drag-and-drop, keyboard navigation, tabs), the toolbar
+  button ([test/toolbarButton.test.ts](../../test/toolbarButton.test.ts),
+  [test/organizer.test.ts](../../test/organizer.test.ts)), and the citation-dialog
+  view with search, green cited-checks, and "Zitatstelle anzeigen"
+  ([test/features.test.ts](../../test/features.test.ts)). Outline file import
+  runs against real `.docx`/`.odt` ZIP fixtures ([test/docImport.test.ts](../../test/docImport.test.ts));
+  its pure parsing logic is pinned separately in `test-unit/docOutline.test.ts`.
+
+Integration tests drive real Zotero windows instead of stubbing the DOM:
+helpers dispatch synthetic `MouseEvent` and `KeyboardEvent` instances (`click`,
+`key`) on the live document and poll conditions with `waitFor`/`waitForAsync`
+(default 8 s, 25 ms steps). Assertions inspect real Zotero state afterwards —
+item tags via `getTags()`, the outline note via `getNote()`, and window
+geometry via `getBoundingClientRect()`.
 
 ## The isolated-profile safety model
 
@@ -223,9 +291,16 @@ integration test, written over `addon.api` exclusively.** Concretely:
 
 1. Write the logic in `src/features/<feature>/logic/` (or `src/core/` when
    several features need it) with no Zotero globals and `.ts`-suffixed
-   imports, and pin it in `test-unit/`.
+   imports, and pin it in `test-unit/`. For instance, locator extraction, label
+   fallbacks, and title construction live in `src/features/reader/logic/readerLocator.ts`
+   and are tested in [test-unit/readerLocator.test.ts](../../test-unit/readerLocator.test.ts),
+   while section and works grouping logic lives in `src/features/organizer/logic/dialogView.ts`
+   and is tested in [test-unit/dialogView.test.ts](../../test-unit/dialogView.test.ts).
 2. Only the Zotero-facing shell (items, tags, menus, windows, patches) gets a
    Mocha test in `test/`, resolved through `(Zotero as any)[config.addonInstance].api`.
+   For example, live patching of the `<annotation-row>` custom element's
+   title attribute across Zotero windows lives in `src/features/print/annotationRowPatch.ts`
+   and is tested in [test/annotationRowPatch.test.ts](../../test/annotationRowPatch.test.ts).
 3. A prototype patch additionally needs evidence — a test or a source anchor
    in `docs/anchors.md` (see [Prototype patching](../architecture/patching.md)).
 

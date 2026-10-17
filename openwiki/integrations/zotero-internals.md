@@ -5,7 +5,7 @@ description: Verification of undocumented Zotero internals against unpacked omni
 tags: [zotero-internals, anchors, versioning, feature-detection, omni-ja, compatibility, testing, documentation]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-16T19:49:13.348Z
+    at: 2026-10-17T22:13:14.642Z
 sources:
   - id: openwiki-source-ea70eb6c045047448e446296
     resource: repo://.gitignore
@@ -21,12 +21,16 @@ sources:
     resource: repo://src/features/citeOnly/modeSelector.ts
   - id: openwiki-source-f4a82bb76f9ba70735439283
     resource: repo://src/features/organizer/dialog/dialogOutline.ts
+  - id: openwiki-source-331aba818cd15ed35cbbd5f7
+    resource: repo://src/features/organizer/dialog/dialogOutlineRender.ts
   - id: openwiki-source-c8587857b6f488227993df04
     resource: repo://src/features/organizer/dialog/dialogPersistent.ts
   - id: openwiki-source-8c2d2624a53fc7821440fb5f
     resource: repo://src/features/organizer/doc/docImport.ts
   - id: openwiki-source-91724a7571fa0f573e8f73b5
     resource: repo://src/features/organizer/toolsMenuFallback.ts
+  - id: openwiki-source-67599eb667e1f64382e23813
+    resource: repo://src/features/print/annotationRowPatch.ts
   - id: openwiki-source-14294881b17ba133d14ada2d
     resource: repo://src/features/print/dialog.ts
   - id: openwiki-source-0d1333c3c5dde69ff0b6f9ea
@@ -41,15 +45,15 @@ sources:
     resource: repo://test/modeSelector.test.ts
   - id: openwiki-source-7ee3a706906a7e3af5d8c855
     resource: repo://test/toolsMenu.test.ts
-generated: { by: "openwiki/0.7.2", at: "2026-10-16T19:49:13.348Z" }
+generated: { by: "openwiki/0.7.2", at: "2026-10-17T22:13:14.642Z" }
 ---
 
-FlexAnnotate integrates with Zotero at key junctures where no public plugin API exists — annotation field validation, the citation-insertion branch of the word processor integration session, dialog DOM structures, `MenuManager`, and `FilePicker`. It supports Zotero 7.0 through 10 with a single codebase ([AGENTS.md](../../AGENTS.md)). Two fundamental engineering rules make this cross-version compatibility safe ([AGENTS.md](../../AGENTS.md), "Zotero-Interna nur gegen den Quellcode prüfen" and "Weitere Zotero-Versionen"):
+FlexAnnotate integrates with Zotero at key junctures where no public plugin API exists — annotation field validation, the citation-insertion branch of the word processor integration session, dialog DOM structures, `MenuManager`, `FilePicker`, and custom element rendering. It supports Zotero 7.0 through 10 with a single codebase ([AGENTS.md](../../AGENTS.md)). Two fundamental engineering rules make this cross-version compatibility safe ([AGENTS.md](../../AGENTS.md), "Zotero-Interna nur gegen den Quellcode prüfen" and "Weitere Zotero-Versionen"):
 
 1. **Zotero internals are verified only against source code, never from memory.** The sole source of truth is the unpacked Zotero tree under `.zotero-reference/<version>/`, regenerated directly from `omni.ja` when needed.
 2. **Missing capabilities are handled by runtime feature detection, not by comparing version numbers.** The codebase runs uniformly on 7.x through 10.x, automatically adapting to available APIs and degrading gracefully where older versions lack specific capabilities.
 
-Every internal lookup is recorded in [docs/anchors.md](../../docs/anchors.md) along with the verified version and source line numbers. The `.zotero-reference/` and `.zotero-versions/` directories themselves are excluded from the repository index by [`.openwikiignore`](../../.openwikiignore) ("Unpacked Zotero source reference (large, lookup-only)") — this page documents the architecture, logging policies, feature detection mechanisms, and compatibility fallbacks governing those internals.
+Every internal lookup is recorded in [docs/anchors.md](../../docs/anchors.md) along with the verified version and source line numbers. The `.zotero-reference/` and `.zotero-versions/` directories themselves are excluded from the repository index by [`.gitignore`](../../.gitignore) and [`.openwikiignore`](../../.openwikiignore) ("Unpacked Zotero source reference (large, lookup-only)") — this page documents the architecture, logging policies, feature detection mechanisms, and compatibility fallbacks governing those internals.
 
 ## The `.zotero-reference/` trees: verifying internals against `omni.ja`
 
@@ -58,20 +62,63 @@ Zotero packages its frontend, data layer, and integration logic into an optimize
 FlexAnnotate maintains gitignored look-up reference trees for all supported major and minor versions ([AGENTS.md](../../AGENTS.md)):
 
 - **Present reference trees:** `7.0.32`, `8.0.4`, `9.0.6`, `10.0.1`, `10.0.5`. These directories are listed in [`.gitignore`](../../.gitignore) under "Entpackter Zotero-Quellcode (Nachschlagewerk)" alongside `*.exe`.
-- **Anchor paths:** All file paths recorded in [docs/anchors.md](../../docs/anchors.md) are relative to `chrome/content/zotero/` of the unpacked `omni.ja` archive (e.g. `xpcom/integration.js`, `elements/annotationItemsPane.js`, `integration/citationDialog.js`, `xpcom/annotations.js`).
+- **Anchor paths:** All file paths recorded in [docs/anchors.md](../../docs/anchors.md) are relative to `chrome/content/zotero/` of the unpacked `omni.ja` archive (e.g. `xpcom/integration.js`, `elements/annotationItemsPane.js`, `elements/annotationRow.js`, `integration/citationDialog.js`, `xpcom/annotations.js`).
 - **Wiki indexing boundary:** Wiki pages treat the unpacked reference trees as external look-up material. Code is never quoted verbatim from the reference trees into wiki documentation; instead, the corresponding anchor row (file, line range, and verified version) is cited.
 
-### Regenerating reference trees from `omni.ja`
+### Anchor verification workflow against unpacked trees
 
-To inspect the running installation (a per-user installation under `%LOCALAPPDATA%\Zotero`), [AGENTS.md](../../AGENTS.md) specifies the exact extraction procedure:
+The repository strictly enforces a systematic verification lifecycle whenever integrating with undocumented Zotero APIs or updating supported versions ([AGENTS.md](../../AGENTS.md)):
 
-```powershell
-$dst = "$env:TEMP\zotero-omni"
-Copy-Item "$env:LOCALAPPDATA\Zotero\app\omni.ja" "$dst.zip" -Force
-Expand-Archive "$dst.zip" $dst   # Quellcode unter $dst\chrome\content\zotero
+<!-- openwiki: mermaid parse failed and this diagram was converted to a text fence so it does not break rendering. Fix the diagram source and restore the mermaid fence. Parser error: Heuristic: an unescaped angle bracket inside a label breaks rendering; rephrase the label. -->
+```text
+flowchart TD
+    REQ["Need undocumented Zotero capability or hook"] --> VER{"Target version unpacked in .zotero-reference/?"}
+    VER -- "No: running install" --> EXT1["Extract %LOCALAPPDATA%\\Zotero\\app\\omni.ja to .zotero-reference/"]
+    VER -- "No: test version" --> EXT2["Extract .zotero-versions/<ver>/core/omni.ja via 7z"]
+    EXT1 --> TREE[".zotero-reference/<version>/chrome/content/zotero/ ready"]
+    EXT2 --> TREE
+    VER -- "Yes" --> TREE
+    TREE --> INSP["Inspect file & line numbers in source (never memory/web)"]
+    INSP --> LEDGER["Record row in docs/anchors.md (anchor, file:lines, used-in, Geprüft)"]
+    LEDGER --> CHECK{"Available across all target versions (7.x - 10.x)?"}
+    CHECK -- "No" --> FD["Implement runtime feature detection (typeof, DOM, shape validation)"]
+    CHECK -- "Yes" --> IMPL["Implement feature logic"]
+    FD --> IMPL
+    IMPL --> PATCH{"Requires prototype interception?"}
+    PATCH -- "Yes" --> ASSIGN["Apply assignChecked() and register unpatch in stop() / removeFromWindow()"]
+    PATCH -- "No" --> DOM["Use custom DOM injection or public object setters"]
+    ASSIGN --> TEST["Run npm run test:versions to validate across all targets"]
+    DOM --> TEST
+    TEST --> SYNC["Commit code, docs/anchors.md, README.md, and CHANGELOG.md in same changeset"]
 ```
 
-For any non-installed version, `omni.ja` is obtained directly from the unpacked test installer directory at `.zotero-versions/<version>/core/omni.ja` (see [Test versions](#test-versions-zotero-versions-and-npm-run-testversions) below). Whenever a reference tree is refreshed or a new version is analyzed, developers must re-verify the active anchor rows and update the version column in [docs/anchors.md](../../docs/anchors.md) — the log explicitly mandates "Nach jedem Zotero-Update prüfen" (re-check after every Zotero update).
+#### Step 1: Source acquisition and unpacking
+Internals are never inspected on GitHub `main` or third-party forks when local builds exist. The source must come directly from the `omni.ja` bundle:
+- **Running installation:** For the active developer environment (per-user installation under `%LOCALAPPDATA%\Zotero`), [AGENTS.md](../../AGENTS.md) specifies the exact extraction procedure:
+  ```powershell
+  $dst = "$env:TEMP\zotero-omni"
+  Copy-Item "$env:LOCALAPPDATA\Zotero\app\omni.ja" "$dst.zip" -Force
+  Expand-Archive "$dst.zip" $dst   # Quellcode unter $dst\chrome\content\zotero
+  ```
+- **Portable test versions:** For non-installed versions (7.0.32, 8.0.4, 9.0.6), `omni.ja` is obtained directly from `.zotero-versions/<version>/core/omni.ja` (see [Test versions](#test-versions-zotero-versions-and-npm-run-testversions) below) and unpacked into `.zotero-reference/<version>/`.
+
+#### Step 2: Line inspection and anchor logging
+Developers identify the exact file relative to `chrome/content/zotero/` and record the current line numbers in [docs/anchors.md](../../docs/anchors.md). The entry includes:
+- Plain description of the hook or invariant.
+- Path and line numbers in the reference tree.
+- Consuming source files in `src/`.
+- Concrete version in the *Geprüft* column.
+
+#### Step 3: Capability gating and graceful fallback
+If the symbol, property, or DOM structure is absent in earlier versions, developers create a feature gate (e.g. `typeof ... === "function"` or `doc.getElementById(...)`) rather than a version check. If the capability is missing, the feature either provides an alternative implementation (e.g., direct XUL injection) or quietly suppresses the interface.
+
+#### Step 4: Multi-version test verification
+All changes are validated across the test suite using `npm run test:versions`. Tests expecting missing features skip conditionally using capability checks, ensuring clean runs across all versions.
+
+#### Step 5: Atomic changeset delivery
+Documentation, anchor log rows, and code changes are committed together in the same changeset ([AGENTS.md](../../AGENTS.md), [Conventions & constraints](../conventions.md)).
+
+---
 
 ## The anchor log policy: `docs/anchors.md`
 
@@ -91,10 +138,25 @@ The anchor table uses a four-column structure:
 The header of [docs/anchors.md](../../docs/anchors.md) establishes strict verification semantics:
 
 - `10.0.5` — The internal was inspected directly in `.zotero-reference/10.0.5/` on 2026-10-09, and the recorded line numbers reflect the 10.0.5 code.
+- `10.0.6 (Quelle: app/omni.ja)` — The internal was verified directly against the installed application `omni.ja` archive for 10.0.6.
 - `10.0.1, nicht neu geprüft` — The lookup was verified against version 10.0.1 and has **not yet been re-verified** against 10.0.5 or subsequent builds.
 - `Zotero-Quelle auf GitHub (main); nicht gegen lokale Referenz geprüft` — The behavior was verified only against Zotero's upstream repository on GitHub, not against an unpacked local `omni.ja` tree.
 - `nicht geprüft` — Used for behaviors deduced from error signatures and commits (e.g., selection of a new note opening the note editor, derived from commit `736657e`) rather than verified line-by-line in source.
-- Feature sections with uniform lookup states carry their own scope notes; for instance, the persistent citation window section explicitly states that all its entries were inspected exclusively in 10.0.5.
+- Feature sections with uniform lookup states carry their own scope notes; for instance, the persistent citation window section explicitly states that all its entries were inspected in 10.0.5.
+
+### Newly tracked anchors
+
+As the codebase evolves, newly tracked internals are catalogued in [docs/anchors.md](../../docs/anchors.md):
+
+1. **`AnnotationRow.prototype.render()` (`elements/annotationRow.js` lines 90–95, verified in 10.0.5):**
+   - *Internal behavior:* Zotero's native `<annotation-row>` custom element hardcodes the title of the annotation row to `Zotero.getString('pdfReader.page') + ' ' + pageLabel` (lines 93–94).
+   - *FlexAnnotate usage:* [`src/features/print/annotationRowPatch.ts`](../../src/features/print/annotationRowPatch.ts) intercepts `proto.render` via `assignChecked` so that rows display FlexAnnotate's resolved locator (e.g. "Randnummer 318" or "Opus 42") instead of a hardcoded "Page" prefix.
+2. **`IOManager.toggleDialogMode(newMode)` (`integration/citationDialog.js` lines 1316–1340, verified in 10.0.6):**
+   - *Internal behavior:* Toggles the Word citation dialog between Quick Copy list mode (`currentLayout.type === "list"`) and classic hierarchical library tree mode (`"library"`).
+   - *FlexAnnotate usage:* [`src/features/organizer/dialog/dialogOutline.ts`](../../src/features/organizer/dialog/dialogOutline.ts) awaits `IOManager.toggleDialogMode("library")` when the outline view is enabled to switch the dialog from list mode to classic tree view, which is required for outline navigation.
+3. **`IOManager.addItemsToCitation(items, options)` (`integration/citationDialog.js` lines 1391–1425, verified in 10.0.6):**
+   - *Internal behavior:* Zotero's internal routine on `IOManager` to insert regular bibliographic items/works into the active Word citation session.
+   - *FlexAnnotate usage:* [`src/features/organizer/dialog/dialogOutlineRender.ts`](../../src/features/organizer/dialog/dialogOutlineRender.ts) checks if the dialog is in citation mode (`dialog-type === "citation"`) and invokes `(win as any).IOManager.addItemsToCitation(works)` for selected regular items, distinguishing work insertions from annotation insertions (which inject an `<annotation-row>` with `action="plus"` into `#annotations-list`).
 
 ### Version-pinned line drift
 
@@ -110,8 +172,10 @@ Internal line numbers in Zotero fluctuate significantly between releases. FlexAn
 Repository rules dictate that **documentation ships in the same changeset as code** ([AGENTS.md](../../AGENTS.md), "Doku im selben Änderungssatz"; [Conventions & constraints](../conventions.md)). Any pull request or commit that introduces a new internal dependency must update `docs/anchors.md`, `README.md`, and `CHANGELOG.md` concurrently.
 
 The log also codifies FlexAnnotate's prototype patching boundaries:
-- The **Word citation dialog receives zero prototype patches**. The plugin interacts with the citation dialog exclusively by injecting DOM nodes and assigning items to the custom `<annotation-items-pane>` element via its public property setter.
-- Where prototype patches are unavoidable (`_insertCitingResult`, `Translate.Import.translate`, `Zotero_File_Interface` methods, `Reader.open`), they must use the `assignChecked` primitive from [`src/shared/patch.ts`](../../src/shared/patch.ts) and be restored in `stop()` or `removeFromWindow()` (see [Prototype patching](../architecture/patching.md)).
+- The **Word citation dialog's core integration logic receives zero prototype patches**. The plugin interacts with citation session controllers (`CitationEditInterface`, `IOManager`) via public APIs, property setters (such as `items` on `<annotation-items-pane>`), and standard DOM event injection.
+- Where prototype patches are unavoidable (`_insertCitingResult`, `Translate.Import.translate`, `Zotero_File_Interface` methods, `Reader.open`, and custom element rendering in `AnnotationRow.prototype.render`), they must use the `assignChecked` primitive from [`src/shared/patch.ts`](../../src/shared/patch.ts) and be restored in `stop()` or `removeFromWindow()` (see [Prototype patching](../architecture/patching.md)).
+
+---
 
 ## Feature detection instead of version comparison
 
@@ -132,26 +196,13 @@ By testing for the **presence and validity of the required capability directly**
 | Color palette | `Array.isArray(Zotero.Annotations.COLORS)` with valid entries | Zotero 10.x only | Fallback to hard-coded `STANDARD_COLORS` array | [`annotationColors()`](../../src/features/print/logic/printAnnotation.ts) |
 | Tools menu | `typeof Zotero.MenuManager?.registerMenu === "function"` | Missing in 7.0.32 | Append direct XUL `menuitem` to `#menu_ToolsPopup` | [`toolsMenuFallback`](../../src/features/organizer/toolsMenuFallback.ts) |
 | Dialog annotations mode | `#annotations-sidebar` present in dialog DOM | Missing prior to 9.x | Skip mode selector injection; return early | [`modeSelector.injectModeSelector`](../../src/features/citeOnly/modeSelector.ts) |
-| Persistent citation dialog | `typeof Integration.Interface.prototype.addAnnotation === "function"` | Present in 9.x/10.x, missing in 7.x/8.x | Suppress persistent window; outline hides toggle switch | [`persistentSupported()`](../../src/features/organizer/dialog/dialogPersistent.ts) |
+| Persistent citation dialog | `typeof Integration.Interface.prototype.addAnnotation === "function"` & supported platform | Present in 9.x/10.x, missing in 7.x/8.x | Suppress persistent window; outline hides toggle switch | [`persistentSupported(win)`](../../src/features/organizer/dialog/dialogPersistent.ts) |
+| Dialog layout switching | `typeof IOManager?.toggleDialogMode === "function"` | Present in 9.x/10.x | Automatically switch from list mode to classic library tree mode | [`enable()`](../../src/features/organizer/dialog/dialogOutline.ts) |
+| Work insertion into citation | `typeof IOManager?.addItemsToCitation === "function"` | Present in 9.x/10.x | Insert selected bibliographic items directly into citation session | [`insert()`](../../src/features/organizer/dialog/dialogOutlineRender.ts) |
+| Annotation row title | `typeof customElements.get("annotation-row")?.prototype?.render === "function"` | Present across 7.x–10.x | Intercept render to substitute custom locator label | [`patchAnnotationRow()`](../../src/features/print/annotationRowPatch.ts) |
 | Test suite gating | Source contains `annotations-sidebar` | Missing prior to 9.x | Mark Mocha tests as `pending` via `this.skip()` | [`hasAnnotationDialog()`](../../test/helpers.ts) |
 
-```mermaid
-flowchart TD
-    H["Hook point needed in an undocumented Zotero API"] --> MEM{"Verified against source, not memory?"}
-    MEM -- "no" --> STOP["Not acceptable: extract omni.ja first"]
-    STOP --> GEN["Expand omni.ja into the .zotero-reference tree for that version"]
-    MEM -- "yes" --> ANCH["Add a docs/anchors.md row: anchor, file with lines, used-in, checked version"]
-    GEN --> ANCH
-    ANCH --> DIFF{"Capability missing on older Zotero?"}
-    DIFF -- "yes" --> FD["Gate with feature detection, never a version comparison"]
-    FD --> PATCHQ{"Prototype patch?"}
-    DIFF -- "no" --> PATCHQ
-    PATCHQ -- "yes" --> AC["assignChecked plus restore in stop or removeFromWindow"]
-    PATCHQ -- "no" --> PLAIN["DOM elements or plain API use"]
-    AC --> TEST["Unit or Zotero test, or the anchor row itself as evidence"]
-    PLAIN --> TEST
-    TEST --> MAT["Recheck after every Zotero update and refresh the README matrix from test:versions"]
-```
+---
 
 ## Concrete fallback implementations
 
@@ -239,29 +290,119 @@ export function injectModeSelector(win: Window): void {
 
 - **Dynamic visibility tracking:** The mode selector injects into `#settings-popup .popup` and `#itemDetails .popup`. Because Zotero toggles elements with `[data-dialog-type]` attributes only during its internal mode transitions — and FlexAnnotate injects after this initial pass — `trackDialogType()` attaches a `MutationObserver` to watch the root element's `dialog-type` attribute and update selector visibility dynamically.
 
-### 4. `persistentSupported()` — keep-open window suppression on 7 and 8
+### 4. `persistentSupported(win)` — keep-open window suppression on 7 and 8
 
 FlexAnnotate's keep-open companion window feature reopens the citation dialog as a persistent browsing window after each citation insertion. This functionality requires Zotero's internal `addAnnotation` command on `Integration.Interface.prototype` (located at `integration.js:781` in versions 9 and 10), which does not exist in Zotero 7 and 8.
 
 In [`src/features/organizer/dialog/dialogPersistent.ts`](../../src/features/organizer/dialog/dialogPersistent.ts):
 
 ```ts
-export function persistentSupported(): boolean {
-  return (
+export function persistentSupported(win?: Window): boolean {
+  const versionOk =
     typeof (Zotero as any).Integration?.Interface?.prototype?.addAnnotation ===
-    "function"
-  );
+    "function";
+  if (!versionOk) return false;
+  if (!win) return true;
+  if (browseWindows.has(win)) return true;
+  if (windowAgents.has(win)) {
+    return isPersistentAgent(windowAgents.get(win));
+  }
+  if (activeAgent !== null) {
+    windowAgents.set(win, activeAgent);
+    return isPersistentAgent(activeAgent);
+  }
+  if (lastCommand !== null) {
+    return isPersistentAgent(lastCommand.agent);
+  }
+  return true;
 }
 ```
 
 - **Patch suppression:** In `persistentDialogPatch.start()`, if `!persistentSupported()`, the feature aborts installation immediately without patching `displayDialog` or `execCommand`.
-- **UI toggle suppression:** In [`src/features/organizer/dialog/dialogOutline.ts`](../../src/features/organizer/dialog/dialogOutline.ts), the outline view checks `persistentSupported()`:
+- **UI toggle suppression:** In [`src/features/organizer/dialog/dialogOutline.ts`](../../src/features/organizer/dialog/dialogOutline.ts), the outline view calls `persistentSupported(win)`:
   ```ts
-  pcb.hidden = plabel.hidden = !persistentSupported();
+  const supported = persistentSupported(win);
+  ...
+  pcb.hidden = plabel.hidden = !supported;
+  ...
+  wrapB.hidden = !supported;
   ```
-  On Zotero 7 and 8, the toggle switch is completely hidden. The feature degrades gracefully without error logs or broken interface components.
+  On Zotero 7 and 8 (or unsupported agents like Google Docs/http), the persistent toggle switches are completely hidden both in the sidebar row and in the settings popup (`#settings-popup`). The feature degrades gracefully without error logs or broken interface components.
 
-### 5. Test suite detection: `hasAnnotationDialog()`
+### 5. `patchAnnotationRow()` — custom locator labels in native rows
+
+Zotero's native `<annotation-row>` element displays an unconfigurable title computed as `pdfReader.page + ' ' + pageLabel` in `elements/annotationRow.js` (lines 90–95). For legal documents, margin numbers, or opus references, this produces inaccurate labels like "Seite 318" instead of "Randnummer 318".
+
+In [`src/features/print/annotationRowPatch.ts`](../../src/features/print/annotationRowPatch.ts):
+
+```ts
+export function patchAnnotationRow(win: Window): boolean {
+  if (!win || installed.has(win)) return true;
+  try {
+    if (!win.customElements?.get("annotation-row")) {
+      const doc = win.document as any;
+      if (typeof doc?.createXULElement === "function") doc.createXULElement("annotation-row");
+      else if (typeof doc?.createElement === "function") doc.createElement("annotation-row");
+    }
+    const customClass = win.customElements?.get("annotation-row");
+    const proto = customClass?.prototype;
+    if (!proto || typeof proto.render !== "function") return false;
+
+    const native = proto.render;
+    const patched = function (this: Element) {
+      native.call(this);
+      try {
+        updateAnnotationRowTitle(this);
+      } catch (e) {
+        ztoolkit.log("annotationRow title update failed:", e);
+      }
+    };
+
+    if (!assignChecked(proto, "render", patched)) return false;
+    installed.set(win, native);
+
+    for (const row of win.document.querySelectorAll("annotation-row")) {
+      try { updateAnnotationRowTitle(row); } catch {}
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+```
+
+- **Pre-instantiation defense:** In citation dialogs and reader windows, `win.customElements` may not register `<annotation-row>` until the first instance is created. `patchAnnotationRow` attempts `doc.createXULElement("annotation-row")` to ensure the constructor is defined before prototype lookup.
+- **Non-destructive title updating:** `updateAnnotationRowTitle(row)` reads `_annotation`, resolves the locator via `getLocator(ann)`, checks for non-default locators (`locator !== DEFAULT_LOCATOR`), and sets `.title` text using `formatAnnotationTitle(locatorLabelText(...), ann.annotationPageLabel)`.
+- **Restoration lifecycle:** When `unpatchAnnotationRow(win)` runs, `assignChecked(proto, "render", native)` restores the original method, and existing `<annotation-row>` elements are re-rendered to clear custom overrides.
+
+### 6. `IOManager` citation integration in the outline view
+
+The Word processor citation dialog coordinates views and session insertion through an undocumented `IOManager` controller defined in `integration/citationDialog.js` ([docs/anchors.md](../../docs/anchors.md)):
+
+- **Layout mode toggling (`IOManager.toggleDialogMode`):** When the outline view is enabled in [`src/features/organizer/dialog/dialogOutline.ts`](../../src/features/organizer/dialog/dialogOutline.ts), FlexAnnotate checks whether the dialog was launched in Quick Copy list mode:
+  ```ts
+  if (w.currentLayout?.type === "list" && w.IOManager?.toggleDialogMode) {
+    await w.IOManager.toggleDialogMode("library");
+  }
+  ```
+  Switching to `"library"` activates the hierarchical collection tree, which the outline view uses to render chapter categories and item groups.
+- **Citation insertion (`IOManager.addItemsToCitation`):** In [`src/features/organizer/dialog/dialogOutlineRender.ts`](../../src/features/organizer/dialog/dialogOutlineRender.ts), `insert(win, ids)` checks the active dialog mode:
+  ```ts
+  const isCitation = (doc.documentElement?.getAttribute("dialog-type") ||
+    (win as any).DIALOG_STATE?.type) === "citation";
+  if (isCitation) {
+    const works = ids
+      .map((id) => Zotero.Items.get(id) as Zotero.Item | false)
+      .filter((item): item is Zotero.Item => !!item && (item as any).isRegularItem?.());
+    if (works.length && (win as any).IOManager?.addItemsToCitation) {
+      await (win as any).IOManager.addItemsToCitation(works);
+    }
+    return;
+  }
+  ```
+  If the dialog is in citation mode, work items are routed directly to `addItemsToCitation(works)`. In annotation mode (`dialog-type === "annotations"`), annotations are inserted instead by dynamically appending an `<annotation-row action="plus">` into `#annotations-list` and clicking its plus button, triggering Zotero's internal click-bubbling handler (`citationDialog.js:811-818`).
+
+### 7. Test suite detection: `hasAnnotationDialog()`
 
 FlexAnnotate's test suite adheres to the same feature-detection discipline as the runtime code. Rather than inspecting `Zotero.version` in test hooks, [`test/helpers.ts`](../../test/helpers.ts) inspects the dialog source directly:
 
@@ -288,6 +429,8 @@ before(function () {
 
 Skipped tests are reported as `pending` by Mocha. The version runner records them as expected capability skips rather than test failures.
 
+---
+
 ## Catalogued version differences
 
 [docs/anchors.md](../../docs/anchors.md) doubles as the repository's compatibility ledger across major versions:
@@ -297,10 +440,16 @@ Skipped tests are reported as `pending` by Mocha. The version runner records the
 | **Citation dialog file** | `integration/addCitationDialog.xhtml` | `integration/citationDialog.xhtml` (no annotations mode) | `integration/citationDialog.xhtml` (annotations mode introduced) | Same as 9.x | URL watcher detects either file; `#annotations-sidebar` gates injection; `hasAnnotationDialog()` gates tests. |
 | **`Zotero.Annotations.COLORS`** | Missing | Missing | Missing | Present in `xpcom/annotations.js` (lines 40–53) | `annotationColors()` validates array shape; falls back to `STANDARD_COLORS`. |
 | **`Zotero.MenuManager`** | Absent (`registerMenu` not defined) | Present | Present | Present | `menu.ts` wrapper feature-detects; `toolsMenuFallback` injects XUL `<menuitem>` only when absent. |
+| **`Integration.Interface.prototype.addAnnotation`** | Absent | Absent | Present (`integration.js:781`) | Present (`integration.js:781`) | `persistentSupported(win)` checks presence; persistent toggle hidden on 7 and 8. |
+| **`AnnotationRow.prototype.render()`** | Present (hardcoded "Page X") | Present (hardcoded "Page X") | Present (hardcoded "Page X") | Present (`elements/annotationRow.js:90–95`) | `patchAnnotationRow()` wraps `proto.render` via `assignChecked` to substitute custom locator titles. |
+| **`IOManager.toggleDialogMode`** | Absent | Absent | Present (`citationDialog.js`) | Present (`citationDialog.js:1316–1340`) | `dialogOutline.ts` checks presence before awaiting mode switch to `"library"`. |
+| **`IOManager.addItemsToCitation`** | Absent | Absent | Present (`citationDialog.js`) | Present (`citationDialog.js:1391–1425`) | `dialogOutlineRender.ts` checks presence before invoking insertion for regular work items. |
 | **Color localization keys** | `general.yellow`...`general.gray` in `zotero.properties` | `general-*` in `zotero.ftl` | `general-*` in `zotero.ftl` | `general-*` in `zotero.ftl` | `colorLabel()` queries `nameKey` then `nameKey.replace("-", ".")`. |
 | **`FilePicker.init()` signature** | Passes `parentWindow` directly | Passes `parentWindow.browsingContext` | Passes `parentWindow.browsingContext` | Passes `parentWindow.browsingContext` | Code uses Zotero's `modules/filePicker.mjs` wrapper unchanged; difference stays internal to Zotero. |
 | **EPUB packaging helper** | `EPUB.jsm` | `EPUB.mjs` | `EPUB.mjs` | `EPUB.mjs` | Import anchor documents the transition from JSM to ES modules. |
 | **Note editor saving (`_save`)** | Line 933 (`setNote` line 954) | Line 1071 (`setNote` line 1092) | Line 1071 (`setNote` line 1092) | Line 1149 (`setNote` line 1177) | Anchor log documents exact line drift; `skipSelect` prevents selection side effects. |
+
+---
 
 ## Test versions: `.zotero-versions/` and `npm run test:versions`
 
@@ -331,9 +480,12 @@ The repository has verified versions: `7.0.32`, `8.0.4`, `9.0.6`, alongside the 
 4. **Exit status:** The runner prints a structured summary table (`version / passed / failed / pending / exit`) and exits with status code `1` if any version fails or yields an incomplete run.
 5. **README matrix derivation:** The compatibility matrix published in `README.md` is **derived strictly from automated `npm run test:versions` runs**, never from subjective recall ([AGENTS.md](../../AGENTS.md)). Whenever a fallback is altered or a new version is validated, the matrix is refreshed from fresh test execution.
 
+---
+
 ## Related pages
 
 - [Prototype patching](../architecture/patching.md) — The `assignChecked` contract, expando swallow defenses, and restoration lifecycle.
+- [Feature lifecycle](../architecture/feature-lifecycle.md) — Window hooks, dialog injectors, and feature activation sequence.
 - [External integrations](external-api.md) — The complementary integration boundary for external HTTP endpoints and reader bridging.
 - [Testing strategy](../testing/strategy.md) — The comprehensive testing pyramid, isolation policies, and test scaffolds.
 - [Testing commands & runners](../testing/commands-and-runners.md) — Detailed execution flags, environment variables, and profiling for `test:zotero` and `test:versions`.

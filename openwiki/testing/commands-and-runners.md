@@ -5,7 +5,7 @@ description: Test execution commands, runner scripts in scripts/, profile isolat
 tags: [testing, npm-scripts, mocha, node-test, zotero-plugin-scaffold, version-matrix, screenshots, ci, powershell]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-16T19:49:13.348Z
+    at: 2026-10-17T22:13:14.642Z
 sources:
   - id: openwiki-source-164e2da859b5277df81c7d94
     resource: repo://.github/workflows/ci.yml

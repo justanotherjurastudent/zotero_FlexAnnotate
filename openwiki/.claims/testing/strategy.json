@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:86eab330f7e59fb8d3eb7b51b213874a22249fc2796bf371ad5a03a40952dd89",
+  "pageVersion": "sha256:3c8fe67aaf452aba66f245bb7e2666ef0cb5c92c90b41b6c1e96eacd5f79e7ef",
   "claims": [
     {
       "id": "claim_25cf829cc2a6468da084fd96ee2a2f55",
@@ -39,8 +39,8 @@
       "statement": "Zotero integration tests reach feature modules only through addon.api — resolved as `(Zotero as any)[config.addonInstance].api` and assembled in onStartup (src/hooks.ts) with one sub-object per feature area — never via direct module imports, because plugin modules depend on the global ztoolkit that only exists through the running plugin.",
       "evidence": [
         {
-          "resource": "repo://src/hooks.ts#L113-L168",
-          "version": "repo-lines-v1:sha256:eb2685472633325e368ac39dc1eaa667747cc2d927be27c889f7f88ad37842bd:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwN2JkOWMwNGMxYTM4NGRhMTUyZWEzMTllY2ZmZmNhYjhiZjk1MzMyNDc2ZjkzNTg3MTFhZjg2MGVlY2NhZTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1YTAwMDRiNzEzMjJkYzAyYTczODI5ZjFkZTUzYmQxMTU3NGFmNTI1NDc4MmQwMGQ2YWQyZjIzOWI1NWIyMzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3NzQ2NTQ2NjYwMThkNTg2Njk3NjI0MzhlMmJkZTAyMGIyODk3NjIxMmZiNWJhNTU3MDEyMmMwMzM5N2RiN2EifQ"
+          "resource": "repo://src/hooks.ts#L141-L190",
+          "version": "repo-lines-v1:sha256:a4dbb9da38276aca4c0621955cd700d31c078fc85abccc567bf327acf9546614:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3ZGY3ZTFlYzcyOGUwZjU3YTY4NjA3ZmUwMjIyMDhjYjFlMzkxYzNjY2Q5NWMwNWFkY2ZiZmVmOTNmNjE5NWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1NDA1MjYxZTVkN2Y5MjQ4YzUzNTU4NWU1NDg5ZWMzZGNkNGY1MWYwNDYxNmRmNDBiZmMxNjcwZmFmODAyYjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3NzQ2NTQ2NjYwMThkNTg2Njk3NjI0MzhlMmJkZTAyMGIyODk3NjIxMmZiNWJhNTU3MDEyMmMwMzM5N2RiN2EifQ"
         },
         {
           "resource": "repo://test/citeOnly.test.ts#L10-L17",
@@ -199,7 +199,7 @@
       "statement": "The scaffold gates the test run on `Zotero.FlexAnnotate.data.initialized`, which src/hooks.ts sets at the end of onStartup; test/startup.test.ts asserts the plugin instance exists at all.",
       "evidence": [
         {
-          "resource": "repo://src/hooks.ts#L180-L187",
+          "resource": "repo://src/hooks.ts#L202-L209",
           "version": "repo-lines-v1:sha256:25f6aa73630a73f88eee23d99172c8852113996ce59a32868af8219bf746704a:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjk0ODQxYzdkZTU0MWEzMTM3NmRhZjFhZTQ1N2QxOTc0MDljYjVmZjUyYWM5Yjc5ZmM2MTY0MDNhOTEzZjg2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGZlZWJhMjlkZDk4ODhjNzEwMmJhN2E5MmNiOWY2Y2UwZjMyMWY4ZGNkMWVkMGIyOTY5MWE5ZTkyNTJkYjYxOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWRhZDY4OTI3NDJlOWU4OTg5NmM5ZWFiM2ZkNzhmZDZmMTJjMjQxNjA3MDRkYjE1YWMwZDA3ZGVjNjQyZDZlNyJ9"
         },
         {
@@ -267,10 +267,50 @@
           "version": "repo-lines-v1:sha256:7493395c2bf6e3aebc9ec6ef21adc1345c9c0df9d76afdcc63c69388d1a2a47c:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzQ5MzM5NWMyYmY2ZTNhZWJjOWVjNmVmMjFhZGMxMzQ1YzljMGRmOWQ3NmFmZGNjNjNjNjkzODhkMWEyYTQ3YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzQ5MzM5NWMyYmY2ZTNhZWJjOWVjNmVmMjFhZGMxMzQ1YzljMGRmOWQ3NmFmZGNjNjNjNjkzODhkMWEyYTQ3YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTczNzQyOWI5OWZkYWIzZmJjOTcxNjVhM2UxYTMxY2Y0MGI0YWQ3OWM0ZjFlYjc0NmQ1YWIwNWU5NDA1YjMzMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTUwM2QyNTk4YTNjZGYxMGYwY2Y5Yjc4NGFmNmYzMDc0YzU0M2RmMWMwNTM0ZTc5ODRjODdkMzBiOWI2N2ViYiJ9"
         }
       ]
+    },
+    {
+      "id": "claim_e530521af7f748a88b6e54449afde120",
+      "statement": "Node unit tests in test-unit/ cover pure view and locator formatting logic without Zotero globals: dialogView.test.ts pins section grouping for annotations and works (buildDialogSections, buildWorkDialogSections), tag merging (effectiveTags), and hierarchical heading counts (nodeCounts), while readerLocator.test.ts pins locator tag parsing (explicitLocatorFromTags), localized label fallback (locatorLabelText), and title string formatting (formatAnnotationTitle).",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/logic/dialogView.ts#L22-L87",
+          "version": "repo-lines-v1:sha256:5ca8e81afeb269ab8a3dcf2c8ba9f1eb97773143a39539654dd8ff867d10b5e5:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlZDg2MmJhOGEwYWI3YThkMWQ1MDNmYWE1NzQ1YTUxZWMzMWY4ODA3NjU2Nzg5ZjY5NzJiMDE2OGJiMzJlMGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ4YTc5MGViM2ZiNTJhY2RmMGUyMzAyNjkzYmE1YzVlOWU0MDhjNGI3NDFkYjM2Y2E1NDk4OTY0NzYxYjE1YjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/features/reader/logic/readerLocator.ts#L18-L64",
+          "version": "repo-lines-v1:sha256:8928ef363c5f15c0887156c68eaa4581229c3fa4745b225178a57b248bf8ed2e:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2ZGMyYWMxODYxMmUzMGVhN2E3YWYyYmYwMTYxZGU4MzYxY2NlNGU1NzA2ZDAxY2JkZjgwYWFkYmJkNWIyNWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZmM2MwYzQ5MzUxNzgyMjI3MGRiZWViNzFkODhkZWJmZmJiYWZhYjAwNzM4MWIwMGI1YmFlYWI3OGVhZGM5M2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://test-unit/dialogView.test.ts#L25-L100",
+          "version": "repo-lines-v1:sha256:9e3e1b8790d134224c662f808e332738e9b7ce3de9c00e888872b9213c511942:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkODhlMDA1NjRmZjk0MWRjMGEyZDIzOTY5ZTA0YTFmNWJhNzI0YTlmMzVmZDI0YTY3M2JjODk3NzQwNmZjNTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4YmJkMTMzNWM1ZWZmNmE5M2M5ZmRjNzJkNTcxMzI1ZjcxZjFlMThiNzI0YTk3NTAzOWEzNTg2M2RhMTBiMjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYwOTUzMTg5N2EwNjk2MDVlZGZjNDBiNTM1NjlmNDQ1MWUzMDYyNGU4M2Y5NDIyMjY5ZTNjOGY0NDQwNjYwNGMifQ"
+        },
+        {
+          "resource": "repo://test-unit/readerLocator.test.ts#L12-L91",
+          "version": "repo-lines-v1:sha256:149aa93a0c33283b907e5d09402d5120c9be2a25318a338875018f1acd286132:eyJzZWxlY3RlZExpbmVDb3VudCI6ODAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2N2MxMDdhYTI3NTQ3NjI2NjZiNjlhNDEwOWFmMTgzOTUxMWY3NGE1ODY2OTExNTk0NjJhNzllNGE5OTEyZmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE1Y2IxOWRjYmRjMjliNTBhMTNlZTc2NjRiMGIyM2EzMjU5YjBmOTNhZjExZjI0Njc0YTU1NDYwODVjMzMwOGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4a67fdfe88f1404d977708436c1c9df7",
+      "statement": "In the Mocha integration tier, test/annotationRowPatch.test.ts verifies the live annotationRowPatch inside a real Zotero window, asserting that setting row.annotation on an <annotation-row> element for an annotation with an explicit locator tag (such as #flexannotate-locator-opus) dynamically updates row._title.textContent to include the resolved locator label and locator number, while default page locators preserve standard page labeling.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/print/annotationRowPatch.ts#L27-L60",
+          "version": "repo-lines-v1:sha256:ed7e341fbe402d5a8ace4aa89a7b4e1b4cd81d5629d476ee1686ff46bc164453:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmNWIyNzY5YjRkNTk1OTJiNzU1MDA4NDE5Yjk3MGYxYTZlMzNhNmZjODNhODMzYjBiYTYwNjIzNTljYTRlZGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNiN2Q0YWU4OTg1NmQzMmE3MDgzMGIwMTE1MTI4YTUxYzQ1NWRiYWEwOWUzMjkwN2I4ZmZiZjE1ZGU5MTUwNWMifQ"
+        },
+        {
+          "resource": "repo://src/hooks.ts#L120-L128",
+          "version": "repo-lines-v1:sha256:1cc845124c7ad611ac81197ef6ac8c4577b5425434f5fe73f11908ee804eef8d:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjExMWYyMzlhYzY1YzlmZWNkNGY3OTc1ZDRlZTBjNjc3YjU4YThlYTY3ODUyZWEyNWQyNzkyMzkyNTE4ZDJmOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTc2ZTVjY2M1M2NiZTg4M2RkNjYxYTA4YjMwYzMxODJjMTNkMTk0ZWRkMjY4NTIyYTI5NzVjNDMyMjZiYWMwNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTViNjNlOTAwMWZlYmVhZjJkODEwM2FjMjhkODhkNmUyYzkzNjY2NjU4YTY2NDQ1YTAxNTY3YzI3YzU3OTRmMiJ9"
+        },
+        {
+          "resource": "repo://test/annotationRowPatch.test.ts#L30-L58",
+          "version": "repo-lines-v1:sha256:f9af3c29055232c992e556e2ae382f595309f5bfb1e8e7be851a096d0031b6f2:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4NmM1NzU2ODFhYTQ0MzYwM2Q2MmQ4NDQ3ZDFiNDczNzQ2ZDE0MTEyMzczOTQzYjhkYTkwMGU4NTg0YzBhOGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNkZDI3YmYwMDk3YjhjMWE3MDk3ZDA4YzM1Yzg3ZGZiMjhjZTIxZDQwYjEyOGE5NDc4NzE1ZTc2MWI2OTEyMmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-16T19:49:13.348Z"
+    "at": "2026-10-17T22:13:14.642Z"
   }
 }

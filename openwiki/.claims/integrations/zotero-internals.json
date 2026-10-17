@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:a0251cc8f919e6892a66a78405cb6cdaef99b7fdd04faee88b07dc2309734bab",
+  "pageVersion": "sha256:c5fd3e999e332757bbb6f65efd7d154592235cc4e4a51e9040bb6c47c282ca33",
   "claims": [
     {
       "id": "claim_84e857fd36864709ac38a03761565cab",
@@ -154,15 +154,15 @@
     },
     {
       "id": "claim_2e8f55c2d5254861adf8d24850343d69",
-      "statement": "The keep-citation-window-open feature requires Zotero's Integration.Interface.prototype.addAnnotation command (present in 9 and 10, absent in 7 and 8): persistentSupported() checks exactly that function, the outline view hides the persistent toggles when it returns false, and the whole feature is deliberately absent on 7.x/8.x instead of failing.",
+      "statement": "The keep-citation-window-open feature requires Zotero's Integration.Interface.prototype.addAnnotation command (present in 9 and 10, absent in 7 and 8): persistentSupported(win) checks for that function and platform/agent support, the outline view hides the persistent toggles when it returns false, and the feature is deliberately absent on 7.x/8.x instead of failing.",
       "evidence": [
         {
-          "resource": "repo://src/features/organizer/dialog/dialogOutline.ts#L207-L208",
-          "version": "repo-lines-v1:sha256:6d98d2624320705a73ad3d6580c621946551c5ea5a0b11db49e01868e7f68a17:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmUzZDUyNzY4NWZlYWZhNzNjZGZlNjYzMDQxZGNiNDAwMTBhYmMxMjRmOWRkZTY1NTk3ZjBlNjhiNTZmNzc0ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQ1YTMxY2ZjN2ExZDc5YTUyNDFhMDgzOWMwZWQwODAyZjg1YjUzMDdhYmE5MzM5NmM3ZjNkNDI4ZDMwNzA4NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGE5OWU4N2YzNzdmMjE1ZGQ0ZDJiZWIyOTAyNDYzNzI5MTE2ODIxNTI0ZjM0ZTRjN2MzODg1ZDZjNTc5NzIxOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjY5OWFkZDUwZGVmYzIwNzg4YjQ1YmYwZWMxZDY1ZTc5MjY5ODYxNDczMjAwYzI3ZGVkNzE2MzE2ODViOTdlYyJ9"
+          "resource": "repo://src/features/organizer/dialog/dialogOutline.ts#L190-L215",
+          "version": "repo-lines-v1:sha256:8141151b31084f544105bab331f4f216ac623789b65932060b326ea73e0fb679:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhmMDdjODZjYjBlMGY4NmI3NDVjNDJmNzdkNDYwZmIxM2UwNmI4MDU1ZWRhNTE5MjA0MTZkNTkzM2ExM2EwNDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1ZTdjYzYwOWQ3ODA4MWY0YmMzY2VmMWI1M2M5OGExNDA4MmE1MzRjYjgzNjA1ZmNkOTQ1ZWIwMjM3ZDdkNDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg0MzFkZWEzNjIzMWMzOThiNTgwMzQ4ZTY0NGJkN2FkYjljZWE4YzM1YWU4M2Y2NTQwOWQ3YzdkMmRhYmRlODEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE2ZDk2ZmYxYjFlZjA1MmU2OGFiMjQ4ZWFjYjIwZjZlMjcwZDA1NjUzMTI4NWQ3YmJkMjY4YmQ4ZGYyZGY5ZjQifQ"
         },
         {
-          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L119-L125",
-          "version": "repo-lines-v1:sha256:ca59e72a24d2f5cdc2c8c41296cc18da6e743f0a74e196f0c80096fa3de81f6f:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWNlZTNhY2EwODA2NzgwZTcxOGJmYmE3YTA4Yjc3NmFmM2ZmOGZhMDhkMGFmNmNkYWQ3NzQyNmJmZTRlY2IxNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzRkYTM3YTU5NWYyOWZlYzk2OGZiZjc0ODM5OWI2ZmM3MWQ4YjdjMzgxM2Q4OWVlODliN2Y0YTk2M2M2N2UxMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWFjMjA3ZjNhMmQ1NTlmODcxYWUwNmFmZGVkZjc0OTRiMGM2ZmU3OWNkNGVhMzY5ODRkM2U5ZDU1ODU2N2MyZCJ9"
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L126-L144",
+          "version": "repo-lines-v1:sha256:9b8faa9ff080a51b1b7db3b17b8383a3a3f7baab01eb1877daf51d31bf40131c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwM2UzZDEwODdjYTliYmQxODM0ZDg3OTFhYjY2MjhkNTFkZDU1YjY3YzYxMWMzNWU3YTFmODlhYTIxNDQyZDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMwZTc5NTdiYzg0NzQyZGI3ZmJlMzA3ZWZjYjY1MDYwMWY0M2I3MGQ5MzRkYjVkNjBmNmRlYTZjYzU1ZjUwNzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVhYzIwN2YzYTJkNTU5Zjg3MWFlMDZhZmRlZGY3NDk0YjBjNmZlNzljZDRlYTM2OTg0ZDNlOWQ1NTg1NjdjMmQifQ"
         }
       ]
     },
@@ -295,10 +295,52 @@
           "version": "repo-lines-v1:sha256:5540e5ab566582d7b6eec766b9165ffaf77ee2395f81111c15ed2cabd06bf0da:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTU0MGU1YWI1NjY1ODJkN2I2ZWVjNzY2YjkxNjVmZmFmNzdlZTIzOTVmODExMTFjMTVlZDJjYWJkMDZiZjBkYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTU0MGU1YWI1NjY1ODJkN2I2ZWVjNzY2YjkxNjVmZmFmNzdlZTIzOTVmODExMTFjMTVlZDJjYWJkMDZiZjBkYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjU0NDUxOGE2YTY5MDU0MDM2NWQxOTdhMDIwMmQ2ZGVlMzY1Nzc5MTAwZGNjNzhkODIyMjE2MDA1NjVmMmFlNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWIxYmM1YmM0YTIzN2Y1NzhlNmFmNGE0MTVkMDY0N2Y5OTEwYjAzYjM2NGUxZTI3YzFmMWRiYWE3NDNkMDNiYSJ9"
         }
       ]
+    },
+    {
+      "id": "claim_97934f00ce674b72a7099f7fbab0b636",
+      "statement": "AnnotationRow.prototype.render() (elements/annotationRow.js lines 90–95 in 10.0.5) hardcodes the row title to \"pdfReader.page + ' ' + pageLabel\"; patchAnnotationRow() in src/features/print/annotationRowPatch.ts wraps proto.render via assignChecked() to apply FlexAnnotate's custom locator label (e.g. margin number or opus) and updates existing annotation-row elements, with unpatchAnnotationRow() restoring the native render.",
+      "evidence": [
+        {
+          "resource": "repo://docs/anchors.md#L87-L87",
+          "version": "repo-lines-v1:sha256:763a4f4fbd1245f6d1d4c6b904bf9b96a1fa21bd37a5a51d9057d4432272e9d3:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzYzYTRmNGZiZDEyNDVmNmQxZDRjNmI5MDRiZjliOTZhMWZhMjFiZDM3YTVhNTFkOTA1N2Q0NDMyMjcyZTlkMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzYzYTRmNGZiZDEyNDVmNmQxZDRjNmI5MDRiZjliOTZhMWZhMjFiZDM3YTVhNTFkOTA1N2Q0NDMyMjcyZTlkMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2E3YmNmZjczZWE0OTAzMDBiZjkxNGY2NWVkMDYyMjQwZmNkNzVjZjJkNjgyOWYwMDY5MjE3OGRlM2IyMTcxOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDNmMjFmYWU3YzAwNGE0NTQzM2YzNzA5YzM2ZjA5ZTk1YzRmYjFlYTFhMDJmNjI2N2QwNTE0YjEzNzhkZjJmMyJ9"
+        },
+        {
+          "resource": "repo://src/features/print/annotationRowPatch.ts#L62-L137",
+          "version": "repo-lines-v1:sha256:596f95fb78337640e56c4a99f83543e02c9b3dafae3734ebb7282d2dbad87f24:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjNTJlMjM2NjY4NWNjODQ5MDg4MjE2ZTU1N2VkNmM3ZjhhZDQwMDUxMjhjNGNmMDdmMWI4Yjg1MTNiY2VjNzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5ZDIwMThmMzk2ZmE2ZGE2MDMzODU4YzE0ZjE5OWU2OTA0MzBhODYzNDk4MTU0ZmViMWYzYzdhNzhiMzNiMTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9285e3e6cfa94867a2d5e34e9de7324d",
+      "statement": "IOManager.toggleDialogMode(newMode) (integration/citationDialog.js lines 1316–1340 in 10.0.6) toggles the citation dialog between list mode and classic library tree mode; when enabling the outline view in dialogOutline.ts, if the dialog opened in list mode (currentLayout?.type === \"list\"), the plugin awaits IOManager.toggleDialogMode(\"library\") to ensure the library tree is active for outline navigation.",
+      "evidence": [
+        {
+          "resource": "repo://docs/anchors.md#L88-L88",
+          "version": "repo-lines-v1:sha256:30f03b8b706dfd1e79188be364c36e320f547eb6e642569c4c97650c90e444c5:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBmMDNiOGI3MDZkZmQxZTc5MTg4YmUzNjRjMzZlMzIwZjU0N2ViNmU2NDI1NjljNGM5NzY1MGM5MGU0NDRjNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBmMDNiOGI3MDZkZmQxZTc5MTg4YmUzNjRjMzZlMzIwZjU0N2ViNmU2NDI1NjljNGM5NzY1MGM5MGU0NDRjNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTc3YThjZmIzZmMwMDZkZTcyMGVkZTY4ZWFmMTk3NDA5MDJkYTU5OTQzNDRkOTM0YTRiOGE1MDBjOGM4NWMyOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzlkMzAxYThhN2Q1ODcyMDA4Y2RmMGI0YTE4MGRjZmYwYjgwYWZhMmYwZDdjZGFlMmJhNTBjN2EwYjc0OTVlNSJ9"
+        },
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogOutline.ts#L348-L351",
+          "version": "repo-lines-v1:sha256:97c745fb718834a70d0b24f17eb52e5adf92d0c850f897fce16e61f889aaf166:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2JlMmMxMGRkODcyM2EzYzJlZGExNTkzY2JjOTQ1ZGU1OGM3N2YyZWE4MzA5ODVkYmVhZjc4OWJmMjI5M2M5ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzdjYTM1ZGYwOWExYWRjMzMyMjhkYjAyYTBkZTViZjg1Y2IwZWNmM2JjM2Y5MzFlMjIwZjE4NjI3ZWZkOTk2NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGY0ZTI2MzllOGQ0OTQ4YzA0N2QwYjI2ZDAwYTk2MTM0MTIwYWE4YjU1MjNmZGIwN2IxY2M5OTQwMTljOTI4NyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_fd3089c66ff04121a898ceff77b31ea3",
+      "statement": "IOManager.addItemsToCitation(items, options) (integration/citationDialog.js lines 1391–1425 in 10.0.6) inserts regular bibliography items into the Word citation; dialogOutlineRender.ts checks for dialog-type === \"citation\" and invokes IOManager.addItemsToCitation(works) for selected work items, contrasting with annotation mode where items are inserted by generating annotation-row elements with action=\"plus\".",
+      "evidence": [
+        {
+          "resource": "repo://docs/anchors.md#L89-L89",
+          "version": "repo-lines-v1:sha256:c7b4a62ef9c3b91f9df33a55dfb7b4fc8240d74aa99099b6f101518abbccc24f:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzdiNGE2MmVmOWMzYjkxZjlkZjMzYTU1ZGZiN2I0ZmM4MjQwZDc0YWE5OTA5OWI2ZjEwMTUxOGFiYmNjYzI0ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzdiNGE2MmVmOWMzYjkxZjlkZjMzYTU1ZGZiN2I0ZmM4MjQwZDc0YWE5OTA5OWI2ZjEwMTUxOGFiYmNjYzI0ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmE1ODNiMzIyMzMzOWRjZGJjMmUxOThhMTc2YjM4NGU2ZjVhNDg4ODExMzFiN2E3YTVkNzU0M2FiOTY0ODFkMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjIsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYmMyYTExZDBiMmFmNzU5ZmYxOTI3MTJiZWE2NmY0YTI2N2RjOTgxYmI2MzFmMjA2MGI5ZmJmMGEyOTAzMjRhNyJ9"
+        },
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogOutlineRender.ts#L421-L437",
+          "version": "repo-lines-v1:sha256:09d18437ec295c42870f857a87f58818bf6704471cf93d8604e62055f1f9c5b0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4NDcyMWMyMWI4ZTdkZTllNjQzOWMxYWJiMjMxMGEzYzBhZTNkNGFkN2M3ZjI4Nzg3ZDJkYjE4NTU1NjQyMGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5MDVhNmY4YTVjMThiMTVmYjBiNjMwNjM3MzIwYzU5ODdkM2ZmNmU0MmVmM2U1YWY5OTVmNTUyZDBkYzJjM2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFjZGQwZGVkODdlNTAzMDliY2MxOWY0ZWFmZTZhNzc4Mjg4NGM4MDQ4ZGE4MDM1NmViODNiMWVkNDA2NmRkNDcifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-16T19:49:13.348Z"
+    "at": "2026-10-17T22:13:14.642Z"
   }
 }

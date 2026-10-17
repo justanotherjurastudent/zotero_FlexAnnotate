@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:327fa4098e2df35418588e8a825b815205abb7d40bd92f6d03c3598fc5abedd7",
+  "pageVersion": "sha256:eccc4dea5d37fea00e5bba8ffca33d63068c21c21e1aa86fe7fe831d0933b1d9",
   "claims": [
     {
       "id": "claim_d13084602dbf40bf8f5758f33ffb6c6e",
@@ -75,8 +75,8 @@
           "version": "repo-lines-v1:sha256:c7a0233a99e3ae492dc7f27af0838dc0c9898e6f2da10d51f51c0fb42beb664e:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzdhMDIzM2E5OWUzYWU0OTJkYzdmMjdhZjA4MzhkYzBjOTg5OGU2ZjJkYTEwZDUxZjUxYzBmYjQyYmViNjY0ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzdhMDIzM2E5OWUzYWU0OTJkYzdmMjdhZjA4MzhkYzBjOTg5OGU2ZjJkYTEwZDUxZjUxYzBmYjQyYmViNjY0ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWFhM2ZlN2UxYzZkMWZhZDZkMzZhNGRmODA0YTQ3NDVlOGVjNWNhYTVkYzRjYWM2NmExYWNkMzdhYjBlNTUzZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDBlMGY1YjFiOTE3MzE4MzI3MDZjYWE4OWNmMTZmZjc1NjUwNDFhYTNlNjgzM2ZkYWZhNjUyNzQyOTc5MThlNyJ9"
         },
         {
-          "resource": "repo://src/hooks.ts#L122-L168",
-          "version": "repo-lines-v1:sha256:b8279a01d5833477320b7569ca8c0b2dd2f4adf322a981b0c9ca3e0cf094b4ec:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwMTgzNjQ4NGQ4MmQ1NmM5Yzc0MjExMDkzNDlhY2UyOTg4MDUwNmQyYjI3N2I0NjFmM2ZlYTgxYWE3ZTFiN2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiZWU0NTk1NDhlNDBjMTZiZmMwYTZjMjgzMDhiNmY1MzI0ZWE3NWI0ZmM5ZjRlZDQ1OTk5OTE2NTA0MTllODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3NzQ2NTQ2NjYwMThkNTg2Njk3NjI0MzhlMmJkZTAyMGIyODk3NjIxMmZiNWJhNTU3MDEyMmMwMzM5N2RiN2EifQ"
+          "resource": "repo://src/hooks.ts#L141-L190",
+          "version": "repo-lines-v1:sha256:a4dbb9da38276aca4c0621955cd700d31c078fc85abccc567bf327acf9546614:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3ZGY3ZTFlYzcyOGUwZjU3YTY4NjA3ZmUwMjIyMDhjYjFlMzkxYzNjY2Q5NWMwNWFkY2ZiZmVmOTNmNjE5NWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1NDA1MjYxZTVkN2Y5MjQ4YzUzNTU4NWU1NDg5ZWMzZGNkNGY1MWYwNDYxNmRmNDBiZmMxNjcwZmFmODAyYjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3NzQ2NTQ2NjYwMThkNTg2Njk3NjI0MzhlMmJkZTAyMGIyODk3NjIxMmZiNWJhNTU3MDEyMmMwMzM5N2RiN2EifQ"
         }
       ]
     },
@@ -111,10 +111,56 @@
           "version": "repo-lines-v1:sha256:78c316db5a4bbfba8fb56934f90c6acb2e8314fb82e0f994bdcd40c78ff06af0:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzhjMzE2ZGI1YTRiYmZiYThmYjU2OTM0ZjkwYzZhY2IyZTgzMTRmYjgyZTBmOTk0YmRjZDQwYzc4ZmYwNmFmMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzhjMzE2ZGI1YTRiYmZiYThmYjU2OTM0ZjkwYzZhY2IyZTgzMTRmYjgyZTBmOTk0YmRjZDQwYzc4ZmYwNmFmMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjIsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGRmYjBlYWY0MmNiMTNmOTg3YmRiMTM1OWNhMzQ5ODI2Yzc5YzNhN2JhODdiZDU5NWNkYzkyZWI4NDcyNzk5YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2VkNzk0ZTVjMzM0ODllODU2MDM5Y2JiMzU5NGVjNjM1MzE3Mzc3ODhhZWFmYzdmYjVhMTMxZTQ1YTU2YjhkNCJ9"
         }
       ]
+    },
+    {
+      "id": "claim_0e51d431d49845fdbde1386cb0f3eb52",
+      "statement": "The persistent citation dialog workflow replaces Zotero's single-shot citation dialog by reopening an unmanaged companion browse window after insertion, queuing subsequent item choices via a synthetic interface.",
+      "evidence": [
+        {
+          "resource": "repo://docs/architecture.md#L129-L134",
+          "version": "repo-lines-v1:sha256:b578e04d3d8a024905bda5190e567fc84433905e4901e9d1b842d4340d8d0292:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjNhMDViN2Q2Y2I3ODZmMTA3NWI2Yzc0NjJhN2E5ODJiOWUzNTdmMzlhMTU4NDJkOWNhM2ZiOTFhOTkyMDlmYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjZjZDkxMGYyZjU1ZWE1NmQ4YzlmMDJjOTE2ZDY5OTA3MWRhNmI2N2Q0OTY1YzQ2YTBiZWJjNGRmNzEwYzYxOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzk4NTc1MzlmYWZjZGJhMDI1NTRjNzM1YjQzYTI0Njg1ZGM1ZjI4ZjE3MTNmN2RmYTg5MTRlMTI5MGFkMTAyNiJ9"
+        },
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L8-L29",
+          "version": "repo-lines-v1:sha256:a11af75fb6509970e83a34c95bf04200d16d3bf98639f1110220171609b169ec:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0ZDkwNTVmZDRlZmJmMDY4YjZiYTVhZmVlYTQxNGY2ZDRkMDQxMTlkNDExOWUxY2NlOWM0NDc2NGI3NzUyYmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhNWI4OTgxZWFiNDI3ZTNhNWYzNmQyMGE1MzFmZWZiMjhkNWE3ODdhY2FkNDM5Njc4OTZiNjIzY2M2OTVjZDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc1MzA0ZTEyMzI4NDRlMmUxY2UyMWQ5ZTAwZTAzYzI0YTE2NGE2MzQxZWE3MDMxMTE5NmM1MmVhY2Q0YTNlNDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzOGRjYzNkYWViODE2YmQ3YTZhZmUwNmQ1MGU5MzAyNWMyYmFkZmZiY2FkZmNjMGNjNjEzOTkwNTdmM2JiNjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8d42f8fa49dc45519ec6c783b37fe46f",
+      "statement": "The citation dialog outline view supports grouping items by outline heading for both individual annotations and top-level parent works, optionally attributing parent heading tags to child annotations.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogOutline.ts#L520-L551",
+          "version": "repo-lines-v1:sha256:30b3e4c00158568cfa4d8a2008ebf31bf2d72a93d4ca048701d05c234fc7d825:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3ZmNmMDYxYTJhZWY5NDRlOWZjZGFjYjhhNDdiOWU4MmFjOGJlY2EwZmRiZWY3N2UwZTY2OWZkZTMwNTA0ZTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU3NzY1NjY5N2EzODNhMzc4Yzk0YmYyZTExOTgyNDdlZWExMGRhOWZlZDVmMDQ5NGNjMDgyMDUxYmQxOGE5ZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhOTg0NzBmZjM5MGYzNjA2MzZhZjE2ZDVmMTA4MWMwZjZlNWYxMWU2YjNmZmNkYWQ1YmMzZTVhZDMwYzI5OTcifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/logic/dialogView.ts#L22-L64",
+          "version": "repo-lines-v1:sha256:1c53ca5890225b46b7cc8fc69b32d22d11b1382c7a379caca8452719161e0549:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlZDg2MmJhOGEwYWI3YThkMWQ1MDNmYWE1NzQ1YTUxZWMzMWY4ODA3NjU2Nzg5ZjY5NzJiMDE2OGJiMzJlMGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ4YTc5MGViM2ZiNTJhY2RmMGUyMzAyNjkzYmE1YzVlOWU0MDhjNGI3NDFkYjM2Y2E1NDk4OTY0NzYxYjE1YjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU5MTQ0MzgwN2JmMTc5ZjE5YjlhNWMzMzYxMmI2ZTVhOWJlYjNhNmM1OGFhNGMwZGFjN2Y4N2M2MjZhYjNiZTMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d9bf33c433f441c4a20c96dd8ace0e25",
+      "statement": "FlexAnnotate patches the `annotation-row` custom element `render` prototype via `assignChecked` in main windows and citation dialogs to replace hardcoded page labels with custom locator types.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/print/annotationRowPatch.ts#L27-L60",
+          "version": "repo-lines-v1:sha256:ed7e341fbe402d5a8ace4aa89a7b4e1b4cd81d5629d476ee1686ff46bc164453:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmNWIyNzY5YjRkNTk1OTJiNzU1MDA4NDE5Yjk3MGYxYTZlMzNhNmZjODNhODMzYjBiYTYwNjIzNTljYTRlZGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNiN2Q0YWU4OTg1NmQzMmE3MDgzMGIwMTE1MTI4YTUxYzQ1NWRiYWEwOWUzMjkwN2I4ZmZiZjE1ZGU5MTUwNWMifQ"
+        },
+        {
+          "resource": "repo://src/features/print/annotationRowPatch.ts#L62-L98",
+          "version": "repo-lines-v1:sha256:dd852835da35957d23daf65815d73e60e45b8e6f6aaea5fa65a43d5a99800dc6:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjNTJlMjM2NjY4NWNjODQ5MDg4MjE2ZTU1N2VkNmM3ZjhhZDQwMDUxMjhjNGNmMDdmMWI4Yjg1MTNiY2VjNzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2M2JiMWFmZTY5MmYwZTRmMGMwMGI4ZDdmNDNmYThmOWY3NDE1ZmYzMjIxOWJiYTcxMTJjZDEyZTJkY2EyNmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5ZDIwMThmMzk2ZmE2ZGE2MDMzODU4YzE0ZjE5OWU2OTA0MzBhODYzNDk4MTU0ZmViMWYzYzdhNzhiMzNiMTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE1YWFlZDVlZjUzZDhhZDJhNTZiZjU4ZjhjYzg3ZjE3ZGQxZDE4Y2FiOTI1MWEyNDJmOGRmMTI1MzI2ZTA2MTYifQ"
+        },
+        {
+          "resource": "repo://src/hooks.ts#L73-L77",
+          "version": "repo-lines-v1:sha256:9af93fde0d050364b0994724a3770274c2591af64b607c7058aa7d00eeffda05:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjk1OTU4NWU5NDk2Y2QwMzMyMzY4YzdkYzc2NDI3NWE5MDM0ZTFiNmRmY2VjNTZmMDJiZjA1MmM2Y2FkMzk3MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmUyZWI2ZTRiMTQzYmIwYzg0ZWNiYTU0ZTNmNGQ2ZDhjM2JmNTBjY2RkNmM1YjY3MzY0ZjhlYThlYTNmMjFmZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMThkNWQwYjZjOTYxNzUzZDJhNDMyZDhiZjBhOTZmMjZjZjM1ZTViNjg3ZGRlYTlmMDBmZmFkYWNjNmI1NTE1MSJ9"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-16T19:49:13.348Z"
+    "at": "2026-10-17T22:13:14.642Z"
   }
 }

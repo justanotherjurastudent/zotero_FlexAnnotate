@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:ae7c260d56cb57b455a02bea4c49000fd110c8a428b2a1f5d3037e52eaf5175b",
+  "pageVersion": "sha256:710cf946f2a2ebd13573cd34a9a6f6bc5ac7d92a54b18658182535e08ca7d5b7",
   "claims": [
     {
       "id": "claim_606ec3e6e5ab433ea70a2e8a1c709953",
@@ -203,7 +203,7 @@
           "version": "repo-lines-v1:sha256:48b29faf4bca2b85a275a1971d7335169be6d7fd3888aefffa2ce36289b3516a:eyJzZWxlY3RlZExpbmVDb3VudCI6NzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4ZGFlNWU3OGE5NzIzYTVjYjZmNjVjOTRjY2NhYjUxNzBhNTgyN2YwY2M1Yzg3ZDdhMTMzODdkNmQ4ZjYwZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZWVmZGQ1MTEzZDk5MDU2ZjFlMTlkZTFiN2Q1YmVkZTZlMGEzMDFmOWU4ZjdiZTRlYWQzZjhmOGRhODY2YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA2MzA5YmMzNGRkY2U1NGZmNDA4OGM3NTdkMDc4YzA0NTc4NWM0YThiZGMxZWQyYzZlNjlmZTU4NzhiM2E4ZDYifQ"
         },
         {
-          "resource": "repo://test/features.test.ts#L2494-L2510",
+          "resource": "repo://test/features.test.ts#L2756-L2772",
           "version": "repo-lines-v1:sha256:e750682a3e4a000c10c7d5887904798a245c704bb0e60ae027a888f14b432eea:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzN2Y2YTE1MTFkNGEwM2QzZGU2YmNhYzkwZGUyN2Y1OTU2YzZlMjBiYzljYWU4MDg4MmQwYTc2NWY1MzcxN2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRkMDNlZTdhMWE5ZWViMDhhMWI5MWZjZWZlM2U0OTY5N2ViOTI4MmEyMjhhNTUyMWUxMzU5NDY4NTRjOGNlYTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2ZTA4ZjBlNzQ0YmY0N2NkOWE0YjJiNmI0MjI5MzYzYjA0NTJlZDI3MmMxYzMzNzdjYmNmMThlNTBhMTRiMjcifQ"
         }
       ]
@@ -273,7 +273,7 @@
           "version": "repo-lines-v1:sha256:ab9cf26ed045b764d189ee041ca30d28ed7fd1f38c879e0b52f99fd1f4674817:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhYmRjZjcwMGExNTNjODJlYTU2MDdlZjgzM2YxMjMzOGIxODhiMjFjZWRkODI5YWNlN2JhMDBkZjA4NTcyNDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwNjFkYzJkNTRkMzI5YjVmNTBiYWJlNjRhZWI4MTFkZWNlNThjZjlhMDg1ZDUzYjI4NjQzYWQ0NGI1Y2M2NzkifQ"
         },
         {
-          "resource": "repo://src/hooks.ts#L95-L101",
+          "resource": "repo://src/hooks.ts#L104-L110",
           "version": "repo-lines-v1:sha256:b38fa621c827d7b9754327a1322494e72a5aa6a15485a5adcc8370bc98ffded3:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjExMWYyMzlhYzY1YzlmZWNkNGY3OTc1ZDRlZTBjNjc3YjU4YThlYTY3ODUyZWEyNWQyNzkyMzkyNTE4ZDJmOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDI1YjIxOWUxMDM4ZDNiNzg2NWZkMTZkMTIwNGEyNmU1NDg3NDA2ZjI0OWJiZTZjZjA4MzE1NDhlNWQ3NDQ5NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTgyYmEzYTVkOTFhMGExNGM3ZmZjNjJhMDMxOWU2YWUzYTc3MjJmYmU5YTUyMWY0MzM4MmZlMmE1MzgxZDdjNiJ9"
         }
       ]
@@ -342,7 +342,7 @@
     },
     {
       "id": "claim_35a2d636db644ae5a717a1b4b57cf07a",
-      "statement": "The citation dialog gets an injected outline view (not a patch): the outlineView injector adds a 'Nach Gliederung anordnen' toggle to the annotations sidebar (moved into the settings menu below 750 px, following dialog-type with a MutationObserver); when enabled an injected stylesheet hides Zotero's native columns and three containers show headings with counts, the chosen heading's annotations, and a preview; the view is built from the same data layer as the window and grouped by the pure buildDialogSections, which merges a work's heading tags into its annotations when the works setting is on; a collection picker remembers the last choice in the dialogOutlineCollection preference and falls back to the whole library when the collection is gone; Zotero's search bar is mirrored one-way into the outline list via handle-input; insertion runs Zotero's own '+' handler (hidden native annotation-row inside #annotations-list, plus icon clicked); the green 'already cited' check comes from the citedAnnotations store hooked into io.accept, and restoreLayout removes all injected elements when the view turns off.",
+      "statement": "The citation dialog gets an injected outline view (not a patch): the outlineView injector adds a 'Nach Gliederung anordnen' toggle to the annotations sidebar (moved into the settings menu below 750 px, following dialog-type with a MutationObserver); when enabled an injected stylesheet hides Zotero's native columns and three containers show headings with counts, the chosen heading's items, and a preview; the view supports both annotations (grouped via buildDialogSections, merging work heading tags when enabled) and works/items (grouped via buildWorkDialogSections), switching list layouts to library mode via IOManager.toggleDialogMode; a collection picker remembers the last choice in the dialogOutlineCollection preference and falls back to the whole library when the collection is gone; Zotero's search bar is mirrored one-way into the outline list via handle-input; insertion invokes IOManager.addItemsToCitation for works or triggers Zotero's native '+' handler via a hidden annotation-row for annotations; the green 'already cited' check comes from citedWorksOf and the citedAnnotations store hooked into io.accept, and restoreLayout removes all injected elements when the view turns off.",
       "evidence": [
         {
           "resource": "repo://src/features/organizer/dialog/dialogCited.ts#L59-L88",
@@ -350,19 +350,19 @@
         },
         {
           "resource": "repo://src/features/organizer/dialog/dialogOutline.ts#L1-L30",
-          "version": "repo-lines-v1:sha256:af01bd850273c3185e4c5499f3b1fa0b8aa770ec704c91084d73df46a9259521:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxYmMwZjUwODMyMmQwZjczOTFjMTk3NjdmNjRjNTQ0ZjQyMzM3ZGNhZGY2NGM2MDZlMGQwZWQyYmYzODc5ODciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNkZjU1NmZmYTFkYmU2ZTBiMmI5NzAxNjI3NTk4N2JjMTdiN2ExNzc0MDk2NTQzMjQ2YmFlZDE3ZThmMmMxNTEifQ"
+          "version": "repo-lines-v1:sha256:0e88565a412fe7b95a26a0660b84494e8179e377a60f21353e21e01e59cd2882:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI0ZDE4Mzg3MGFkYWFjZmMwNjdiMjE5OGJhZDdhZWNiMGQ4NDQ4MjYzMGUxZDc0MjhjZDBjNmZkZjE5ZDRiNzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAwYjdjZjU1OTJkNDZjZjEyZTNhNzdhMTZkYjhhN2JiYzI4MDg1NzlhZGVhYTEyYzFhMzU3NzYzZjE4NWQ2YzgifQ"
         },
         {
-          "resource": "repo://src/features/organizer/dialog/dialogOutline.ts#L303-L492",
-          "version": "repo-lines-v1:sha256:dc2bf25459a832971dd1ec8541a3158366ffa65d8844ed98e7ec51548c6fbd3b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTkwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhZmIxMzc2ODk1MzZlNTAwNTM4M2VkYTExNDYyZjliOTRhODEwZGQzMzY5OWRlNzRiODcxYjQwYjJjM2ZiN2YxIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIzYWVkNmI3NmNkZTIzNjAxOWM2MzMwNjgzYTVkMDVmY2FiOGVlYTE4OTBkNDdiZmU5ZmU4MDI1NDhmNDk4OWM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJmYWNiNzAwNTU3MjczYjAwNTU3YzBlOGY5NjMxOWFmMzUyYzFkN2UzOTUyODU1NTJlNTc1MzY5NDY4YWY1NmJhIn0"
+          "resource": "repo://src/features/organizer/dialog/dialogOutline.ts#L344-L564",
+          "version": "repo-lines-v1:sha256:d5d2231697e2c07ddbdbbfe23ad34fb68a999a873f99546af23f8a9d83bd3546:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhZmIxMzc2ODk1MzZlNTAwNTM4M2VkYTExNDYyZjliOTRhODEwZGQzMzY5OWRlNzRiODcxYjQwYjJjM2ZiN2YxIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIzYWVkNmI3NmNkZTIzNjAxOWM2MzMwNjgzYTVkMDVmY2FiOGVlYTE4OTBkNDdiZmU5ZmU4MDI1NDhmNDk4OWM4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJmYWNiNzAwNTU3MjczYjAwNTU3YzBlOGY5NjMxOWFmMzUyYzFkN2UzOTUyODU1NTJlNTc1MzY5NDY4YWY1NmJhIn0"
         },
         {
-          "resource": "repo://src/features/organizer/dialog/dialogOutlineRender.ts#L413-L442",
-          "version": "repo-lines-v1:sha256:eb3e8b08b82ca3a3de95f202d6b9e3e63cda4c19bfe777aa631f4dfa3fb3a2e9:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIxODJjNGIwNWVjNjVhOWQ3ZWE1YTJhN2Y5YjdiM2UzZGRlNzlmZDJhZmVjZGY0N2NhYWRiNDc3ZTU3NjBhMGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkzZGQ2YWFkNzc3YWZkZjI3ZjYwZWM2MmExNTY5OWE2NDBmNDI1NWNjYmMyZmYyOGQyMGZlMzdhMzQ3MDRkY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/features/organizer/dialog/dialogOutlineRender.ts#L421-L464",
+          "version": "repo-lines-v1:sha256:1defcf3a64eada96919c2b5d4f61053d243a98dbc079cf6569b8042e37a55b27:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4NDcyMWMyMWI4ZTdkZTllNjQzOWMxYWJiMjMxMGEzYzBhZTNkNGFkN2M3ZjI4Nzg3ZDJkYjE4NTU1NjQyMGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5MDVhNmY4YTVjMThiMTVmYjBiNjMwNjM3MzIwYzU5ODdkM2ZmNmU0MmVmM2U1YWY5OTVmNTUyZDBkYzJjM2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
           "resource": "repo://src/features/organizer/logic/dialogView.ts#L22-L76",
-          "version": "repo-lines-v1:sha256:dbf5aa3f97e841a11df9dfe265e1eccbf6236c9be91cd04257692d8f0d0971f1:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlZDg2MmJhOGEwYWI3YThkMWQ1MDNmYWE1NzQ1YTUxZWMzMWY4ODA3NjU2Nzg5ZjY5NzJiMDE2OGJiMzJlMGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ4YTc5MGViM2ZiNTJhY2RmMGUyMzAyNjkzYmE1YzVlOWU0MDhjNGI3NDFkYjM2Y2E1NDk4OTY0NzYxYjE1YjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "version": "repo-lines-v1:sha256:3cf0cc6b14091a59f2654ae360180a54e116c4495944dd0ceb18134033af1def:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlZDg2MmJhOGEwYWI3YThkMWQ1MDNmYWE1NzQ1YTUxZWMzMWY4ODA3NjU2Nzg5ZjY5NzJiMDE2OGJiMzJlMGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzNjIzNDgxOThiODI2ZjM5OWRlZDk3Yzk2M2UxY2Q3N2YwNWVmZTMzZTE2MjBjZmJjM2M2MWI5MGY1ZGFjNjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ4YTc5MGViM2ZiNTJhY2RmMGUyMzAyNjkzYmE1YzVlOWU0MDhjNGI3NDFkYjM2Y2E1NDk4OTY0NzYxYjE1YjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNhMTgxYjdjYTI3MjhkNDRjYjAyNTIwMGE3ODlmMGViMjRhNjY1Nzc0ZWRmNjhmYzM3YzNhMWI3YmU4NGU1MGIifQ"
         }
       ]
     },
@@ -379,7 +379,7 @@
           "version": "repo-lines-v1:sha256:671941484ce9d726ac06bb22ab8949d2f1cad0c622fe76738cbb636a76fdaf79:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc1NWRiYmU5NjcwOTI4YzQxMmM5ZmQ3ODhhZmM4YjExNjJiM2MxMTVmZWQ4MWE1MjM2YTM5NTk0NDYxNGViMGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
-          "resource": "repo://src/hooks.ts#L102-L108",
+          "resource": "repo://src/hooks.ts#L111-L117",
           "version": "repo-lines-v1:sha256:5c2834898854d35163fa0cf8c79219668e845442bdbece57489b45dc476c036f:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjExMWYyMzlhYzY1YzlmZWNkNGY3OTc1ZDRlZTBjNjc3YjU4YThlYTY3ODUyZWEyNWQyNzkyMzkyNTE4ZDJmOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmMzNzhmNWVkMzcxOWZiYzNmZjhhZmRjODYxNjU0ZmEyNDU4NWZlYWEzZmZlMzIyYzkxNzBhNDc4YzNiNjkxZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTk3NzI3YjQ4YWU5MzRjYThlZmJkM2FiMWY4Y2Q5NGMzOTM0MjlmYjM2YjU2NDg4YjhjMjc2YTczNzQ5MTliMSJ9"
         }
       ]
@@ -491,16 +491,16 @@
       "statement": "persistentDialogPatch transforms Zotero's citation dialog into a persistent companion browsing window for Word and LibreOffice: when enabled, after citation insertion the dialog reopens at the same geometry with a synthetic CitationEditInterface io, and subsequent inserts from the browsing window queue pendingInsert and re-execute addAnnotation, where patched displayDialog intercepts the command to inject the selection into the real io without opening a redundant window, while unneeded progress bars are suppressed.",
       "evidence": [
         {
-          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L153-L174",
-          "version": "repo-lines-v1:sha256:680356f40b7d9284cabe00f2a6e67f79ef2750723fd92b565ed9078e44bd4f04:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzNDNmOWExYzhhMzZiMjZiM2Y0NjAxMjY3NGEwOTVlNDAwODIyYWYzOTRlZjkwMjBlMjlhMTU4NWMxYzY4ODciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJiZTRmMWMwYWM2NDhjODM4MWY3YmM2ZDM0ODRjYTkyOWJjMTQ3MjEyNTliMzU2NzM5NzhmNjY5Yzg4YTI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdkMzJjNDg5NTg0ZTRjMDgxZmJkNDgxZTA5ODUzMDk3YzY4OTI1NTJkYTliMmQyYTMxYzcyZTM3YWRkMWY0OGQifQ"
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L172-L191",
+          "version": "repo-lines-v1:sha256:21edc0dd8d746403f5a13fd8e6a3f7939333e3fcafdb93219a166121be4a86f1:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzNDNmOWExYzhhMzZiMjZiM2Y0NjAxMjY3NGEwOTVlNDAwODIyYWYzOTRlZjkwMjBlMjlhMTU4NWMxYzY4ODciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0ZTc2ODRmY2M4NjIzNmYwNjlmOWM5ZGU0Mjg2MzE4MDRjMTNjM2QyZGUzZTZjZWYzMWY2N2ExNzhmNTliYzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJiZTRmMWMwYWM2NDhjODM4MWY3YmM2ZDM0ODRjYTkyOWJjMTQ3MjEyNTliMzU2NzM5NzhmNjY5Yzg4YTI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRmMGQxMzk5Mjg4YmY2ODVhZTgzOWJkNzhmYjhhNGMyYWVmZWRiM2U5MmVjMjRkNDQ1MjE3MGUyODFjODg1OWUifQ"
         },
         {
-          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L526-L598",
-          "version": "repo-lines-v1:sha256:525c8e9983e9ed5597e2c62ec7831ad7923453c4fe065a2c9239ea86ee5a506e:eyJzZWxlY3RlZExpbmVDb3VudCI6NzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZjMDFjYWMxMzVkNmM5Yjk5Yjk2YWQyZjEwNWI2MjczNzlmMjc2ZjM0YWIzYjFmOTc4YTNkYTc2NjA3MjhjZDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAyMmQzZjkzZjEzNTcwMmNiYzAwYTNjMzc4OWE1MmM5OWVmODZiMzYyMjczNzg1Y2QwZDAzMmZlNzM2N2Y4NDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3MzEzYTYxZjQ5ZGJlNDExMmYzNmRmMGU4YzE5MDYxODYxZTc3NzJhZTU3N2NjMDYwZGY3ZDlkYjAyNGNhNmEifQ"
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L528-L619",
+          "version": "repo-lines-v1:sha256:7dae72920c1b29203c7235df3165676666209771e2de2c115fea0c2a2b9bcdd4:eyJzZWxlY3RlZExpbmVDb3VudCI6OTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxMDM2YWJhNTE0M2I0Yzg2OTk4NDhmY2ZhOWMyYzM4YTRiYWY0ZTE3ZDAwYTcxNzYwMzAzZjQ1NGEzOTlhMmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNiOGY5ODgxY2YwMTZkZDYyNTFkYjM0YWNiZjUyNGFhMWQxMjVhNmU3N2ZjMDZlOGMzMmI3YTk2ZDg2MDlhNjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI3MGM3ZWZiNGJmNDU3MDYyNDgxYjZmMGJhMWUwMDk4MjI0NzVjNWQ5NzA3MWQ4ZWU4Y2I5MGVhMTQ2MWNmNDgifQ"
         },
         {
-          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L804-L851",
-          "version": "repo-lines-v1:sha256:37f2e6419331fcc07ec886729990e9b266b68a2887178d85a9714bda8250c235:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3ZjMwZGQzNmU4NDljZWNlNjI1YjhjMzExODQ5Yzg3Mzk3Zjg0ZWU1MjdhOGI3ZGY1ODYyOThmODI5YjBhMGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkZDgyYjliNjZlZGNkMDQ0NDUxYzY5MDRhMjJlNDk0NGRkNDhjZWFjOGUxOGQ3MWZkZGQyZjFjMzlmMmM4MzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEwODE1ZWY4MTk0MWE5NmVlMmJmNTA5YjIyZmFkZDQ1YmI0ZDE3ZjMwNTBjYTVmODFlODM3NmMwM2RkZDllNzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2ZGE3YjY3YWE0YzNhZjliYmU2MDZlMjIyYmU5YmMxZTM4ODYwMmZiMzQwNzEyZWJmNGExNDc2ZGZjYjViOWUifQ"
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L819-L855",
+          "version": "repo-lines-v1:sha256:6d19c8f24549ced178f6895ecd6f79d3887fc694d322609e296e6a7511b4239c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5OTk4Y2VmZWRhNGMwZmYzZmJjOGU5YjkyZDY1YmNjZThhNWE3MWJiN2Q4MGFmYWE1YTU5NmQ2MGUyMTE4YmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3OGExNmQzMmZlZmIwMDlkM2JkMDEyYjZhOTU4NTBiM2U4ZTUxOTA1YzlmODQ3ZGFkZTMwN2RkMjdmOWQ0MDQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIyYTJmNThhMGQ2MjEzMDJiN2RjOTYyMGEwOThmODI4OTdmOTQxMTQ1MjkyNzI1ODg1NDBmYThkZjMwOTk1Y2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhYmZlYmQ4MDBmMzJhMThmNzYzYjllZjk1YzQ1NGEwOTYxYWEyODA3MTg5MjI4ZjA2NWNlMDlhOTIzNDU2MmUifQ"
         }
       ]
     },
@@ -509,11 +509,11 @@
       "statement": "dialogPersistent and logic/persistentRect.ts manage citation dialog window bounds: relaxDialogMinWidth lowers libraryLayout.MIN_WIDTH from 1000 px to 360 px and injects CSS resetting min-width to 0 for narrow side-by-side placement; pinRect locks window geometry for 5000 ms to override Zotero's post-open resize animations before releasing for user adjustments; and bounds are debounced into persistentWindowRect, validated against screen bounds, clamped if moved to a smaller monitor, and synchronized to integration.citationDialog.windowParams.",
       "evidence": [
         {
-          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L189-L219",
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L208-L238",
           "version": "repo-lines-v1:sha256:085b417cacd62507e2cf268b14d8798b612c4d9ffc1312ed68788d23601f6bae:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY4MzliY2UyNWIwZTk5NzJhYTcwZTFhZGNkMzUxOTM2ZWJkNzg5OGE2Zjk2YzBlZGUzYTE3ZWZlZTFkZDdlMDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmMDRiNGU4NTBkODg3MmU0NGY5MWNlNmI3NjdiNGMzOTRmZjhhOGM3YmUyODMxYTRiYWY5ZDVjMDVkNWE5N2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVmOTM5OThkZmY5YTg1MWZkZDNhOThkNjI4MDFjYjkwYzY5NWM1OGE4OWYwMTNiMjc0ZTA3Njk4MDRlOTYwZjUifQ"
         },
         {
-          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L338-L433",
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L357-L452",
           "version": "repo-lines-v1:sha256:f833d24d7e9817e64f7db688f5cfa428f135a057e891f6519b610a3175861acb:eyJzZWxlY3RlZExpbmVDb3VudCI6OTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4MTEzN2ZlM2U4ZjY1YTM5MDNiMGFmNTljODQzNjNkM2JlZWE1MGYzNzU2NWRhYjQ5ZGMwM2UxMTZkMDZlMzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5NGZiZmZiZmRiZWI0ZGUwMDRjY2IzNGUwMmEzZWIyMjJjOTcxOTIwYmYyZjk5N2Q3Y2VmNDFmNTE5MmQxMGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImExZGU1ZjcwYzMyMTNjMjZlNmFiNGViYTBhYTZjMzQxNDQzY2IwMGViOGIxZTdiMWQ3Mjc2NjBlZWM4YTU0OTYifQ"
         },
         {
@@ -521,10 +521,32 @@
           "version": "repo-lines-v1:sha256:eb43f99f09ab6153ad2f9eb03f50206a2f1391cb5c4006cad01d7cfb7cf9c9d1:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2ZDgwYTBmZjI5ZTM2ZDQ4MTRjODkyYzUyYTkyNzBlYjE0NWUzZDM1ZjdlYmQ2ZGVmYWFhZjAyZmQwNWY1MmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3MGY0YjZhNGFmZjFjMTVlNDE0OGE1NzI3ZGJmOWMwYTg3ZTY1ZGQ5NGMzMjA5ZjE0ZTVmYTc3ZDc1OTA5MmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg5MWQ3ZGJlYjlhOTAwZjMwOTIxMzMzYjBjMDQ4NWIyYzllNjE1MjE3Y2YxYjE0NDdiYmI0YzNmYWQxZDBlNjAifQ"
         }
       ]
+    },
+    {
+      "id": "claim_171b1498807b49b68c671d00d5295669",
+      "statement": "dialogPersistent enforces inner window dimensions and handles narrow layouts (<750px) for the companion window: openWindow features set inner dimensions whereas resizeTo targets outer bounds including window chrome computed via chromeOf; pinRect intercepts win.resizeTo and win.moveTo to preserve target inner geometry and coordinates through Zotero's loading and resize phases before releasing manual control; and when narrow (<750px), responsive rules stack panels vertically and migration moves toggles into the settings menu popup.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogOutline.ts#L224-L317",
+          "version": "repo-lines-v1:sha256:6279f81d9b9aaf464b8c879ba28e8cb3bd9d8c110696eb9c0148927cc7ef5c17:eyJzZWxlY3RlZExpbmVDb3VudCI6OTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiNGRiYTc3YWRmYTg1NmQzYTEzYjQ2MmJkYjU2ZGI2Mzc5ZDM5YmViY2ZjMGVlMjIzNjFlYzE4YmVhYzdlNzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk4NmM1ODJkY2MyODg0MmUwNzJjN2ZhMDc1YzRiZTUzMjkwMmQ0OGEzZTAxZWRmYzViYWFhMGY0ZmVkNmExZDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNlZDkyZDZhNGEyYTAxOGM5OTU0OWM4YTliY2E3NjYxODJiNjdlYzgzZjFhYzAyYzQzZDlkYjNmY2EyOWNkZTkifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogOutline.ts#L96-L108",
+          "version": "repo-lines-v1:sha256:b3a289e116055f5a4ceda7b5ca06a7e9e5ee91adbe0e1f8b79bc365f4022af7e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4OTQ2NmU1MzEyMmEyOWMwNTc4MWI2ZjkwNjg5ZWZiNTEzN2MwYTE5ODkzMzRkMjRkMmQzOTUwMzYzYmI2ZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJkY2I5MWQ5MzJmNGJkYTdkMmYwYzZiM2Q1M2ZlM2FjNDQwMmMwODRiYWE0OTg4Yjg5MGU2N2FlNjY3ZDIwYmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYwNGY3MzlkNTIyMWQ4NWRjOWY1ODhiYjk1NDAyNzNlOTBiZmM0MjlkNzRjMDdlZmE3MzgxOGM4OWIwMjhkMzMifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L257-L273",
+          "version": "repo-lines-v1:sha256:a56af24a683a6abcaf9c7a0754d77096dbbc9c34a52a8bcb47caca6747f9692e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwOTg2YTY1ZjJkMDVjZWI0OThjMzRhZjRkMjFmZTNkMmNiMDU0YzNjZmM5MTMxZmU1MjU5NTM2Mzg2YTU4NTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNhZTEzMGI3ZjE3YzQyNjU2NzQyYTBlYTUzNjcwYjY4NzExMzdjM2Q1MzQxNzBlYWIxYTQ1ZTU1NjJkYmY1ZjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRmNDU4Nzc1YWQwZTIzYzNkNTQ0MzlmNDdjYzQ0ZTVlY2RmMmZiM2I1NTYzNmVhMTZmNzU0NTY1ODFhNDM3MmIifQ"
+        },
+        {
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L352-L452",
+          "version": "repo-lines-v1:sha256:feb5585950437d930cecda2d7b2a9909b20c8580843cd61ff7c59e671c3aafa3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlYWYyMmNmMDczMjU5MmMyNDcxNDFjYmU2MWVmYTExMDEyNjEyZjVhMzEyMmI5YWY5YmJhZjUyZjU3MjRkMTk0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJmYjU4MGU5NjRmODNhNDczZjQzZDQ0Mzg0NjI5NDlkNjhiNTYwMGZkYTc4N2YxNjM3NDVkMDBkZTg5Y2JmMzZhIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJhMWRlNWY3MGMzMjEzYzI2ZTZhYjRlYmEwYWE2YzM0MTQ0M2NiMDBlYjhiMWU3YjFkNzI3NjYwZWVjOGE1NDk2In0"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-16T19:49:13.348Z"
+    "at": "2026-10-17T22:13:14.642Z"
   }
 }

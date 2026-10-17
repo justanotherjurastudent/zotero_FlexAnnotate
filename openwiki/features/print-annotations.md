@@ -1,11 +1,11 @@
 ---
 type: feature
 title: Print Annotations
-description: Creating and managing annotations for printed/physical media without attached PDFs, placeholder attachments, page label locator popups, and menu integration.
-tags: [print-annotations, placeholder-attachment, annotations, xul-panel, context-menu, locator-tags, zotero-internals]
+description: Creation and management of annotations on physical media without digital PDFs, placeholder attachments, locator tags, and annotation row label patching.
+tags: [print-annotations, placeholder-attachment, annotations, xul-panel, context-menu, locator-tags, zotero-internals, annotation-row, patching]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-16T19:49:13.348Z
+    at: 2026-10-17T22:13:14.642Z
 sources:
   - id: openwiki-source-956835b1752f01a3d7799dd0
     resource: repo://addon/locale/en-US/addon.ftl
@@ -25,6 +25,8 @@ sources:
     resource: repo://src/features/organizer/annotationIndex.ts
   - id: openwiki-source-76bd23f3a07acd2400abb8d8
     resource: repo://src/features/print/annotationRowMenu.ts
+  - id: openwiki-source-67599eb667e1f64382e23813
+    resource: repo://src/features/print/annotationRowPatch.ts
   - id: openwiki-source-14294881b17ba133d14ada2d
     resource: repo://src/features/print/dialog.ts
   - id: openwiki-source-0d1333c3c5dde69ff0b6f9ea
@@ -45,9 +47,11 @@ sources:
     resource: repo://src/hooks.ts
   - id: openwiki-source-8e77b678012b338d1d1e4e82
     resource: repo://test-unit/printMenuState.test.ts
+  - id: openwiki-source-66f452a7fa1e672a690ab712
+    resource: repo://test/annotationRowPatch.test.ts
   - id: openwiki-source-22daf31a20f83a77b0bb7816
     resource: repo://test/printMenus.test.ts
-generated: { by: "openwiki/0.7.2", at: "2026-10-16T19:49:13.348Z" }
+generated: { by: "openwiki/0.7.2", at: "2026-10-17T22:13:14.642Z" }
 ---
 
 A printed or physical source — such as a printed law commentary, monograph, journal volume, or archival record — has no digital document file attached. By design, Zotero refuses to store an annotation whose direct parent is a regular bibliographic title item: an `annotation` item is accepted only under a file attachment with an `attachmentReaderType` (`pdf`, `epub`, `snapshot`), and attempting to save an annotation directly under a regular item (or a linked-URL attachment) throws an unrecoverable exception (Zotero 10.0.5, `xpcom/data/item.js` 2246–2259, documented in [docs/anchors.md](../../docs/anchors.md)).
@@ -57,11 +61,11 @@ FlexAnnotate resolves this architectural constraint by generating a minimal, val
 - They are indexed library-wide by FlexAnnotate's `AnnotationIndex` and surface within the Organizer and document outlines.
 - They appear in the item pane's annotation list alongside digital annotations.
 - They can be cited in word processors (Word, LibreOffice) via standard citation dialogs using custom CSL locators (such as page, paragraph, column, or margin numbers).
-- They share the same locator input mask and locator tag mechanics used for digital PDF/EPUB annotations.
+- They share the same locator input mask, locator tag mechanics, and `<annotation-row>` rendering used for digital PDF/EPUB annotations.
 
 ## Module Architecture
 
-The print annotation subsystem spans core logic, UI panels, menu bindings, and reader popup enhancements:
+The print annotation subsystem spans core logic, UI panels, menu bindings, reader popup enhancements, and custom element prototype patching:
 
 | Module | Responsibility |
 | --- | --- |
@@ -70,6 +74,7 @@ The print annotation subsystem spans core logic, UI panels, menu bindings, and r
 | [dialog.ts](../../src/features/print/dialog.ts) | XUL `<panel>` input mask embedded in the main window |
 | [menus.ts](../../src/features/print/menus.ts) | Item context menu entries in `#zotero-itemmenu` with custom visibility logic |
 | [annotationRowMenu.ts](../../src/features/print/annotationRowMenu.ts) | Context menu for `<annotation-row>` elements in the right-hand item pane |
+| [annotationRowPatch.ts](../../src/features/print/annotationRowPatch.ts) | Patches `AnnotationRow.prototype.render` via `assignChecked` to show custom locators (Randnummer, Opus, etc.) |
 | [logic/printAnnotation.ts](../../src/features/print/logic/printAnnotation.ts) | Pure rules: color normalization, sort index generation, and PDF byte generation |
 | [logic/printMenuState.ts](../../src/features/print/logic/printMenuState.ts) | Pure state machine determining context menu entry visibility |
 | [core/printDialog.ts](../../src/core/printDialog.ts) | Pure dialog rules: layout dimensions, field visibility, focus order, save data construction |
@@ -77,7 +82,7 @@ The print annotation subsystem spans core logic, UI panels, menu bindings, and r
 | [reader/labelPopup.ts](../../src/features/reader/labelPopup.ts) | Enhancement of Zotero's reader `.label-popup` with locator selectors and radio guards |
 | [core/labelPopup.ts](../../src/core/labelPopup.ts) | Pure decision rules for reader page label and locator popups |
 
-`printMenus` and `annotationRowMenu` are registered as features in [src/hooks.ts](../../src/hooks.ts). They have no background service lifecycle (`start`/`stop`), attaching and detaching UI elements per main window. The complete subsystem is exposed to tests and external consumers as `addon.api.print` (`placeholder`, `printAnnotations`, `dialog`, `menus`). Pure rules in `logic/` and `core/` contain no Zotero globals and are covered by Node unit tests in `test-unit/`, adhering to repository [conventions](../conventions.md).
+`printMenus`, `annotationRowMenu`, and `annotationRowPatch` are registered as features in [src/hooks.ts](../../src/hooks.ts). They have no background service lifecycle (`start`/`stop`), attaching and detaching UI elements and prototype patches per main window via `addToWindow` and `removeFromWindow`. In addition, `annotationRowPatch` registers with the citation dialog watcher as a `DialogInjector` to format annotation rows in the Word/integration citation dialog. The complete subsystem is exposed to tests and external consumers as `addon.api.print` (`placeholder`, `printAnnotations`, `dialog`, `menus`, `annotationRowPatch`). Pure rules in `logic/` and `core/` contain no Zotero globals and are covered by Node unit tests in `test-unit/`, adhering to repository conventions.
 
 ## End-to-End Workflow & Lifecycle
 
@@ -98,8 +103,10 @@ flowchart TD
 
     subgraph Storage["2. Storage and Invariants"]
         CR --> SET_TYP["Set annotationType first"]
-        SET_TYP --> FLD["Normalize color, sortIndex, mock position"]
-        FLD --> TAGS["Apply locator tags: #flexannotate-locator-*"]
+        FLD["Normalize color, sortIndex, mock position"]
+        TAGS["Apply locator tags: #flexannotate-locator-*"]
+        SET_TYP --> FLD
+        FLD --> TAGS
         TAGS --> DB[("Zotero SQLite Database")]
     end
 
@@ -109,10 +116,13 @@ flowchart TD
         NOTIF --> PANE["Item Pane: annotation-row elements"]
         IDX --> ORG["FlexAnnotate Organizer and Document Outline"]
         DB --> CSL["Citation Engine: Word and LibreOffice Integration"]
+        CSL --> DLG["Citation Dialog: annotation-row elements"]
+        PANE --> PATCH["annotationRowPatch: format custom locator titles"]
+        DLG --> PATCH
     end
 ```
 
-_Lifecycle of a print annotation from creation and placeholder synthesis through database persistence, Notifier indexing, and multi-surface display._
+_Lifecycle of a print annotation from creation and placeholder synthesis through database persistence, Notifier indexing, and multi-surface presentation across main window panes and citation dialogs._
 
 ## The Placeholder Attachment Lifecycle
 
@@ -293,6 +303,109 @@ In the right-hand item pane, Zotero renders child annotations as custom `<annota
 3. The annotation ID is written to a `data-flexannotate-annotation-id` attribute on the popup element itself, ensuring commands resolve the correct item even in multi-window setups.
 4. "Edit" is displayed for all annotations (disabled if read-only); "Delete" is displayed **only for print annotations**.
 
+## Annotation Row Label Patching (`annotationRowPatch.ts`)
+
+In both the main window item pane and the word processor citation dialog, Zotero renders child annotations using the custom `<annotation-row>` element. In standard Zotero (10.0.5, `elements/annotationRow.js:93-94`), `AnnotationRow.prototype.render` constructs the row title by hardcoding the localized string for "Page" concatenated with `pageLabel`:
+
+```javascript
+// Native Zotero logic in elements/annotationRow.js
+this._title.textContent = Zotero.getString('pdfReader.page') + ' ' + pageLabel;
+```
+
+When an annotation uses a custom locator (such as a legal Randnummer/margin number, an Opus number, or a paragraph), Zotero's hardcoded prefix misleadingly labels the item as "Page 318" instead of "Randnummer 318" or "Opus 42".
+
+[annotationRowPatch.ts](../../src/features/print/annotationRowPatch.ts) intercepts this rendering to replace the title with FlexAnnotate's resolved locator term.
+
+### Patch Mechanism via `assignChecked`
+
+The patch wraps `AnnotationRow.prototype.render` using [`assignChecked`](../../src/shared/patch.ts) to guarantee safe property replacement without silent failures:
+
+```typescript
+// src/features/print/annotationRowPatch.ts
+export function patchAnnotationRow(win: Window): boolean {
+  if (!win || installed.has(win)) return true;
+
+  // Trigger lazy custom element definition if needed
+  if (!win.customElements?.get("annotation-row")) {
+    const doc = win.document as any;
+    if (typeof doc?.createXULElement === "function") {
+      doc.createXULElement("annotation-row");
+    } else if (typeof doc?.createElement === "function") {
+      doc.createElement("annotation-row");
+    }
+  }
+
+  const proto = win.customElements?.get("annotation-row")?.prototype;
+  if (!proto || typeof proto.render !== "function") return false;
+
+  const native = proto.render;
+  const patched = function (this: Element) {
+    native.call(this);
+    try {
+      updateAnnotationRowTitle(this);
+    } catch (e) {
+      ztoolkit.log("annotationRow title update failed:", e);
+    }
+  };
+
+  if (!assignChecked(proto, "render", patched)) return false;
+  installed.set(win, native);
+
+  // Update already rendered rows in the document
+  for (const row of win.document.querySelectorAll("annotation-row")) {
+    try { updateAnnotationRowTitle(row); } catch { /* ignore */ }
+  }
+  return true;
+}
+```
+
+### Title Formatting Logic
+
+`updateAnnotationRowTitle(row)` inspects the row's backing item `row._annotation` and target element `row._title || row.querySelector(".title")`:
+1. **Guard clauses**: Aborts if the row has no annotation or if `ann.isAnnotation()` is false.
+2. **Default Locator Guard**: Retrieves the locator via `getLocator(ann)`. If `locator` is undefined or equal to `DEFAULT_LOCATOR` (`"page"`), the row keeps Zotero's native title text unchanged.
+3. **Label Resolution**: When a custom locator is present (`locator !== DEFAULT_LOCATOR`), [locatorLabelText()](../../src/features/reader/logic/readerLocator.ts) resolves the localized display string:
+   - Queries `Zotero.Cite.getLocatorString(locator)` first.
+   - Falls back to localized extension strings (`reader-locator-page`, `reader-locator-margin`, `reader-locator-opus`) via `getString()`.
+   - Falls back to the capitalized locator identifier.
+4. **Title Construction**: Calls `formatAnnotationTitle(label, ann.annotationPageLabel)` to produce formatted strings such as `"Randnummer 318"` or `"Opus 42"`.
+
+### Restoration & Unpatching
+
+`unpatchAnnotationRow(win)` safely restores native behavior:
+1. Retrieves the original `native` render function from the `installed: WeakMap<Window, () => void>`.
+2. Restores `proto.render` using `assignChecked(proto, "render", native)`.
+3. Iterates across all `<annotation-row>` elements in `win.document` and invokes `render?.()` to re-render them with standard native titles.
+
+### Lifecycle Registration in `src/hooks.ts`
+
+`annotationRowPatch` participates in two distinct lifecycle systems in [src/hooks.ts](../../src/hooks.ts):
+
+1. **Main Window Lifecycle (`addToWindow` / `removeFromWindow`)**:
+   Registered in the top-level `features` array:
+   ```typescript
+   {
+     name: "annotationRowPatch",
+     addToWindow: (win) => { patchAnnotationRow(win); },
+     removeFromWindow: (win) => { unpatchAnnotationRow(win); },
+   }
+   ```
+   During application startup, `onMainWindowLoad(win)` runs `await addToWindow(features, win)`. When a main window closes, `onMainWindowUnload(win)` invokes `removeFromWindow(features, win)`.
+
+2. **Citation Dialog Injection (`DialogInjector`)**:
+   Because word processor integration (Word, LibreOffice) opens the citation dialog in a separate chrome window (`chrome://zotero/content/integration/citationDialog.xhtml`), main window listeners do not capture citation dialog `<annotation-row>` elements. `annotationRowPatch` registers as a dialog injector:
+   ```typescript
+   citationDialog.registerDialogInjector({
+     name: "annotationRowPatch",
+     inject: patchAnnotationRow,
+     detach: unpatchAnnotationRow,
+   });
+   ```
+   The `citationDialog` service ([src/shared/citationDialog.ts](../../src/shared/citationDialog.ts)) watches for new citation dialog windows, waits for `DIALOG_STATE.loaded`, and executes `inject(win)`. When the dialog window unloads or the extension shuts down, `detach(win)` restores the prototype.
+
+3. **API & Test Surface**:
+   Exposed under `addon.api.print.annotationRowPatch` (`{ patch: patchAnnotationRow, unpatch: unpatchAnnotationRow }`), enabling integration tests to assert row title transformations directly.
+
 ## Ecosystem Integration
 
 Print annotations are fully integrated across FlexAnnotate and Zotero:
@@ -301,7 +414,7 @@ Print annotations are fully integrated across FlexAnnotate and Zotero:
 Because print annotations are real `annotation` items attached to a valid PDF, Zotero's core storage, search, and sync engines process them identically to native highlights. Changes trigger standard `Notifier` events (`item: add`, `modify`, `trash`).
 
 ### Outline Tracking and the Organizer
-FlexAnnotate's [AnnotationIndex](../features/organizer.md) maintains an in-memory, library-wide cache of all annotations, updating incrementally from `Notifier` events. Print annotations are ingested into this index alongside digital annotations. They appear in the Organizer tree, can be structured into hierarchical document outlines (`docOutline`), and support navigation links back to the parent item.
+FlexAnnotate's [AnnotationIndex](organizer.md) maintains an in-memory, library-wide cache of all annotations, updating incrementally from `Notifier` events. Print annotations are ingested into this index alongside digital annotations. They appear in the Organizer tree, can be structured into hierarchical document outlines (`docOutline`), and support navigation links back to the parent item.
 
 ### Word Processor Citations
 During citation generation in Microsoft Word or LibreOffice, Zotero formats citations using CSL processors. Print annotations supply their `annotationPageLabel` and tag-based locators (such as `paragraph` or `margin`), allowing physical commentaries and books to be cited with accurate pinpoint locators.
@@ -333,10 +446,15 @@ The print annotations subsystem is thoroughly verified through unit and integrat
   - Missing page label on print sources keeps the dialog open without saving.
   - Type menu remains enabled on creation and disabled on edit.
 - [test/printMenus.test.ts](../../test/printMenus.test.ts): Integration tests verifying that context menu DOM elements are appended once, update visibility based on selection, and detach cleanly upon `removeFromWindow()`.
+- [test/annotationRowPatch.test.ts](../../test/annotationRowPatch.test.ts): Integration tests verifying `<annotation-row>` title label patching:
+  - Confirms setting a custom locator tag (such as `#flexannotate-locator-opus`) causes the rendered row title to display the localized locator label ("Opus 318").
+  - Verifies annotations with standard `"page"` locators retain default row title text without custom locator strings.
 
 ## Related Pages
 
 - [Data Model](../architecture/data-model.md) — Persistent tag schema (`#flexannotate-placeholder`, locator tags) and Zotero field rules.
+- [Patching Architecture](../architecture/patching.md) — Prototype patching via `assignChecked`, `CitationDialogWatcher`, and host environment safeguards.
 - [Organizer](organizer.md) — Cross-paper annotation indexing, outline tracking, and library-wide browsing.
 - [Citavi Import](citavi-import.md) — Converting Citavi quotation cards into print annotations via placeholder attachments.
 - [Reader Integration](reader.md) — Reader page label popup enhancements, custom locator menus, and the `afterSave` refresh hook.
+- [Zotero Internals](../integrations/zotero-internals.md) — Underlying Zotero architecture, XUL panel constraints, and private API contracts.

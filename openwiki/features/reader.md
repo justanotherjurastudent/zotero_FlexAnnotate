@@ -1,11 +1,11 @@
 ---
 type: feature
 title: Reader Integrations & Locators
-description: PDF reader context menu integrations, locator parsing and formatting, page number synchronization, and annotation row context helpers.
+description: PDF reader context menu integrations, locator parsing and formatting, page number synchronization, and annotation row title formatting.
 tags: [reader, context-menu, sidebar-header, locator, page-label-popup, zotero-internals, mutation-observer, patching]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-16T19:49:13.348Z
+    at: 2026-10-17T22:13:14.642Z
 sources:
   - id: openwiki-source-9de21399094753516f4782e2
     resource: repo://src/core/labelPopup.ts
@@ -35,7 +35,7 @@ sources:
     resource: repo://test-unit/readerLocator.test.ts
   - id: openwiki-source-7cd4aec9d7d41c86494d78bd
     resource: repo://test/readerMenu.test.ts
-generated: { by: "openwiki/0.7.2", at: "2026-10-16T19:49:13.348Z" }
+generated: { by: "openwiki/0.7.2", at: "2026-10-17T22:13:14.642Z" }
 ---
 
 Zotero's reader (supporting PDF, EPUB, and web snapshots) is where native annotations live. The reader provides narrow official plugin hooks — `Zotero.Reader.registerEventListener` for a small set of events and `Zotero.Reader.open` to open documents. It lacks native APIs to append custom menu entries to an annotation, relabel the "Page" line of an annotation header, or customize the page-number popup.
@@ -47,7 +47,7 @@ The reader functionality is split cleanly between pure logic modules (Node-testa
 | Module | Architectural Role & Responsibilities |
 | --- | --- |
 | [src/core/locator.ts](../../src/core/locator.ts) | Pure locator primitives: prefix constants, fallback locator list, tag parsing (`locatorOf`), tag delta calculation (`locatorTagChanges`), and citation place formatting (`formatLocator`). |
-| [src/features/reader/logic/readerLocator.ts](../../src/features/reader/logic/readerLocator.ts) | Pure reader display logic: in-memory tag parsing (`explicitLocatorFromTags`) and display label resolution chain (`locatorLabelText`). |
+| [src/features/reader/logic/readerLocator.ts](../../src/features/reader/logic/readerLocator.ts) | Pure reader display and title logic: in-memory tag parsing (`explicitLocatorFromTags`), display label resolution chain (`locatorLabelText`), and annotation row title formatting (`formatAnnotationTitle`). |
 | [src/core/labelPopup.ts](../../src/core/labelPopup.ts) | Pure page-label popup decision logic: `planApply`, `selectTargets`, `defaultCheckboxState`, `preferredRadio`, and label gating (`shouldSetPageLabel`). |
 | [src/features/reader/readerMenu.ts](../../src/features/reader/readerMenu.ts) | Zotero reader integration: lifecycle hooks (`patch`/`unpatch`), `createAnnotationContextMenu` and `renderSidebarAnnotationHeader` handlers, `Zotero.Reader.open` wrapping, reader iframe `MutationObserver`, and locator DOM refresh. |
 | [src/features/reader/labelPopup.ts](../../src/features/reader/labelPopup.ts) | Reader iframe DOM enhancement for the page-number popup (`.label-popup`): locator selection dropdown, per-document default checkbox, radio mode gating, and persistence. |
@@ -109,9 +109,7 @@ The helper `formatLocator(shortLabel, place)` constructs user-facing citation st
 
 ### In-Memory Tag Extraction in the Reader
 
-When annotations are updated in the reader UI, Zotero persists them to the SQLite database asynchronously. To prevent visible UI lag or stale reads, `getAnnotationLocator()` checks the reader's in-memory data store first using `explicitLocatorFromTags(tags, knownLabels)`.
-
-This pure helper handles polymorphic tag representations:
+When annotations are updated in the reader UI, Zotero persists them to the SQLite database asynchronously. To prevent visible UI lag or stale reads, `getAnnotationLocator()` checks the reader's in-memory data store first using `explicitLocatorFromTags(tags, knownLabels)`:
 - Tags may be plain string elements (`"#flexannotate-locator-section"`) or object structures (`{ name: "..." }` or `{ tag: "..." }`).
 - Any tag matching `LOCATOR_PREFIX` is parsed to extract the locator type.
 - The extracted type is accepted only if it is included in `knownLabels` (typically `Zotero.Cite.labels`) or matches the custom `"margin"` locator (Randnummer), which lacks a CSL counterpart. Unrecognized tags are ignored and return `null`.
@@ -126,15 +124,54 @@ The display string for a locator is produced by `locatorLabelText(locator, cite,
    - `"opus"` falls back to `labels.opus` (`reader-locator-opus`).
 4. **Capitalized Identifier**: Any other unrecognized locator falls back to capitalizing its first letter (e.g. `"figure"` becomes `"Figure"`).
 
+### Annotation Row Title Formatting (`formatAnnotationTitle`)
+
+In annotation lists, outline views, and citation dialogs, annotations are represented by `<annotation-row>` elements patched by `patchAnnotationRow` in [src/features/print/annotationRowPatch.ts](../../src/features/print/annotationRowPatch.ts). The row title header displays both the locator type and the page or place number.
+
+The pure helper `formatAnnotationTitle(label, pageLabel)` in [src/features/reader/logic/readerLocator.ts](../../src/features/reader/logic/readerLocator.ts) formats this title string:
+```typescript
+export function formatAnnotationTitle(
+  label: string,
+  pageLabel: string | undefined,
+): string {
+  return `${label} ${pageLabel || "-"}`;
+}
+```
+- When a valid `pageLabel` is present (such as `"318"` or `"22-25"`), it joins the localized label and the page label with a single space (e.g. `"Randnummer 318"` or `"Seite 22-25"`).
+- When `pageLabel` is undefined, null, or empty string, it substitutes a hyphen (e.g. `"Seite -"` or `"Randnummer -"`), guaranteeing a predictable, non-empty header for every annotation row regardless of missing page metadata.
+
 ---
 
-## Reader Context Menu Registrations
+## Reader Context Menu Extensions & Locator Tagging Workflow
 
 FlexAnnotate integrates into the PDF reader's annotation context menu via `Zotero.Reader.registerEventListener`:
 
 ```typescript
 zr.registerEventListener("createAnnotationContextMenu", handler, config.addonID);
 ```
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant CM as Context Menu Handler
+    participant D as Print Annotation Dialog
+    participant PA as printAnnotations Logic
+    participant N as Zotero Notifier / afterSave
+    participant RM as readerMenu DOM Updater
+
+    U->>CM: Right-click annotation (createAnnotationContextMenu)
+    CM->>CM: Inspect comment state (single vs multi-selection)
+    CM-->>U: Append Edit/Add Comment and Set Locator menu items
+    U->>CM: Select Set Locator
+    CM->>D: openForEdit in locator view via openDialog
+    U->>D: Select locator type or toggle document default, click Save
+    D->>PA: applyLocatorTag and setDefaultLocator
+    PA->>PA: Sparse tagging and freeze prior default
+    D->>N: Trigger afterSave and SQLite commit
+    N->>RM: updateAllReaders and Notifier item event
+    RM->>RM: updatePageElements, updateAnnotationCards, updatePopup
+```
+_The locator tagging workflow: from context menu invocation through defensive item resolution, dialog editing, storage delta application, and multi-surface reader DOM refresh._
 
 ### Context Menu Construction
 
@@ -154,6 +191,21 @@ Opening the edit dialog requires resolving main-process `Zotero.Item` instances 
 2. The attachment's annotations (`attachment.getAnnotations()`) are filtered by the keys provided by the reader.
 3. If keys do not match directly (as reader internal IDs and database keys can diverge), `Zotero.Items.getByLibraryAndKey(attachment.libraryID, key)` resolves items by library and key.
 4. The dialog opens in the reader's dedicated sub-window (`_window`) if available, falling back to `Zotero.getMainWindow()`. All errors are caught and logged via `defaultLogger`, ensuring context menu failures never crash Zotero's reader UI.
+
+### End-to-End Locator Tagging Workflow
+
+The tagging workflow coordinates the context menu, dialog persistence, database tagging rules, and reader synchronization:
+1. **Invocation**: The user invokes **Set Locator…** on one or more annotations.
+2. **Dialog Interaction**: The print annotation dialog opens in `"locator"` view ([src/features/print/dialog.ts](../../src/features/print/dialog.ts)). The user chooses a locator type (e.g. `paragraph`, `section`, `margin`), edits citation values, or checks the document default checkbox.
+3. **Delta Application & Storage**:
+   - If setting a new document default, `setDefaultLocator()` freezes all existing annotations on the attachment that lack an explicit tag to the previous default, then updates the attachment item with `#flexannotate-default-locator-<newDefault>`.
+   - For targeted annotations, `applyLocatorTag()` computes required tag deltas: existing `#flexannotate-locator-*` tags are stripped, and `#flexannotate-locator-<type>` is written only when `type` differs from the attachment default (preserving sparse tagging).
+   - Changes are committed to SQLite via `saveTx()`.
+4. **Immediate Synchronization**:
+   - `printDialog.afterSave` triggers `updateAllReaders()` immediately.
+   - `Zotero.Notifier` listens for `item` events (`modify`, `add`, `trash`) under ID `"flexannotate-reader"`, dispatching `updateAllReaders()` both synchronously and with a 100 ms debounce to account for SQLite write delays.
+   - All active readers execute `updateAllLocators(reader, doc)`, updating `.page[id^="page_"]` elements, `.annotation[data-id]` cards, and open floating popups.
+   - When a user selects or scrolls past an annotation in the sidebar, the `renderSidebarAnnotationHeader` event listener (`onSidebarAnnotationHeader`) fires, updating `doc.getElementById("page_" + annId)` with minimal DOM churn.
 
 ---
 
@@ -210,7 +262,7 @@ const wrapper = async function (this: unknown, ...args: unknown[]) {
 };
 ```
 
-1. **Idempotent Installation**: If `assignChecked(Zotero.Reader, "open", wrapper)` fails, `origOpen` rolls back to `null` and logs an error.
+1. **Idempotent Installation**: If `assignChecked(Zotero.Reader, "open", wrapper)` fails, `origOpen` rolls back to `null` and logs an error. On `unpatch()`, `assignChecked(Zotero.Reader, "open", origOpen)` restores the original reference rather than re-reading from the target.
 2. **Iframe Polling (`pollForIframe`)**: Immediately after `open()` resolves, the reader iframe DOM is not yet populated. The watcher polls every 250 ms (up to 60 attempts):
    - If `internals(reader)._isTabClosed` is set, polling aborts immediately.
    - Once `iframeWindow.document.body` is available, `attachObserver(reader, iframeWindow)` registers the `MutationObserver`.
@@ -325,6 +377,7 @@ The reader subsystem is tested across two levels:
   - Tag parsing from strings and objects in `explicitLocatorFromTags`.
   - Rejection of unknown labels and acceptance of `"margin"`.
   - Fallback label resolution chain in `locatorLabelText` (CSL string -> Fluent page/margin/opus -> capitalized identifier).
+  - Annotation row title formatting via `formatAnnotationTitle` (combining localized label with page numbers or falling back to a dash).
 - **[test-unit/labelPopup.test.ts](../../test-unit/labelPopup.test.ts)**:
   - Locator dropdown sorting in `buildLocatorOptions`.
   - Checkbox lock states in `defaultCheckboxState`.

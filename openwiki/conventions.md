@@ -5,7 +5,7 @@ description: Repo-wide rules a coding agent must follow — pure logic placement
 tags: [conventions, code-style, menu-registration, localization, naming, commits, provenance, testing]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-16T19:49:13.348Z
+    at: 2026-10-17T22:13:14.642Z
 sources:
   - id: openwiki-source-842fdbe2a14fcef1b1c961b1
     resource: repo://addon/locale/de/addon.ftl
@@ -65,7 +65,7 @@ sources:
     resource: repo://src/utils/prefs.ts
   - id: openwiki-source-7ee3a706906a7e3af5d8c855
     resource: repo://test/toolsMenu.test.ts
-generated: { by: "openwiki/0.7.2", at: "2026-10-16T19:49:13.348Z" }
+generated: { by: "openwiki/0.7.2", at: "2026-10-17T22:13:14.642Z" }
 ---
 
 These rules come from [AGENTS.md](../AGENTS.md) and the pitfall list in
@@ -109,20 +109,29 @@ architecture and runner execution, see
 
 ## Language split
 
-Comments, user-facing texts, `AGENTS.md` and the manual (`docs/handbuch.md`)
-are **German**; identifiers and log output are **English**;
-[docs/architecture.md](../docs/architecture.md) is the English technical
-reference. Log lines such as
-`menu ${opts.menuID} rejected by Zotero.MenuManager`
-([src/utils/menu.ts](../src/utils/menu.ts)) and
-`flexannotate loadScope failed:`
-([organizerState.ts](../src/features/organizer/panel/organizerState.ts))
-follow this.
+The repository maintains an explicit linguistic division across documentation,
+user-facing strings, and code:
 
-One deliberate exception: the organizer window builds its DOM in code, so its
-texts live in [organizer/strings.ts](../src/features/organizer/strings.ts) with
-German and English copies instead of Fluent files; menus and the preference
-pane use Fluent.
+- **German** is used for inline code comments in source files (`src/`),
+  user-facing interface text, repository rules in `AGENTS.md`, and the user
+  manual (`docs/handbuch.md`).
+- **English** is used for code identifiers (function, variable, interface, class,
+  and property names), log outputs (such as `ztoolkit.log` and console calls),
+  and technical documentation — including
+  [docs/architecture.md](../docs/architecture.md), `docs/testing.md`,
+  `docs/anchors.md`, `docs/guide.md`, and wiki documentation. Log lines such as
+  `menu ${opts.menuID} rejected by Zotero.MenuManager`
+  ([src/utils/menu.ts](../src/utils/menu.ts)) and
+  `flexannotate loadScope failed:`
+  ([src/features/organizer/panel/organizerState.ts](../src/features/organizer/panel/organizerState.ts))
+  follow this.
+- **Fluent localization**: User-facing UI strings for menus and the preference
+  pane are localized simultaneously in German (`addon/locale/de/`) and English
+  (`addon/locale/en-US/`).
+- **Organizer strings exception**: The organizer window constructs its DOM in
+  code rather than via XUL/XHTML templates; its UI texts live in
+  [src/features/organizer/strings.ts](../src/features/organizer/strings.ts) with
+  explicit German and English string dictionaries instead of Fluent files.
 
 ## Window state: elements and WeakMaps
 
@@ -130,13 +139,13 @@ The plugin scope is global, windows are not: module objects exist once per
 session, elements once per window (pitfall 11). Therefore:
 
 - State of one interaction belongs **on the element** — an expando on the
-  panel, an attribute on the popup. [annotationRowMenu.ts](../src/features/print/annotationRowMenu.ts)
+  panel, an attribute on the popup. [src/features/print/annotationRowMenu.ts](../src/features/print/annotationRowMenu.ts)
   stores the annotation id as `data-flexannotate-annotation-id` on the popup so
   a right-click in another window cannot overwrite it.
 - Per-window bookkeeping lives in a **`WeakMap` keyed by window**: the
   `popupshowing` listener of the item menu
-  ([print/menus.ts](../src/features/print/menus.ts)) and the `Ctx` of each open
-  organizer window ([organizer.ts](../src/features/organizer/panel/organizer.ts))
+  ([src/features/print/menus.ts](../src/features/print/menus.ts)) and the `Ctx` of each open
+  organizer window ([src/features/organizer/panel/organizer.ts](../src/features/organizer/panel/organizer.ts))
   both use `WeakMap`s.
 - Never use a "some window is set up" module flag; collect windows and test for
   empty.
@@ -162,11 +171,11 @@ Two mechanisms exist, and the choice is not stylistic:
    *before* `Zotero.MenuManager.updateMenuPopup`, so `MenuManager` entries
    never update there, while plugin-appended DOM entries persist Zotero's menu
    rebuild (pitfall 10). Each feature therefore manages its own visibility on
-   `popupshowing` — [print/menus.ts](../src/features/print/menus.ts) toggles
+   `popupshowing` — [src/features/print/menus.ts](../src/features/print/menus.ts) toggles
    its four elements from the pure `printMenuState` decision, and
-   [collectionMenu.ts](../src/features/organizer/collectionMenu.ts) hides its
+   [src/features/organizer/collectionMenu.ts](../src/features/organizer/collectionMenu.ts) hides its
    item unless a collection is selected.
-   [toolsMenuFallback.ts](../src/features/organizer/toolsMenuFallback.ts)
+   [src/features/organizer/toolsMenuFallback.ts](../src/features/organizer/toolsMenuFallback.ts)
    adds the Tools entry as DOM **only** when `MenuManager.registerMenu` is
    missing (Zotero 7.x) — otherwise the entry would exist twice — and sets the
    label via the `label` attribute because Fluent sets `textContent`, which a
@@ -192,8 +201,8 @@ fallback for Zotero 7.x.*
 - Fluent files are maintained in `addon/locale/de` **and**
   `addon/locale/en-US` at the same time; the three files (`addon.ftl`,
   `mainWindow.ftl`, `preferences.ftl`) exist in both with matching keys
-  ([de/addon.ftl](../addon/locale/de/addon.ftl),
-  [en-US/addon.ftl](../addon/locale/en-US/addon.ftl)).
+  ([addon/locale/de/addon.ftl](../addon/locale/de/addon.ftl),
+  [addon/locale/en-US/addon.ftl](../addon/locale/en-US/addon.ftl)).
 - [src/utils/locale.ts](../src/utils/locale.ts) creates a `Localization` for
   `flexannotate-addon.ftl` in `initLocale()`, and `getString`/`getLocaleID`
   prefix every Fluent id with `flexannotate-` (`config.addonRef`); a missing
@@ -217,7 +226,7 @@ fallback for Zotero 7.x.*
   (`§Title`), `★outline`, and the collection-tree tag
   `#flexannotate-outline-<collectionKey>`, which is based on the collection
   key rather than the id because the key survives sync
-  ([outlineModel.ts](../src/features/organizer/outlineModel.ts)).
+  ([src/features/organizer/outlineModel.ts](../src/features/organizer/outlineModel.ts)).
 - `strict_max_version` in [addon/manifest.json](../addon/manifest.json) is
   mandatory on Zotero 10 — without it the plugin is dropped silently at
   manifest parsing (pitfall 9). It is currently `"10.*"`; on a new Zotero major
@@ -239,7 +248,7 @@ fallback for Zotero 7.x.*
 ## Documentation in the same changeset
 
 Documentation ships with the code, not after it: changes update `README.md` and
-`CHANGELOG.md` in the same changeset; a change that hooks a new Zotero internal
+[CHANGELOG.md](../CHANGELOG.md) in the same changeset; a change that hooks a new Zotero internal
 adds the anchor to [docs/anchors.md](../docs/anchors.md); a newly discovered
 pitfall goes into [docs/architecture.md](../docs/architecture.md). The README
 feature matrix for Zotero before 10 is derived only from test-runner output
@@ -287,8 +296,8 @@ module through `addon.api` so the Zotero tests can reach it.
 The organizer is a fork of **Lattice** (birugit, AGPL-3.0-or-later; base
 version 4.1.0). Organizer files derived from Lattice carry the header
 `Derived from Lattice (birugit, AGPL-3.0-or-later); see NOTICE.md`
-([logic/outline.ts](../src/features/organizer/logic/outline.ts),
-[panel/organizer.ts](../src/features/organizer/panel/organizer.ts)), and
+([src/features/organizer/logic/outline.ts](../src/features/organizer/logic/outline.ts),
+[src/features/organizer/panel/organizer.ts](../src/features/organizer/panel/organizer.ts)), and
 provenance is maintained in [NOTICE.md](../NOTICE.md): keep license and
 attribution notices, never invent license statements. FlexAnnotate is
-AGPL-3.0-or-later unchanged; the full license text is in `LICENSE`.
+AGPL-3.0-or-later unchanged; the full license text is in [LICENSE](../LICENSE).

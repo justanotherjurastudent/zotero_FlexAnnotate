@@ -5,7 +5,7 @@ description: Three-column outline and annotation organizer (forked from Lattice)
 tags: [organizer, outline, tags, annotation-index, zotero-window, filing, citation-dialog, docx-import-export, persistent-dialog, provenance]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-16T19:49:13.348Z
+    at: 2026-10-17T22:13:14.642Z
 sources:
   - id: openwiki-source-6886a5ee75169ef04af04f15
     resource: repo://docs/lattice-changelog.md
@@ -87,7 +87,7 @@ sources:
     resource: repo://test/organizer.test.ts
   - id: openwiki-source-ee77444752e16522c76c8026
     resource: repo://test/toolbarButton.test.ts
-generated: { by: "openwiki/0.7.2", at: "2026-10-16T19:49:13.348Z" }
+generated: { by: "openwiki/0.7.2", at: "2026-10-17T22:13:14.642Z" }
 ---
 
 The Organizer is FlexAnnotate's three-column window for structuring document outlines and filing library items under each heading: column 1 displays the outline tree (with the pseudo-nodes `(Alle)` and `(Ohne Kategorie)`), column 2 lists one-line rows — annotations or whole works — with a permanent assign bar, and column 3 presents the selected row's details, citation formatting, and category chips. Two tabs switch the row kind: **Wissen** (annotations) and **Titel** (works). A heading *is* a Zotero tag (`§` + title) and the outline tree persists as JSON in a standalone Zotero note, ensuring that filing is tagging and all organization syncs seamlessly across devices (see [Data Model](../architecture/data-model.md)).
@@ -105,7 +105,7 @@ From Lattice, the module inherited:
 
 FlexAnnotate deliberately made major architectural changes:
 - **Removed**: Lattice's AI question-answering features over PDFs (LLM API integrations) and the ideas layer (`★idea` notes).
-- **Added**: The three-column desktop window layout, unified filing of both works and annotations via multi-selection and drag-and-drop, the preference to show works in the annotation view, collection-scoped outline trees with orphaned tag reconciliation, document import and export (`.docx`/`.odt`), the citation dialog outline view, and the persistent companion dialog ("Blätterfenster").
+- **Added**: The three-column desktop window layout, unified filing of both works and annotations via multi-selection and drag-and-drop, the preference to show works in the annotation view, collection-scoped outline trees with orphaned tag reconciliation, document import and export (`.docx`/`.odt`), the citation dialog outline view for both annotations and works/items tabs, and the persistent companion dialog ("Blätterfenster").
 - **Attribution & Compatibility**: Files derived from Lattice carry the header `Derived from Lattice (birugit, AGPL-3.0-or-later)`. The persisted format (`§` tags, `★outline` notes, and the `LATTICE-OUTLINE-V1` sentinel) remains backwards-compatible so outline data can be read by both systems.
 
 ## Component Architecture and Data Flow
@@ -399,8 +399,8 @@ The persistent companion window overcomes this while preserving Zotero's integra
 2. **Reopening the Browse Window**: Immediately after the command finishes, FlexAnnotate opens a fresh companion window (`openBrowse`) at the exact same screen position. A new window is opened rather than keeping the old window alive because Zotero's `citationDialog.js` initializes its `io` object only during `onLoad` from `window.arguments[0]`, and `accept()` permanently dismantles the item list bindings.
 3. **Inserting from the Companion Window**: The companion window uses a synthetic `io` created via `makeBrowseIo()` (`new integ.CitationEditInterface(...)`). When the user clicks "Einfügen":
    - The selected items and current window coordinates are recorded in `pendingInsert`.
-   - The browse window is closed.
-   - FlexAnnotate re-executes `integ.execCommand(cmd.agent, "addAnnotation", cmd.docId, cmd.templateVersion)`.
+   - The browse window is closed via `closeBrowse()`.
+   - FlexAnnotate re-executes `integ.execCommand(cmd.agent, cmd.command || "addAnnotation", cmd.docId, cmd.templateVersion)`.
    - The patched `Integration.displayDialog` intercepts this execution: instead of presenting a new window, it directly transfers `pendingInsert.items` to the real command's `io.citation.citationItems` and immediately calls `realIo.accept()`.
    - Once Word receives the citation, the companion window re-opens at the same coordinates.
 4. **Agent Compatibility**: Active for `WinWord`, `MacWord`, and `LibreOffice`. Google Docs (`http`) is excluded because re-issuing integration commands would stall the HTTP server.
@@ -435,25 +435,61 @@ _Control flow of the persistent citation dialog: Capturing selections, executing
 
 ### Window Bounds Management and Layout Pinning
 
-Managing the size and placement of the companion window involves overcoming Zotero's internal resizing routines:
+Managing the size and placement of the companion window involves overcoming Zotero's internal resizing routines and reconciling client viewport dimensions with window decorations:
 
 - **Relaxing Minimum Width** (`relaxDialogMinWidth`): Vanilla Zotero enforces `libraryLayout.MIN_WIDTH = 1000` px in `citationDialog.js` and sets `min-width: 800/1000px` in `zotero.css`. FlexAnnotate injects an overriding stylesheet (`#flexannotate-persistent-style` setting `min-width: 0 !important;`) and resets `libraryLayout.MIN_WIDTH = 360` px. This allows users to dock the companion window beside their word processor down to 320 px wide.
-- **Pinning Geometry Against Resize Animations** (`pinRect`): After opening, Zotero invokes `resizeWindow` and asynchronous smooth-resize animations. `pinRect()` temporarily locks window dimensions for `PIN_MS = 5000` ms by intercepting `win.resizeTo` and `win.moveTo` during the load phase (`LOAD_SETTLE_MS = 500`, `LOAD_CAP_MS = 1500`, up to `MAX_FIXES = 30`). Once the window settles, listeners release control so the user can manually reposition or resize it.
-- **Persistent Geometry Storage** ([persistentRect.ts](../../src/features/organizer/logic/persistentRect.ts)): Window coordinates are debounced (500 ms) and saved to the `persistentWindowRect` preference. `parseStoredRect()` validates that the stored rectangle overlaps the currently visible desktop area (`ScreenArea`), preventing windows from opening off-screen when disconnecting external monitors. It clamps oversized coordinates to `screen.availWidth`/`screen.availHeight` and enforces minimum thresholds (`MIN_WIDTH = 320`, `MIN_HEIGHT = 300`).
+- **Inner Dimensions and Window Chrome**: Window geometry coordinates in `rectOf(win)` track client viewport dimensions (`w: win.innerWidth`, `h: win.innerHeight`, `dpr: win.devicePixelRatio || 1`) along with screen coordinates (`x: win.screenX`, `y: win.screenY`). While `Services.ww.openWindow` features set inner viewport size, Zotero's native `win.resizeTo(w, h)` sets outer window size. FlexAnnotate uses `chromeOf(win)` to compute window decoration and titlebar offsets (`w: win.outerWidth - win.innerWidth`, `h: win.outerHeight - win.innerHeight`), allowing `outerTarget()` (`rect.w + c.w`, `rect.h + c.h`) to accurately map inner dimensions to outer resize targets.
+- **Pinning Geometry Against Resize Animations** (`pinRect`): After opening, Zotero invokes `resizeWindow` and asynchronous smooth-resize animations. `pinRect(win, rect, placed)` locks dimensions for `PIN_MS = 5000` ms:
+  - Intercepts `win.resizeTo` to redirect resizing to `outerTarget()`.
+  - Intercepts `win.moveTo` to preserve `(rect.x, rect.y)` strictly during the load phase (`inLoad()`, bounded by `LOAD_CAP_MS = 1500` ms plus `LOAD_SETTLE_MS = 500` ms settle time).
+  - Runs a 20 ms interval timer checking for dimension drift (`sizeOff` > 2 px, `posOff` > 4 px), applying up to `MAX_FIXES = 30` corrective resizes.
+  - Once the load phase completes, position pinning ceases so the user can freely reposition the window. A subsequent user-initiated resize (detected on window `resize` when outer dimensions differ from `ours`) immediately cancels size pinning (`stopped = true`).
+  - When pinning ends (`pinEnded.add(win)`), a 200 ms interval (`trackLive`) monitors live geometry and debounces persistence (500 ms) into `persistentWindowRect`.
+  - If the user accepts an insertion (`(win as any).accepted`), Zotero immediately collapses dialog UI; `captureLive(win)` preserves the live rectangle recorded before collapse rather than reading destroyed post-accept dimensions.
+- **Persistent Geometry Storage** ([persistentRect.ts](../../src/features/organizer/logic/persistentRect.ts)): Coordinates are debounced (500 ms) and saved to the `persistentWindowRect` preference. `parseStoredRect()` validates that the stored rectangle overlaps the currently visible desktop area (`ScreenArea`), preventing off-screen positioning when disconnecting external monitors. It clamps oversized coordinates to `screen.availWidth`/`screen.availHeight` and enforces minimum thresholds (`MIN_WIDTH = 320`, `MIN_HEIGHT = 300`).
 - **Synchronizing Native Window Params**: `writeStoredSize()` updates Zotero's `integration.citationDialog.windowParams` preference for both `library` and `list` modes, ensuring vanilla dialog opens also match user-preferred sizes.
+
+### Responsive Narrow Layout and Settings Menu Integration
+
+The companion dialog features responsive adaptation when docked into narrow screen columns ([dialogOutline.ts](../../src/features/organizer/dialog/dialogOutline.ts)):
+
+- **Breakpoint and Dynamic Relocation**: `win.matchMedia("(max-width: 750px)")` detects narrow viewports. On wide annotation views (≥750 px), the checkboxes ("Nach Gliederung anordnen" and "Blätterfenster") reside in `#flexannotate-toggle-row` at the top of the sidebar. In narrow layouts (<750 px) or whenever switching to the works/citation mode (`dialog-type="citation"`), space in the header is constrained:
+  - FlexAnnotate relocates both checkboxes into Zotero's settings menu popup (`#settings-popup .popup`) inside `#flexannotate-menu-items` (tagged with `data-dialog-type="citation,annotations"`).
+  - A `MutationObserver` on `document.documentElement` monitors the `dialog-type` attribute, calling `place()` and `refresh()` whenever the dialog switches between annotations and citation tabs.
+  - The settings gear button (`#settings-button`) is explicitly kept visible when the menu resides in the popup box, and a `popupshowing` listener synchronizes checkbox states on open.
+- **Vertical Stack Layout Under 750 px**: In persistent companion windows (`#citation-dialog[flexannotate-persistent]`), responsive CSS transforms the 3-column horizontal split into a vertically stacked layout:
+  - `#library-trees` switches to `flex-direction: column !important; align-items: stretch !important;`.
+  - The outline tree container (`#collections-tree-container`) collapses into a fixed top strip (`height: 130px !important; width: auto !important; min-width: 0 !important;`).
+  - `#collections-tree-divider` is hidden (`display: none;`).
+  - The list container (`#item-tree-container`) flexes to consume all remaining height (`flex: 1 1 0 !important; width: auto !important;`).
+  - The sidebar/preview container (`#sidebar`) positions at the bottom with `max-height: 30%; overflow-y: auto;`, preventing list rows from pushing details entirely out of the window viewport.
 
 ## The Citation-Dialog Outline View
 
-In addition to the companion window lifecycle, FlexAnnotate injects a dedicated outline browser directly into the citation dialog ([dialogOutline.ts](../../src/features/organizer/dialog/dialogOutline.ts)):
+In addition to the companion window lifecycle, FlexAnnotate injects a dedicated outline browser directly into Zotero's citation dialog ([dialogOutline.ts](../../src/features/organizer/dialog/dialogOutline.ts), [dialogOutlineRender.ts](../../src/features/organizer/dialog/dialogOutlineRender.ts)):
 
-- **Injection Mechanism**: The injector registers with Zotero's citation dialog, inserting a toggle ("Nach Gliederung anordnen") into the annotation sidebar header. On narrow dialogs (width < 750 px), the toggle moves into the gear menu.
-- **Outline Interface**: Activating the toggle applies CSS rules that hide Zotero's native library tree and search list, substituting three outline columns:
-  1. Headings tree with annotation counts per section.
-  2. Annotation list belonging to the chosen heading.
-  3. Preview area displaying quote, comment, and formatted citation.
-- **Section Grouping**: Uses `buildDialogSections()` ([dialogView.ts](../../src/features/organizer/logic/dialogView.ts)). If the "Werke in Annotationsansicht" option is active, annotations inherit the `§`-tags of their parent works.
-- **Search and Insertion**: The native search bar input is mirrored into the outline list. When the user clicks "+" on an outline annotation, FlexAnnotate creates a temporary native `<annotation-row>` inside `#annotations-list`, triggers its native "+" click handler, and cleans up the node — ensuring Zotero's citation insertion logic remains completely standard.
-- **Cited Status**: Annotated checkmarks indicate items already cited in the document session via `citedAnnotations` ([dialogCited.ts](../../src/features/organizer/dialog/dialogCited.ts)), hooked into `io.accept`.
+### Dual-Mode Support: Annotations and Works/Items Tabs
+
+FlexAnnotate's outline view integrates natively with both citation dialog modes governed by `dialog-type`:
+
+1. **Annotations Tab** (`dialog-type="annotations"`):
+   - **Section Grouping**: Built via pure `buildDialogSections()` in [dialogView.ts](../../src/features/organizer/logic/dialogView.ts). If the preference "Werke in Annotationsansicht" is active (`readShowWorks()`), annotations inherit heading tags from their parent works via `effectiveTags()`.
+   - **Three-Column Layout**: Left column shows headings with annotation counts (`nodeCounts`), middle column lists the chosen heading's annotations (`renderList`), and right column displays the full quote, comment, and formatted citation preview (`#flexannotate-preview`).
+   - **Native Insertion**: In annotations mode, clicking "+" on an outline row or pressing Enter triggers `insert(win, ids)`. FlexAnnotate creates a temporary native `<annotation-row>` inside `#annotations-list`, triggers its native `.zotero-clicky-plus` click handler, and cleans up the node — ensuring Zotero's standard annotation insertion logic executes untouched.
+   - **Session Cited Status**: Annotations already cited in the session display green checkmarks via `citedAnnotations` store (`activeIds(readCitedStore(), currentSessionId(), citedWorks)`), hooked into `io.accept`.
+
+2. **Works / Items Tab** (`dialog-type="citation"`):
+   - **Works Section Grouping**: Built via pure `buildWorkDialogSections()` in [dialogView.ts](../../src/features/organizer/logic/dialogView.ts). Top-level regular works are grouped directly under their assigned `§`-tags, with unfiled works placed into the `node === null` ("Ohne Kategorie") section.
+   - **Adapted UI**: In citation mode, `#flexannotate-preview` is omitted/removed from `#annotations-sidebar`, maximizing available list space for library items.
+   - **Direct Insertion**: In citation mode, `insert(win, ids)` retrieves items with `Zotero.Items.get(id)` (filtering for `isRegularItem()`) and directly passes them to `(win as any).IOManager.addItemsToCitation(works)`.
+   - **Mode Switching from Quick Copy**: If Zotero opens the dialog in Quick Copy red bar mode (`currentLayout?.type === "list"`), enabling the outline view automatically switches to classic library mode by awaiting `(win as any).IOManager.toggleDialogMode("library")` before building the view.
+   - **Session Cited Status**: Already cited works are extracted from the active session via `citedWorksOf(win)`.
+
+### Collection Scoping and Search Synchronization
+
+- **Collection Picker**: A scope selector above the tree column (`#flexannotate-dialog-scope-picker`) allows switching between the whole library and specific collections. `loadRoots(libraryID, collectionID)` traverses up via `topmostCollection()`. The choice is saved to the `dialogOutlineCollection` preference, falling back to the whole library if a stored collection has been deleted. If a selected collection has no outline note, an informative hint (`#flexannotate-dialog-no-tree`) appears.
+- **Search Synchronization**: The native search bar (`#bubble-input`) is mirrored one-way into the outline list: `bubble-input` dispatches `handle-input` (`detail.query`) on every keystroke, which filters outline items without altering native search state.
+- **Teardown**: When the outline toggle is switched off, `restoreLayout(win)` removes all injected DOM containers (`#flexannotate-tree`, `#flexannotate-list-pane`, `#flexannotate-preview`, `#flexannotate-native`, `#flexannotate-dialog-style`), unregisters event listeners, and restores native item selection.
 
 ## External API for Other Extensions
 
@@ -484,7 +520,7 @@ The Organizer test suite splits cleanly across the repository's architectural se
   - [docExport.test.ts](../../test-unit/docExport.test.ts): Validates generated DOCX XML structures, 9-level numbering definitions, and ODT XML parts.
   - [persistentRect.test.ts](../../test-unit/persistentRect.test.ts) & [persistentOptions.test.ts](../../test-unit/persistentOptions.test.ts): Tests geometry parsing, multi-monitor overlap detection, coordinate clamping, and window option string normalization.
   - [outline.test.ts](../../test-unit/outline.test.ts): Verifies decimal numbering calculation, node transformations, unique title enforcement, and `LATTICE-OUTLINE-V1` JSON parsing.
-  - [dialogView.test.ts](../../test-unit/dialogView.test.ts): Tests citation dialog section grouping, tag inheritance from works, and annotation counts.
+  - [dialogView.test.ts](../../test-unit/dialogView.test.ts): Tests citation dialog section grouping, work tag inheritance (`buildDialogSections`), works grouping and unassigned categorization (`buildWorkDialogSections`), and recursive node counts.
   - [selection.test.ts](../../test-unit/selection.test.ts) & [scope.test.ts](../../test-unit/scope.test.ts): Tests multi-selection click logic and collection ancestry resolution (`topmostCollection`).
 - **Zotero Integration Tests** (`test/`): Executed inside a live Zotero instance via `addon.api`:
   - [docImport.test.ts](../../test/docImport.test.ts): Tests importing real `.docx` and `.odt` ZIP archives into Zotero, verifying outline note persistence, heading creation, and scoped tag renaming.

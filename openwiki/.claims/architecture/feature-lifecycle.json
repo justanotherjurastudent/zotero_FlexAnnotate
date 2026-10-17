@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:b7ce1ddf1db3b849fc7a6380668aab3848731c9e6d822ab4e4e11572bf8bab9b",
+  "pageVersion": "sha256:de09a9be362e5f513daaa3a7c2bbd20a93e50099b7bcfbfc4e0981de013b1e93",
   "claims": [
     {
       "id": "claim_8a3676f4eac94dd6881061ea0f360c41",
@@ -35,8 +35,8 @@
       "statement": "src/hooks.ts owns the single ordered features array — the only place that knows all features; array order is start order and stop runs in reverse (the organizer's MenuManager menu is registered first and unregistered last). Registering a new capability means adding a Feature object to this array; nothing else wires it up.",
       "evidence": [
         {
-          "resource": "repo://src/hooks.ts#L70-L111",
-          "version": "repo-lines-v1:sha256:cd7a4cc1788f797f7b8a06f0bf0e768d8e1132feb9bd54b6f800c4b3178ae746:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmZmNhZTJhZWMyYjQyMjM4MjMzZDM0NmQ1ODE4ZTkyOTY3ZTQ2NTE4ZTZlY2ZkZjBkYjAzY2FhZDJhNjY4YmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk2NzU1YmQ2MmRkZWQ1M2I3NmVkMmYxNjRjZGEyYjRkZGE4YzcxMzAzNGFlOWZhYjM2YWYwYjBkMTAzMGY2NDAifQ"
+          "resource": "repo://src/hooks.ts#L83-L129",
+          "version": "repo-lines-v1:sha256:1cf5a77c4ea4124813aefc5bfd3407098bc43a195ffcb5ace31d425c127e00f2:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyYzZkODRjYWM4MWM4OWI2MjNhOGI5ZTQ4OGY2ZWNhYTZkOWM1NmM1NGQ0ZDk0OWQyYWUzM2M1MzFjNWQ3ZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4NDAwOGE4ZTQ2ZTdiN2JiMjliN2VkNmI0NzAzZjliZTg4MWJjOTA3YzhiYTc0ZTUxNjA1MzhiNTZmYTQ2ZjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk2NzU1YmQ2MmRkZWQ1M2I3NmVkMmYxNjRjZGEyYjRkZGE4YzcxMzAzNGFlOWZhYjM2YWYwYjBkMTAzMGY2NDAifQ"
         }
       ]
     },
@@ -49,8 +49,8 @@
           "version": "repo-lines-v1:sha256:65e2a0b1b9a3596786b9d29746548b73da95f9af3eb99257d890f88ca0ea7b70:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlZmNkOTNmYWVhMWZiOWU5YWYzNWY2ZWY1ZjZiYWNjZDVmMWFlYzczMmE1NmFkZmQ2NzczOWIyNjdjNmY0ZmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0NDRjZTY2MjFiOWMzNjM3OWRjMWZjMWQ5MTRlOWQzYjU1YWJkYWQzNzA5MjJjZmQxMjViZTA5ZGNmYzdjNDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAifQ"
         },
         {
-          "resource": "repo://src/hooks.ts#L70-L111",
-          "version": "repo-lines-v1:sha256:cd7a4cc1788f797f7b8a06f0bf0e768d8e1132feb9bd54b6f800c4b3178ae746:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmZmNhZTJhZWMyYjQyMjM4MjMzZDM0NmQ1ODE4ZTkyOTY3ZTQ2NTE4ZTZlY2ZkZjBkYjAzY2FhZDJhNjY4YmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk2NzU1YmQ2MmRkZWQ1M2I3NmVkMmYxNjRjZGEyYjRkZGE4YzcxMzAzNGFlOWZhYjM2YWYwYjBkMTAzMGY2NDAifQ"
+          "resource": "repo://src/hooks.ts#L83-L129",
+          "version": "repo-lines-v1:sha256:1cf5a77c4ea4124813aefc5bfd3407098bc43a195ffcb5ace31d425c127e00f2:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyYzZkODRjYWM4MWM4OWI2MjNhOGI5ZTQ4OGY2ZWNhYTZkOWM1NmM1NGQ0ZDk0OWQyYWUzM2M1MzFjNWQ3ZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4NDAwOGE4ZTQ2ZTdiN2JiMjliN2VkNmI0NzAzZjliZTg4MWJjOTA3YzhiYTc0ZTUxNjA1MzhiNTZmYTQ2ZjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk2NzU1YmQ2MmRkZWQ1M2I3NmVkMmYxNjRjZGEyYjRkZGE4YzcxMzAzNGFlOWZhYjM2YWYwYjBkMTAzMGY2NDAifQ"
         },
         {
           "resource": "repo://test/toolbarButton.test.ts#L30-L49",
@@ -95,8 +95,8 @@
       "statement": "onStartup awaits Zotero.initializationPromise, unlockPromise and uiReadyPromise (no feature runs before Zotero is usable), then initLocale, then builds addon.api, then registers the preference pane, then awaits startAll(features), then runs onMainWindowLoad for every open main window, and only then sets addon.data.initialized = true as the last step.",
       "evidence": [
         {
-          "resource": "repo://src/hooks.ts#L113-L187",
-          "version": "repo-lines-v1:sha256:8165ebfeb08735a58ea2198aea36e05e6706ee24f4dd3c8c348d852e72bcfd93:eyJzZWxlY3RlZExpbmVDb3VudCI6NzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwN2JkOWMwNGMxYTM4NGRhMTUyZWEzMTllY2ZmZmNhYjhiZjk1MzMyNDc2ZjkzNTg3MTFhZjg2MGVlY2NhZTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1YTAwMDRiNzEzMjJkYzAyYTczODI5ZjFkZTUzYmQxMTU3NGFmNTI1NDc4MmQwMGQ2YWQyZjIzOWI1NWIyMzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkYWQ2ODkyNzQyZTllODk4OTZjOWVhYjNmZDc4ZmQ2ZjEyYzI0MTYwNzA0ZGIxNWFjMGQwN2RlYzY0MmQ2ZTcifQ"
+          "resource": "repo://src/hooks.ts#L131-L209",
+          "version": "repo-lines-v1:sha256:7caedb508c8e40a784f28c1088c214b1022fec9bdcf53f5ef5d75faae75256c1:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwN2JkOWMwNGMxYTM4NGRhMTUyZWEzMTllY2ZmZmNhYjhiZjk1MzMyNDc2ZjkzNTg3MTFhZjg2MGVlY2NhZTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE4YTkxNzU5NzJmZTE1ZTJhOTY0MWFiMTMxZjU3MWU2YzdjYWJjYTA2ODM3NjJlYmE1ZjIzNTNlNDgzYzNkNTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkYWQ2ODkyNzQyZTllODk4OTZjOWVhYjNmZDc4ZmQ2ZjEyYzI0MTYwNzA0ZGIxNWFjMGQwN2RlYzY0MmQ2ZTcifQ"
         }
       ]
     },
@@ -105,7 +105,7 @@
       "statement": "Per main window, onMainWindowLoad creates a fresh ZToolkit, inserts the two Fluent files (flexannotate-mainWindow.ftl and flexannotate-addon.ftl) and awaits addToWindow(features, win); onMainWindowUnload runs removeFromWindow(features, win), ztoolkit.unregisterAll() and closes an open plugin dialog window.",
       "evidence": [
         {
-          "resource": "repo://src/hooks.ts#L189-L206",
+          "resource": "repo://src/hooks.ts#L211-L228",
           "version": "repo-lines-v1:sha256:fe86e19fa85d409dacd064912f224b9bd8ed5bd1b208a160c60492660aa9328f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxODI3YWZjZDRiMGIwOGM3M2VlOTViNGNjMTI5MDc1NzdhMWY0NjFlYjlhZjhjY2RkOWM5MTc0OGQ4YWNlMDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRlYzNlYWZjNDdjODkxZmNiZTU5ZWJhN2I3NmY1ZGFhZjdlMmM2NjkxMDNmNjViNTU5NDRhMmE4OTRiNjhmZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhjNmZhZjNhZmVmZDZlNGEzMjhlZTgxYWM4NTNkZjBjY2U1OWM4NTllNTk1NzUyOTg1MzdlYjk1ZmYyNWFiN2QifQ"
         }
       ]
@@ -119,7 +119,7 @@
           "version": "repo-lines-v1:sha256:1d38313dbcf29c8fca0a16954836c5dc6ab1e40e43e6950f28a9d286007a5bfc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2YzNiODVjZjUzOTkwY2QwNzcxOTY5ODlkYTU3ODM0NjcwOWFmYTNkZGYyNmNmYWIyNmFlNjJkNWY0YzRlYzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiYjc3ZTRlMTY5YmE5NTcwOWRlYTYxY2FkNjU3NGRlYzIzYTY0ZGVjOGViMDU2ODJmMGU2M2ZlNjBlZTA5YjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFlZDJkZWI1YzYzZTc3OWQ5YTNkNzMwMzdjNDExNTA4YTUwYWYwNGZlMGRiMjhkNDQzZDk1NTE4YzZhM2E5M2YifQ"
         },
         {
-          "resource": "repo://src/hooks.ts#L208-L215",
+          "resource": "repo://src/hooks.ts#L230-L237",
           "version": "repo-lines-v1:sha256:11edfa5452cbe8400077c096eb5ed25a9223769719db61c8bbea9383b242471e:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODJhYTZlZGNjYmZhNTgyYTE4ZTBjODVjMTZlNzM4ZWMwODRiMGQ2ZmE3YzZhNjQwODk1YWViYzY4MWVjNjFlYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzA4MDI0NjE0Yjc0YTcwOWVjZGM5NGRjZDFhOGMwYjBjOWVlMTRkYWY0Y2M3ZWM1ZDdkYzRlMTNmNzc3YjVkMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjE2MzJjZGUzZjQ2YWY0ZGU4YmExOGY0ZjJkNDk0YTFhZGIxNTlhNjY5YzI5M2U0OTEyMTBhODY2ZjdkYTFhNiJ9"
         }
       ]
@@ -133,8 +133,8 @@
           "version": "repo-lines-v1:sha256:c7a0233a99e3ae492dc7f27af0838dc0c9898e6f2da10d51f51c0fb42beb664e:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzdhMDIzM2E5OWUzYWU0OTJkYzdmMjdhZjA4MzhkYzBjOTg5OGU2ZjJkYTEwZDUxZjUxYzBmYjQyYmViNjY0ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzdhMDIzM2E5OWUzYWU0OTJkYzdmMjdhZjA4MzhkYzBjOTg5OGU2ZjJkYTEwZDUxZjUxYzBmYjQyYmViNjY0ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWFhM2ZlN2UxYzZkMWZhZDZkMzZhNGRmODA0YTQ3NDVlOGVjNWNhYTVkYzRjYWM2NmExYWNkMzdhYjBlNTUzZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDBlMGY1YjFiOTE3MzE4MzI3MDZjYWE4OWNmMTZmZjc1NjUwNDFhYTNlNjgzM2ZkYWZhNjUyNzQyOTc5MThlNyJ9"
         },
         {
-          "resource": "repo://src/hooks.ts#L122-L168",
-          "version": "repo-lines-v1:sha256:b8279a01d5833477320b7569ca8c0b2dd2f4adf322a981b0c9ca3e0cf094b4ec:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwMTgzNjQ4NGQ4MmQ1NmM5Yzc0MjExMDkzNDlhY2UyOTg4MDUwNmQyYjI3N2I0NjFmM2ZlYTgxYWE3ZTFiN2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiZWU0NTk1NDhlNDBjMTZiZmMwYTZjMjgzMDhiNmY1MzI0ZWE3NWI0ZmM5ZjRlZDQ1OTk5OTE2NTA0MTllODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3NzQ2NTQ2NjYwMThkNTg2Njk3NjI0MzhlMmJkZTAyMGIyODk3NjIxMmZiNWJhNTU3MDEyMmMwMzM5N2RiN2EifQ"
+          "resource": "repo://src/hooks.ts#L141-L190",
+          "version": "repo-lines-v1:sha256:a4dbb9da38276aca4c0621955cd700d31c078fc85abccc567bf327acf9546614:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3ZGY3ZTFlYzcyOGUwZjU3YTY4NjA3ZmUwMjIyMDhjYjFlMzkxYzNjY2Q5NWMwNWFkY2ZiZmVmOTNmNjE5NWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1NDA1MjYxZTVkN2Y5MjQ4YzUzNTU4NWU1NDg5ZWMzZGNkNGY1MWYwNDYxNmRmNDBiZmMxNjcwZmFmODAyYjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3NzQ2NTQ2NjYwMThkNTg2Njk3NjI0MzhlMmJkZTAyMGIyODk3NjIxMmZiNWJhNTU3MDEyMmMwMzM5N2RiN2EifQ"
         },
         {
           "resource": "repo://test/features.test.ts#L18-L23",
@@ -147,7 +147,7 @@
       "statement": "The Zotero test runner gates on full startup: zotero-plugin.config.ts sets test.waitForPlugin to () => Zotero.FlexAnnotate.data.initialized, and onStartup sets that flag only after startAll and all per-window addToWindow passes have finished, so no test observes a half-started plugin.",
       "evidence": [
         {
-          "resource": "repo://src/hooks.ts#L180-L186",
+          "resource": "repo://src/hooks.ts#L202-L208",
           "version": "repo-lines-v1:sha256:969051dceab0fa05400545150147e4e65a03549d722e5e3b02a58d450f69fbb9:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjk0ODQxYzdkZTU0MWEzMTM3NmRhZjFhZTQ1N2QxOTc0MDljYjVmZjUyYWM5Yjc5ZmM2MTY0MDNhOTEzZjg2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTlhOTQzYzVjOGEyN2FhMjk0ZjY2YTVlOTI5ZGVkOTRiYWYyMDI4NWRiZjViNDIwMTdkOTA5ZDhlZThjZDg5NyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGZlZWJhMjlkZDk4ODhjNzEwMmJhN2E5MmNiOWY2Y2UwZjMyMWY4ZGNkMWVkMGIyOTY5MWE5ZTkyNTJkYjYxOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGY1YTZkMWE0N2EyMmNmNzVkODNmNjYyZmM1YTA1MGY1OGE1NDQ3NWU4ZGEwNDc3MDg4MjZiMTdmYTIyNzkwOSJ9"
         },
         {
@@ -171,12 +171,12 @@
       "statement": "Start hooks use feature detection, not version comparison, to skip what a Zotero version lacks: persistentDialogPatch.start() patches nothing when Zotero.Integration lacks Interface.prototype.addAnnotation (Zotero 7.x/8.x), and rolls back both displayDialog and execCommand patches if either cannot be installed.",
       "evidence": [
         {
-          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L119-L125",
-          "version": "repo-lines-v1:sha256:ca59e72a24d2f5cdc2c8c41296cc18da6e743f0a74e196f0c80096fa3de81f6f:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWNlZTNhY2EwODA2NzgwZTcxOGJmYmE3YTA4Yjc3NmFmM2ZmOGZhMDhkMGFmNmNkYWQ3NzQyNmJmZTRlY2IxNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzRkYTM3YTU5NWYyOWZlYzk2OGZiZjc0ODM5OWI2ZmM3MWQ4YjdjMzgxM2Q4OWVlODliN2Y0YTk2M2M2N2UxMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWFjMjA3ZjNhMmQ1NTlmODcxYWUwNmFmZGVkZjc0OTRiMGM2ZmU3OWNkNGVhMzY5ODRkM2U5ZDU1ODU2N2MyZCJ9"
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L126-L130",
+          "version": "repo-lines-v1:sha256:0d247cb529cca11caed64edc64f1dc38b1a73436c1b15cbe476582c86afb8bde:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjAzZTNkMTA4N2NhOWJiZDE4MzRkODc5MWFiNjYyOGQ1MWRkNTViNjdjNjExYzM1ZTdhMWY4OWFhMjE0NDJkMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGZmMzI3YTgxZGIwZDNiZmM3MzFkNGQ2ZWFiNGNhMGIzZGUyNmI0ZmEwMzA0MjI1MWY5MzA0MGY3MThiZjM1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzBlNzk1N2JjODQ3NDJkYjdmYmUzMDdlZmNiNjUwNjAxZjQzYjcwZDkzNGRiNWQ2MGY2ZGVhNmNjNTVmNTA3NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjllNjAxODQ0MzM0ZTBhMDQ4YTQ0ZDFkOTQxMjQzMDE5MmViZDcwYjkwODczYzkwNjc3YzNkNGVjZmQyODI4NiJ9"
         },
         {
-          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L919-L960",
-          "version": "repo-lines-v1:sha256:e732fb3d951e13fbe7b47dd69c1c9dab647dd4f3f7b83b8725b911d10e3204df:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjMGRiOGVmODJhOTczMThmYTViNTQ0MTE1Y2M3OTU3NzI1YTBlMjg1NGEwMTE0MjIxYjlhYzk4ZjUzMGIyNDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIzNjA2M2VlYTdkYWEyM2EzNDNhYzFkYjI1ZWFiOTY2N2ZjODExOGM1ZDdjOGE1OWE0Y2Y4NjA4OTQ4ZGYxOGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/features/organizer/dialog/dialogPersistent.ts#L947-L967",
+          "version": "repo-lines-v1:sha256:dd519f33cd7fef17f8e9e5dc033897c768ad56f2aff8d03da4ee5417ecff4c73:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjMGRiOGVmODJhOTczMThmYTViNTQ0MTE1Y2M3OTU3NzI1YTBlMjg1NGEwMTE0MjIxYjlhYzk4ZjUzMGIyNDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIzNjA2M2VlYTdkYWEyM2EzNDNhYzFkYjI1ZWFiOTY2N2ZjODExOGM1ZDdjOGE1OWE0Y2Y4NjA4OTQ4ZGYxOGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJlOTAyNTM4YTk2M2YyMDU5ZmVmNjg5NDVlZjE5MGIzNzFkYzZiYTY0OTA2NTMyMTkwODYzOGU2ZTUzY2I4MDcifQ"
         }
       ]
     },
@@ -185,11 +185,11 @@
       "statement": "Preference-pane registration is declarative and happens in onStartup via Zotero.PreferencePanes.register (pluginID, chrome src, fill-script URL, label, image); onPrefsEvent stays a no-op because the checkboxes bind to preference keys directly in preferences.xhtml. The fill script src/prefs/preferences.ts is a separate esbuild bundle that Zotero loads in a sandbox scope without plugin globals, so it may only use Zotero.*, window and document.",
       "evidence": [
         {
-          "resource": "repo://src/hooks.ts#L170-L178",
+          "resource": "repo://src/hooks.ts#L192-L200",
           "version": "repo-lines-v1:sha256:9beb484067cba4a0b3a6422930220062aa283cfcff5f9ff1170304de8609868f:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjY5NTk1MDM0MmIwODZkMzBlMTBjMzRiNDU1NjMyZDZkNjMxZTk0NTllZGQ1NjQyMTFiMmY3YWNmYzY5ZmIxZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2EzZTQ2Zjk0Mjc2YjZmNmY0ZWQxZjAyYWY3OGJlZjZhMmVlMWM0MzlkZDU1ODRiOTczOTQ4MzEzMjE0ZDJiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDgyODc4ZjU2NzA0YTkwY2FjYjYzNWJkMzE2OThkNTIzMDQzMTFmYTM1NDJjNDk3MzBlMDY2YTQ5ZDg4N2U1MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzRhMDZkM2M5ZDJiOTgyMzVmM2Y0YTRjYzM2YjVjZjgwNTllMzVhZTg1MWU2ODY1OGNlZDAwZjY5ZDZmZjA0OSJ9"
         },
         {
-          "resource": "repo://src/hooks.ts#L226-L228",
+          "resource": "repo://src/hooks.ts#L248-L250",
           "version": "repo-lines-v1:sha256:2ac708318135802a25394c9820460ee803edf6a0682e69c4db1c12fe38766994:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDQ1ZmFmNTJhNmRhOTU0OGQ1YjJiOTlmZDUxZWNkMzQwMzNkMTQ3YWY4NzlkZTNmM2NiZGY2YmQ5ZDliYWYxZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjZjOTM4YzIyNmVlMjhiZTY0YmVlZmI1MmY2NzVmODFhMzI0OTA3Yzc1YmMyYzU2Y2JiNWNjOTBhN2FhNWRhMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjQ5YTEyOGZkYzU1NmMxMjI2ZWNlZmJiNmQyMmM1MmQ5Y2I0YzY3N2UxYWI4MmE0NDc4NjQ4MmEwM2MxMjA5NCJ9"
         },
         {
@@ -219,10 +219,32 @@
           "version": "repo-lines-v1:sha256:7f2667f3dc20788042ca0dcf27731a0f9e90f6817e1f542156a2510ab0e5ed0f:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTE3NjAxMDUzZDY0MzI2NDAwMjk5MzE4OTI1ZmRiOGE0NWJiNTM1Y2IwMGUwYmMwZTBlNTM2MmEzZGM1MTQ0NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmEzOGVlOWNjNzNjOWYxZjJjOGY4YzU2ZDAwYmQwMGRlNWIwNzM2OWYxMmUwODBhYmJkNzljOGM0Mzc1NmMxNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
         }
       ]
+    },
+    {
+      "id": "claim_bf5107697b004ff1b6670dff4a507089",
+      "statement": "annotationRowPatch is registered both as a citation dialog injector (alongside modeSelector and outlineView) and as a main window feature in features; its window hooks and injector callbacks patch AnnotationRow.prototype.render per window via assignChecked to display custom locator labels instead of fixed page labels, tracking installations in a WeakMap and restoring native render on unmount.",
+      "evidence": [
+        {
+          "resource": "repo://src/features/print/annotationRowPatch.ts#L62-L137",
+          "version": "repo-lines-v1:sha256:596f95fb78337640e56c4a99f83543e02c9b3dafae3734ebb7282d2dbad87f24:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjNTJlMjM2NjY4NWNjODQ5MDg4MjE2ZTU1N2VkNmM3ZjhhZDQwMDUxMjhjNGNmMDdmMWI4Yjg1MTNiY2VjNzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5ZDIwMThmMzk2ZmE2ZGE2MDMzODU4YzE0ZjE5OWU2OTA0MzBhODYzNDk4MTU0ZmViMWYzYzdhNzhiMzNiMTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/hooks.ts#L120-L128",
+          "version": "repo-lines-v1:sha256:1cc845124c7ad611ac81197ef6ac8c4577b5425434f5fe73f11908ee804eef8d:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjExMWYyMzlhYzY1YzlmZWNkNGY3OTc1ZDRlZTBjNjc3YjU4YThlYTY3ODUyZWEyNWQyNzkyMzkyNTE4ZDJmOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTc2ZTVjY2M1M2NiZTg4M2RkNjYxYTA4YjMwYzMxODJjMTNkMTk0ZWRkMjY4NTIyYTI5NzVjNDMyMjZiYWMwNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTViNjNlOTAwMWZlYmVhZjJkODEwM2FjMjhkODhkNmUyYzkzNjY2NjU4YTY2NDQ1YTAxNTY3YzI3YzU3OTRmMiJ9"
+        },
+        {
+          "resource": "repo://src/hooks.ts#L66-L78",
+          "version": "repo-lines-v1:sha256:758a41264c756296c5435d9d77301c9d0b94473eb3ac2a6c6de3c7d40a1bbb4f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2MDAzYzA0NWMxODkyODg0OTlhMzM4YTE3N2UyNTY3MzgwNTM5M2UzZTFkYTlhZTU0MTUyY2Q0NGVjOGNlY2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA5Yzc1Y2ZkNTk4YjMxNDRmMzc2MzdhNTc3YzVmN2Y0NzQ5NTI5NjQyZGYxODE0NDkxYTQ3OWFiM2U0YzhhNjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1ZmE4Yzc5MzFiYTA5ZGFiN2JiYTk4MmFjMjJlZGU0OWIzMTI4MmZkMGYyM2IwN2JlZmY2YjlmNDA0NzM2YmYifQ"
+        },
+        {
+          "resource": "repo://test/annotationRowPatch.test.ts#L30-L58",
+          "version": "repo-lines-v1:sha256:f9af3c29055232c992e556e2ae382f595309f5bfb1e8e7be851a096d0031b6f2:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4NmM1NzU2ODFhYTQ0MzYwM2Q2MmQ4NDQ3ZDFiNDczNzQ2ZDE0MTEyMzczOTQzYjhkYTkwMGU4NTg0YzBhOGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNkZDI3YmYwMDk3YjhjMWE3MDk3ZDA4YzM1Yzg3ZGZiMjhjZTIxZDQwYjEyOGE5NDc4NzE1ZTc2MWI2OTEyMmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-16T19:49:13.348Z"
+    "at": "2026-10-17T22:13:14.642Z"
   }
 }

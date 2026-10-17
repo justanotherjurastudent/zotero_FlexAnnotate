@@ -5,7 +5,7 @@ description: Public API surface exposed at Zotero.FlexAnnotate for external plug
 tags: [external-api, zotero-flexannotate-namespace, ai-integration, mcp, deep-links, citation-dialog, word-integration, addon-api, testing]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-16T19:49:13.348Z
+    at: 2026-10-17T22:13:14.642Z
 sources:
   - id: openwiki-source-806594701623c6af9b5ae96c
     resource: repo://docs/ai-integration.md

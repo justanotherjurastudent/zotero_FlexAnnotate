@@ -1,11 +1,11 @@
 ---
 type: concept
 title: Quickstart & Task-Routing Guide
-description: Central entrypoint and task navigation guide for FlexAnnotate coding agents, outlining safety rules, core architecture, and workflow routing.
+description: Central entrypoint and task navigation guide for FlexAnnotate coding agents, detailing safety rules, core architecture, and workflow routing.
 tags: [quickstart, routing, agents, safety, architecture, conventions]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-16T19:49:13.348Z
+    at: 2026-10-17T22:13:14.642Z
 sources:
   - id: openwiki-source-8037e2358a2c4f9b2c722a11
     resource: repo://AGENTS.md
@@ -15,20 +15,28 @@ sources:
     resource: repo://scripts/kill-test-zotero.ps1
   - id: openwiki-source-e1a7f541c75c1bc0f78c20d4
     resource: repo://scripts/run-versions.mjs
+  - id: openwiki-source-f4a82bb76f9ba70735439283
+    resource: repo://src/features/organizer/dialog/dialogOutline.ts
+  - id: openwiki-source-c8587857b6f488227993df04
+    resource: repo://src/features/organizer/dialog/dialogPersistent.ts
+  - id: openwiki-source-57ecce2df247c54f59c24e3c
+    resource: repo://src/features/organizer/logic/dialogView.ts
+  - id: openwiki-source-67599eb667e1f64382e23813
+    resource: repo://src/features/print/annotationRowPatch.ts
   - id: openwiki-source-203c7dd08ccb7d6de0448e34
     resource: repo://src/hooks.ts
   - id: openwiki-source-c4ea7da293e48c50e642ab75
     resource: repo://src/shared/feature.ts
   - id: openwiki-source-ffff6188bcf257e1b54d144a
     resource: repo://src/shared/patch.ts
-generated: { by: "openwiki/0.7.2", at: "2026-10-16T19:49:13.348Z" }
+generated: { by: "openwiki/0.7.2", at: "2026-10-17T22:13:14.642Z" }
 ---
 
 # Quickstart & Task-Routing Guide
 
-FlexAnnotate is a TypeScript-based Zotero plugin (`flexannotate@justanotherjurastudent.github.io`, AGPL-3.0-or-later) built with `zotero-plugin-scaffold` and developed against Zotero 10.0.5/10.0.6 while actively supporting Zotero 7.0 through 10. The plugin overhauls annotation management in Zotero by introducing editable locators and comments across reader and item views, an outline-based annotation organizer (forked from Lattice), citation-only insertion for Word and LibreOffice ("Nur-Nachweis-Zitieren"), annotations for printed media without digital attachments via placeholder PDFs, and a secondary import pass for Citavi knowledge items.
+FlexAnnotate is a TypeScript-based Zotero plugin (`flexannotate@justanotherjurastudent.github.io`, AGPL-3.0-or-later) built with `zotero-plugin-scaffold` and developed against Zotero 10.0.5/10.0.6 while actively supporting Zotero 7.0 through 10. The plugin overhauls annotation management in Zotero by introducing editable locators and comments across reader and item views, an outline-based annotation organizer (forked from Lattice), citation-only insertion for Word and LibreOffice ("Nur-Nachweis-Zitieren"), annotations for printed media without digital attachments via placeholder PDFs, persistent citation dialog companion workflows ("Blätterfenster"), work and annotation grouping under outline headings, and a secondary import pass for Citavi knowledge items.
 
-This document serves as the primary task-routing hub and operational guide for autonomous coding agents and human engineers. It establishes the mandatory safety invariants, architectural boundaries, cross-version requirements, and direct pathways to specialized wiki documentation for every engineering task.
+This document serves as the primary task-routing hub and operational entrypoint for autonomous coding agents and human engineers. It establishes mandatory safety invariants, architectural layering rules, cross-version requirements, and direct pathways to specialized wiki documentation for every engineering task.
 
 ---
 
@@ -72,7 +80,7 @@ Agents operating in this repository must adhere strictly to five foundational co
 
 ### 5. Test Surface Access via `addon.api`
 - **Runtime Environment Sandbox**: Extension modules require ambient globals (such as `ztoolkit`) injected during plugin startup in the main window.
-- **No Direct Module Imports in Integration Tests**: Mocha integration tests in `test/` running inside real Zotero instances must never import runtime modules directly. Instead, they interact with plugin state and features via the structured `addon.api` exposed on plugin startup in `src/hooks.ts`.
+- **No Direct Module Imports in Integration Tests**: Mocha integration tests in `test/` running inside real Zotero instances must never import runtime modules directly. Instead, they interact with plugin state and features via the structured `addon.api` exposed on plugin startup in `src/hooks.ts` (assigned across lines 141–190).
 
 ---
 
@@ -105,6 +113,15 @@ Features implement the `Feature` interface (`src/shared/feature.ts`):
 
 The registry runners (`startAll`, `stopAll`, `addToWindow`, `removeFromWindow`) execute hooks sequentially. Startup runs in forward order; shutdown runs in reverse order. Every invocation is wrapped in error-handling guards that log failures without aborting remaining features.
 
+### Composition Root & Dialog Injectors in `src/hooks.ts`
+`src/hooks.ts` registers citation dialog injectors and manages feature initialization:
+- **Citation Dialog Injectors** (lines 67–77): Registered with `citationDialog.registerDialogInjector` in order of execution:
+  1. `modeSelector`: Mode selection ("Einfügen als") in Word/LibreOffice dialogs.
+  2. `outlineView`: Outline tree rendering, search syncing, and work/annotation grouping.
+  3. `annotationRowPatch`: Dynamically updates `<annotation-row>` title headers to reflect custom locators.
+- **Feature Array** (lines 83–129): Contains process and window lifecycle entries for `organizer`, `organizerToolbarButton`, `toolsMenuFallback`, `collectionMenu`, `citationDialog`, `persistentDialogPatch`, `citeOnlyPatch`, `readerMenu`, `citaviImport`, `annotationIndex`, `externalApi`, `printMenus`, `annotationRowMenu`, and `annotationRowPatch`.
+- **`addon.api` Exposure** (lines 141–190): Exposes internal feature modules, models, and test hooks on `addon.api` during `onStartup()`, ensuring Mocha integration tests can verify internal behavior safely without module bundling collisions.
+
 ### Native Data Model
 FlexAnnotate avoids proprietary database files or hidden metadata stores. All user data is stored within native Zotero entities to guarantee full synchronization across devices and data preservation if the plugin is uninstalled:
 - **Placeholders**: Generated 1-page PDF attachments marked with tag `#flexannotate-placeholder`.
@@ -117,26 +134,29 @@ FlexAnnotate avoids proprietary database files or hidden metadata stores. All us
 
 ## Task-Routing Decision Flowchart
 
-When beginning a task, consult this decision tree to determine which code layer, testing environment, and documentation guide to use.
+When beginning a task, consult this decision tree to determine which code layer, testing environment, and documentation guide to use:
 
-<!-- openwiki: mermaid parse failed and this diagram was converted to a text fence so it does not break rendering. Fix the diagram source and restore the mermaid fence. Parser error: Heuristic: an unescaped angle bracket inside a label breaks rendering; rephrase the label. -->
-```text
+```mermaid
 flowchart TD
     Start["Incoming Agent Task"] --> TaskType{"What is the primary scope?"}
 
-    TaskType -->|"Pure Calculation / Transformation"| PureLogic["Implement in src/features/<feature>/logic/ or src/core/<br/>Import with explicit .ts extension"]
-    TaskType -->|"Zotero DOM / Main Window UI"| WindowUI["Implement in src/features/<feature>/<br/>Hook into addToWindow & removeFromWindow"]
-    TaskType -->|"Gecko / Zotero Host Monkey Patch"| HostPatch["Inspect omni.ja in .zotero-reference/<br/>Patch using assignChecked in start()"]
-    TaskType -->|"Word / Citation Dialog Integration"| CitDialog["Inject via shared/citationDialog.ts<br/>Handle modeSelector or dialogOutline"]
-    TaskType -->|"Outline Tree / Docx / Odt"| OrgOutline["Work in src/features/organizer/<br/>Sync tags and outline notes via OutlineModel"]
-    TaskType -->|"Testing / Automation / CI"| TestSuite["Write Node test in test-unit/ or Mocha in test/<br/>Run scripts/run-zotero-tests.mjs"]
+    TaskType -->|"Pure Calculation / Transformation"| PureLogic["Implement in pure logic folders under src/core/ or feature logic directories, importing with explicit .ts extensions"]
+    TaskType -->|"Zotero DOM / Main Window UI"| WindowUI["Implement in src/features/ and hook into addToWindow and removeFromWindow"]
+    TaskType -->|"Gecko / Zotero Host Monkey Patch"| HostPatch["Inspect omni.ja in .zotero-reference/ and patch using assignChecked in start()"]
+    TaskType -->|"Citation Dialog / Work Grouping"| CitDialog["Inject via shared/citationDialog.ts for dialogOutline, dialogView, and modeSelector"]
+    TaskType -->|"Persistent Citation Dialog"| PersistDialog["Implement in dialogPersistent.ts to manage browse window and synthetic interface"]
+    TaskType -->|"Annotation Row Title Patching"| RowPatch["Implement in annotationRowPatch.ts to patch custom element render method"]
+    TaskType -->|"Outline Tree / Document Sync"| OrgOutline["Work in src/features/organizer/ syncing tags and outline notes via OutlineModel"]
+    TaskType -->|"Testing / Automation / CI"| TestSuite["Write Node unit test in test-unit/ or Mocha integration test in test/"]
 
-    PureLogic --> RouteConventions["Read conventions.md & testing/strategy.md"]
-    WindowUI --> RouteLifecycle["Read architecture/feature-lifecycle.md & overview.md"]
-    HostPatch --> RoutePatching["Read architecture/patching.md & integrations/zotero-internals.md"]
-    CitDialog --> RouteCiteOnly["Read features/cite-only.md & features/organizer.md"]
-    OrgOutline --> RouteOrganizer["Read features/organizer.md & architecture/data-model.md"]
-    TestSuite --> RouteTesting["Read testing/strategy.md & testing/commands-and-runners.md"]
+    PureLogic --> RouteConventions["Read conventions.md and testing/strategy.md"]
+    WindowUI --> RouteLifecycle["Read architecture/feature-lifecycle.md and overview.md"]
+    HostPatch --> RoutePatching["Read architecture/patching.md and integrations/zotero-internals.md"]
+    CitDialog --> RouteOrganizer["Read features/organizer.md and architecture/overview.md"]
+    PersistDialog --> RoutePersist["Read features/organizer.md and integrations/external-api.md"]
+    RowPatch --> RouteRow["Read features/print-annotations.md and features/reader.md"]
+    OrgOutline --> RouteOrgDetail["Read features/organizer.md and conventions.md"]
+    TestSuite --> RouteTesting["Read testing/strategy.md and testing/commands-and-runners.md"]
 ```
 *Decision tree routing tasks to code locations, architectural constraints, and documentation.*
 
@@ -148,17 +168,20 @@ Use this matrix to navigate between common engineering objectives, code ownershi
 
 | Engineering Task | Primary Source Files | Key Interfaces / Conventions | Verification Commands | Wiki Navigation Link |
 | :--- | :--- | :--- | :--- | :--- |
-| **Add / Edit Business Logic** | `src/features/<feature>/logic/`, `src/core/` | No host globals, explicit `.ts` imports, pure functions | `npm run test:unit` | [Conventions](conventions.md)<br/>[Testing Strategy](testing/strategy.md) |
-| **Main Window UI / Menus** | `src/features/print/menus.ts`, `src/features/organizer/toolbarButton.ts`, `src/utils/menu.ts` | Idempotent DOM injection in `addToWindow`, expando cleanup in `removeFromWindow` | `npm run test:zotero` | [Feature Lifecycle](architecture/feature-lifecycle.md)<br/>[Architecture Overview](architecture/overview.md) |
-| **Host Monkey-Patching** | `src/shared/patch.ts`, `src/features/citeOnly/integrationPatch.ts`, `src/features/citavi/citaviImport.ts` | Always use `assignChecked`, anchor in `docs/anchors.md`, symmetric teardown | `npm run test:zotero` | [Prototype Patching](architecture/patching.md)<br/>[Zotero Internals](integrations/zotero-internals.md) |
-| **Word Citation Dialog** | `src/shared/citationDialog.ts`, `src/features/citeOnly/modeSelector.ts`, `src/features/organizer/dialog/` | Inject via `registerDialogInjector`, support persistent window & narrow layout (<750px) | `npm run test:zotero` | [Cite-Only Mode](features/cite-only.md)<br/>[Organizer & Outline](features/organizer.md) |
-| **Citavi Import Processing** | `src/features/citavi/citaviImport.ts`, `src/features/citavi/citaviPrintQuotes.ts`, `citaviLinks.ts` | Second-pass execution in `finally` of file interface, quote deduplication | `npm run test:unit`<br/>`npm run test:zotero` | [Citavi Import](features/citavi-import.md) |
-| **Print Annotations & PDFs** | `src/features/print/placeholder.ts`, `src/features/print/printAnnotations.ts`, `dialog.ts` | PDF reader type enforcement, sort index clamping (`00000\|000000\|00000`), `#flexannotate-placeholder` | `npm run test:unit`<br/>`npm run test:zotero` | [Print Annotations](features/print-annotations.md)<br/>[Data Model](architecture/data-model.md) |
-| **Organizer & Outline Sync** | `src/features/organizer/outlineModel.ts`, `organizerTree.ts`, `docImport.ts`, `docExport.ts` | Tag synchronization (`§Title`), single-instance window factory, `LATTICE-OUTLINE-V1` sentinel | `npm run test:unit`<br/>`npm run test:zotero` | [Organizer & Outline](features/organizer.md)<br/>[Data Model](architecture/data-model.md) |
-| **External Plugin API** | `src/features/organizer/externalApi.ts`, `src/hooks.ts` | Expose read-only outline tree at `Zotero.FlexAnnotate`, manage lifecycle | `npm run test:zotero` | [External API](integrations/external-api.md) |
-| **Localization & Prefs** | `addon/locale/{de,en-US}/`, `addon/content/preferences.xhtml`, `src/prefs/preferences.ts` | Maintain German and English FTL files simultaneously; preference menulist lifecycle | `npm run build`<br/>`npm run lint:check` | [Conventions](conventions.md)<br/>[Build & Release](operations/build-and-release.md) |
-| **Zotero Compatibility** | `src/features/organizer/toolsMenuFallback.ts`, `src/features/print/logic/printAnnotation.ts` | Feature detection over version comparison; verify across 7, 8, 9, 10 | `npm run test:versions` | [Zotero Internals](integrations/zotero-internals.md)<br/>[Commands & Runners](testing/commands-and-runners.md) |
-| **Build, Package & Lint** | `package.json`, `addon/manifest.json`, `tsconfig.json`, `test/tsconfig.json` | Dual TypeScript typechecking, `strict_max_version` requirement for Zotero 10 | `npm run verify` | [Build & Release](operations/build-and-release.md) |
+| **Add / Edit Business Logic** | `src/features/<feature>/logic/`, `src/core/` | Pure functions without host globals, explicit `.ts` imports | `npm run test:unit` | [Conventions & Constraints](conventions.md)<br/>[Testing Strategy & Environments](testing/strategy.md) |
+| **Main Window UI / Menus** | `src/features/print/menus.ts`, `src/features/organizer/toolbarButton.ts`, `src/utils/menu.ts` | Idempotent DOM injection in `addToWindow`, expando cleanup in `removeFromWindow` | `npm run test:zotero` | [Feature Lifecycle & Registry](architecture/feature-lifecycle.md)<br/>[Architecture & Module Layout](architecture/overview.md) |
+| **Host Monkey-Patching** | `src/shared/patch.ts`, `src/features/citeOnly/integrationPatch.ts`, `src/features/citavi/citaviImport.ts` | Always use `assignChecked`, anchor in `docs/anchors.md`, symmetric teardown | `npm run test:zotero` | [Prototype Patching & Safe Modification](architecture/patching.md)<br/>[Zotero Internals & Version Compatibility](integrations/zotero-internals.md) |
+| **Citation Dialog & Work Grouping** | `src/shared/citationDialog.ts`, `src/features/organizer/dialog/dialogOutline.ts`, `src/features/organizer/logic/dialogView.ts`, `src/features/citeOnly/modeSelector.ts` | Inject via `registerDialogInjector`; support grouping annotations and works (`buildWorkDialogSections`), parent work tag inheritance (`effectiveTags`), search mirroring, and narrow layout | `npm run test:unit`<br/>`npm run test:zotero` | [Organizer & Outline View](features/organizer.md)<br/>[Architecture & Module Layout](architecture/overview.md) |
+| **Persistent Citation Dialog ("Blätterfenster")** | `src/features/organizer/dialog/dialogPersistent.ts`, `src/features/organizer/logic/persistentOptions.ts`, `src/features/organizer/logic/persistentRect.ts` | Reopen unmanaged companion browse window post-insert, manage synthetic `CitationEditInterface`, track geometry via `pinRect`, relax min-width (<750px) via `relaxDialogMinWidth` | `npm run test:zotero` | [Organizer & Outline View](features/organizer.md)<br/>[External API & Cross-Plugin Communication](integrations/external-api.md) |
+| **Annotation Row Title Patching** | `src/features/print/annotationRowPatch.ts`, `src/features/reader/logic/readerLocator.ts`, `src/hooks.ts` | Patch `AnnotationRow.prototype.render` via `assignChecked` in main windows and citation dialogs; replace hardcoded page labels with localized locator strings (e.g. "Randnummer 318") | `npm run test:unit`<br/>`npm run test:zotero` | [Print Annotations](features/print-annotations.md)<br/>[Reader Integrations & Locators](features/reader.md)<br/>[Prototype Patching & Safe Modification](architecture/patching.md) |
+| **Print Annotations & Placeholders** | `src/features/print/placeholder.ts`, `src/features/print/printAnnotations.ts`, `src/features/print/dialog.ts` | PDF reader type enforcement, sort index clamping (`00000\|000000\|00000`), `#flexannotate-placeholder` attachment lifecycle | `npm run test:unit`<br/>`npm run test:zotero` | [Print Annotations](features/print-annotations.md)<br/>[Architecture & Module Layout](architecture/overview.md) |
+| **Reader Integration & Locators** | `src/features/reader/readerMenu.ts`, `src/features/reader/logic/readerLocator.ts`, `src/core/labelPopup.ts` | Context menu locator switching, page number synchronization, and popup formatting | `npm run test:unit`<br/>`npm run test:zotero` | [Reader Integrations & Locators](features/reader.md)<br/>[Conventions & Constraints](conventions.md) |
+| **Citavi Import Processing** | `src/features/citavi/citaviImport.ts`, `src/features/citavi/citaviPrintQuotes.ts`, `src/features/citavi/citaviLinks.ts` | Second-pass execution in `finally` of file interface, quote deduplication, related item linking | `npm run test:unit`<br/>`npm run test:zotero` | [Architecture & Module Layout](architecture/overview.md)<br/>[Conventions & Constraints](conventions.md) |
+| **Organizer & Outline Sync** | `src/features/organizer/outlineModel.ts`, `organizerTree.ts`, `docImport.ts`, `docExport.ts` | Tag synchronization (`§Title`), single-instance window factory, `LATTICE-OUTLINE-V1` note sentinel, collection-scoped trees | `npm run test:unit`<br/>`npm run test:zotero` | [Organizer & Outline View](features/organizer.md)<br/>[Conventions & Constraints](conventions.md) |
+| **External Plugin API** | `src/features/organizer/externalApi.ts`, `src/hooks.ts` | Expose read-only outline tree at `Zotero.FlexAnnotate`, manage lifecycle hooks, expose test bridge on `addon.api` | `npm run test:zotero` | [External API & Cross-Plugin Communication](integrations/external-api.md) |
+| **Localization & Preferences** | `addon/locale/{de,en-US}/`, `addon/content/preferences.xhtml`, `src/prefs/preferences.ts` | Maintain German and English FTL files simultaneously; preference menulist lifecycle with capture-phase listener | `npm run build`<br/>`npm run lint:check` | [Conventions & Constraints](conventions.md)<br/>[Architecture & Module Layout](architecture/overview.md) |
+| **Zotero Compatibility** | `src/features/organizer/toolsMenuFallback.ts`, `src/features/print/logic/printAnnotation.ts`, `scripts/run-versions.mjs` | Feature detection over version comparison; verify across versions 7.0, 8.0, 9.0, and 10.0 | `npm run test:versions` | [Zotero Internals & Version Compatibility](integrations/zotero-internals.md)<br/>[Test Commands & Automation Scripts](testing/commands-and-runners.md) |
+| **Test Commands & Verification** | `scripts/run-versions.mjs`, `scripts/kill-test-zotero.ps1`, `test/`, `test-unit/` | Dual test runners (Node unit tests vs. in-process Mocha), targeted process termination, clean test profile per version | `npm run verify` | [Test Commands & Automation Scripts](testing/commands-and-runners.md)<br/>[Testing Strategy & Environments](testing/strategy.md) |
 
 ---
 

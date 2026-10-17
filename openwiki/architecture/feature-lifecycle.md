@@ -1,11 +1,11 @@
 ---
 type: lifecycle
 title: Feature Lifecycle & Registry
-description: How FlexAnnotate starts and stops — the Feature contract in src/shared/feature.ts, the ordered feature array in src/hooks.ts, error isolation and idempotency rules, the startup/teardown sequence, the addon.api test surface, and preference-pane registration.
+description: How FlexAnnotate starts and stops — the Feature contract in src/shared/feature.ts, the ordered feature array and dialog injectors in src/hooks.ts, error isolation and idempotency rules, the startup/teardown sequence, the addon.api test surface, and preference-pane registration.
 tags: [lifecycle, feature-registry, startup, teardown, error-isolation, zotero-plugin]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-16T19:49:13.348Z
+    at: 2026-10-17T22:13:14.642Z
 sources:
   - id: openwiki-source-bf3e76d6c2b2ed72992fe748
     resource: repo://addon/bootstrap.js
@@ -21,6 +21,8 @@ sources:
     resource: repo://src/features/organizer/dialog/dialogPersistent.ts
   - id: openwiki-source-7ff0e29b7d150fa67bd90c1b
     resource: repo://src/features/organizer/toolbarButton.ts
+  - id: openwiki-source-67599eb667e1f64382e23813
+    resource: repo://src/features/print/annotationRowPatch.ts
   - id: openwiki-source-203c7dd08ccb7d6de0448e34
     resource: repo://src/hooks.ts
   - id: openwiki-source-d1fbef09192ffbab6eff0bc2
@@ -33,16 +35,18 @@ sources:
     resource: repo://src/shared/patch.ts
   - id: openwiki-source-8ea7bae1bbb5fe5c7499d3b4
     resource: repo://test-unit/feature.test.ts
+  - id: openwiki-source-66f452a7fa1e672a690ab712
+    resource: repo://test/annotationRowPatch.test.ts
   - id: openwiki-source-d8e56342efcbecbf31aa1ec8
     resource: repo://test/features.test.ts
   - id: openwiki-source-ee77444752e16522c76c8026
     resource: repo://test/toolbarButton.test.ts
   - id: openwiki-source-64ea321d3689c35b39d43e01
     resource: repo://zotero-plugin.config.ts
-generated: { by: "openwiki/0.7.2", at: "2026-10-16T19:49:13.348Z" }
+generated: { by: "openwiki/0.7.2", at: "2026-10-17T22:13:14.642Z" }
 ---
 
-Every capability FlexAnnotate adds to Zotero is a **feature**: a small object with a `name` and up to four optional lifecycle hooks. One registry ([src/shared/feature.ts](../../src/shared/feature.ts)) invokes those hooks, and a single ordered array in [src/hooks.ts](../../src/hooks.ts) lists every feature — it is the only place that knows them all. The design goals are that a failing feature never breaks the others, that starting and stopping are exactly symmetric, and that every hook is idempotent, because hooks routinely run more than once (tests re-run them, and every Zotero window load calls `addToWindow` again).
+Every capability FlexAnnotate adds to Zotero is a **feature**: a small object with a `name` and up to four optional lifecycle hooks. One registry ([src/shared/feature.ts](../../src/shared/feature.ts)) invokes those hooks, and a single ordered array in [src/hooks.ts](../../src/hooks.ts) lists every feature — it is the only place that knows them all. In parallel, citation dialog capabilities are managed via dialog injectors registered with [src/shared/citationDialog.ts](../../src/shared/citationDialog.ts). The design goals are that a failing feature never breaks the others, that starting and stopping are exactly symmetric, and that every hook is idempotent, because hooks routinely run more than once (tests re-run them, and every Zotero window load calls `addToWindow` again).
 
 ## The Feature contract
 
@@ -61,7 +65,7 @@ export interface Feature {
 | Hook | Scope | Typical work |
 | ---- | ----- | ------------ |
 | `start` / `stop` | global, once per session | prototype patches, Notifier observers, `Zotero.MenuManager` menus, APIs on the shared `Zotero` object |
-| `addToWindow` / `removeFromWindow` | once per main window | toolbar button, menu entries, popups, per-window listeners |
+| `addToWindow` / `removeFromWindow` | once per main window | toolbar button, menu entries, popups, per-window prototype patches, per-window listeners |
 
 All hooks are optional; a feature with only a `name` is valid and the registry skips the missing hooks. `stop` and `removeFromWindow` are synchronous by contract, so teardown never has to await anything. The `name` exists purely for log lines (`feature <name>.<hook> failed: …`).
 
@@ -94,8 +98,46 @@ All four properties are pinned by [test-unit/feature.test.ts](../../test-unit/fe
 | 11 | `externalApi` | installs/removes the public `Zotero.FlexAnnotate` interface | — |
 | 12 | `printMenus` | — | separator + three entries in `#zotero-itemmenu`, toggled on `popupshowing` |
 | 13 | `annotationRowMenu` | — | popup for `annotation-row` elements, one capture-phase `contextmenu` listener |
+| 14 | `annotationRowPatch` | — | patches `AnnotationRow.prototype.render` via `assignChecked` to show custom locators; restores native render and refreshes rows on unload |
 
 Registering a new feature means adding a `Feature` object to this array — nothing else wires it up. See [Conventions](../conventions.md) for the full checklist (patch evidence, unit test, `addon.api` export).
+
+## Citation dialog injectors
+
+The Word and LibreOffice integration opens Zotero's citation dialog in a separate window (`chrome://zotero/content/integration/citationDialog.xhtml`). Because this dialog is not a `_ZoteroTypes.MainWindow`, it is not governed by the `addToWindow`/`removeFromWindow` pass of `features`. Instead, [src/shared/citationDialog.ts](../../src/shared/citationDialog.ts) defines a dedicated injector contract:
+
+```ts
+export interface DialogInjector {
+  name: string;
+  inject(win: Window): void;
+  detach(win: Window): void;
+}
+```
+
+A `Services.wm` listener watches for citation dialog windows. Once `(win as any).DIALOG_STATE?.loaded` is true, the manager iterates over all registered injectors in insertion order. When the dialog window unloads or the `citationDialog` feature stops, each injector's `detach(win)` runs. Any thrown error during `inject` or `detach` is caught and logged via `ztoolkit.log`, protecting other injectors from failure.
+
+In [src/hooks.ts](../../src/hooks.ts), three dialog injectors are registered in strict order:
+
+1. `modeSelector`: injects mode selection radio buttons (`injectModeSelector` / `removeModeSelector`).
+2. `outlineView`: injects the FlexAnnotate outline view and checkbox (`outlineView.inject` / `outlineView.detach`).
+3. `annotationRowPatch`: patches `AnnotationRow.prototype.render` in the citation dialog (`patchAnnotationRow` / `unpatchAnnotationRow`).
+
+### Dual attachment of `annotationRowPatch`
+
+The `annotationRowPatch` capability ([src/features/print/annotationRowPatch.ts](../../src/features/print/annotationRowPatch.ts)) is registered in **both** lifecycle registries:
+
+- As a **dialog injector** via `citationDialog.registerDialogInjector({ name: "annotationRowPatch", inject: patchAnnotationRow, detach: unpatchAnnotationRow })` for the Word/integration citation dialog.
+- As a **window feature** in `features` (#14) via `addToWindow: (win) => patchAnnotationRow(win)` and `removeFromWindow: (win) => unpatchAnnotationRow(win)` for main Zotero windows.
+
+This dual registration is required because custom `<annotation-row>` elements are rendered both in main windows (such as reader sidebars and note editors) and within the citation dialog. In both contexts, `patchAnnotationRow(win)`:
+
+1. Checks `installed.has(win)` to guarantee idempotent attachment.
+2. Ensures the `annotation-row` custom element is defined (creating a dummy element via `doc.createXULElement("annotation-row")` if needed).
+3. Wraps `AnnotationRow.prototype.render` with [`assignChecked`](patching.md). The patched method executes the native render first, then calls `updateAnnotationRowTitle(this)`, substituting fixed labels like "Seite 318" with custom locator labels (e.g. "Randnummer 318" or Opus).
+4. Stores the native render method in module-scoped `installed = new WeakMap<Window, () => void>()`.
+5. Immediately iterates over all existing `annotation-row` elements in `win.document` to update their titles.
+
+When detached or unmounted (`unpatchAnnotationRow(win)`), it retrieves the native method from the `WeakMap`, restores `AnnotationRow.prototype.render` via `assignChecked`, and re-invokes `.render?.()` on existing rows.
 
 ## Where work belongs, and idempotency
 
@@ -109,7 +151,7 @@ Both halves must be **idempotent**:
 - **DOM insertion guard.** Window hooks check for their own element IDs before inserting (`organizerToolbarButton` skips when `#flexannotate-tb-organizer` exists; `collectionMenu` skips when `#flexannotate-collectionmenu-organizer` exists; `annotationRowMenu` skips when `#flexannotate-annotation-popup` exists). Calling `addToWindow` multiple times on the same window never creates duplicate DOM nodes or duplicate event listeners.
 - **Exact unmount.** `removeFromWindow` removes exactly what `addToWindow` added, using per-window listeners stored in a `WeakMap`. The Zotero test [test/toolbarButton.test.ts](../../test/toolbarButton.test.ts) asserts that a second `addToWindow` does not duplicate the button and that `removeFromWindow` removes both the button and its listener.
 - **Patch installation guard.** Patches guard against double installation (`citeOnlyPatch` returns early when already installed, `CitaviImport.patch()` refuses to wrap twice so `unpatch()` only peels one layer), hold the original function so `stop` restores it, and features that keep state reset it on stop (`AnnotationIndex.init()` is a no-op while its observer id is set; `unload()` unregisters the observer and clears the index).
-- **Per-window patching.** Some features patch per window from their window hooks because the target is not a singleton: the `citaviImport` feature wraps `Zotero.Translate.Import.prototype.translate` once in `start`, and in `addToWindow` patches `importFile` and `importFromClipboard` of each window's own `Zotero_File_Interface` (every window loading `fileInterface.js` gets its own object), removing those per-window patches in `removeFromWindow`.
+- **Per-window patching.** Some features patch per window from their window hooks because the target is not a singleton: the `citaviImport` feature wraps `Zotero.Translate.Import.prototype.translate` once in `start`, and in `addToWindow` patches `importFile` and `importFromClipboard` of each window's own `Zotero_File_Interface` (every window loading `fileInterface.js` gets its own object), removing those per-window patches in `removeFromWindow`. Similarly, `annotationRowPatch` wraps `AnnotationRow.prototype.render` on the window's own custom element registry.
 
 ## Per-window DOM mounting and memory leak prevention
 
@@ -119,7 +161,7 @@ FlexAnnotate enforces two architectural rules to prevent DOM and window leaks:
 
 ### 1. The WeakMap listener rule
 
-Module-level state never holds strong references to windows or per-window event handlers. Per-window event listeners are kept in private module-scoped `WeakMap<MainWindow, Listener>` instances:
+Module-level state never holds strong references to windows or per-window event handlers. Per-window event listeners and native functions are kept in private module-scoped `WeakMap<MainWindow, Listener>` instances:
 
 - In [src/features/organizer/toolbarButton.ts](../../src/features/organizer/toolbarButton.ts):
   ```ts
@@ -136,6 +178,11 @@ Module-level state never holds strong references to windows or per-window event 
   const listeners = new WeakMap<MainWin, (event: MouseEvent) => void>();
   ```
   The capture-phase `contextmenu` listener on `win.document` is stored and detached in `removeFromWindow`.
+- In [src/features/print/annotationRowPatch.ts](../../src/features/print/annotationRowPatch.ts):
+  ```ts
+  const installed = new WeakMap<Window, () => void>();
+  ```
+  The native `render` function of `AnnotationRow.prototype` is tracked weakly per window and detached during unpatch.
 
 Because keys in a `WeakMap` are held weakly, even if `removeFromWindow` failed to run before a window closed, the entries do not prevent JavaScript garbage collection of the closed `MainWindow`.
 
@@ -173,7 +220,7 @@ sequenceDiagram
     Feats-->>Reg: failures caught and logged
     H->>H: addon.data.initialized = true
 
-    Note over B,Win: Window Unload / Teardown Lifecycle
+    Note over B,Win: Window Unload and Shutdown Lifecycle
 
     B->>H: onMainWindowUnload(win)
     H->>Reg: removeFromWindow(features, win)
@@ -186,7 +233,7 @@ sequenceDiagram
     H->>H: set alive = false, delete Zotero instance
     B->>B: chromeHandle.destruct()
 ```
-_Startup runs startAll before the per-window addToWindow pass; teardown mirrors it with removeFromWindow per window and stopAll in reverse._
+*Startup runs startAll before the per-window addToWindow pass; teardown mirrors it with removeFromWindow per window and stopAll in reverse.*
 
 Startup in detail (`onStartup` in [src/hooks.ts](../../src/hooks.ts)):
 
@@ -206,7 +253,7 @@ Teardown (`onShutdown`): `ztoolkit.unregisterAll()`, then `stopAll(features)` in
 
 ## `addon.api`: the surface for Zotero tests
 
-`onStartup` builds `addon.api`, a flat map over otherwise-internal modules: `organizerData`, `outline`, `flatHeadings`, `outlineModel`, `organizerStrings`, `OrganizerFactory`, `docImport`, `docExport`, `docOutline`, `organizerToolbar`, `toolsMenu`, `openTarget`, `cited`, `modeSelector`, plus grouped entries (`externalApi`, `persistentDialog`, `citeOnly`, `reader`, `citavi`, `print`, `CitationDialogPatch`). Several groups expose lifecycle controls for tests: `citeOnly.patch` / `citeOnly.isPatched`, `persistentDialog.feature` with `readPref` / `writePref` / `rememberCommand` / `openBrowse` / `activateOnOpenDialog` / `supported`, and `externalApi.install` / `uninstall`.
+`onStartup` builds `addon.api`, a flat map over otherwise-internal modules: `organizerData`, `outline`, `flatHeadings`, `outlineModel`, `organizerStrings`, `OrganizerFactory`, `docImport`, `docExport`, `docOutline`, `organizerToolbar`, `toolsMenu`, `openTarget`, `cited`, `modeSelector`, plus grouped entries (`externalApi`, `persistentDialog`, `citeOnly`, `reader`, `citavi`, `print`, `CitationDialogPatch`). Several groups expose lifecycle controls for tests: `citeOnly.patch` / `citeOnly.isPatched`, `persistentDialog.feature` with `readPref` / `writePref` / `rememberCommand` / `openBrowse` / `activateOnOpenDialog` / `supported`, `print.annotationRowPatch` with `patch` / `unpatch`, and `externalApi.install` / `uninstall`.
 
 This map is the **only legal entry point for the Zotero integration tests** ([test/](../../test/)): test files reach it via `(Zotero as any)[config.addonInstance].api` and must **not import plugin modules directly**. The reason is the `ztoolkit` global: feature modules call `ztoolkit.log(...)`, which is defined as a getter over `addon.data.ztoolkit` and therefore only exists inside the running plugin instance — an imported module copy in the test bundle would run without it. The rule is stated in [AGENTS.md](../../AGENTS.md) and [docs/testing.md](../../docs/testing.md), and every test file follows it.
 
@@ -239,6 +286,7 @@ Zotero.PreferencePanes.register({
 
 - [test-unit/feature.test.ts](../../test-unit/feature.test.ts) — registry semantics: reverse-order stop, error isolation for sync and async hooks, hook-free features, `defaultLogger` without globals.
 - [test/toolbarButton.test.ts](../../test/toolbarButton.test.ts) — window-hook idempotency and removal.
+- [test/annotationRowPatch.test.ts](../../test/annotationRowPatch.test.ts) — title updates to custom locators (Randnummer/Opus vs standard page) and attachment lifecycle.
 - [test/citeOnly.test.ts](../../test/citeOnly.test.ts) — patch start/stop round-trip in a real Zotero, reached through `addon.api`.
 - [test/readerMenu.test.ts](../../test/readerMenu.test.ts) — a start/stop pair verified against Zotero's own listener registry.
 - [test/toolsMenu.test.ts](../../test/toolsMenu.test.ts) — the `MenuManager`-fallback feature detection per Zotero version.
@@ -249,5 +297,5 @@ Zotero.PreferencePanes.register({
 
 - [Architecture Overview](overview.md) — where the registry sits in the module layout.
 - [Patching](patching.md) — `assignChecked`, the mechanism behind every start/stop patch pair.
-- [Data Model](data-model.md) — what the annotation index and the features read and write.
+- [External API](../integrations/external-api.md) — public plugin interface registered in the feature lifecycle.
 - [Testing Strategy](../testing/strategy.md) — how the two test tiers map to the lifecycle (unit tests for the registry, Zotero tests over `addon.api`).
