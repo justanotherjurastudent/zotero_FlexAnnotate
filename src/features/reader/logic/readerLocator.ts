@@ -49,6 +49,16 @@ export function locatorLabelText(
   const label = cite(locator);
   if (label) return label;
   if (locator === "margin") return labels.margin;
-  if (locator === "opus") return labels.opus;
+  if (locator === "opus" && labels.opus) return labels.opus;
   return locator.charAt(0).toUpperCase() + locator.slice(1);
+}
+
+/**
+ * Baut den Titel für eine AnnotationRow ("<Label> <PageLabel>").
+ */
+export function formatAnnotationTitle(
+  label: string,
+  pageLabel: string | undefined,
+): string {
+  return `${label} ${pageLabel || "-"}`;
 }

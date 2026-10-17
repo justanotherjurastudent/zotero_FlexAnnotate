@@ -38,6 +38,10 @@ import {
   updateVisibility as updatePrintMenus,
 } from "./features/print/menus";
 import { annotationRowMenu } from "./features/print/annotationRowMenu";
+import {
+  patchAnnotationRow,
+  unpatchAnnotationRow,
+} from "./features/print/annotationRowPatch";
 import * as readerMenuModule from "./features/reader/readerMenu";
 import { CitaviImport, citaviImport } from "./features/citavi/citaviImport";
 import { linkContributions } from "./features/citavi/citaviLinks";
@@ -66,6 +70,11 @@ citationDialog.registerDialogInjector({
   detach: modeSelector.removeModeSelector,
 });
 citationDialog.registerDialogInjector(outlineView);
+citationDialog.registerDialogInjector({
+  name: "annotationRowPatch",
+  inject: patchAnnotationRow,
+  detach: unpatchAnnotationRow,
+});
 
 /**
  * Reihenfolge = Startreihenfolge; gestoppt wird in umgekehrter Reihenfolge.
@@ -108,6 +117,15 @@ const features: Feature[] = [
   },
   printMenus,
   annotationRowMenu,
+  {
+    name: "annotationRowPatch",
+    addToWindow: (win) => {
+      patchAnnotationRow(win);
+    },
+    removeFromWindow: (win) => {
+      unpatchAnnotationRow(win);
+    },
+  },
 ];
 
 async function onStartup() {
@@ -164,6 +182,10 @@ async function onStartup() {
       printAnnotations,
       dialog: printDialog,
       menus: { printMenus, updateVisibility: updatePrintMenus },
+      annotationRowPatch: {
+        patch: patchAnnotationRow,
+        unpatch: unpatchAnnotationRow,
+      },
     },
   };
 

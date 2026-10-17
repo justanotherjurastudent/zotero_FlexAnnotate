@@ -103,9 +103,9 @@ let updatingLocators = false;
 
 /** Ersatztext für die Seitenbezeichnung, wenn Zotero keine liefert. */
 const labels = () => ({
-  page: getString("reader-locator-page"),
-  margin: getString("reader-locator-margin"),
-  opus: getString("reader-locator-opus"),
+  page: getString("reader-locator-page", "label"),
+  margin: getString("reader-locator-margin", "label"),
+  opus: getString("reader-locator-opus", "label"),
 });
 
 /** Ist die Reader-Erweiterung eingerichtet? Ersetzt die Prüfung auf den Handler. */
