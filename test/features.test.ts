@@ -2403,7 +2403,19 @@ describe("FlexAnnotate features", function () {
           io,
           "citation",
         ) as Promise<void>;
-        await waitFor(() => dialogWindows().find((w) => !w.closed) ?? null);
+        const dw = await waitFor(
+          () => dialogWindows().find((w) => !w.closed) ?? null,
+        );
+        await waitFor(() => (dw as any).DIALOG_STATE?.loaded || null);
+        const pcb = dw.document.getElementById(
+          "flexannotate-persistent-toggle",
+        ) as HTMLInputElement | null;
+        if (pcb) {
+          assert.isTrue(
+            pcb.hidden,
+            "persistent checkbox is hidden for agent http (Google Docs)",
+          );
+        }
         io.accept();
         await done;
         await Zotero.Promise.delay(1500);

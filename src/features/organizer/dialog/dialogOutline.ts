@@ -182,7 +182,8 @@ function inject(win: Window) {
   attached.set(win, info);
 
   hookAccept(win);
-  if (readPersistentPref()) relaxDialogMinWidth(win);
+  const supported = persistentSupported(win);
+  if (supported && readPersistentPref()) relaxDialogMinWidth(win);
 
   const row = doc.createElement("div");
   row.id = ROW_ID;
@@ -204,8 +205,8 @@ function inject(win: Window) {
   plabel.htmlFor = pcb.id;
   plabel.textContent = tr("dialogPersistent");
   plabel.title = tr("dialogPersistentHint");
-  // ohne Befehl addAnnotation (Zotero 7 und 8) gibt es kein Blätterfenster: Schalter aus
-  pcb.hidden = plabel.hidden = !persistentSupported();
+  // ohne Befehl addAnnotation (Zotero 7 und 8) oder auf nicht unterstützten Plattformen (z. B. Google Docs/http): Schalter aus
+  pcb.hidden = plabel.hidden = !supported;
   pcb.addEventListener("change", () => {
     writePersistentPref(pcb.checked);
     // Wird die Checkbox nachträglich (auf einem bereits geöffneten, nativen Dialog)
@@ -226,6 +227,7 @@ function inject(win: Window) {
   wrapA.className = "hbox";
   const wrapB = doc.createElement("div");
   wrapB.className = "hbox";
+  wrapB.hidden = !supported;
   menu.append(wrapA, wrapB);
 
   const root = doc.documentElement as Element;

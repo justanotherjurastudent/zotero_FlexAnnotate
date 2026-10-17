@@ -75,7 +75,7 @@ interface AcceptState {
  * http (Google Docs) bleibt außen vor: ein erneuter Befehl ließe den Server hängen
  * (server.js:525-527).
  */
-function isPersistentAgent(agent: string): boolean {
+export function isPersistentAgent(agent: string | null | undefined): boolean {
   return agent === "WinWord" || agent === "LibreOffice" || agent === "MacWord";
 }
 
@@ -109,6 +109,8 @@ export function writePersistentPref(v: boolean): void {
 let openWindow: Window | null = null;
 /** Fenster, die als Blätterfenster geöffnet wurden. */
 const browseWindows = new WeakSet<Window>();
+let activeAgent: string | null = null;
+const windowAgents = new WeakMap<Window, string>();
 let lastCommand: CommandRef | null = null;
 let pendingInsert: PendingInsert | null = null;
 /** Zwischen start() und stop(): nur dann darf ein Blätterfenster entstehen. */
@@ -116,12 +118,28 @@ let alive = false;
 /** Gesetzt, sobald openNew das Fenster angelegt hat (danach kein Fallback mehr auf den Standarddialog). */
 let windowOpened = false;
 
-/** Blätterfenster gibt es nur, wenn Zotero den Befehl addAnnotation hat (integration.js:781 in 9 und 10). */
-export function persistentSupported(): boolean {
-  return (
+/**
+ * Blätterfenster gibt es nur, wenn Zotero den Befehl addAnnotation hat (integration.js:781 in 9 und 10)
+ * und die Plattform unterstützt wird (Word, LibreOffice; nicht Google Docs/http).
+ */
+export function persistentSupported(win?: Window): boolean {
+  const versionOk =
     typeof (Zotero as any).Integration?.Interface?.prototype?.addAnnotation ===
-    "function"
-  );
+    "function";
+  if (!versionOk) return false;
+  if (!win) return true;
+  if (browseWindows.has(win)) return true;
+  if (windowAgents.has(win)) {
+    return isPersistentAgent(windowAgents.get(win));
+  }
+  if (activeAgent !== null) {
+    windowAgents.set(win, activeAgent);
+    return isPersistentAgent(activeAgent);
+  }
+  if (lastCommand !== null) {
+    return isPersistentAgent(lastCommand.agent);
+  }
+  return true;
 }
 
 export function getPersistentWindow(): Window | null {
@@ -536,6 +554,7 @@ function openBrowse(rect: Rect): void {
     io,
   ) as Window;
   browseWindows.add(win);
+  if (lastCommand?.agent) windowAgents.set(win, lastCommand.agent);
   openWindow = win;
   trace("browse window opened", `rect=${rect.x},${rect.y} ${rect.w}x${rect.h}`);
   (Zotero as any).Utilities.Internal.activate(win);
@@ -662,6 +681,7 @@ export function activatePersistentOnOpenDialog(): void {
   const integration = (Zotero as any).Integration;
   const win = integration?.currentWindow as Window | undefined;
   if (!win || win.closed) return;
+  if (!persistentSupported(win)) return;
   const io = (win as any).io;
   if (!io || typeof io.accept !== "function") return;
   trace("persistent activated on the native dialog", cw());
@@ -698,6 +718,7 @@ function openNew(
     normalizePersistentOptions(options, position),
     io,
   ) as Window;
+  if (activeAgent) windowAgents.set(win, activeAgent);
   windowOpened = true;
   openWindow = win;
   integration.currentWindow = win;
@@ -877,6 +898,7 @@ export function openBrowseForTest(rect: {
  */
 export function rememberCommandForTest(ref: CommandRef | null): void {
   lastCommand = ref;
+  activeAgent = ref?.agent ?? null;
 }
 
 /** Merkt sich bei jedem Befehl, an welches Dokument Word ihn geschickt hat (integration.js:240). */
@@ -896,10 +918,15 @@ export function patchExecCommand(): boolean {
     // WinWord und LibreOffice: der Befehl wird im Blätterfenster erneut ausgeführt. Für
     // http (Google Docs) würde das den Server hängen lassen (server.js:525-527), deshalb
     // bleibt http außen vor.
+    activeAgent = agent;
     lastCommand = isPersistentAgent(agent)
       ? { agent, docId, templateVersion }
       : null;
-    return native.call(this, agent, command, docId, templateVersion);
+    try {
+      return await native.call(this, agent, command, docId, templateVersion);
+    } finally {
+      activeAgent = null;
+    }
   };
   if (!assignChecked(integration, "execCommand", patched)) {
     ztoolkit.log("FlexAnnotate: assignChecked for execCommand failed");
@@ -947,6 +974,7 @@ export const persistentDialogPatch: Feature = {
     unpatchExecCommand();
     pendingInsert = null;
     lastCommand = null;
+    activeAgent = null;
     const win = getPersistentWindow();
     openWindow = null;
     if (win) {
