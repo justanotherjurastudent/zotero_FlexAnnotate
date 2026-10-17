@@ -649,7 +649,12 @@ describe("FlexAnnotate features", function () {
     /** The io Zotero passes to the dialog for adding annotations. */
     const makeIo = (cited: Record<string, unknown> = {}) => {
       const io: any = new (Zotero.Integration as any).CitationEditInterface(
-        { citationItems: [], properties: {}, citationID: "flexannotate-test" },
+        {
+          citationItems: [],
+          sortedItems: [],
+          properties: {},
+          citationID: "flexannotate-test",
+        },
         true,
         Promise.resolve(0),
         // Zotero loads the document's citations after the dialog opened
@@ -658,7 +663,11 @@ describe("FlexAnnotate features", function () {
       );
       io.isCitingNotes = false;
       io.isAddingAnnotations = true;
-      io.sort = () => {};
+      io.sort = async () => {
+        io.citation.sortedItems = (io.citation.citationItems || []).map(
+          (ci: any, idx: number) => [idx, ci],
+        );
+      };
       io.getItems = () => [];
       return io;
     };
@@ -1794,6 +1803,247 @@ describe("FlexAnnotate features", function () {
         assert.isFalse(popup.contains(outlineCb), "not in the menu any more");
         assert.isTrue(outlineCb.checked, "state kept across the move");
       } finally {
+        api().persistentDialog.writePref(origPersist);
+        Zotero.Prefs.set(`${prefs}.dialogOutlineView`, origOutline, true);
+        win?.close();
+      }
+    });
+
+    it("preserves outline checkbox state when switching between annotations and works tabs", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const origOutline =
+        Zotero.Prefs.get(`${prefs}.dialogOutlineView`, true) ?? false;
+      await closeDialogs();
+      Zotero.Prefs.set(`${prefs}.dialogOutlineView`, false, true);
+      try {
+        const { w, toggle } = await openDialog();
+        win = w;
+        const doc = w.document;
+        const row = doc.getElementById(
+          "flexannotate-toggle-row",
+        ) as HTMLElement;
+        const popup = doc.getElementById("settings-popup")!;
+        const settingsBtn = doc.getElementById(
+          "settings-button",
+        ) as HTMLElement;
+
+        // 1. Initially in annotations mode: outline is off
+        assert.isFalse(toggle.checked, "initially off");
+        assert.isTrue(
+          row.contains(toggle),
+          "toggle inline in annotations mode",
+        );
+
+        // 2. Enable outline in annotations mode
+        toggle.click();
+        await waitFor(
+          () => doc.getElementById("flexannotate-list-pane") || null,
+          8000,
+          "outline list pane active",
+        );
+        assert.isTrue(toggle.checked, "toggle checked after click");
+        assert.isTrue(
+          Zotero.Prefs.get(`${prefs}.dialogOutlineView`, true) === true,
+          "pref updated",
+        );
+        assert.isNotNull(
+          doc.getElementById("flexannotate-preview"),
+          "preview present in annotations mode",
+        );
+
+        // 3. Switch to works (citation mode) via segmented switch
+        const citationOption = doc.getElementById("dialog-type-citation")!;
+        citationOption.dispatchEvent(
+          new (w as any).MouseEvent("mousedown", { bubbles: true }),
+        );
+        await waitFor(
+          () =>
+            doc.documentElement.getAttribute("dialog-type") === "citation"
+              ? true
+              : null,
+          8000,
+          "switched to citation mode",
+        );
+
+        // State preserved in citation mode:
+        // - Toggle stays checked
+        // - Toggle is moved to the settings popup
+        // - Settings button is visible
+        // - Outline tree and list pane are active for works
+        // - No preview column in citation mode
+        assert.isTrue(
+          popup.contains(toggle),
+          "toggle placed in settings popup",
+        );
+        assert.isTrue(
+          toggle.checked,
+          "toggle remains checked in citation mode",
+        );
+        assert.isFalse(settingsBtn.hidden, "settings button is visible");
+        await waitFor(
+          () => doc.getElementById("flexannotate-list-pane") || null,
+          8000,
+          "outline list pane remains active in citation mode",
+        );
+        assert.isNull(
+          doc.getElementById("flexannotate-preview"),
+          "no preview column in citation mode",
+        );
+
+        // 4. Switch back to annotations mode
+        const annOption = doc.getElementById("dialog-type-annotations")!;
+        annOption.dispatchEvent(
+          new (w as any).MouseEvent("mousedown", { bubbles: true }),
+        );
+        await waitFor(
+          () =>
+            doc.documentElement.getAttribute("dialog-type") === "annotations"
+              ? true
+              : null,
+          8000,
+          "switched back to annotations mode",
+        );
+
+        // State preserved back in annotations mode:
+        // - Toggle still checked
+        // - Toggle restored inline (when wide)
+        // - Preview column restored
+        assert.isTrue(
+          row.contains(toggle),
+          "toggle back inline in wide annotations mode",
+        );
+        assert.isTrue(
+          toggle.checked,
+          "toggle remains checked when returning to annotations",
+        );
+        await waitFor(
+          () => doc.getElementById("flexannotate-preview") || null,
+          8000,
+          "preview column restored in annotations mode",
+        );
+      } finally {
+        Zotero.Prefs.set(`${prefs}.dialogOutlineView`, origOutline, true);
+        win?.close();
+      }
+    });
+
+    it("offers outline view and persistent toggle in the settings popup for works, inserts without preview", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const origOutline =
+        Zotero.Prefs.get(`${prefs}.dialogOutlineView`, true) ?? false;
+      const origPersist = api().persistentDialog.readPref();
+      await closeDialogs();
+      Zotero.Prefs.set(`${prefs}.dialogOutlineView`, false, true);
+      api().persistentDialog.writePref(false);
+      const work = Zotero.Items.get(workID) as Zotero.Item;
+      work.addTag("§Einleitung");
+      await work.saveTx();
+      try {
+        // Open in citation mode directly: isAddingAnnotations = false
+        const io = makeIo();
+        io.isAddingAnnotations = false;
+        (Services.ww as any).openWindow(
+          null,
+          DIALOG_URL,
+          "",
+          "chrome,centerscreen,resizable=true",
+          io,
+        );
+        const w = (await waitFor(() => findWindowByUrl(DIALOG_URL))) as Window;
+        win = w;
+        await waitFor(() => (w as any).DIALOG_STATE?.loaded || null);
+        const doc = w.document;
+        const popup = doc.getElementById("settings-popup")!;
+        const settingsBtn = doc.getElementById(
+          "settings-button",
+        ) as HTMLElement;
+
+        // Settings button is visible next to mode switch
+        assert.isFalse(
+          settingsBtn.hidden,
+          "settings button visible in citation mode",
+        );
+
+        // Switches are in settings popup
+        const toggle = (await waitFor(() =>
+          doc.getElementById("flexannotate-toggle"),
+        )) as HTMLInputElement;
+        const persistToggle = doc.getElementById(
+          "flexannotate-persistent-toggle",
+        ) as HTMLInputElement;
+        assert.isTrue(
+          popup.contains(toggle),
+          "outline toggle in settings popup",
+        );
+        assert.isTrue(
+          popup.contains(persistToggle),
+          "persistent toggle in settings popup",
+        );
+
+        // Persistent toggle changes pref
+        persistToggle.click();
+        assert.isTrue(
+          api().persistentDialog.readPref(),
+          "persistent pref enabled",
+        );
+        assert.isTrue(persistToggle.checked, "persistent toggle checked");
+
+        // Turn on outline view for works
+        toggle.click();
+        await waitFor(
+          () => doc.getElementById("flexannotate-tree") || null,
+          8000,
+          "tree active",
+        );
+        await waitFor(
+          () => doc.getElementById("flexannotate-list-pane") || null,
+          8000,
+          "list pane active",
+        );
+        assert.isNull(
+          doc.getElementById("flexannotate-preview"),
+          "no preview column in citation mode",
+        );
+
+        // Heading shows count of works
+        const einleitung = await waitFor(() =>
+          Array.from(
+            doc.querySelectorAll("#flexannotate-tree [data-node-id]"),
+          ).find((n) => n.textContent?.includes("Einleitung")),
+        );
+        assert.match(
+          einleitung.textContent || "",
+          /1$/,
+          "1 work under Einleitung",
+        );
+
+        // Work row is in list pane
+        const workRow = await waitFor(() =>
+          doc.querySelector(
+            `#flexannotate-list-pane [data-ann-id="${workID}"]`,
+          ),
+        );
+        assert.isNotNull(workRow, "work row displayed in list pane");
+
+        // Inserting via plus button adds item to citation bubble-input
+        const plus = workRow!.querySelector(
+          ".flexannotate-plus",
+        ) as HTMLElement;
+        click(plus);
+        await waitFor(
+          () => doc.querySelectorAll("#bubble-input .bubble").length === 1,
+          8000,
+          "work added to citation bubbles",
+        );
+      } finally {
+        work.removeTag("§Einleitung");
+        await work.saveTx();
         api().persistentDialog.writePref(origPersist);
         Zotero.Prefs.set(`${prefs}.dialogOutlineView`, origOutline, true);
         win?.close();

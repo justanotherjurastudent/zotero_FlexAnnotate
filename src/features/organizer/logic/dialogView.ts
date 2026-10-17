@@ -52,10 +52,21 @@ export function buildDialogSections(
   return groupByOutline(roots, view);
 }
 
-/** Distinct annotations per heading, counting the heading's subheadings too. */
-export function nodeCounts(
+/**
+ * Sections in outline order for works (regular items).
+ * Works without a known heading land in the trailing "no category"
+ * bucket (node === null).
+ */
+export function buildWorkDialogSections<
+  T extends { id: number; tags: string[] },
+>(roots: OutlineNode[], works: T[]): Section<T>[] {
+  return groupByOutline(roots, works);
+}
+
+/** Distinct items per heading, counting the heading's subheadings too. */
+export function nodeCounts<T extends { id: number }>(
   roots: OutlineNode[],
-  sections: Section<AnnLike>[],
+  sections: Section<T>[],
 ): Map<string, number> {
   const direct = new Map<string, number[]>();
   for (const s of sections)

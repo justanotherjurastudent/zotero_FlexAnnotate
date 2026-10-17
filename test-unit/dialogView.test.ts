@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { makeNode } from "../src/features/organizer/logic/outline.ts";
 import {
   buildDialogSections,
+  buildWorkDialogSections,
   effectiveTags,
   nodeCounts,
 } from "../src/features/organizer/logic/dialogView.ts";
@@ -76,5 +77,33 @@ describe("heading counts", () => {
     assert.equal(c.get(b1.id), 1);
     // Hauptteil: annotations 1 and 2 (via work) plus 3 from the subheading
     assert.equal(c.get(b.id), 3);
+  });
+});
+
+describe("work dialog view", () => {
+  const works = [
+    { id: 10, tags: ["§Einleitung"], workID: 10 },
+    { id: 20, tags: ["§Begriff"], workID: 20 },
+    { id: 30, tags: [], workID: 30 },
+  ];
+
+  it("groups works by their outline tags and puts unassigned works in no-category", () => {
+    const s = buildWorkDialogSections(roots, works);
+    assert.deepEqual(
+      s.map((x) => [x.number, x.items.map((i) => i.id), x.node?.id ?? null]),
+      [
+        ["1", [10], a.id],
+        ["2.1", [20], b1.id],
+        ["", [30], null],
+      ],
+    );
+  });
+
+  it("counts works per heading including subheadings", () => {
+    const s = buildWorkDialogSections(roots, works);
+    const c = nodeCounts(roots, s);
+    assert.equal(c.get(a.id), 1);
+    assert.equal(c.get(b1.id), 1);
+    assert.equal(c.get(b.id), 1); // includes b1
   });
 });

@@ -54,6 +54,7 @@ interface Rect {
 /** Was Word für den letzten Befehl gesendet hat (integration.js:240, execCommand). */
 interface CommandRef {
   agent: string;
+  command: string;
   docId: string | undefined;
   templateVersion: number;
 }
@@ -504,10 +505,10 @@ function logError(where: string, e: unknown) {
 }
 
 /**
- * io für das Blätterfenster: wie ein Befehl im Annotationsmodus (integration.js:1594-1599),
+ * io für das Blätterfenster: wie der vorherige Befehl (addAnnotation oder addEditCitation),
  * ohne Dokument. Der Dialog liest nur diese Felder (citationDialog.js, searchHandler.mjs).
  */
-function makeBrowseIo(): any {
+function makeBrowseIo(command = "addAnnotation"): any {
   const integ = (Zotero as any).Integration;
   const io = new integ.CitationEditInterface(
     { citationItems: [], properties: {}, citationID: "flexannotate-browse" },
@@ -518,7 +519,7 @@ function makeBrowseIo(): any {
     async () => "",
   );
   io.isCitingNotes = false;
-  io.isAddingAnnotations = true;
+  io.isAddingAnnotations = command === "addAnnotation";
   io.getItems = () => [];
   io.sort = () => {};
   return io;
@@ -538,14 +539,14 @@ function closeBrowse(): Promise<void> {
 }
 
 /**
- * Öffnet das Blätterfenster an der Stelle `rect`: der Dialog im Annotationsmodus mit einem
- * eigenen io. Einfügen dort ist insertFromBrowse().
+ * Öffnet das Blätterfenster an der Stelle `rect`: der Dialog im Modus des letzten Befehls
+ * mit einem eigenen io. Einfügen dort ist insertFromBrowse().
  */
 function openBrowse(rect: Rect): void {
   // nach stop() kein neues Blätterfenster mehr (ein verspäteter Aufruf aus einem Befehl)
   if (!alive) return;
   writeStoredSize(rect.w, rect.h);
-  const io = makeBrowseIo();
+  const io = makeBrowseIo(lastCommand?.command);
   const win = (Services.ww as any).openWindow(
     null,
     DIALOG_URL,
@@ -584,8 +585,8 @@ function openBrowse(rect: Rect): void {
 }
 
 /**
- * Einfügen aus dem Blätterfenster: den letzten Befehl (addAnnotation) erneut ausführen. Die
- * Auswahl liegt in pendingInsert; displayDialog übergibt sie an den Befehl. Danach öffnet
+ * Einfügen aus dem Blätterfenster: den letzten Befehl (addAnnotation / addEditCitation) erneut ausführen.
+ * Die Auswahl liegt in pendingInsert; displayDialog übergibt sie an den Befehl. Danach öffnet
  * sich das Blätterfenster wieder an derselben Stelle.
  */
 function insertFromBrowse(pend: PendingInsert): void {
@@ -598,7 +599,7 @@ function insertFromBrowse(pend: PendingInsert): void {
   Promise.resolve(
     integ.execCommand(
       cmd.agent,
-      "addAnnotation",
+      cmd.command || "addAnnotation",
       cmd.docId,
       cmd.templateVersion,
     ),
@@ -920,7 +921,7 @@ export function patchExecCommand(): boolean {
     // bleibt http außen vor.
     activeAgent = agent;
     lastCommand = isPersistentAgent(agent)
-      ? { agent, docId, templateVersion }
+      ? { agent, command, docId, templateVersion }
       : null;
     try {
       return await native.call(this, agent, command, docId, templateVersion);

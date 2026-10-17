@@ -141,7 +141,9 @@ export function visibleSections(v: View): Section<AnnLike>[] {
         const r = v.rows.get(a.id);
         return (
           !!r &&
-          `${r.text}\n${r.comment}\n${r.workTitle}`.toLowerCase().includes(q)
+          `${r.text}\n${r.comment}\n${r.workTitle}\n${r.byline}`
+            .toLowerCase()
+            .includes(q)
         );
       }),
     }))
@@ -255,11 +257,15 @@ function rowEl(win: Window, v: View, r: Row, order: number[]): HTMLElement {
     ).replace(/\s+/g, " "),
   );
   text.title = v.showCommentsInRows && r.comment ? r.comment : r.text;
+  const placeText =
+    r.kind === "work"
+      ? r.byline
+      : formatLocator(locatorLabel(r.locator), r.pageLabel);
   const place = el(
     doc,
     "span",
     `flex:none;font-size:11px;color:${MUTED};`,
-    formatLocator(locatorLabel(r.locator), r.pageLabel),
+    placeText,
   );
   const plus = el(
     doc,
@@ -414,6 +420,22 @@ function setCited(win: Window, v: View, ids: number[], on: boolean) {
 
 export async function insert(win: Window, ids: number[]) {
   const doc = win.document;
+  const isCitation =
+    (doc.documentElement?.getAttribute("dialog-type") ||
+      (win as any).DIALOG_STATE?.type) === "citation";
+  if (isCitation) {
+    const works = ids
+      .map((id) => Zotero.Items.get(id) as Zotero.Item | false)
+      .filter(
+        (item): item is Zotero.Item =>
+          !!item && (item as any).isRegularItem?.(),
+      );
+    if (works.length && (win as any).IOManager?.addItemsToCitation) {
+      await (win as any).IOManager.addItemsToCitation(works);
+    }
+    return;
+  }
+
   const list = doc.getElementById("annotations-list") as any;
   if (!list) return;
   let host: Element | null = doc.getElementById(NATIVE_ID);

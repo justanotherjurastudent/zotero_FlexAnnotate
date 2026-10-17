@@ -24,10 +24,14 @@
  */
 
 import { activeIds } from "../logic/cited";
-import { buildDialogSections, nodeCounts } from "../logic/dialogView";
+import {
+  buildDialogSections,
+  buildWorkDialogSections,
+  nodeCounts,
+} from "../logic/dialogView";
 import { applyClick, emptySelection } from "../logic/selection";
 import type { DialogInjector } from "../../../shared/citationDialog";
-import type { OutlineNode } from "../logic/outline";
+import { locate, type OutlineNode } from "../logic/outline";
 import { topmostCollection } from "../logic/collections";
 import { OutlineModel } from "../outlineModel";
 import {
@@ -114,6 +118,7 @@ interface Attached {
   onMq: (() => void) | null;
   settings: Element | null;
   onPopup: (() => void) | null;
+  lastDialogType?: string;
 }
 
 const attached = new Map<Window, Attached>();
@@ -222,7 +227,7 @@ function inject(win: Window) {
   const popupBox = settings?.querySelector(".popup") ?? null;
   const menu = doc.createElement("div");
   menu.id = MENU_ID;
-  menu.setAttribute("data-dialog-type", "annotations");
+  menu.setAttribute("data-dialog-type", "citation,annotations");
   const wrapA = doc.createElement("div");
   wrapA.className = "hbox";
   const wrapB = doc.createElement("div");
@@ -233,24 +238,63 @@ function inject(win: Window) {
   const root = doc.documentElement as Element;
   // Eine Quelle der Wahrheit: Zeile bzw. Menue, Sichtbarkeit je Dialogtyp
   const refresh = () => {
-    const isAnn = root.getAttribute("dialog-type") === "annotations";
+    const type =
+      root.getAttribute("dialog-type") || (win as any).DIALOG_STATE?.type;
+    const isAnn = type === "annotations";
+    const isSupported = isAnn || type === "citation";
+
     row.hidden = !isAnn || info.narrow;
-    menu.hidden = !isAnn;
-    if (!isAnn && info.enabled) void disable(win, cb);
+    menu.hidden = false;
+
+    // Menue-Button (#settings-button) sichtbar halten, wenn unser Menue im Popup liegt
+    const settingsBtn = doc.getElementById(
+      "settings-button",
+    ) as HTMLElement | null;
+    if (settingsBtn && popupBox?.contains(menu)) {
+      settingsBtn.hidden = false;
+    }
+
+    if (isSupported) {
+      if (readPref()) {
+        cb.checked = true;
+        if (!info.enabled) {
+          void enable(win, cb);
+        } else if (info.lastDialogType !== type) {
+          void rebuildView(win, info);
+        }
+      } else {
+        cb.checked = false;
+        if (info.enabled) {
+          void disable(win, cb);
+        }
+      }
+    } else if (info.enabled) {
+      void disable(win, cb);
+    }
+    info.lastDialogType = type;
   };
   const place = (narrow: boolean) => {
     info.narrow = narrow && !!popupBox;
-    if (info.narrow) {
+    const type =
+      root.getAttribute("dialog-type") || (win as any).DIALOG_STATE?.type;
+    const isAnn = type === "annotations";
+    const inPopup = !isAnn || info.narrow;
+    if (inPopup && popupBox) {
       wrapA.append(cb, label);
       wrapB.append(pcb, plabel);
-      popupBox!.appendChild(menu);
+      if (!menu.parentElement) popupBox.appendChild(menu);
+      row.hidden = true;
+      menu.hidden = false;
     } else {
       row.append(cb, label, pcb, plabel);
       menu.remove();
+      row.hidden = !isAnn;
     }
     refresh();
   };
-  const observer = new win.MutationObserver(refresh);
+  const observer = new win.MutationObserver(() => {
+    place(info.mq?.matches ?? false);
+  });
   observer.observe(root, {
     attributes: true,
     attributeFilter: ["dialog-type"],
@@ -266,7 +310,7 @@ function inject(win: Window) {
   // Beim Oeffnen den Stand der Schalter zeigen (ein Weg zum Umschalten: die Schalter selbst)
   info.settings = settings;
   info.onPopup = () => {
-    cb.checked = info.enabled;
+    cb.checked = readPref();
     pcb.checked = readPersistentPref();
   };
   settings?.addEventListener("popupshowing", info.onPopup);
@@ -276,11 +320,6 @@ function inject(win: Window) {
     if (cb.checked) void enable(win, cb);
     else void disable(win, cb);
   });
-
-  if (readPref() && root.getAttribute("dialog-type") === "annotations") {
-    cb.checked = true;
-    void enable(win, cb);
-  }
 }
 
 function detach(win: Window) {
@@ -306,6 +345,10 @@ async function enable(win: Window, cb: HTMLInputElement) {
   const info = attached.get(win);
   if (!info) return;
   try {
+    const w = win as any;
+    if (w.currentLayout?.type === "list" && w.IOManager?.toggleDialogMode) {
+      await w.IOManager.toggleDialogMode("library");
+    }
     const view = await buildView(win, info);
     info.view = view;
     info.enabled = true;
@@ -431,6 +474,7 @@ function addPicker(win: Window, info: Attached) {
 async function rebuildView(win: Window, info: Attached) {
   if (!info.enabled) return;
   try {
+    applyLayout(win);
     info.view = await buildView(win, info);
     renderAll(win, info.view);
     updateHint(win, info.view);
@@ -455,17 +499,43 @@ function updateHint(win: Window, view: View) {
 
 /** Baum, Zeilen und Zähler für die gewählte Sammlung; Auswahl steht auf "all". */
 async function buildView(win: Window, info: Attached): Promise<View> {
+  const doc = win.document;
+  const isCitation =
+    (doc.documentElement?.getAttribute("dialog-type") ||
+      (win as any).DIALOG_STATE?.type) === "citation";
   const libraryID = Zotero.Libraries.userLibraryID;
   const collectionID = readCollectionID();
   const roots = await loadRoots(libraryID, collectionID);
-  const showWorks = readShowWorks();
-  // Eine Annotation gehört zum Scope, wenn ihr Werk dazugehört (wie der
-  // Scope-Filter im Organizer-Fenster).
   const scopeWorks = loadScopeWorkIDs(libraryID, {
     collectionID: collectionID || null,
     includeSub: true,
   });
   const inScope = (workID: number) => !scopeWorks || scopeWorks.has(workID);
+  const validNode = (n: string | null | undefined): string => {
+    if (!n || n === "all" || n === "none") return n ?? "all";
+    return locate(roots, n) ? n : "all";
+  };
+  const selectedNode = validNode(info.view?.node);
+
+  if (isCitation) {
+    const allWorks = await loadWorkRows(libraryID);
+    const works = allWorks.filter((w) => inScope(w.workID));
+    const sections = buildWorkDialogSections(roots, works);
+    const citedWorks = await citedWorksOf(win);
+    return {
+      roots,
+      sections,
+      counts: nodeCounts(roots, sections),
+      rows: new Map(works.map((w) => [w.id, w])),
+      showCommentsInRows: false,
+      cited: citedWorks ?? new Set<number>(),
+      node: selectedNode,
+      query: info.view?.query ?? bubbleText(win.document),
+      sel: emptySelection(),
+    };
+  }
+
+  const showWorks = readShowWorks();
   const rows = (await loadAnnotationRows(libraryID)).filter((r) =>
     inScope(r.workID),
   );
@@ -487,7 +557,7 @@ async function buildView(win: Window, info: Attached): Promise<View> {
     rows: new Map(rows.map((r) => [r.id, r])),
     showCommentsInRows,
     cited: activeIds(readCitedStore(), currentSessionId(), citedWorks),
-    node: "all",
+    node: selectedNode,
     query: info.view?.query ?? bubbleText(win.document),
     sel: emptySelection(),
   };
@@ -604,6 +674,9 @@ function applyLayout(win: Window) {
     d.style.cssText = css;
     parent.appendChild(d);
   };
+  const isCitation =
+    (doc.documentElement?.getAttribute("dialog-type") ||
+      (win as any).DIALOG_STATE?.type) === "citation";
   mk(
     "collections-tree-container",
     TREE_ID,
@@ -614,11 +687,15 @@ function applyLayout(win: Window) {
     LIST_ID,
     "flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;",
   );
-  mk(
-    "annotations-sidebar",
-    PREVIEW_ID,
-    "flex:1;overflow-y:auto;min-height:0;padding:8px 10px;display:flex;flex-direction:column;gap:8px;",
-  );
+  if (isCitation) {
+    doc.getElementById(PREVIEW_ID)?.remove();
+  } else {
+    mk(
+      "annotations-sidebar",
+      PREVIEW_ID,
+      "flex:1;overflow-y:auto;min-height:0;padding:8px 10px;display:flex;flex-direction:column;gap:8px;",
+    );
+  }
 }
 
 function restoreLayout(win: Window) {
