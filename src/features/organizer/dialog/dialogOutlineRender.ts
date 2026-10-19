@@ -430,9 +430,13 @@ export async function insert(win: Window, ids: number[]) {
         (item): item is Zotero.Item =>
           !!item && (item as any).isRegularItem?.(),
       );
-    if (works.length && (win as any).IOManager?.addItemsToCitation) {
-      await (win as any).IOManager.addItemsToCitation(works);
+    if (!works.length) return;
+    const add = (win as any).IOManager?.addItemsToCitation;
+    if (typeof add !== "function") {
+      ztoolkit.log("flexannotate dialog: IOManager.addItemsToCitation missing");
+      return;
     }
+    await add.call((win as any).IOManager, works);
     return;
   }
 

@@ -119,6 +119,8 @@ interface Attached {
   settings: Element | null;
   onPopup: (() => void) | null;
   lastDialogType?: string;
+  /** enable() läuft noch (await): ein Moduswechsel dazwischen darf es nicht ein zweites Mal starten. */
+  enabling?: boolean;
 }
 
 const attached = new Map<Window, Attached>();
@@ -258,7 +260,7 @@ function inject(win: Window) {
       if (readPref()) {
         cb.checked = true;
         if (!info.enabled) {
-          void enable(win, cb);
+          if (!info.enabling) void enable(win, cb);
         } else if (info.lastDialogType !== type) {
           void rebuildView(win, info);
         }
@@ -343,7 +345,8 @@ function detach(win: Window) {
 
 async function enable(win: Window, cb: HTMLInputElement) {
   const info = attached.get(win);
-  if (!info) return;
+  if (!info || info.enabling) return;
+  info.enabling = true;
   try {
     const w = win as any;
     if (w.currentLayout?.type === "list" && w.IOManager?.toggleDialogMode) {
@@ -363,6 +366,8 @@ async function enable(win: Window, cb: HTMLInputElement) {
     ztoolkit.log("flexannotate dialog enable failed:", e);
     info.enabled = false;
     restoreLayout(win);
+  } finally {
+    info.enabling = false;
   }
 }
 
