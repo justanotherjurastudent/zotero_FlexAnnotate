@@ -34,6 +34,8 @@ import { assignChecked } from "../../../shared/patch";
 import { normalizePersistentOptions } from "../logic/persistentOptions";
 import type { WindowPosition } from "../logic/persistentOptions";
 import { parseStoredRect, serializeRect } from "../logic/persistentRect";
+import { mergeCitationItems, nextLastCommand } from "../logic/lastCommand";
+import type { CommandRef } from "../logic/lastCommand";
 
 const PREF = "persistentCitationDialog";
 const DIALOG_MARK = "citationDialog.xhtml";
@@ -49,14 +51,6 @@ interface Rect {
   w: number;
   h: number;
   dpr: number;
-}
-
-/** Was Word für den letzten Befehl gesendet hat (integration.js:240, execCommand). */
-interface CommandRef {
-  agent: string;
-  command: string;
-  docId: string | undefined;
-  templateVersion: number;
 }
 
 /** Ziel des Accept-Wrappers: Lage + optional Höhe, Quelle für das nächste Fenster. */
@@ -836,7 +830,10 @@ export function patchDisplayDialog(): boolean {
       const realIo = io as any;
       // Das Blätterfenster schließt vor dem Einfügen, wie der Dialog im Original vor cleanup/complete
       await closeBrowse();
-      realIo.citation.citationItems = pend.items;
+      realIo.citation.citationItems = mergeCitationItems(
+        realIo.citation.citationItems,
+        pend.items,
+      );
       trace("insert into the command's io", `items=${pend.items.length}`);
       realIo.accept(() => {});
       return;
@@ -897,6 +894,10 @@ export function openBrowseForTest(rect: {
 /**
  * Test-Hilfe: Befehl ohne Word vormerken (sonst merkt sich patchExecCommand ihn beim Befehl selbst).
  */
+export function lastCommandForTest(): CommandRef | null {
+  return lastCommand;
+}
+
 export function rememberCommandForTest(ref: CommandRef | null): void {
   lastCommand = ref;
   activeAgent = ref?.agent ?? null;
@@ -920,9 +921,14 @@ export function patchExecCommand(): boolean {
     // http (Google Docs) würde das den Server hängen lassen (server.js:525-527), deshalb
     // bleibt http außen vor.
     activeAgent = agent;
-    lastCommand = isPersistentAgent(agent)
-      ? { agent, command, docId, templateVersion }
-      : null;
+    lastCommand = nextLastCommand(
+      lastCommand,
+      isPersistentAgent(agent),
+      agent,
+      command,
+      docId,
+      templateVersion,
+    );
     try {
       return await native.call(this, agent, command, docId, templateVersion);
     } finally {

@@ -1322,6 +1322,8 @@ describe("FlexAnnotate features", function () {
         // as execCommand: a command promise, then the command's own dialog request
         const cmd = beginCommand();
         const io = makeIo();
+        // the cursor sits in an existing citation: Zotero brings its sources along (integration.js:1513-1517)
+        io.citation.citationItems = [{ id: anns[2].id }];
         await integration.displayDialog(
           DIALOG_URL,
           NATIVE_OPTIONS,
@@ -1395,8 +1397,8 @@ describe("FlexAnnotate features", function () {
         );
         assert.deepEqual(
           fakeDoc,
-          [String(anns[1].id)],
-          "the fake document got the citation",
+          [String(anns[2].id), String(anns[1].id)],
+          "the new source is added to the existing citation, not replacing it",
         );
         assert.strictEqual(
           windowsDuringInsert,
@@ -1422,6 +1424,55 @@ describe("FlexAnnotate features", function () {
         api().persistentDialog.writePref(origPref);
         integration.currentDoc = origDoc;
         win?.close();
+      }
+    });
+
+    it("a command without a dialog (refresh) keeps the dialog command for the browse window", async function () {
+      const integration = Zotero.Integration as any;
+      // run the plugin's execCommand patch around a stub instead of the real command
+      const before = integration.execCommand;
+      api().persistentDialog.unpatchExec();
+      const realExec = integration.execCommand;
+      const wasPatched = before !== realExec;
+      const calls: string[] = [];
+      integration.execCommand = async (_agent: string, command: string) => {
+        calls.push(command);
+      };
+      api().persistentDialog.patchExec();
+      try {
+        await integration.execCommand("WinWord", "addEditCitation", "D1", 1);
+        await integration.execCommand("WinWord", "refresh", "D2", 2);
+        assert.deepEqual(
+          api().persistentDialog.lastCommand(),
+          {
+            agent: "WinWord",
+            command: "addEditCitation",
+            docId: "D2",
+            templateVersion: 2,
+          },
+          "refresh updates the document but not the command to repeat",
+        );
+        await integration.execCommand("WinWord", "addAnnotation", "D2", 2);
+        assert.strictEqual(
+          api().persistentDialog.lastCommand()?.command,
+          "addAnnotation",
+        );
+        await integration.execCommand("http", "addEditCitation", "G1", 0);
+        assert.isNull(
+          api().persistentDialog.lastCommand(),
+          "no browse window for Google Docs",
+        );
+        assert.deepEqual(calls, [
+          "addEditCitation",
+          "refresh",
+          "addAnnotation",
+          "addEditCitation",
+        ]);
+      } finally {
+        api().persistentDialog.unpatchExec();
+        integration.execCommand = realExec;
+        if (wasPatched) api().persistentDialog.patchExec();
+        api().persistentDialog.rememberCommand(null);
       }
     });
 
