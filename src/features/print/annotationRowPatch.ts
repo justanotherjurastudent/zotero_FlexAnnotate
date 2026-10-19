@@ -14,7 +14,10 @@ import {
 } from "../reader/logic/readerLocator";
 import { getString } from "../../utils/locale";
 
-const installed = new WeakMap<Window, () => void>();
+const installed = new WeakMap<
+  Window,
+  { native: () => void; patched: () => void }
+>();
 
 function getLabels() {
   return {
@@ -95,7 +98,7 @@ export function patchAnnotationRow(win: Window): boolean {
       return false;
     }
 
-    installed.set(win, native);
+    installed.set(win, { native, patched });
 
     // Bereits gerenderte Zeilen im Dokument aktualisieren
     for (const row of win.document.querySelectorAll("annotation-row")) {
@@ -113,8 +116,8 @@ export function patchAnnotationRow(win: Window): boolean {
 }
 
 export function unpatchAnnotationRow(win: Window): void {
-  const native = installed.get(win);
-  if (!native) {
+  const entry = installed.get(win);
+  if (!entry) {
     return;
   }
   installed.delete(win);
@@ -122,7 +125,12 @@ export function unpatchAnnotationRow(win: Window): void {
   try {
     const proto = win.customElements?.get("annotation-row")?.prototype;
     if (proto) {
-      assignChecked(proto, "render", native);
+      // Hat ein anderes Plugin danach selbst gepatcht, dessen Patch stehen lassen
+      if (proto.render !== entry.patched) {
+        ztoolkit.log("AnnotationRow.prototype.render patched by others, kept");
+        return;
+      }
+      assignChecked(proto, "render", entry.native);
       for (const row of win.document.querySelectorAll("annotation-row")) {
         try {
           (row as unknown as { render?: () => void }).render?.();

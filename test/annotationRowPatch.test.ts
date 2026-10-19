@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import { config } from "../package.json";
 import {
   cleanup,
   makeAnnotation,
@@ -54,6 +55,60 @@ describe("annotationRowPatch", function () {
       assert.isTrue(row._title?.textContent?.includes("12"));
     } finally {
       row.remove();
+    }
+  });
+
+  const rowApi = () =>
+    (Zotero as any)[config.addonInstance].api.print.annotationRowPatch;
+  const pageWord = () => Zotero.getString("pdfReader.page");
+  const titleOf = async (a: Zotero.Item) => {
+    const doc = win().document;
+    await win().customElements.whenDefined("annotation-row");
+    const row = doc.createXULElement("annotation-row") as any;
+    doc.documentElement.appendChild(row);
+    try {
+      row.annotation = a;
+      return String(row._title?.textContent);
+    } finally {
+      row.remove();
+    }
+  };
+  const proto = () => win().customElements.get("annotation-row").prototype;
+
+  it("shows the margin locator instead of the page label", async function () {
+    const marginAnn = await makeAnnotation(att, "Zitat Rn", "7", 0);
+    marginAnn.addTag("#flexannotate-locator-margin", 1);
+    await marginAnn.saveTx();
+    const title = await titleOf(marginAnn);
+    assert.isFalse(title.startsWith(pageWord()), title);
+    assert.isTrue(title.includes("7"), title);
+  });
+
+  it("unpatch brings back Zotero's own title", async function () {
+    rowApi().unpatch(win());
+    try {
+      assert.isTrue((await titleOf(ann)).startsWith(pageWord()));
+    } finally {
+      rowApi().patch(win());
+    }
+    assert.isFalse((await titleOf(ann)).startsWith(pageWord()));
+  });
+
+  it("unpatch leaves a patch of another plugin in place", async function () {
+    rowApi().unpatch(win());
+    const nativeRender = proto().render;
+    rowApi().patch(win());
+    const ours = proto().render;
+    const foreign = function (this: Element) {
+      return ours.call(this);
+    };
+    proto().render = foreign;
+    try {
+      rowApi().unpatch(win());
+      assert.strictEqual(proto().render, foreign, "foreign patch survives");
+    } finally {
+      proto().render = nativeRender;
+      rowApi().patch(win());
     }
   });
 });
