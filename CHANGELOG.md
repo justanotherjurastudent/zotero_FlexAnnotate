@@ -21,6 +21,7 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 
 ### Changed
 
+- Organizer: Die Tab-Leiste hat einen grauen Hintergrund, der aktive Tab wirft einen Schatten und lässt die Trennlinie darunter sichtbar (`organizerTabs.ts`). Nur im Code geprüft, nicht im laufenden Zotero angesehen.
 - Zitierfenster offen halten: Funktioniert auch in LibreOffice Writer und ist für Word für Mac freigeschaltet (zuvor nur Word für Windows). Der Nutzer hat das Wiederöffnen nach dem Einfügen in echtem Writer bestätigt; ein Einfrieren trat nicht auf. MacWord läuft asynchron (ChromeWorker + Scripting Bridge) und blockiert den Haupt-Thread nicht, daher besteht das LibreOffice-Freeze-Problem dort nicht; ein realer Mac-Test steht noch aus.
 - Zitierfenster offen halten: Die Checkbox lässt sich jetzt auch auf einem bereits geöffneten Dialog aktivieren — das nächste Einfügen dort öffnet das Blätterfenster sofort (zuvor wurde der Modus erst nach Schließen und erneutem Öffnen aktiv).
 - Zitierdialog, Vorschau: Die drei Aktionsbuttons (In die Zitation einfügen, Zitatstelle anzeigen, Als zitiert markieren) stehen nebeneinander in einer Zeile und brechen nur bei zu wenig Breite um; die Abstände der Vorschau sind etwas enger (`dialogOutlineRender.ts`, `dialogOutline.ts`).

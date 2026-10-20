@@ -16,17 +16,18 @@ export function tabBar(ctx: Ctx, t: Palette): HTMLElement {
     doc,
     "div",
     `display:flex;gap:4px;align-items:flex-end;border-bottom:2px solid ${t.border};` +
-      "flex:0 0 auto;padding:10px 4px 0;",
+      "flex:0 0 auto;padding:10px 4px 0;background:rgba(128,128,128,.16);",
   );
   const mk = (tab: Tab, label: string) => {
     const on = s.tab === tab;
     const d = el(
       doc,
       "div",
-      `padding:7px 16px;cursor:pointer;font-size:13px;margin-bottom:-2px;` +
+      `padding:7px 16px;cursor:pointer;font-size:13px;` +
         `border:1px solid ${on ? t.border : "transparent"};border-bottom:none;` +
         `border-radius:6px 6px 0 0;background:${on ? t.panel : "transparent"};` +
-        `font-weight:${on ? 600 : 400};color:${on ? t.text : t.sub};`,
+        `font-weight:${on ? 600 : 400};color:${on ? t.text : t.sub};` +
+        (on ? "box-shadow:0 -2px 6px rgba(0,0,0,.22);" : ""),
       label,
     );
     d.addEventListener("click", () => {
