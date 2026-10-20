@@ -65,6 +65,10 @@ reader-locator-margin =
 reader-locator-opus =
     .label = Opus
 
+# Heading rows of the § tag suggestions (features/organizer/tagSuggest.ts)
+tag-suggest-heading-tree = — Organizer outline —
+tag-suggest-heading-library = — Whole library —
+
 # Seitenzahl-Popup im Reader (features/reader/labelPopup.ts)
 reader-popup-locator-label = Locator:
 reader-popup-legend = Edit locator and numbering:

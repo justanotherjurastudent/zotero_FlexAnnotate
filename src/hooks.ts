@@ -52,6 +52,7 @@ import { importPrintQuotes } from "./features/citavi/citaviPrintQuotes";
 
 import { organizerToolbarButton } from "./features/organizer/toolbarButton";
 import { collectionMenu } from "./features/organizer/collectionMenu";
+import { tagSuggest } from "./features/organizer/tagSuggest";
 import { toolsMenuFallback } from "./features/organizer/toolsMenuFallback";
 import {
   installExternalApi,
@@ -118,6 +119,7 @@ const features: Feature[] = [
     start: () => installExternalApi(),
     stop: () => uninstallExternalApi(),
   },
+  tagSuggest.feature,
   printMenus,
   annotationRowMenu,
   {
@@ -158,6 +160,7 @@ async function onStartup() {
     organizerToolbar: organizerToolbarButton,
     toolsMenu: toolsMenuFallback,
     openTarget,
+    tagSuggest,
     cited: citedCore,
     CitationDialogPatch: { viewOf: outlineView.viewOf },
     persistentDialog: {

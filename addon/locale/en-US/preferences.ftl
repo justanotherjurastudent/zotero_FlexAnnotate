@@ -6,6 +6,21 @@ pref-show-comments =
     .label = Show comments instead of quote text in organizer rows
 pref-show-comments-hint = On: if an annotation has a comment, the row shows the comment instead of the quote. Without a comment, the quote stays visible.
 
+prefs-tag-suggest =
+    .value = § tag suggestions
+prefs-tag-suggest-all =
+    .label = Main collection outline, then all other § tags
+prefs-tag-suggest-typed =
+    .label = Main collection outline, other § tags only once you keep typing
+prefs-tag-suggest-tree =
+    .label = Main collection outline only
+prefs-tag-suggest-off =
+    .label = Zotero's default list (alphabetical)
+prefs-tag-suggest-description =
+    Controls the suggestions in the tag field once you type “§” (e.g. on annotations in
+    the reader). If the main collection has no outline of its own, the § tags of the
+    whole library are listed.
+
 prefs-citing-heading = Citing in Word and LibreOffice
 prefs-citation-only =
     .label = Insert citation only by default

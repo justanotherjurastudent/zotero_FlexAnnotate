@@ -61,6 +61,28 @@
     native="true"
   />
   <description class="indented-pref" data-l10n-id="pref-show-comments-hint" />
+  <hbox align="center">
+    <label
+      control="flexannotate-pref-tag-suggest"
+      data-l10n-id="prefs-tag-suggest"
+    />
+    <menulist
+      id="flexannotate-pref-tag-suggest"
+      preference="extensions.__addonRef__.outlineTagSuggest"
+      native="true"
+    >
+      <menupopup>
+        <menuitem value="all" data-l10n-id="prefs-tag-suggest-all" />
+        <menuitem value="typed" data-l10n-id="prefs-tag-suggest-typed" />
+        <menuitem value="tree" data-l10n-id="prefs-tag-suggest-tree" />
+        <menuitem value="off" data-l10n-id="prefs-tag-suggest-off" />
+      </menupopup>
+    </menulist>
+  </hbox>
+  <description
+    class="indented-pref"
+    data-l10n-id="prefs-tag-suggest-description"
+  />
 </groupbox>
 
 <groupbox>

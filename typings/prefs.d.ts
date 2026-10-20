@@ -12,6 +12,7 @@ declare namespace _ZoteroTypes {
       "dialogOutlineView": boolean;
       "dialogOutlineCollection": number;
       "citedAnnotations": string;
+      "outlineTagSuggest": string;
       "citationOnly": boolean;
       "persistentCitationDialog": boolean;
       "persistentWindowRect": string;

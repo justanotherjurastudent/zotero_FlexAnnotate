@@ -4,6 +4,8 @@ pref("dialogOutlineView", false);
 // Zitierdialog: Sammlung, aus der die Gliederung kommt (0 = gesamte Bibliothek)
 pref("dialogOutlineCollection", 0);
 pref("citedAnnotations", "");
+// §-Vorschläge im Tag-Feld in Gliederungsreihenfolge: all | typed | tree | off
+pref("outlineTagSuggest", "all");
 
 // Nur-Nachweis-Zitieren: false = vollständige Annotation, true = nur Nachweis mit Locator
 pref("citationOnly", false);

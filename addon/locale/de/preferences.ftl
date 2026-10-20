@@ -6,6 +6,21 @@ pref-show-comments =
     .label = Im Organizer Kommentare statt Zitattext in den Zeilen anzeigen
 pref-show-comments-hint = An: Wenn eine Annotation einen Kommentar enthält, zeigt die Zeile den Kommentar statt des Zitats. Ohne Kommentar bleibt das Zitat sichtbar.
 
+prefs-tag-suggest =
+    .value = §-Tag-Vorschläge
+prefs-tag-suggest-all =
+    .label = Gliederung der Hauptsammlung, darunter alle übrigen
+prefs-tag-suggest-typed =
+    .label = Gliederung der Hauptsammlung, übrige erst beim Weitertippen
+prefs-tag-suggest-tree =
+    .label = Nur die Gliederung der Hauptsammlung
+prefs-tag-suggest-off =
+    .label = Zoteros Standardliste (alphabetisch)
+prefs-tag-suggest-description =
+    Steuert die Vorschläge im Tag-Feld, sobald Sie „§" tippen (z. B. an Annotationen im
+    Reader). Hat die Hauptsammlung keine eigene Gliederung, erscheinen die §-Tags der
+    gesamten Bibliothek.
+
 prefs-citing-heading = Zitieren in Word und LibreOffice
 prefs-citation-only =
     .label = Standardmäßig nur den Nachweis einfügen
