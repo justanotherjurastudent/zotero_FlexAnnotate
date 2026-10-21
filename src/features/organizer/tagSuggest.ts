@@ -99,6 +99,11 @@ async function treeHeadingsOf(
   return [...keys].flatMap((k) => flatHeadings(trees.get(k) ?? []));
 }
 
+/** Das Zeichenbudget kommt vom Aufrufer (Suchparameter); nur plausible Zahlen gelten. */
+function validLabelMax(v: unknown): number | undefined {
+  return typeof v === "number" && v >= 20 && v <= 200 ? v : undefined;
+}
+
 /**
  * Answers a `§` tag search in outline order. false = not
  * responsible (other field, no `§` input, option off): then the original searches.
@@ -117,10 +122,12 @@ async function answer(
     return false;
   const libraryID: number = params.libraryID;
   const itemID: number | null = params.itemID || null;
+  // The input form for print annotations names the work without being the owner of the tags
+  const contextID: number | null = itemID ?? (params.contextItemID || null);
 
   const [cand, treeHeads, libraryRoots] = await Promise.all([
     candidates(libraryID, itemID, searchString),
-    treeHeadingsOf(libraryID, itemID),
+    treeHeadingsOf(libraryID, contextID),
     OutlineModel.loadTreeOnly(libraryID),
   ]);
   // Superseded (new input) or cancelled (stopSearch, popup closed)
@@ -133,6 +140,8 @@ async function answer(
     mode,
     headingTree: getString("tag-suggest-heading-tree"),
     headingLibrary: getString("tag-suggest-heading-library"),
+    headingNoOutline: getString("tag-suggest-heading-no-outline"),
+    labelMax: validLabelMax(params.labelMax),
   });
 
   // Own result, without touching the state of the native search (_result etc.)

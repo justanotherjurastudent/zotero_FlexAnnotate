@@ -6,7 +6,8 @@
  * logic orders them in tree order: first the headings of the outline
  * of the top-level collection, then (depending on the setting) all remaining `§` tags of the
  * library. If the top-level collection has no own outline, the
- * library list remains, ordered by the library outline.
+ * library list remains, ordered by the library outline, under a header
+ * that says so.
  */
 
 import type { FlatHeading } from "./flatHeadings.ts";
@@ -62,6 +63,10 @@ export interface SuggestInput {
   mode: TagSuggestMode;
   headingTree: string;
   headingLibrary: string;
+  /** Überschrift, wenn die Hauptsammlung keine eigene Gliederung hat und die Bibliotheksliste einspringt. */
+  headingNoOutline: string;
+  /** Zeichenbudget einer Zeile; Standard LABEL_MAX_CHARS (das breitere Popup der Print-Maske setzt mehr). */
+  labelMax?: number;
 }
 
 /**
@@ -74,10 +79,14 @@ export interface SuggestInput {
 export const LABEL_MAX_CHARS = 34;
 
 /** "Name (1.2)"; if that is too long, the name is shortened with "…", the number stays. */
-export function labelWithNumber(tag: string, num: string): string {
+export function labelWithNumber(
+  tag: string,
+  num: string,
+  max = LABEL_MAX_CHARS,
+): string {
   const suffix = ` (${num})`;
-  if (tag.length + suffix.length <= LABEL_MAX_CHARS) return tag + suffix;
-  const room = Math.max(1, LABEL_MAX_CHARS - suffix.length - 1);
+  if (tag.length + suffix.length <= max) return tag + suffix;
+  const room = Math.max(1, max - suffix.length - 1);
   return `${tag.slice(0, room).trimEnd()}…${suffix}`;
 }
 
@@ -101,7 +110,10 @@ export function suggestRows(input: SuggestInput): SuggestRow[] {
   // The number only stands in the label; the value (= the tag name) stays untouched.
   const plain = (t: string): SuggestRow => {
     const num = numbers.get(t);
-    return { value: t, label: num ? labelWithNumber(t, num) : t };
+    return {
+      value: t,
+      label: num ? labelWithNumber(t, num, input.labelMax) : t,
+    };
   };
   const inTree = [...treeSet].filter((t) => have.has(t));
   const rest = orderBy(
@@ -111,7 +123,14 @@ export function suggestRows(input: SuggestInput): SuggestRow[] {
 
   // No own outline (or no match within it): library-wide list.
   if (!inTree.length && !(treeSet.size && input.mode === "tree")) {
-    return rest.map(plain);
+    const list = rest.map(plain);
+    // Ohne eigene Gliederung sagt eine Überschrift, woher die Liste kommt
+    return !treeSet.size && list.length
+      ? [
+          { value: HEADER_VALUE_LIBRARY, label: input.headingNoOutline },
+          ...list,
+        ]
+      : list;
   }
 
   const rows: SuggestRow[] = [];

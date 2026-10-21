@@ -174,9 +174,10 @@ describe("tagSuggest", function () {
     );
   });
 
-  it("without an outline for the main collection the list is library-wide, without headers", async function () {
+  it("without an outline for the main collection the list is library-wide, under a header that says so", async function () {
     const rows = await suggest("§Ts", plainAnn.id);
-    assert.isTrue(rows.every((r) => r.value.trim()));
+    assert.equal(rows[0].value.trim(), "", "first row is the header");
+    assert.isTrue(rows.slice(1).every((r) => r.value.trim()));
     assert.includeMembers(
       rows.map((r) => r.value),
       ["§TsAlpha", "§TsZeta", "§TsFremd"],

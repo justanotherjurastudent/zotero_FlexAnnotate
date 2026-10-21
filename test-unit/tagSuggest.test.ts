@@ -22,6 +22,7 @@ const base: SuggestInput = {
   mode: "all",
   headingTree: "Baum",
   headingLibrary: "Bibliothek",
+  headingNoOutline: "Keine Gliederung",
 };
 
 const labels = (i: Partial<SuggestInput>) =>
@@ -105,8 +106,19 @@ describe("suggestRows", () => {
           { tag: "§Anhang", num: "" },
         ],
       }),
-      ["§Zebra", "§Anhang", "§Einleitung", "§Fremd", "§Hauptteil"],
+      [
+        "Keine Gliederung",
+        "§Zebra",
+        "§Anhang",
+        "§Einleitung",
+        "§Fremd",
+        "§Hauptteil",
+      ],
     );
+  });
+
+  it("gives no header without an own outline when nothing matches", () => {
+    assert.deepEqual(labels({ treeHeads: [], candidates: [] }), []);
   });
 
   it("falls back to the library list when the outline has no match", () => {
@@ -129,6 +141,12 @@ describe("suggestRows", () => {
 });
 
 describe("labelWithNumber", () => {
+  it("takes a wider budget from the caller", () => {
+    const name = "§Forschungsstand und Forschungslücke im Gesamtbild";
+    assert.ok(labelWithNumber(name, "1.2", 34).includes("…"));
+    assert.equal(labelWithNumber(name, "1.2", 80), `${name} (1.2)`);
+  });
+
   it("keeps short names whole", () => {
     assert.equal(labelWithNumber("§Einleitung", "1"), "§Einleitung (1)");
   });
