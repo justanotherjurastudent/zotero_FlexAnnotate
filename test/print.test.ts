@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { config } from "../package.json";
-import { cleanup, makeWork } from "./helpers";
+import { cleanup, makeWork, waitFor } from "./helpers";
 
 /**
  * Print annotations in a real Zotero: the placeholder attachment is created once,
@@ -82,6 +82,18 @@ describe("print annotations", function () {
     await printAnnotations.erase(placeholder.getAnnotations()[0]);
 
     assert.lengthOf(placeholders(), 0);
+  });
+
+  it("removes the placeholder when Zotero itself deletes the last annotation (keep = false)", async function () {
+    const { printAnnotations } = api().print;
+    const ann = await printAnnotations.create(work, { pageLabel: "9" });
+    assert.lengthOf(placeholders(), 1);
+    await ann.eraseTx();
+    await waitFor(
+      () => (placeholders().length === 0 ? true : null),
+      8000,
+      "placeholder swept after Zotero's own delete",
+    );
   });
 
   it("keeps an empty placeholder when keepEmptyPlaceholders is set", async function () {

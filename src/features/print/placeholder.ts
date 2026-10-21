@@ -11,6 +11,7 @@
 import { buildPlaceholderPDF } from "./logic/printAnnotation";
 import { getString } from "../../utils/locale";
 import { getPref } from "../../utils/prefs";
+import { defaultLogger, type Feature } from "../../shared/feature";
 
 /** Identified by tag rather than title, so existing attachments survive UI language changes */
 export const TAG = "#flexannotate-placeholder";
@@ -122,3 +123,52 @@ export async function cleanUpIfEmpty(
   ztoolkit.log(`Removed empty placeholder attachment ${attachment.key}`);
   return true;
 }
+
+/**
+ * Removes all empty placeholders (pref keepEmptyPlaceholders). Zotero's own deletion of annotations
+ * (Del in the item tree, reader, multi-selection) does not go through printAnnotations.erase,
+ * so after every item deletion the placeholders are searched.
+ */
+export async function sweepEmpty(): Promise<void> {
+  const tagID = Zotero.Tags.getID(TAG);
+  if (!tagID) return;
+  const ids: number[] = await Zotero.DB.columnQueryAsync(
+    "SELECT itemID FROM itemTags WHERE tagID=?",
+    [tagID],
+  );
+  for (const item of await Zotero.Items.getAsync(ids)) {
+    await cleanUpIfEmpty(item);
+  }
+}
+
+let observerID: string | null = null;
+let sweepTimer: ReturnType<typeof setTimeout> | null = null;
+
+/** Watches item deletions and then removes empty placeholders (debounced). */
+export const placeholderCleanup: Feature = {
+  name: "placeholderCleanup",
+  start() {
+    observerID = Zotero.Notifier.registerObserver(
+      {
+        notify: (event: string, type: string) => {
+          if (event !== "delete" || type !== "item") return;
+          if (sweepTimer) clearTimeout(sweepTimer);
+          sweepTimer = setTimeout(() => {
+            sweepTimer = null;
+            sweepEmpty().catch((e) =>
+              defaultLogger("placeholderCleanup", "sweep", e),
+            );
+          }, 500);
+        },
+      },
+      ["item"],
+      "placeholderCleanup",
+    );
+  },
+  stop() {
+    if (observerID) Zotero.Notifier.unregisterObserver(observerID);
+    observerID = null;
+    if (sweepTimer) clearTimeout(sweepTimer);
+    sweepTimer = null;
+  },
+};

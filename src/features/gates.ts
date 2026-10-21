@@ -43,6 +43,7 @@ export type GateName =
   | "externalApi"
   | "tagSuggest"
   | "printMenus"
+  | "placeholderCleanup"
   | "annotationRowMenu"
   | "annotationRowPatch"
   | "modeSelector"
@@ -154,6 +155,12 @@ export const gates: readonly FeatureGate[] = [
   {
     name: "printMenus",
     description: "Menus for print annotations (print rank, locator).",
+    enabled: true,
+  },
+  {
+    name: "placeholderCleanup",
+    description:
+      "Removes the empty placeholder file that print annotations hang on, once Zotero's own delete has removed its last annotation (unless the setting to keep empty placeholders is on).",
     enabled: true,
   },
   {

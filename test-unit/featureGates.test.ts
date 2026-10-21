@@ -34,6 +34,7 @@ const globalFeatureNames: GateName[] = [
   "externalApi",
   "tagSuggest",
   "printMenus",
+  "placeholderCleanup",
   "annotationRowMenu",
   "annotationRowPatch",
 ];

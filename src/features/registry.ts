@@ -37,6 +37,7 @@ import { readerMenu } from "./reader/readerMenu";
 import { citaviImport } from "./citavi/citaviImport";
 import { tagSuggest } from "./organizer/tagSuggest";
 import { printMenus } from "./print/menus";
+import { placeholderCleanup } from "./print/placeholder";
 import { annotationRowMenu } from "./print/annotationRowMenu";
 import { organizerToolbarButton } from "./organizer/toolbarButton";
 import { toolsMenuFallback } from "./organizer/toolsMenuFallback";
@@ -99,6 +100,7 @@ export const globalFeatureEntries: Feature[] = [
   externalApiFeature,
   tagSuggest.feature,
   printMenus,
+  placeholderCleanup,
   annotationRowMenu,
   annotationRowPatchFeature,
 ];
