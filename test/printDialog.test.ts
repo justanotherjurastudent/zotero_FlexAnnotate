@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { config } from "../package.json";
-import { cleanup, makeWork } from "./helpers";
+import { cleanup, makePdfAttachment, makeWork } from "./helpers";
 
 /**
  * The print annotation form, driven like a user: the fields are filled and the save
@@ -83,6 +83,99 @@ describe("print annotation dialog", function () {
     assert.equal(ann.annotationComment, "Notiz");
     assert.equal(ann.annotationColor, "#ff0000");
     assert.equal(api().print.printAnnotations.getLocator(ann), "chapter");
+  });
+
+  it("takes several tags as chips and offers Zotero's tag suggestions for them", async function () {
+    await api().print.dialog.open(win, work);
+    const tags = field("flexannotate-dialog-tags");
+    assert.isNull(tags.closest("[hidden]"), "tag row is visible");
+    const params = JSON.parse(tags.autocomplete.searchParam);
+    assert.equal(params.fieldName, "tag");
+    assert.equal(params.contextItemID, work.id, "outline context is the work");
+    assert.isAbove(params.labelMax, 34, "wider than the reader's popup");
+    assert.equal(tags.autocomplete.search, "zotero");
+
+    field("flexannotate-dialog-page").value = "7";
+    // first tag chosen from the list (Enter), second one still typed when saving
+    tags.value = " §DialogTag ";
+    tags.onTextEntered();
+    assert.equal(tags.value, "", "the field is free for the next tag");
+    tags.value = "Zweiter";
+    const chips = () =>
+      Array.from(
+        win.document.querySelectorAll(
+          "#flexannotate-dialog-tag-box [data-tag]",
+        ),
+      ).map((c: any) => c.getAttribute("data-tag"));
+    assert.deepEqual(chips(), ["§DialogTag"]);
+    await committed("add", (i) => i.isAnnotation(), save);
+    const ann = annotationsOf(work).find((a) => a.annotationPageLabel === "7")!;
+    assert.sameMembers(
+      ann.getTags().map((t) => t.tag),
+      ["§DialogTag", "Zweiter"],
+    );
+
+    // reopening starts without chips
+    await api().print.dialog.open(win, work);
+    assert.deepEqual(chips(), []);
+    panel().hidePopup();
+  });
+
+  it("turns Tab and focus loss into chips, and shows and edits existing tags when editing", async function () {
+    const chips = () =>
+      Array.from(
+        win.document.querySelectorAll(
+          "#flexannotate-dialog-tag-box [data-tag]",
+        ),
+      ).map((c: any) => c.getAttribute("data-tag"));
+    await api().print.dialog.open(win, work);
+    const tags = field("flexannotate-dialog-tags");
+    field("flexannotate-dialog-page").value = "8";
+    tags.value = "Einleitung";
+    const tab = new win.KeyboardEvent("keydown", {
+      key: "Tab",
+      bubbles: true,
+      cancelable: true,
+    });
+    tags.dispatchEvent(tab);
+    assert.isTrue(tab.defaultPrevented);
+    assert.deepEqual(chips(), ["Einleitung"]);
+    tags.value = "Fokus";
+    tags.dispatchEvent(new win.Event("focusout"));
+    assert.deepEqual(chips(), ["Einleitung", "Fokus"]);
+    await committed("add", (i) => i.isAnnotation(), save);
+
+    const ann = annotationsOf(work).find((a) => a.annotationPageLabel === "8")!;
+    await api().print.dialog.openForEdit(win, ann);
+    assert.deepEqual(
+      chips(),
+      ["Einleitung", "Fokus"],
+      "existing tags as chips",
+    );
+    (
+      win.document.querySelector(
+        "#flexannotate-dialog-tag-box [data-tag] [role=button]",
+      ) as HTMLElement
+    ).click();
+    await committed("modify", (i) => i.id === ann.id, save);
+    assert.sameMembers(
+      ann.getTags().map((t) => t.tag),
+      ["Fokus"],
+    );
+  });
+
+  it("adds the annotation to a real attachment instead of a placeholder", async function () {
+    const other = await makeWork("Dialog Werk mit PDF");
+    const pdf = await makePdfAttachment(other);
+    await api().print.dialog.open(win, other, pdf);
+    field("flexannotate-dialog-page").value = "3";
+    await committed("add", (i) => i.isAnnotation(), save);
+    assert.isNull(
+      api().print.placeholder.find(other),
+      "no placeholder created",
+    );
+    assert.equal(pdf.getAnnotations().length, 1);
+    assert.equal(pdf.getAnnotations()[0].annotationPageLabel, "3");
   });
 
   it("keeps the form open when a print source has no page", async function () {
