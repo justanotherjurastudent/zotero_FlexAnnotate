@@ -2077,12 +2077,12 @@ describe("FlexAnnotate features", function () {
         );
         assert.isNull(doc.getElementById("flexannotate-list-pane"));
 
-        // Zotero uses 98 px here for annotations, 82 px for works
+        // Zotero uses 98 px here for annotations, 82 px for works; both get 98
         const other = doc.getElementById("library-other-items")!;
         assert.equal(
           other.getBoundingClientRect().height,
-          82,
-          "open-documents row has the works height in the annotations tab",
+          98,
+          "open-documents row has the taller height in the annotations tab",
         );
       } finally {
         Zotero.Prefs.set(`${prefs}.dialogOutlineView`, origOutline, true);

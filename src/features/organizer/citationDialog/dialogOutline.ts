@@ -161,16 +161,14 @@ function inject(win: Window) {
   attached.set(win, info);
 
   // Zotero's annotations view makes the cards of the open documents 98/58 px
-  // high (title view: 82/42); match the title height here. Cards with an
-  // annotation quote (quote and comment, three lines) keep Zotero's height.
+  // high, the title view 82/42. Both views get the larger height so the cards
+  // do not jump when switching tabs and annotation quotes are not cut off.
   const rowStyle = doc.createElement("style");
   rowStyle.id = ROW_HEIGHT_STYLE_ID;
-  const bar =
-    "#citation-dialog[dialog-type=annotations] #library-layout #library-other-items";
+  const bar = "#citation-dialog #library-layout #library-other-items";
   rowStyle.textContent =
-    `${bar}{height:82px;}` +
-    `${bar}:has(.annotation-quote){height:98px;}` +
-    `${bar} .search-items .item:not(:has(.annotation-quote)){height:42px !important;}`;
+    `${bar}{height:98px;}` +
+    `${bar} .search-items .item{height:58px !important;}`;
   doc.documentElement!.appendChild(rowStyle);
 
   if (isFeatureEnabled("citedTracking")) hookAccept(win);
