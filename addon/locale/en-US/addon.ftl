@@ -54,6 +54,7 @@ annotation-edit =
     .label = Edit Annotation…
 annotation-delete =
     .label = Delete Annotation
+annotation-goto = Go to the passage in the attachment
 annotation-delete-title = Delete Annotation
 annotation-delete-confirm = This annotation will be deleted permanently and cannot be restored. Continue?
 annotation-delete-dont-ask = Do not ask again (can be turned back on in the settings)

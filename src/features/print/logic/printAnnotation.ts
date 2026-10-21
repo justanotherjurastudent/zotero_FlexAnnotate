@@ -47,6 +47,23 @@ export function supportsText(type: string): boolean {
 }
 
 /**
+ * Does the annotation have a text passage? Print annotations (also on a real PDF)
+ * carry the placeholder position with empty rectangles; the position of other formats
+ * (EPUB, snapshot) has no `rects` and counts as a passage. Unreadable = none.
+ */
+export function hasPassage(position: string): boolean {
+  try {
+    const { rects } = JSON.parse(position);
+    return (
+      !Array.isArray(rects) ||
+      rects.some((r: number[]) => r.some((n) => n !== 0))
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Sort index by print page, formatted as \d{5}|\d{6}|\d{5}. Determined by the first
  * digit sequence in label: "para. 12" sorts as 12. Labels without digits (e.g. "XIV")
  * receive 99999 and sort to the end.

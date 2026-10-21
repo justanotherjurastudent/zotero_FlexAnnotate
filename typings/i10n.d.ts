@@ -10,6 +10,7 @@ export type FluentMessageId =
   | 'annotation-delete-dont-ask'
   | 'annotation-delete-title'
   | 'annotation-edit'
+  | 'annotation-goto'
   | 'button-cancel'
   | 'button-save'
   | 'dialog-mode-citation'

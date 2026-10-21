@@ -54,6 +54,7 @@ annotation-edit =
     .label = Annotation bearbeiten…
 annotation-delete =
     .label = Annotation löschen
+annotation-goto = Zur Textstelle im Anhang springen
 annotation-delete-title = Annotation löschen
 annotation-delete-confirm = Diese Annotation wird endgültig gelöscht und lässt sich nicht wiederherstellen. Fortfahren?
 annotation-delete-dont-ask = Nicht mehr nachfragen (in den Einstellungen wieder einschaltbar)

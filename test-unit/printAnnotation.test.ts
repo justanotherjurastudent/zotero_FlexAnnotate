@@ -4,6 +4,7 @@ import {
   annotationColors,
   buildPlaceholderPDF,
   buildSortIndex,
+  hasPassage,
   DEFAULT_COLOR,
   normalizeColor,
   STANDARD_COLORS,
@@ -103,5 +104,18 @@ describe("supportsText", () => {
     assert.equal(supportsText("note"), false);
     assert.equal(supportsText("image"), false);
     assert.equal(supportsText(""), false);
+  });
+});
+
+describe("hasPassage", () => {
+  it("is false for the empty rects of a print annotation", () => {
+    assert.equal(hasPassage('{"pageIndex":0,"rects":[[0,0,0,0]]}'), false);
+  });
+  it("is true for real rects and for formats without rects", () => {
+    assert.equal(hasPassage('{"pageIndex":2,"rects":[[10,20,30,40]]}'), true);
+    assert.equal(hasPassage('{"type":"FragmentSelector","value":"x"}'), true);
+  });
+  it("is false for unreadable positions", () => {
+    assert.equal(hasPassage(""), false);
   });
 });

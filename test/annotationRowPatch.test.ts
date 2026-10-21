@@ -58,6 +58,40 @@ describe("annotationRowPatch", function () {
     }
   });
 
+  it("adds a jump button for annotations with a passage, none for print annotations", async function () {
+    const doc = win().document;
+    await win().customElements.whenDefined("annotation-row");
+    const api = (Zotero as any)[config.addonInstance].api.print;
+    const printAnn = await api.printAnnotations.create(work, {
+      pageLabel: "5",
+    });
+    const opened: unknown[][] = [];
+    const reader = Zotero.Reader as any;
+    const open = reader.open;
+    reader.open = async (...args: unknown[]) => void opened.push(args);
+    const row = doc.createXULElement("annotation-row") as any;
+    doc.documentElement.appendChild(row);
+    try {
+      row.annotation = ann;
+      const button = row.querySelector(".flexannotate-goto");
+      assert.exists(button);
+      button.click();
+      assert.deepEqual(opened, [[att.id, { annotationID: ann.key }]]);
+      row.annotation = printAnn;
+      assert.isNull(row.querySelector(".flexannotate-goto"));
+      // created freely on a real PDF: no passage either
+      row.annotation = await api.printAnnotations.create(
+        work,
+        { pageLabel: "6" },
+        att,
+      );
+      assert.isNull(row.querySelector(".flexannotate-goto"));
+    } finally {
+      reader.open = open;
+      row.remove();
+    }
+  });
+
   const rowApi = () =>
     (Zotero as any)[config.addonInstance].api.print.annotationRowPatch;
   const pageWord = () => Zotero.getString("pdfReader.page");

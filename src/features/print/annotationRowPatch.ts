@@ -13,6 +13,8 @@ import {
   locatorLabelText,
 } from "../reader/logic/readerLocator";
 import { getString } from "../../utils/locale";
+import { isPlaceholder } from "./placeholder";
+import { hasPassage } from "./logic/printAnnotation";
 
 const installed = new WeakMap<
   Window,
@@ -62,6 +64,63 @@ export function updateAnnotationRowTitle(row: Element): void {
   titleEl.textContent = formatAnnotationTitle(label, ann.annotationPageLabel);
 }
 
+const GOTO_CLASS = "flexannotate-goto";
+
+/**
+ * Arrow at the top right of the row: opens the attachment at the annotation's passage.
+ * Print annotations (placeholder or position 0/0 on a real PDF) have no
+ * passage and get none. `annotationID` as the location: Zotero.Reader.open reuses open tabs and navigates
+ * (xpcom/reader.js:2917, like organizer/openTarget.ts).
+ */
+export function updateGotoButton(row: Element): void {
+  row.querySelector(`.${GOTO_CLASS}`)?.remove();
+  const ann = (row as unknown as { _annotation?: Zotero.Item })._annotation;
+  const head = row.querySelector(".head");
+  if (
+    !ann ||
+    !head ||
+    typeof ann.isAnnotation !== "function" ||
+    !ann.isAnnotation() ||
+    !ann.parentID ||
+    isPlaceholder(ann.parentItem) ||
+    !hasPassage(ann.annotationPosition)
+  ) {
+    return;
+  }
+  const button = row.ownerDocument!.createElementNS(
+    "http://www.w3.org/1999/xhtml",
+    "span",
+  ) as HTMLElement;
+  button.className = GOTO_CLASS;
+  button.setAttribute("role", "button");
+  button.setAttribute("tabindex", "0");
+  button.textContent = "↗";
+  button.title = getString("annotation-goto");
+  button.style.cssText =
+    "cursor: pointer; padding: 0 4px; margin-inline-start: auto; font-size: 14px; opacity: 0.7;";
+  const open = (event: Event) => {
+    event.stopPropagation();
+    event.preventDefault();
+    Zotero.Reader.open(
+      ann.parentID as number,
+      {
+        annotationID: ann.key,
+      } as never,
+    ).catch((e: unknown) => ztoolkit.log("goto annotation:", e));
+  };
+  button.addEventListener("click", open);
+  // A double click on the row must not trigger anything else
+  button.addEventListener("dblclick", (e) => e.stopPropagation());
+  button.addEventListener("keydown", (e) => {
+    if (
+      (e as KeyboardEvent).key === "Enter" ||
+      (e as KeyboardEvent).key === " "
+    )
+      open(e);
+  });
+  head.append(button);
+}
+
 export function patchAnnotationRow(win: Window): boolean {
   if (!win || installed.has(win)) {
     return true;
@@ -88,6 +147,7 @@ export function patchAnnotationRow(win: Window): boolean {
       native.call(this);
       try {
         updateAnnotationRowTitle(this);
+        updateGotoButton(this);
       } catch (e) {
         ztoolkit.log("annotationRow title update failed:", e);
       }
@@ -104,6 +164,7 @@ export function patchAnnotationRow(win: Window): boolean {
     for (const row of win.document.querySelectorAll("annotation-row")) {
       try {
         updateAnnotationRowTitle(row);
+        updateGotoButton(row);
       } catch {
         // ignore
       }
@@ -133,6 +194,7 @@ export function unpatchAnnotationRow(win: Window): void {
       assignChecked(proto, "render", entry.native);
       for (const row of win.document.querySelectorAll("annotation-row")) {
         try {
+          row.querySelector(`.${GOTO_CLASS}`)?.remove();
           (row as unknown as { render?: () => void }).render?.();
         } catch {
           // ignore
