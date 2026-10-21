@@ -11,7 +11,7 @@ Detailed usage and reference. The overview is in the [README](../README.md).
 | Right-click an item or its attachment           | _Add print annotation…_ (_Add annotation…_ if the title has a real attachment)                                                                        |
 | Right-click an annotation (item tree)           | _Edit annotation…_, _Delete annotation_ (always asks first; "do not ask again" can be undone in the settings, deleted annotations cannot be restored) |
 | Right-click an annotation (right-hand pane)     | the same entries                                                                                                                                      |
-| Reader: right-click an annotation               | _Add/edit comment…_, _Set locator…_                                                                                                                   |
+| Reader: right-click an annotation               | _Edit annotation…_                                                                                                                                    |
 | Reader: edit the page number                    | locator choice and "Use this locator for this document from now on"                                                                                   |
 | Toolbar button, next to the Sync button         | opens the Organizer (or focuses an open window)                                                                                                       |
 | _Tools → FlexAnnotate: Organizer_               | opens the Organizer (or focuses an open window)                                                                                                       |

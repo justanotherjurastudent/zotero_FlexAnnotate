@@ -28,7 +28,7 @@ FlexAnnotate nimmt sich genau das vor. Es ist im Kern eine Überarbeitung der An
 
 Das gilt für alle Annotationen, auch für die aus PDF, EPUB und Snapshot.
 
-- **Im Reader:** Rechtsklick auf eine Annotation, dann _Kommentar hinzufügen…_ oder _Locator festlegen…_. Im Seitenzahl-Popup lässt sich der Locator-Typ wählen und für das ganze Dokument merken.
+- **Im Reader:** Rechtsklick auf eine Annotation, dann _Annotation bearbeiten…_. Im Seitenzahl-Popup lässt sich der Locator-Typ wählen und für das ganze Dokument merken.
 - **Im Zotero-Fenster:** Rechtsklick auf eine Annotation, _Annotation bearbeiten…_. Die Eingabemaske ändert Seitenangabe, Locator, Kommentar und Farbe.
 - **Locator nach Wahl:** Seite, Kapitel, Abschnitt, Absatz, Spalte und die weiteren Locator-Typen, die Zotero selbst kennt. Der Typ wandert in den Zitiernachweis.
 
@@ -149,7 +149,7 @@ FlexAnnotate goes after exactly that. At its core it is an overhaul of annotatio
 
 This applies to every annotation, including those from PDF, EPUB and snapshots.
 
-- **In the reader:** right-click an annotation, then _Add comment…_ or _Set locator…_. The page-number popup lets you pick the locator type and remember it for the whole document.
+- **In the reader:** right-click an annotation, then _Edit annotation…_. The page-number popup lets you pick the locator type and remember it for the whole document.
 - **In the Zotero window:** right-click an annotation, _Edit annotation…_. The input panel changes page, locator, comment and colour.
 - **Locator of your choice:** page, chapter, section, paragraph, column and the other locator types Zotero itself knows. The type goes into the citation.
 

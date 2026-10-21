@@ -15,7 +15,6 @@ import {
   explicitLocatorFromTags,
   locatorLabelText,
 } from "./logic/readerLocator";
-import type { DialogView } from "../../core/printDialog";
 import * as printDialog from "../print/dialog";
 import * as printAnnotations from "../print/printAnnotations";
 import { enhanceLabelPopup, setLabelPopupHooks } from "./labelPopup";
@@ -275,42 +274,19 @@ function onContextMenu(event: ReaderEvent): void {
     return;
   }
 
-  let hasComment = false;
-  if (annotationIds.length === 1) {
-    const a = internals(reader)._state?.annotations?.find(
-      (x) => x.id === annotationIds[0],
-    );
-    hasComment = !!(a && a.comment && a.comment.trim());
-  }
-
-  const items: MenuItem[] = [];
-  if (annotationIds.length === 1) {
-    items.push({
-      label: getString(
-        hasComment ? "reader-comment-edit" : "reader-comment-add",
-      ),
-      persistent: true,
-      onCommand: () => openDialog(reader, annotationIds, "comment"),
-    });
-  }
-  items.push({
-    label: getString("reader-locator-set"),
+  // One entry for everything: the dialog contains comment, locator, page and color.
+  // The label is in the `.label` attribute of the Fluent message, hence the "label" branch.
+  append({
+    label: getString("annotation-edit", "label"),
     persistent: true,
-    onCommand: () => openDialog(reader, annotationIds, "locator"),
+    onCommand: () => openDialog(reader, annotationIds),
   });
-
-  append(...items);
 }
 
-/**
- * Opens dialog panel to edit comment or locator.
- *
- * @param view - 'comment' | 'locator'
- */
+/** Opens the edit dialog (for several annotations only locator and page). */
 async function openDialog(
   reader: ReaderInstance,
   annotationKeys: string[],
-  view: DialogView,
 ): Promise<void> {
   try {
     const itemID = internals(reader).itemID;
@@ -333,7 +309,7 @@ async function openDialog(
     }
     const win = (internals(reader)._window ||
       Zotero.getMainWindow()) as MainWin;
-    await printDialog.openForEdit(win, annotations, { view });
+    await printDialog.openForEdit(win, annotations);
   } catch (e) {
     defaultLogger("readerMenu", "openDialog", e);
   }

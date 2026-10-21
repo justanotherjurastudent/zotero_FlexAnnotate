@@ -60,12 +60,6 @@ annotation-delete-confirm = Diese Annotation wird endgültig gelöscht und läss
 annotation-delete-dont-ask = Nicht mehr nachfragen (in den Einstellungen wieder einschaltbar)
 
 # Kontextmenü an Annotationen im Reader (features/reader/readerMenu.ts)
-reader-comment-add =
-    .label = Kommentar hinzufügen…
-reader-comment-edit =
-    .label = Kommentar bearbeiten…
-reader-locator-set =
-    .label = Locator festlegen…
 reader-locator-page =
     .label = Seite
 reader-locator-margin =
