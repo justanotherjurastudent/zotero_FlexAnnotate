@@ -9,7 +9,6 @@ describe("printMenuState", () => {
         selectedCount: 0,
         kinds: [],
         isEditable: false,
-        isPrintAnnotation: false,
       }),
       {
         add: false,
@@ -26,7 +25,18 @@ describe("printMenuState", () => {
       selectedCount: 1,
       kinds: ["regular"],
       isEditable: true,
-      isPrintAnnotation: false,
+    });
+    assert.equal(s.add, true);
+    assert.equal(s.edit, false);
+    assert.equal(s.delete, false);
+    assert.equal(s.separator, true);
+  });
+
+  it("offers Add for the attachment of a title, as for the title itself", () => {
+    const s = printMenuState({
+      selectedCount: 1,
+      kinds: ["attachment"],
+      isEditable: true,
     });
     assert.equal(s.add, true);
     assert.equal(s.edit, false);
@@ -39,22 +49,20 @@ describe("printMenuState", () => {
       selectedCount: 2,
       kinds: ["regular", "regular"],
       isEditable: true,
-      isPrintAnnotation: false,
     });
     assert.equal(s.add, false);
     assert.equal(s.separator, false);
   });
 
-  it("offers Edit but not Delete for a native annotation", () => {
+  it("offers Edit and Delete for a native annotation", () => {
     const s = printMenuState({
       selectedCount: 1,
       kinds: ["annotation"],
       isEditable: true,
-      isPrintAnnotation: false,
     });
     assert.equal(s.edit, true);
     assert.equal(s.editDisabled, false);
-    assert.equal(s.delete, false);
+    assert.equal(s.delete, true);
   });
 
   it("disables Edit for a non-editable annotation", () => {
@@ -62,10 +70,10 @@ describe("printMenuState", () => {
       selectedCount: 1,
       kinds: ["annotation"],
       isEditable: false,
-      isPrintAnnotation: false,
     });
     assert.equal(s.edit, true);
     assert.equal(s.editDisabled, true);
+    assert.equal(s.delete, false);
   });
 
   it("offers Edit and Delete for a print annotation", () => {
@@ -73,7 +81,6 @@ describe("printMenuState", () => {
       selectedCount: 1,
       kinds: ["annotation"],
       isEditable: true,
-      isPrintAnnotation: true,
     });
     assert.equal(s.edit, true);
     assert.equal(s.delete, true);
@@ -85,7 +92,6 @@ describe("printMenuState", () => {
       selectedCount: 2,
       kinds: ["annotation", "annotation"],
       isEditable: true,
-      isPrintAnnotation: true,
     });
     assert.equal(several.edit, false);
     assert.equal(several.delete, false);
@@ -94,7 +100,6 @@ describe("printMenuState", () => {
       selectedCount: 2,
       kinds: ["regular", "annotation"],
       isEditable: true,
-      isPrintAnnotation: true,
     });
     assert.equal(mixed.add, false);
     assert.equal(mixed.edit, false);
@@ -105,7 +110,6 @@ describe("printMenuState", () => {
       selectedCount: 1,
       kinds: ["other"],
       isEditable: true,
-      isPrintAnnotation: false,
     });
     assert.equal(s.separator, false);
   });

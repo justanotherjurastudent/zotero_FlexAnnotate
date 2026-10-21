@@ -15,6 +15,9 @@ pref("persistentCitationDialog", false);
 // Letzte Lage und Größe des Blätterfensters (JSON, leer = keine): der erste Dialog nach einem Neustart nimmt sie
 pref("persistentWindowRect", "");
 
+// Vor dem Löschen einer Annotation (Kontextmenü) nachfragen
+pref("confirmDeleteAnnotation", true);
+
 // Platzhalter-Attachment behalten, auch wenn keine Annotation mehr daran hängt
 pref("keepEmptyPlaceholders", false);
 

@@ -35,6 +35,30 @@ export function find(item: Zotero.Item): Zotero.Item | null {
   return null;
 }
 
+/** Can Zotero attach annotations to this item (file attachment with PDF/EPUB/snapshot)? */
+function canHoldAnnotations(item: Zotero.Item | null | undefined): boolean {
+  return !!item && item.isFileAttachment() && !!item.attachmentReaderType;
+}
+
+/**
+ * The attachment new annotations of a title belong to: the clicked real
+ * attachment, otherwise an existing placeholder, otherwise the first real attachment.
+ * Null if there is none (then `ensure` creates the placeholder).
+ */
+export function annotationTarget(
+  work: Zotero.Item,
+  preferred?: Zotero.Item | null,
+): Zotero.Item | null {
+  if (canHoldAnnotations(preferred) && preferred!.parentID === work.id) {
+    return preferred!;
+  }
+  return (
+    find(work) ??
+    Zotero.Items.get(work.getAttachments()).find(canHoldAnnotations) ??
+    null
+  );
+}
+
 /**
  * Returns the placeholder attachment, creating it if it does not exist yet.
  */

@@ -17,6 +17,8 @@ field-text =
     .value = Zitat
 field-comment =
     .value = Kommentar
+field-tags =
+    .value = Tag (§ für die Gliederung)
 
 type-highlight =
     .label = Hervorhebung
@@ -46,10 +48,15 @@ save-failed =
 
 add-print-annotation =
     .label = Print-Annotation hinzufügen…
+add-annotation =
+    .label = Annotation hinzufügen…
 annotation-edit =
     .label = Annotation bearbeiten…
 annotation-delete =
-    .label = Print-Annotation löschen
+    .label = Annotation löschen
+annotation-delete-title = Annotation löschen
+annotation-delete-confirm = Diese Annotation wird endgültig gelöscht und lässt sich nicht wiederherstellen. Fortfahren?
+annotation-delete-dont-ask = Nicht mehr nachfragen (in den Einstellungen wieder einschaltbar)
 
 # Kontextmenü an Annotationen im Reader (features/reader/readerMenu.ts)
 reader-comment-add =
@@ -67,6 +74,7 @@ reader-locator-opus =
 
 # Überschriftzeilen der §-Tag-Vorschläge (features/organizer/tagSuggest.ts)
 tag-suggest-heading-tree = — Organizer-Gliederung —
+tag-suggest-heading-no-outline = — Keine Gliederung, bibliotheksweit —
 tag-suggest-heading-library = — Bibliotheksweit —
 
 # Seitenzahl-Popup im Reader (features/reader/labelPopup.ts)

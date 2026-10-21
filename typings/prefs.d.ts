@@ -16,6 +16,7 @@ declare namespace _ZoteroTypes {
       "citationOnly": boolean;
       "persistentCitationDialog": boolean;
       "persistentWindowRect": string;
+      "confirmDeleteAnnotation": boolean;
       "keepEmptyPlaceholders": boolean;
       "citaviImport": boolean;
       "citaviKeepNotes": boolean;

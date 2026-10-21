@@ -39,6 +39,8 @@ prefs-keep-placeholders =
 prefs-keep-placeholders-description =
     Print annotations need a file attachment as a technical carrier. With this option off,
     FlexAnnotate removes the placeholder once its last annotation has been deleted.
+prefs-confirm-delete =
+    .label = Ask before deleting an annotation
 
 prefs-citavi-heading = Citavi import
 prefs-citavi-import =

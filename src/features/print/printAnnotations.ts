@@ -20,6 +20,8 @@ import {
   locatorTagChanges,
 } from "../../core/locator";
 import { ensure, cleanUpIfEmpty, isPlaceholder } from "./placeholder";
+import { getString } from "../../utils/locale";
+import { getPref, setPref } from "../../utils/prefs";
 
 export interface PrintAnnotationData {
   /** Print page number as it should be cited */
@@ -45,8 +47,9 @@ export type PrintAnnotationUpdate = Omit<PrintAnnotationData, "type" | "tags">;
 export async function create(
   item: Zotero.Item,
   data: PrintAnnotationData,
+  target?: Zotero.Item | null,
 ): Promise<Zotero.Item> {
-  const attachment = await ensure(item);
+  const attachment = target ?? (await ensure(item));
   const type = data.type || "highlight";
   let comment = data.comment || "";
 
@@ -134,6 +137,39 @@ export async function erase(annotation: Zotero.Item): Promise<void> {
   if (attachment) {
     await cleanUpIfEmpty(attachment);
   }
+}
+
+/**
+ * Context menu "Delete annotation": asks before every deletion (pref
+ * confirmDeleteAnnotation, can be switched off in the dialog). Zotero deletes annotations
+ * permanently (reader.js onDeleteAnnotations: eraseTx); there is no trash and no undo.
+ */
+export async function eraseWithConfirm(
+  win: Window,
+  annotation: Zotero.Item,
+  confirm: (title: string, text: string) => boolean = (title, text) => {
+    const dontAsk = { value: false };
+    const ok = Services.prompt.confirmCheck(
+      win as mozIDOMWindowProxy,
+      title,
+      text,
+      getString("annotation-delete-dont-ask"),
+      dontAsk,
+    );
+    if (ok && dontAsk.value) setPref("confirmDeleteAnnotation", false);
+    return ok;
+  },
+): Promise<void> {
+  if (
+    getPref("confirmDeleteAnnotation") &&
+    !confirm(
+      getString("annotation-delete-title"),
+      getString("annotation-delete-confirm"),
+    )
+  ) {
+    return;
+  }
+  await erase(annotation);
 }
 
 /**

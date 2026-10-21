@@ -64,12 +64,22 @@ describe("printMenus (item context menu)", function () {
     assert.isTrue(isHidden(ENTRIES[2]));
   });
 
-  it("shows Edit but not Delete for a native annotation", function () {
+  it("shows Add for the attachment of a title, placeholder or real", function () {
+    for (const attachment of [printAnn.parentItem, native.parentItem]) {
+      api().print.menus.updateVisibility(doc(), [attachment as Zotero.Item]);
+      assert.isFalse(isHidden(SEPARATOR));
+      assert.isFalse(isHidden(ENTRIES[0]));
+      assert.isTrue(isHidden(ENTRIES[1]));
+      assert.isTrue(isHidden(ENTRIES[2]));
+    }
+  });
+
+  it("shows Edit and Delete for a native annotation", function () {
     api().print.menus.updateVisibility(doc(), [native]);
     assert.isFalse(isHidden(SEPARATOR));
     assert.isTrue(isHidden(ENTRIES[0]));
     assert.isFalse(isHidden(ENTRIES[1]));
-    assert.isTrue(isHidden(ENTRIES[2]));
+    assert.isFalse(isHidden(ENTRIES[2]));
     assert.isFalse((doc().getElementById(ENTRIES[1]) as any).disabled);
   });
 
@@ -79,6 +89,37 @@ describe("printMenus (item context menu)", function () {
     assert.isTrue(isHidden(ENTRIES[0]));
     assert.isFalse(isHidden(ENTRIES[1]));
     assert.isFalse(isHidden(ENTRIES[2]));
+  });
+
+  it("asks before deleting any annotation, unless the preference is off", async function () {
+    let answer = false;
+    let asked = 0;
+    const confirm = () => {
+      asked++;
+      return answer;
+    };
+    const del = api().print.printAnnotations.eraseWithConfirm;
+    await del(win(), native, confirm);
+    assert.equal(asked, 1, "asked once");
+    assert.ok(Zotero.Items.get(native.id), "kept after cancel");
+    answer = true;
+    await del(win(), native, confirm);
+    assert.equal(asked, 2);
+    assert.notOk(Zotero.Items.get(native.id), "gone after confirm");
+
+    answer = false;
+    await del(win(), printAnn, confirm);
+    assert.equal(asked, 3, "a print annotation is asked about as well");
+    assert.ok(Zotero.Items.get(printAnn.id), "kept after cancel");
+    const key = `${config.prefsPrefix}.confirmDeleteAnnotation`;
+    Zotero.Prefs.set(key, false, true);
+    try {
+      await del(win(), printAnn, confirm);
+      assert.equal(asked, 3, "no question with the preference off");
+      assert.notOk(Zotero.Items.get(printAnn.id));
+    } finally {
+      Zotero.Prefs.set(key, true, true);
+    }
   });
 
   it("hides everything for several items or no selection", function () {

@@ -39,6 +39,8 @@ prefs-keep-placeholders =
 prefs-keep-placeholders-description =
     Print-Annotationen brauchen einen Datei-Anhang als technischen Träger. Ist die Option aus,
     entfernt FlexAnnotate den Platzhalter, sobald die letzte Annotation darunter gelöscht wurde.
+prefs-confirm-delete =
+    .label = Vor dem Löschen einer Annotation nachfragen
 
 prefs-citavi-heading = Citavi-Import
 prefs-citavi-import =

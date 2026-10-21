@@ -5,13 +5,13 @@
  * Zotero renders annotations there as <annotation-row annotation-id="…"> and does not
  * provide its own context menu for them. Rows are rebuilt on every selection change,
  * so the listener is attached to the document (capturing phase) rather than individual rows.
- * Editing applies to all annotations; deletion only to print annotations.
+ * Editing and deletion apply to every editable annotation (real PDF annotations
+ * only after a confirmation).
  */
 import { config } from "../../../package.json";
 import { getLocaleID } from "../../utils/locale";
 import { defaultLogger, type Feature } from "../../shared/feature";
 import * as dialog from "./dialog";
-import * as placeholder from "./placeholder";
 import * as printAnnotations from "./printAnnotations";
 
 type MainWin = _ZoteroTypes.MainWindow;
@@ -56,11 +56,11 @@ function onContextMenu(event: MouseEvent, doc: Document, popup: Popup): void {
     return;
   }
 
-  const isPrint = placeholder.isPlaceholder(annotation.parentItem);
-  (doc.getElementById(DELETE_ID) as HTMLElement).hidden = !isPrint;
+  const editable = annotation.isEditable();
+  (doc.getElementById(DELETE_ID) as HTMLElement).hidden = !editable;
   (doc.getElementById(EDIT_ID) as HTMLElement).toggleAttribute(
     "disabled",
-    !annotation.isEditable(),
+    !editable,
   );
 
   popup.setAttribute(ANNOTATION_ATTR, String(annotation.id));
@@ -103,7 +103,7 @@ export const annotationRowMenu: Feature = {
       const annotation = annotationOf(popup);
       if (annotation) {
         printAnnotations
-          .erase(annotation)
+          .eraseWithConfirm(win, annotation)
           .catch((e) => defaultLogger("annotationRowMenu", "delete", e));
       }
     });

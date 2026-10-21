@@ -3,8 +3,12 @@
 /* eslint-disable */
 // @ts-nocheck
 export type FluentMessageId =
+  | 'add-annotation'
   | 'add-print-annotation'
   | 'annotation-delete'
+  | 'annotation-delete-confirm'
+  | 'annotation-delete-dont-ask'
+  | 'annotation-delete-title'
   | 'annotation-edit'
   | 'button-cancel'
   | 'button-save'
@@ -14,6 +18,7 @@ export type FluentMessageId =
   | 'field-color'
   | 'field-comment'
   | 'field-default-locator'
+  | 'field-tags'
   | 'field-text'
   | 'field-type'
   | 'outline-collectionmenu-label'
@@ -43,6 +48,7 @@ export type FluentMessageId =
   | 'prefs-citavi-locator-page'
   | 'prefs-citavi-locator-paragraph'
   | 'prefs-citing-heading'
+  | 'prefs-confirm-delete'
   | 'prefs-keep-placeholders'
   | 'prefs-keep-placeholders-description'
   | 'prefs-persistent-citation-dialog'
@@ -65,6 +71,7 @@ export type FluentMessageId =
   | 'reader-popup-locator-label'
   | 'save-failed'
   | 'tag-suggest-heading-library'
+  | 'tag-suggest-heading-no-outline'
   | 'tag-suggest-heading-tree'
   | 'type-highlight'
   | 'type-image'

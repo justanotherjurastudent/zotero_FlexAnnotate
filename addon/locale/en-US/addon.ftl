@@ -17,6 +17,8 @@ field-text =
     .value = Quotation
 field-comment =
     .value = Comment
+field-tags =
+    .value = Tag (§ for the outline)
 
 type-highlight =
     .label = Highlight
@@ -46,10 +48,15 @@ save-failed =
 
 add-print-annotation =
     .label = Add Print Annotation…
+add-annotation =
+    .label = Add Annotation…
 annotation-edit =
     .label = Edit Annotation…
 annotation-delete =
-    .label = Delete Print Annotation
+    .label = Delete Annotation
+annotation-delete-title = Delete Annotation
+annotation-delete-confirm = This annotation will be deleted permanently and cannot be restored. Continue?
+annotation-delete-dont-ask = Do not ask again (can be turned back on in the settings)
 
 # Kontextmenü an Annotationen im Reader (features/reader/readerMenu.ts)
 reader-comment-add =
@@ -67,6 +74,7 @@ reader-locator-opus =
 
 # Heading rows of the § tag suggestions (features/organizer/tagSuggest.ts)
 tag-suggest-heading-tree = — Organizer outline —
+tag-suggest-heading-no-outline = — No outline, whole library —
 tag-suggest-heading-library = — Whole library —
 
 # Seitenzahl-Popup im Reader (features/reader/labelPopup.ts)

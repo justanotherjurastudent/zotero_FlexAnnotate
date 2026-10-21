@@ -29,8 +29,22 @@ const listeners = new WeakMap<MainWin, () => void>();
 
 function kindOf(item: Zotero.Item): SelectionKind {
   if (item.isRegularItem()) return "regular";
+  // An attachment under a title takes the annotation for the title (like the entry on the title itself)
+  if (item.isAttachment() && item.parentItem?.isRegularItem())
+    return "attachment";
   if (item.isAnnotation()) return "annotation";
   return "other";
+}
+
+/** The title a new annotation belongs to: the item itself or the title of an attachment. */
+function targetWork(item: Zotero.Item): Zotero.Item {
+  return item.isAttachment() ? (item.parentItem as Zotero.Item) : item;
+}
+
+/** Does the title have a real file attachment? Then it is no longer a pure print annotation. */
+function hasRealAttachment(work: Zotero.Item, clicked: Zotero.Item): boolean {
+  const target = placeholder.annotationTarget(work, clicked);
+  return !!target && !placeholder.isPlaceholder(target);
 }
 
 function selectedItems(win: MainWin): Zotero.Item[] {
@@ -47,14 +61,18 @@ export function updateVisibility(doc: Document, items: Zotero.Item[]): void {
     selectedCount: items.length,
     kinds: items.map(kindOf),
     isEditable: !!single && single.isAnnotation() && single.isEditable(),
-    isPrintAnnotation:
-      !!single &&
-      single.isAnnotation() &&
-      placeholder.isPlaceholder(single.parentItem),
   });
 
   setHidden(doc, SEPARATOR_ID, !state.separator);
   setHidden(doc, ADD_ID, !state.add);
+  if (state.add && single) {
+    // With a real attachment the entry is just called "Add annotation"
+    const add = doc.getElementById(ADD_ID);
+    const id = hasRealAttachment(targetWork(single), single)
+      ? "add-annotation"
+      : "add-print-annotation";
+    (doc as any).l10n?.setAttributes(add, getLocaleID(id));
+  }
   setHidden(doc, EDIT_ID, !state.edit);
   setHidden(doc, DELETE_ID, !state.delete);
   const edit = doc.getElementById(EDIT_ID) as HTMLElement | null;
@@ -130,7 +148,7 @@ export const printMenus: Feature = {
     doc
       .getElementById(ADD_ID)
       ?.addEventListener("command", () =>
-        onCommand((item) => dialog.open(win, item)),
+        onCommand((item) => dialog.open(win, targetWork(item), item)),
       );
     doc
       .getElementById(EDIT_ID)
@@ -140,7 +158,7 @@ export const printMenus: Feature = {
     doc
       .getElementById(DELETE_ID)
       ?.addEventListener("command", () =>
-        onCommand((item) => printAnnotations.erase(item)),
+        onCommand((item) => printAnnotations.eraseWithConfirm(win, item)),
       );
 
     const onShowing = () => {
