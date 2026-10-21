@@ -1238,6 +1238,71 @@ describe("FlexAnnotate features", function () {
         "browse window",
       )) as Window;
 
+    it("remembers the collection of an annotations dialog, which Zotero does not", function () {
+      const key = "integration.citationDialogCollectionLastSelected";
+      const orig = Zotero.Prefs.get(key);
+      const fake = (type: string, layout: string) =>
+        ({
+          DIALOG_STATE: { type },
+          currentLayout: { type: layout },
+          libraryLayout: {
+            collectionsView: { selectedTreeRow: { id: "C42" } },
+          },
+        }) as unknown as Window;
+      try {
+        Zotero.Prefs.set(key, "C1");
+        api().persistentDialog.rememberCollection(fake("citation", "library"));
+        assert.equal(Zotero.Prefs.get(key), "C1", "citation: Zotero's job");
+        api().persistentDialog.rememberCollection(fake("annotations", "list"));
+        assert.equal(Zotero.Prefs.get(key), "C1", "list layout has no tree");
+        api().persistentDialog.rememberCollection(
+          fake("annotations", "library"),
+        );
+        assert.equal(Zotero.Prefs.get(key), "C42");
+      } finally {
+        Zotero.Prefs.set(key, orig as string);
+      }
+    });
+
+    it("the browse window of a citation command can sort without a document", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const origPref = api().persistentDialog.readPref();
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      api().persistentDialog.rememberCommand({
+        agent: "WinWord",
+        command: "addEditCitation",
+        docId: "Dokument1",
+        templateVersion: 0,
+      });
+      try {
+        const bw = api().persistentDialog.openBrowse({
+          x: 0,
+          y: 0,
+          w: 800,
+          h: 700,
+        });
+        win = bw;
+        await waitFor(
+          () => (bw as any).DIALOG_STATE?.loaded || null,
+          8000,
+          "browse loaded",
+        );
+        // Zotero reads io.citation.sortedItems after io.sort() (citationDialog.js:2324)
+        const io = (bw as any).io;
+        io.citation.citationItems = [{ id: 1, dialogReferenceID: "r1" }];
+        await io.sort();
+        assert.equal(io.citation.sortedItems[0][1].dialogReferenceID, "r1");
+      } finally {
+        api().persistentDialog.rememberCommand(null);
+        api().persistentDialog.writePref(origPref);
+        win?.close();
+      }
+    });
+
     it("after accept the dialog closes and a browse window opens at the same rect", async function () {
       (Zotero as any).Integration.currentSession = {
         sessionID: "T1",
@@ -1974,6 +2039,50 @@ describe("FlexAnnotate features", function () {
           () => doc.getElementById("flexannotate-preview") || null,
           8000,
           "preview column restored in annotations mode",
+        );
+      } finally {
+        Zotero.Prefs.set(`${prefs}.dialogOutlineView`, origOutline, true);
+        win?.close();
+      }
+    });
+
+    it("redraws the native collection tree after the outline is switched off, and keeps the open-documents row at the works height", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const origOutline =
+        Zotero.Prefs.get(`${prefs}.dialogOutlineView`, true) ?? false;
+      await closeDialogs();
+      Zotero.Prefs.set(`${prefs}.dialogOutlineView`, false, true);
+      try {
+        const { w, toggle } = await openDialog();
+        win = w;
+        const doc = w.document;
+        toggle.click();
+        await waitFor(
+          () => doc.getElementById("flexannotate-list-pane") || null,
+          8000,
+          "outline on",
+        );
+        // The test library has too few collections to scroll. Fake what display:none
+        // does: the browser resets scrollTop, the list keeps its old scrollOffset.
+        const ctree = (w as any).libraryLayout.collectionsView.tree;
+        ctree._jsWindow.scrollOffset = 500;
+        toggle.click();
+        await waitFor(
+          () => (ctree._jsWindow.scrollOffset === 0 ? true : null),
+          8000,
+          "collection tree takes the real scroll position again",
+        );
+        assert.isNull(doc.getElementById("flexannotate-list-pane"));
+
+        // Zotero uses 98 px here for annotations, 82 px for works
+        const other = doc.getElementById("library-other-items")!;
+        assert.equal(
+          other.getBoundingClientRect().height,
+          82,
+          "open-documents row has the works height in the annotations tab",
         );
       } finally {
         Zotero.Prefs.set(`${prefs}.dialogOutlineView`, origOutline, true);

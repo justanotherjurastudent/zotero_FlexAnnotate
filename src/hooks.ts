@@ -3,6 +3,7 @@ import { createZToolkit } from "./utils/ztoolkit";
 import { OrganizerFactory } from "./features/organizer/panel/organizer";
 import { registerDialogInjector } from "./shared/citationDialog";
 import { outlineView } from "./features/organizer/citationDialog/dialogOutline";
+import { rememberCollection } from "./features/organizer/citationDialog/dialogCited";
 import * as modeSelector from "./features/citeOnly/modeSelector";
 import {
   citeOnlyPatch,
@@ -123,6 +124,7 @@ async function onStartup() {
       supported: persistentSupported,
       patchInterface: patchInterfaceMethods,
       unpatchInterface: unpatchInterfaceMethods,
+      rememberCollection,
     },
     modeSelector,
     registry,

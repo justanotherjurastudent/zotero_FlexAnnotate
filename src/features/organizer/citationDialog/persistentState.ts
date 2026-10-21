@@ -80,6 +80,8 @@ export interface PersistentRuntime {
   alive: boolean;
   /** Last Word/LibreOffice command run by the user (integration.js:240). */
   lastCommand: CommandRef | null;
+  /** Tab of the dialog at the last insert ("citation" or "annotations"): the companion window opens there. */
+  lastDialogType: string | null;
   activeAgent: string | null;
   pendingInsert: PendingInsert | null;
 }
@@ -87,6 +89,7 @@ export interface PersistentRuntime {
 export const state: PersistentRuntime = {
   alive: false,
   lastCommand: null,
+  lastDialogType: null,
   activeAgent: null,
   pendingInsert: null,
 };

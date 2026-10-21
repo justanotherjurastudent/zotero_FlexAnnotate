@@ -10,6 +10,7 @@ import { isFeatureEnabled } from "../../gates";
 import { normalizePersistentOptions } from "../logic/persistentOptions";
 import type { WindowPosition } from "../logic/persistentOptions";
 import { mergeCitationItems } from "../logic/lastCommand";
+import { rememberCollection } from "./citedTracking";
 import {
   captureLive,
   pinRect,
@@ -80,7 +81,10 @@ export function persistentSupported(win?: Window): boolean {
  * io for the companion window: like the previous command (addAnnotation or addEditCitation),
  * without a document. The dialog only reads these fields (citationDialog.js, searchHandler.mjs).
  */
-export function makeBrowseIo(command = "addAnnotation"): any {
+export function makeBrowseIo(
+  command = "addAnnotation",
+  type?: string | null,
+): any {
   const integ = (Zotero as any).Integration;
   const citation: any = {
     citationItems: [],
@@ -104,13 +108,25 @@ export function makeBrowseIo(command = "addAnnotation"): any {
     },
   );
   io.isCitingNotes = false;
-  io.isAddingAnnotations = command === "addAnnotation";
+  // The dialog reads isAddingAnnotations only for the start tab (citationDialog.js:88); inserting
+  // goes through the command. So the tab of the last insert wins over the command.
+  io.isAddingAnnotations = type
+    ? type === "annotations"
+    : command === "addAnnotation";
   io.getItems = async () => [];
   io.sort = async () => {
     syncSortedItems();
     return "";
   };
   return io;
+}
+
+/** Remembers tab and collection of the dialog that is inserted from; the next companion window opens there. */
+function rememberView(win: Window): void {
+  const type = (win as any).DIALOG_STATE?.type;
+  if (type === "citation" || type === "annotations")
+    state.lastDialogType = type;
+  rememberCollection(win);
 }
 
 /** Closes the companion window if open. */
@@ -188,7 +204,7 @@ export function openBrowse(rect?: Rect | null, placed = true): void {
     writeStoredSize(rect.w, rect.h);
     position = placed ? positionOf(rect) : null;
   }
-  const io = makeBrowseIo(state.lastCommand?.command);
+  const io = makeBrowseIo(state.lastCommand?.command, state.lastDialogType);
   const win = (Services.ww as any).openWindow(
     null,
     DIALOG_URL,
@@ -224,6 +240,7 @@ export function openBrowse(rect?: Rect | null, placed = true): void {
     }
     const live = captureLive(win);
     writeStoredSize(live.w, live.h);
+    rememberView(win);
     insertFromBrowse({ items, rect: live });
     return undefined;
   };
@@ -290,6 +307,7 @@ function wrapPersistentAccept(
       if (readPersistentPref() && io.citation?.citationItems?.length) {
         // before anything that closes the window: keep the user's geometry
         acceptState.live = captureLive(win);
+        rememberView(win);
         const at = acceptState.live;
         (command || Promise.resolve()).then(() => {
           trace("command finished", `dialogClosed=${win.closed} ${cw()}`);

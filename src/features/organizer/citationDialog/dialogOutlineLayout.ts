@@ -105,6 +105,21 @@ export function removeLayout(win: Window): void {
       list.items = [];
       list.render?.();
     }
+    // The virtualized collection tree was display:none: the browser resets
+    // scrollTop while the list keeps its old scrollOffset (windowed-list.js:180,
+    // 296-310) and draws the rows in the wrong place. update() re-reads
+    // scrollTop, invalidate() redraws.
+    const ct = (win as any).libraryLayout?.collectionsView;
+    win.requestAnimationFrame(() => {
+      try {
+        ct?.tree?._jsWindow?.update();
+        ct?.tree?.invalidate();
+        const i = ct?.tree?.selection?.focused;
+        if (typeof i === "number" && i >= 0) ct.ensureRowIsVisible(i);
+      } catch (e) {
+        ztoolkit.log("flexannotate dialog collection tree redraw failed:", e);
+      }
+    });
     // Let Zotero recompute its list from the current item selection.
     (win as any).libraryLayout?.itemsView?.selection?.clearSelection?.();
   } catch (e) {

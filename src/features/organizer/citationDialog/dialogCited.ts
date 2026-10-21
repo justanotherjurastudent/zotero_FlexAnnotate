@@ -22,6 +22,7 @@ export {
   citedWorksOf,
   getActiveCitedIDs,
   hookAccept,
+  rememberCollection,
   getCitationLocations,
   getAllCitationLocations,
   getAllWorkCitationLocations,

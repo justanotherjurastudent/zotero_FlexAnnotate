@@ -43,6 +43,9 @@ export function setPendingInsertForTest(pend: PendingInsert | null): void {
   state.pendingInsert = pend;
 }
 
-export function makeBrowseIoForTest(command = "addAnnotation"): any {
-  return makeBrowseIo(command);
+export function makeBrowseIoForTest(
+  command = "addAnnotation",
+  type?: string | null,
+): any {
+  return makeBrowseIo(command, type);
 }

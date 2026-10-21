@@ -176,12 +176,35 @@ function recordCited(io: any) {
   }
 }
 
+/**
+ * Zotero only remembers the selected collection outside annotation mode
+ * (citationDialog.js:215-219). Citing from the annotations tab therefore made
+ * the next dialog (and the browse window) open in an old collection; done here.
+ */
+export function rememberCollection(win: Window): void {
+  try {
+    const w = win as any;
+    if (
+      w.DIALOG_STATE?.type !== "annotations" ||
+      w.currentLayout?.type !== "library"
+    )
+      return;
+    const id = w.libraryLayout?.collectionsView?.selectedTreeRow?.id;
+    if (id) {
+      Zotero.Prefs.set("integration.citationDialogCollectionLastSelected", id);
+    }
+  } catch (e) {
+    ztoolkit.log("flexannotate remember collection failed:", e);
+  }
+}
+
 /** Wraps io.accept once per dialog so that the accepted citation is remembered. */
 export function hookAccept(win: Window): void {
   const io = (win as any).io;
   if (io && typeof io.accept === "function" && !io.__flexannotateHooked) {
     const original = io.accept;
     io.accept = function (...args: unknown[]) {
+      rememberCollection(win);
       try {
         recordCited(io);
       } catch (e) {

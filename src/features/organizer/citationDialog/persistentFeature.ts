@@ -58,6 +58,7 @@ export const persistentDialogPatch: Feature = {
     unpatchInterfaceMethods();
     state.pendingInsert = null;
     state.lastCommand = null;
+    state.lastDialogType = null;
     state.activeAgent = null;
     const win = getPersistentWindow();
     if (win) {

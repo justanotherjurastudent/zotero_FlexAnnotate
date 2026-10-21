@@ -68,6 +68,7 @@ import { isFeatureEnabled } from "../../gates";
 import { tr } from "../strings";
 
 const PREF = "dialogOutlineView";
+const ROW_HEIGHT_STYLE_ID = "flexannotate-dialog-row-height";
 const ROW_ID = "flexannotate-toggle-row";
 const MENU_ID = "flexannotate-menu-items";
 /** Schalter so gross wie Zoteros eigene Checkboxen im Einstellungsmenue (includeComments, 14 CSS-px). */
@@ -158,6 +159,19 @@ function inject(win: Window) {
     onPopup: null,
   };
   attached.set(win, info);
+
+  // Zotero's annotations view makes the cards of the open documents 98/58 px
+  // high (title view: 82/42); match the title height here. Cards with an
+  // annotation quote (quote and comment, three lines) keep Zotero's height.
+  const rowStyle = doc.createElement("style");
+  rowStyle.id = ROW_HEIGHT_STYLE_ID;
+  const bar =
+    "#citation-dialog[dialog-type=annotations] #library-layout #library-other-items";
+  rowStyle.textContent =
+    `${bar}{height:82px;}` +
+    `${bar}:has(.annotation-quote){height:98px;}` +
+    `${bar} .search-items .item:not(:has(.annotation-quote)){height:42px !important;}`;
+  doc.documentElement!.appendChild(rowStyle);
 
   if (isFeatureEnabled("citedTracking")) hookAccept(win);
   const supported = persistentSupported(win);
@@ -307,6 +321,7 @@ function detach(win: Window) {
     if (info?.enabled) restoreLayout(win);
     doc.getElementById(MENU_ID)?.remove();
     doc.getElementById(ROW_ID)?.remove();
+    doc.getElementById(ROW_HEIGHT_STYLE_ID)?.remove();
     doc.getElementById(PICKER_ID)?.remove();
     doc.getElementById(HINT_ID)?.remove();
   } catch (e) {
