@@ -6,19 +6,19 @@ Detailed usage and reference. The overview is in the [README](../README.md).
 
 ## Where to find things
 
-| Where                                           | What                                                                              |
-| ----------------------------------------------- | --------------------------------------------------------------------------------- |
-| Right-click an item                             | _Add print annotation…_                                                           |
-| Right-click an annotation (item tree)           | _Edit annotation…_; for print annotations also _Delete print annotation_          |
-| Right-click an annotation (right-hand pane)     | the same entries                                                                  |
-| Reader: right-click an annotation               | _Add/edit comment…_, _Set locator…_                                               |
-| Reader: edit the page number                    | locator choice and "Use this locator for this document from now on"               |
-| Toolbar button, next to the Sync button         | opens the Organizer (or focuses an open window)                                   |
-| _Tools → FlexAnnotate: Organizer_               | opens the Organizer (or focuses an open window)                                   |
-| Organizer, document icon in the outline toolbar | import an outline from Word/LibreOffice                                           |
-| Organizer, export icon in the outline toolbar   | export the outline as Word/ODT                                                    |
-| Citation dialog from Word/LibreOffice           | "Insert as" (full citation / citation only); in the annotations view, the outline |
-| _Edit → Settings → FlexAnnotate_                | settings                                                                          |
+| Where                                           | What                                                                                                                                                  |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Right-click an item or its attachment           | _Add print annotation…_ (_Add annotation…_ if the title has a real attachment)                                                                        |
+| Right-click an annotation (item tree)           | _Edit annotation…_, _Delete annotation_ (always asks first; "do not ask again" can be undone in the settings, deleted annotations cannot be restored) |
+| Right-click an annotation (right-hand pane)     | the same entries                                                                                                                                      |
+| Reader: right-click an annotation               | _Add/edit comment…_, _Set locator…_                                                                                                                   |
+| Reader: edit the page number                    | locator choice and "Use this locator for this document from now on"                                                                                   |
+| Toolbar button, next to the Sync button         | opens the Organizer (or focuses an open window)                                                                                                       |
+| _Tools → FlexAnnotate: Organizer_               | opens the Organizer (or focuses an open window)                                                                                                       |
+| Organizer, document icon in the outline toolbar | import an outline from Word/LibreOffice                                                                                                               |
+| Organizer, export icon in the outline toolbar   | export the outline as Word/ODT                                                                                                                        |
+| Citation dialog from Word/LibreOffice           | "Insert as" (full citation / citation only); in the annotations view, the outline                                                                     |
+| _Edit → Settings → FlexAnnotate_                | settings                                                                                                                                              |
 
 ### Import an outline from Word/LibreOffice
 

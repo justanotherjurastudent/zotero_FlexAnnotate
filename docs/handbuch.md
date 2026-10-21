@@ -6,19 +6,19 @@ Ausführliche Bedienung und Nachschlagewerk. Der Überblick steht in der [README
 
 ## Bedienung
 
-| Wo                                                | Was                                                                                |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Rechtsklick auf einen Titel                       | _Print-Annotation hinzufügen…_                                                     |
-| Rechtsklick auf eine Annotation (Item-Baum)       | _Annotation bearbeiten…_, bei Print-Annotationen auch _Print-Annotation löschen_   |
-| Rechtsklick auf eine Annotation (rechter Bereich) | dieselben Einträge                                                                 |
-| Reader: Rechtsklick auf eine Annotation           | _Kommentar hinzufügen…/bearbeiten…_, _Locator festlegen…_                          |
-| Reader: Seitenzahl bearbeiten                     | Locator-Auswahl und „Diesen Locator künftig für dieses Dokument verwenden“         |
-| Toolbar-Button oben rechts, neben dem Sync-Button | öffnet den Organizer (bzw. fokussiert ein offenes Fenster)                         |
-| _Werkzeuge → FlexAnnotate: Organizer_             | öffnet den Organizer (bzw. fokussiert ein offenes Fenster)                         |
-| Organizer, Dokument-Symbol der Gliederungsleiste  | Gliederung aus Word/LibreOffice importieren                                        |
-| Organizer, Export-Symbol der Gliederungsleiste    | Gliederung als Word/ODT exportieren                                                |
-| Zitierdialog aus Word/LibreOffice                 | „Einfügen als“ (Vollnachweis / Nur Nachweis); im Annotationsbereich die Gliederung |
-| _Bearbeiten → Einstellungen → FlexAnnotate_       | Einstellungen                                                                      |
+| Wo                                                | Was                                                                                                                                                                                    |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Rechtsklick auf einen Titel oder seinen Anhang    | _Print-Annotation hinzufügen…_ (_Annotation hinzufügen…_ bei echtem Anhang)                                                                                                            |
+| Rechtsklick auf eine Annotation (Item-Baum)       | _Annotation bearbeiten…_, _Annotation löschen_ (fragt immer vorher; „nicht mehr fragen“ ist in den Einstellungen umkehrbar, gelöschte Annotationen lassen sich nicht wiederherstellen) |
+| Rechtsklick auf eine Annotation (rechter Bereich) | dieselben Einträge                                                                                                                                                                     |
+| Reader: Rechtsklick auf eine Annotation           | _Kommentar hinzufügen…/bearbeiten…_, _Locator festlegen…_                                                                                                                              |
+| Reader: Seitenzahl bearbeiten                     | Locator-Auswahl und „Diesen Locator künftig für dieses Dokument verwenden“                                                                                                             |
+| Toolbar-Button oben rechts, neben dem Sync-Button | öffnet den Organizer (bzw. fokussiert ein offenes Fenster)                                                                                                                             |
+| _Werkzeuge → FlexAnnotate: Organizer_             | öffnet den Organizer (bzw. fokussiert ein offenes Fenster)                                                                                                                             |
+| Organizer, Dokument-Symbol der Gliederungsleiste  | Gliederung aus Word/LibreOffice importieren                                                                                                                                            |
+| Organizer, Export-Symbol der Gliederungsleiste    | Gliederung als Word/ODT exportieren                                                                                                                                                    |
+| Zitierdialog aus Word/LibreOffice                 | „Einfügen als“ (Vollnachweis / Nur Nachweis); im Annotationsbereich die Gliederung                                                                                                     |
+| _Bearbeiten → Einstellungen → FlexAnnotate_       | Einstellungen                                                                                                                                                                          |
 
 ### Gliederung aus Word/LibreOffice importieren
 
