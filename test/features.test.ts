@@ -2124,10 +2124,15 @@ describe("FlexAnnotate features", function () {
         await waitFor(() => (w as any).DIALOG_STATE?.loaded || null);
         const patchedDD = integration.displayDialog;
         const patchedShow = integration.Progress.prototype.show;
+        const ifaceProto = integration.Interface?.prototype;
+        const patchedAddEdit = ifaceProto?.addEditCitation;
+        const patchedAddAnno = ifaceProto?.addAnnotation;
         feature.stop();
         // die nativen Funktionen nach stop(): start() muss die Patches wieder anlegen
         const nativeDD = integration.displayDialog;
         const nativeShow = integration.Progress.prototype.show;
+        const nativeAddEdit = ifaceProto?.addEditCitation;
+        const nativeAddAnno = ifaceProto?.addAnnotation;
         try {
           assert.notStrictEqual(
             integration.displayDialog,
@@ -2139,6 +2144,20 @@ describe("FlexAnnotate features", function () {
             patchedShow,
             "Progress.show restored",
           );
+          if (patchedAddEdit) {
+            assert.notStrictEqual(
+              ifaceProto?.addEditCitation,
+              patchedAddEdit,
+              "addEditCitation restored",
+            );
+          }
+          if (patchedAddAnno) {
+            assert.notStrictEqual(
+              ifaceProto?.addAnnotation,
+              patchedAddAnno,
+              "addAnnotation restored",
+            );
+          }
           await waitFor(
             () => (w.closed ? true : null),
             5000,
@@ -2158,6 +2177,20 @@ describe("FlexAnnotate features", function () {
           nativeShow,
           "Progress.show patched again",
         );
+        if (nativeAddEdit) {
+          assert.notStrictEqual(
+            ifaceProto?.addEditCitation,
+            nativeAddEdit,
+            "addEditCitation patched again",
+          );
+        }
+        if (nativeAddAnno) {
+          assert.notStrictEqual(
+            ifaceProto?.addAnnotation,
+            nativeAddAnno,
+            "addAnnotation patched again",
+          );
+        }
       } finally {
         api().persistentDialog.writePref(origPref);
         integration.currentDoc = origDoc;
@@ -2835,6 +2868,416 @@ describe("FlexAnnotate features", function () {
         typeof (Zotero as any).Integration?.Interface?.prototype
           ?.addAnnotation === "function",
       );
+    });
+
+    it("addEditCitation in persistent mode does not call session.cite for new citations", async function () {
+      if (!api().persistentDialog.supported()) return this.skip();
+      const origPref = api().persistentDialog.readPref();
+      api().persistentDialog.writePref(true);
+      await closeDialogs();
+      let citeCalled = false;
+      const app = {};
+      const doc = {
+        cursorInField: async () => null,
+        canInsertField: async () => true,
+      };
+      const session: any = {
+        init: async () => {},
+        cite: async () => {
+          citeCalled = true;
+          return [];
+        },
+        data: { prefs: { fieldType: "Footnote" } },
+        agent: "WinWord",
+      };
+      const iface = new (Zotero as any).Integration.Interface(
+        app,
+        doc,
+        session,
+      );
+      try {
+        const result = await iface.addEditCitation();
+        assert.deepEqual(
+          result,
+          [],
+          "returns empty array without creating footnote",
+        );
+        assert.isFalse(citeCalled, "session.cite was not called");
+        assert.isTrue(
+          session._dontActivateDocument,
+          "_dontActivateDocument set to prevent Word focus stealing",
+        );
+        assert.strictEqual(
+          api().persistentDialog.lastCommand()?.command,
+          "addEditCitation",
+          "recorded command is addEditCitation",
+        );
+        const bw = await waitFor(
+          () => api().persistentDialog.getWindow(),
+          8000,
+          "browse window",
+        );
+        assert.isNotNull(bw, "browse window was opened");
+        bw?.close();
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        await closeDialogs();
+      }
+    });
+
+    it("addAnnotation in persistent mode does not call session.cite for new annotations", async function () {
+      if (!api().persistentDialog.supported()) return this.skip();
+      const origPref = api().persistentDialog.readPref();
+      api().persistentDialog.writePref(true);
+      await closeDialogs();
+      let citeCalled = false;
+      const app = {};
+      const doc = {
+        canInsertField: async () => true,
+      };
+      const session: any = {
+        init: async () => {},
+        cite: async () => {
+          citeCalled = true;
+          return [];
+        },
+        data: { prefs: { fieldType: "Footnote" } },
+        agent: "WinWord",
+      };
+      const iface = new (Zotero as any).Integration.Interface(
+        app,
+        doc,
+        session,
+      );
+      try {
+        const result = await iface.addAnnotation();
+        assert.deepEqual(
+          result,
+          [],
+          "returns empty array without creating footnote",
+        );
+        assert.isFalse(citeCalled, "session.cite was not called");
+        assert.isTrue(
+          session._dontActivateDocument,
+          "_dontActivateDocument set to prevent Word focus stealing",
+        );
+        assert.strictEqual(
+          api().persistentDialog.lastCommand()?.command,
+          "addAnnotation",
+          "recorded command is addAnnotation",
+        );
+        const bw = await waitFor(
+          () => api().persistentDialog.getWindow(),
+          8000,
+          "browse window",
+        );
+        assert.isNotNull(bw, "browse window was opened");
+        bw?.close();
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        await closeDialogs();
+      }
+    });
+
+    it("addEditCitation in persistent mode delegates to native when cursor is inside an existing field", async function () {
+      if (!api().persistentDialog.supported()) return this.skip();
+      const origPref = api().persistentDialog.readPref();
+      api().persistentDialog.writePref(true);
+      let citedField: any = null;
+      const existingField = { id: "existing-field-1" };
+      const app = {};
+      const doc = {
+        cursorInField: async () => existingField,
+      };
+      const session: any = {
+        init: async () => {},
+        cite: async (f: any) => {
+          citedField = f;
+          return [];
+        },
+        updateDocument: async () => {},
+        data: { prefs: { fieldType: "Footnote" } },
+        agent: "WinWord",
+      };
+      const iface = new (Zotero as any).Integration.Interface(
+        app,
+        doc,
+        session,
+      );
+      try {
+        await iface.addEditCitation();
+        assert.strictEqual(
+          citedField,
+          existingField,
+          "passed existing field to native cite",
+        );
+      } finally {
+        api().persistentDialog.writePref(origPref);
+      }
+    });
+
+    it("addEditCitation delegates to native when persistent mode is disabled", async function () {
+      if (!api().persistentDialog.supported()) return this.skip();
+      const origPref = api().persistentDialog.readPref();
+      api().persistentDialog.writePref(false);
+      let citeCalled = false;
+      const app = {};
+      const doc = {
+        cursorInField: async () => null,
+      };
+      const session: any = {
+        init: async () => {},
+        cite: async () => {
+          citeCalled = true;
+          return [];
+        },
+        updateDocument: async () => {},
+        data: { prefs: { fieldType: "Footnote" } },
+        agent: "WinWord",
+      };
+      const iface = new (Zotero as any).Integration.Interface(
+        app,
+        doc,
+        session,
+      );
+      try {
+        await iface.addEditCitation();
+        assert.isTrue(citeCalled, "called native cite when pref is false");
+      } finally {
+        api().persistentDialog.writePref(origPref);
+      }
+    });
+
+    it("addAnnotation throws Alert when canInsertField returns false", async function () {
+      if (!api().persistentDialog.supported()) return this.skip();
+      const origPref = api().persistentDialog.readPref();
+      api().persistentDialog.writePref(true);
+      const app = {};
+      const doc = {
+        canInsertField: async () => false,
+      };
+      const session: any = {
+        init: async () => {},
+        data: { prefs: { fieldType: "Footnote" } },
+        agent: "WinWord",
+      };
+      const iface = new (Zotero as any).Integration.Interface(
+        app,
+        doc,
+        session,
+      );
+      try {
+        let threw = false;
+        try {
+          await iface.addAnnotation();
+        } catch (e: any) {
+          threw = true;
+          const msg = e.message || String(e);
+          assert.isTrue(
+            e instanceof (Zotero as any).Exception.Alert ||
+              msg.includes("cannotInsertHere") ||
+              msg.includes("Zotero-Felder"),
+            `expected Alert exception, got: ${msg}`,
+          );
+        }
+        assert.isTrue(threw, "threw cannotInsertHere exception");
+      } finally {
+        api().persistentDialog.writePref(origPref);
+      }
+    });
+
+    it("addEditCitation throws Alert when canInsertField returns false", async function () {
+      if (!api().persistentDialog.supported()) return this.skip();
+      const origPref = api().persistentDialog.readPref();
+      api().persistentDialog.writePref(true);
+      const app = {};
+      const doc = {
+        cursorInField: async () => null,
+        canInsertField: async () => false,
+      };
+      const session: any = {
+        init: async () => {},
+        data: { prefs: { fieldType: "Footnote" } },
+        agent: "WinWord",
+      };
+      const iface = new (Zotero as any).Integration.Interface(
+        app,
+        doc,
+        session,
+      );
+      try {
+        let threw = false;
+        try {
+          await iface.addEditCitation();
+        } catch (e: any) {
+          threw = true;
+          const msg = e.message || String(e);
+          assert.isTrue(
+            e instanceof (Zotero as any).Exception.Alert ||
+              msg.includes("cannotInsertHere") ||
+              msg.includes("Zotero-Felder"),
+            `expected Alert exception, got: ${msg}`,
+          );
+        }
+        assert.isTrue(threw, "threw cannotInsertHere exception");
+      } finally {
+        api().persistentDialog.writePref(origPref);
+      }
+    });
+
+    it("addEditCitation delegates to native when agent is not persistent (e.g. http / Google Docs)", async function () {
+      if (!api().persistentDialog.supported()) return this.skip();
+      const origPref = api().persistentDialog.readPref();
+      api().persistentDialog.writePref(true);
+      let citeCalled = false;
+      const app = {};
+      const doc = {
+        cursorInField: async () => null,
+      };
+      const session: any = {
+        init: async () => {},
+        cite: async () => {
+          citeCalled = true;
+          return [];
+        },
+        updateDocument: async () => {},
+        data: { prefs: { fieldType: "Footnote" } },
+        agent: "http",
+      };
+      const iface = new (Zotero as any).Integration.Interface(
+        app,
+        doc,
+        session,
+      );
+      try {
+        await iface.addEditCitation();
+        assert.isTrue(
+          citeCalled,
+          "called native cite for non-persistent agent http",
+        );
+      } finally {
+        api().persistentDialog.writePref(origPref);
+      }
+    });
+
+    it("addAnnotation delegates to native when persistent mode is disabled", async function () {
+      if (!api().persistentDialog.supported()) return this.skip();
+      const origPref = api().persistentDialog.readPref();
+      api().persistentDialog.writePref(false);
+      let citeCalled = false;
+      const app = {};
+      const doc = {
+        canInsertField: async () => true,
+      };
+      const session: any = {
+        init: async () => {},
+        cite: async () => {
+          citeCalled = true;
+          return [];
+        },
+        updateDocument: async () => {},
+        data: { prefs: { fieldType: "Footnote" } },
+        agent: "WinWord",
+      };
+      const iface = new (Zotero as any).Integration.Interface(
+        app,
+        doc,
+        session,
+      );
+      try {
+        await iface.addAnnotation();
+        assert.isTrue(citeCalled, "called native cite when pref is false");
+      } finally {
+        api().persistentDialog.writePref(origPref);
+      }
+    });
+
+    it("addAnnotation delegates to native when agent is not persistent (e.g. http / Google Docs)", async function () {
+      if (!api().persistentDialog.supported()) return this.skip();
+      const origPref = api().persistentDialog.readPref();
+      api().persistentDialog.writePref(true);
+      let citeCalled = false;
+      const app = {};
+      const doc = {
+        canInsertField: async () => true,
+      };
+      const session: any = {
+        init: async () => {},
+        cite: async () => {
+          citeCalled = true;
+          return [];
+        },
+        updateDocument: async () => {},
+        data: { prefs: { fieldType: "Footnote" } },
+        agent: "http",
+      };
+      const iface = new (Zotero as any).Integration.Interface(
+        app,
+        doc,
+        session,
+      );
+      try {
+        await iface.addAnnotation();
+        assert.isTrue(
+          citeCalled,
+          "called native cite for non-persistent agent http",
+        );
+      } finally {
+        api().persistentDialog.writePref(origPref);
+      }
+    });
+
+    it("addEditCitation and addAnnotation delegate to native when pendingInsert is active", async function () {
+      if (!api().persistentDialog.supported()) return this.skip();
+      const origPref = api().persistentDialog.readPref();
+      api().persistentDialog.writePref(true);
+      let citeCalledCount = 0;
+      const app = {};
+      const doc = {
+        cursorInField: async () => null,
+        canInsertField: async () => true,
+      };
+      const session: any = {
+        init: async () => {},
+        cite: async () => {
+          citeCalledCount++;
+          return [];
+        },
+        updateDocument: async () => {},
+        data: { prefs: { fieldType: "Footnote" } },
+        agent: "WinWord",
+      };
+      const iface = new (Zotero as any).Integration.Interface(
+        app,
+        doc,
+        session,
+      );
+      try {
+        api().persistentDialog.setPendingInsert({
+          items: [{ id: 1 }],
+          rect: { x: 0, y: 0, w: 100, h: 100, dpr: 1 },
+        });
+        await iface.addEditCitation();
+        assert.strictEqual(
+          citeCalledCount,
+          1,
+          "addEditCitation delegates to native when pendingInsert is set",
+        );
+
+        api().persistentDialog.setPendingInsert({
+          items: [{ id: 2 }],
+          rect: { x: 0, y: 0, w: 100, h: 100, dpr: 1 },
+        });
+        await iface.addAnnotation();
+        assert.strictEqual(
+          citeCalledCount,
+          2,
+          "addAnnotation delegates to native when pendingInsert is set",
+        );
+      } finally {
+        api().persistentDialog.setPendingInsert(null);
+        api().persistentDialog.writePref(origPref);
+      }
     });
   });
 

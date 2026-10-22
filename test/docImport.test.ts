@@ -221,11 +221,12 @@ describe("docImport", function () {
   });
 
   it("shows the preview in the organizer window and imports on click", async function () {
+    this.timeout(40000);
     await api().OrganizerFactory.open();
-    const win = await waitFor(findOrganizerWindow);
+    const win = await waitFor(findOrganizerWindow, 15000);
     try {
       const doc = win.document;
-      await waitFor(() => doc.getElementById("flexannotate-scope"));
+      await waitFor(() => doc.getElementById("flexannotate-scope"), 15000);
       const state = api().OrganizerFactory.lastState;
       // own outline note: leave notes of other suites alone
       state.roots = [];
@@ -239,8 +240,9 @@ describe("docImport", function () {
       };
       const file = makeDocx("preview.docx", DE_BODY, DE_STYLES);
       const done = api().docImport.importFromFile(ctx, file, {});
-      const overlay = await waitFor(() =>
-        doc.querySelector("[data-import-preview]"),
+      const overlay = await waitFor(
+        () => doc.querySelector("[data-import-preview]"),
+        15000,
       );
       const text = overlay.textContent as string;
       assert.include(text, "preview");

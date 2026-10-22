@@ -70,7 +70,9 @@ interface AcceptState {
  * http (Google Docs) bleibt außen vor: ein erneuter Befehl ließe den Server hängen
  * (server.js:525-527).
  */
-export function isPersistentAgent(agent: string | null | undefined): boolean {
+export function isPersistentAgent(
+  agent: string | null | undefined,
+): agent is string {
   return agent === "WinWord" || agent === "LibreOffice" || agent === "MacWord";
 }
 
@@ -161,6 +163,11 @@ let installed: InstalledMethod<DisplayDialogFn> | null = null;
 let installedExec: InstalledMethod<(...args: any[]) => Promise<any>> | null =
   null;
 let installedProgress: InstalledMethod<(...args: any[]) => unknown> | null =
+  null;
+let installedAddEditCitation: InstalledMethod<
+  (docField?: unknown) => Promise<unknown>
+> | null = null;
+let installedAddAnnotation: InstalledMethod<() => Promise<unknown>> | null =
   null;
 
 export function patchProgressBar(): boolean {
@@ -548,28 +555,89 @@ function closeBrowse(): Promise<void> {
   return Promise.race([gone, Zotero.Promise.delay(3000)]);
 }
 
+function currentAgent(iface?: any): string | null {
+  return activeAgent || iface?._session?.agent || lastCommand?.agent || null;
+}
+
+/**
+ * Ermittelt die Geometrie für das nächste Blätterfenster: ein bereits offenes Fenster wird
+ * gemessen und geschlossen; sonst die zuletzt gespeicherte Geometrie aus der Pref.
+ */
+async function prepareTargetRect(): Promise<{
+  rect: Rect | null;
+  placed: boolean;
+}> {
+  let rect: Rect | null = null;
+  let placed = true;
+  const old = getPersistentWindow();
+  if (old) {
+    try {
+      rect = captureLive(old);
+    } catch {
+      rect = null;
+    }
+    try {
+      if (browseWindows.has(old)) {
+        await closeBrowse();
+      } else {
+        old.close();
+        openWindow = null;
+      }
+    } catch {
+      openWindow = null;
+    }
+  }
+  if (!rect) {
+    const stored = readStoredRect();
+    if (stored) {
+      rect = stored.rect;
+      placed = stored.placed;
+    } else {
+      placed = false;
+    }
+  }
+  return { rect, placed };
+}
+
 /**
  * Öffnet das Blätterfenster an der Stelle `rect`: der Dialog im Modus des letzten Befehls
  * mit einem eigenen io. Einfügen dort ist insertFromBrowse().
  */
-function openBrowse(rect: Rect): void {
+function openBrowse(rect?: Rect | null, placed = true): void {
   // nach stop() kein neues Blätterfenster mehr (ein verspäteter Aufruf aus einem Befehl)
   if (!alive) return;
-  writeStoredSize(rect.w, rect.h);
+  if (rect === undefined) {
+    const stored = readStoredRect();
+    if (stored) {
+      rect = stored.rect;
+      placed = stored.placed;
+    } else {
+      rect = null;
+      placed = false;
+    }
+  }
+  let position: WindowPosition | null = null;
+  if (rect) {
+    writeStoredSize(rect.w, rect.h);
+    position = placed ? positionOf(rect) : null;
+  }
   const io = makeBrowseIo(lastCommand?.command);
   const win = (Services.ww as any).openWindow(
     null,
     DIALOG_URL,
     "",
-    normalizePersistentOptions(DIALOG_OPTIONS, positionOf(rect)),
+    normalizePersistentOptions(DIALOG_OPTIONS, position),
     io,
   ) as Window;
   browseWindows.add(win);
   if (lastCommand?.agent) windowAgents.set(win, lastCommand.agent);
   openWindow = win;
-  trace("browse window opened", `rect=${rect.x},${rect.y} ${rect.w}x${rect.h}`);
+  trace(
+    "browse window opened",
+    `rect=${rect ? `${rect.x},${rect.y} ${rect.w}x${rect.h}` : "default"}`,
+  );
   (Zotero as any).Utilities.Internal.activate(win);
-  pinRect(win, rect);
+  if (rect) pinRect(win, rect, placed);
   win.addEventListener("unload", () => {
     // about:blank wird vor dem Dialog entladen (integration.js:498), das ist kein Schließen
     if (win.location.toString() === "about:blank") return;
@@ -896,14 +964,14 @@ export function unpatchDisplayDialog(): void {
 /**
  * Test-Hilfe: ein Blätterfenster an `rect` (CSS-Pixel) öffnen, ohne Befehl.
  */
-export function openBrowseForTest(rect: {
+export function openBrowseForTest(rect?: {
   x: number;
   y: number;
   w: number;
   h: number;
 }): Window {
   const dpr = (Zotero as any).getMainWindow?.()?.devicePixelRatio || 1;
-  openBrowse({ ...rect, dpr });
+  openBrowse(rect ? { ...rect, dpr } : undefined);
   return openWindow!;
 }
 
@@ -917,6 +985,10 @@ export function lastCommandForTest(): CommandRef | null {
 export function rememberCommandForTest(ref: CommandRef | null): void {
   lastCommand = ref;
   activeAgent = ref?.agent ?? null;
+}
+
+export function setPendingInsertForTest(pend: PendingInsert | null): void {
+  pendingInsert = pend;
 }
 
 export function makeBrowseIoForTest(command = "addAnnotation"): any {
@@ -970,6 +1042,143 @@ export function unpatchExecCommand(): void {
   assignChecked(target, name, native);
 }
 
+async function interceptCommand(
+  iface: any,
+  agent: string | null,
+  command: "addEditCitation" | "addAnnotation",
+  nativeFn: (field?: any) => Promise<unknown>,
+  docField?: any,
+): Promise<unknown> {
+  if (!readPersistentPref() || !isPersistentAgent(agent) || pendingInsert) {
+    return nativeFn.call(iface, docField);
+  }
+
+  await iface._session.init(false, false);
+  const fieldType = iface._session.data?.prefs?.fieldType;
+  if (command === "addEditCitation") {
+    const inField =
+      docField ||
+      (fieldType ? await iface._doc.cursorInField(fieldType) : null);
+    if (inField) {
+      return nativeFn.call(iface, inField);
+    }
+  }
+
+  if (fieldType && !(await iface._doc.canInsertField(fieldType))) {
+    throw new (Zotero as any).Exception.Alert(
+      "integration.error.cannotInsertHere",
+      [],
+      "integration.error.title",
+    );
+  }
+
+  lastCommand = nextLastCommand(
+    lastCommand,
+    true,
+    agent,
+    command,
+    lastCommand?.docId,
+    lastCommand?.templateVersion ?? 0,
+  );
+
+  if (iface._session) {
+    iface._session._dontActivateDocument = true;
+  }
+
+  const target = await prepareTargetRect();
+  const cmdPromise = (Zotero as any).Integration?.currentDoc
+    ? (Zotero as any).Integration?.currentCommandPromise
+    : null;
+  (cmdPromise || Promise.resolve()).then(
+    () => {
+      if (readPersistentPref() && isPersistentAgent(agent)) {
+        try {
+          openBrowse(target.rect, target.placed);
+        } catch (e) {
+          logError("openBrowse", e);
+        }
+      }
+    },
+    () => {},
+  );
+
+  return [];
+}
+
+/**
+ * Fängt addEditCitation und addAnnotation am Interface-Prototyp ab: Ist der Begleitmodus aktiv,
+ * erzeugt ein neuer Aufruf keinen Fußnoten-Platzhalter in Word, sondern schließt die Word-Transaktion
+ * sofort ab und öffnet das Blätterfenster. Steht der Cursor in einem bestehenden Zitat, läuft der
+ * native Pfad weiter.
+ */
+export function patchInterfaceMethods(): boolean {
+  if (installedAddEditCitation && installedAddAnnotation) return true;
+  const ifaceProto = (Zotero as any).Integration?.Interface?.prototype;
+  if (!ifaceProto) return false;
+
+  if (
+    !installedAddEditCitation &&
+    typeof ifaceProto.addEditCitation === "function"
+  ) {
+    const native = ifaceProto.addEditCitation;
+    const patched = async function (this: any, docField?: any) {
+      const agent = currentAgent(this);
+      return interceptCommand(this, agent, "addEditCitation", native, docField);
+    };
+
+    if (!assignChecked(ifaceProto, "addEditCitation", patched)) {
+      ztoolkit.log(
+        "FlexAnnotate: assignChecked for Interface.prototype.addEditCitation failed",
+      );
+      return false;
+    }
+    installedAddEditCitation = {
+      target: ifaceProto,
+      name: "addEditCitation",
+      native,
+    };
+  }
+
+  if (
+    !installedAddAnnotation &&
+    typeof ifaceProto.addAnnotation === "function"
+  ) {
+    const native = ifaceProto.addAnnotation;
+    const patched = async function (this: any) {
+      const agent = currentAgent(this);
+      return interceptCommand(this, agent, "addAnnotation", native);
+    };
+
+    if (!assignChecked(ifaceProto, "addAnnotation", patched)) {
+      ztoolkit.log(
+        "FlexAnnotate: assignChecked for Interface.prototype.addAnnotation failed",
+      );
+      unpatchInterfaceMethods();
+      return false;
+    }
+    installedAddAnnotation = {
+      target: ifaceProto,
+      name: "addAnnotation",
+      native,
+    };
+  }
+
+  return true;
+}
+
+export function unpatchInterfaceMethods(): void {
+  if (installedAddEditCitation) {
+    const { target, name, native } = installedAddEditCitation;
+    installedAddEditCitation = null;
+    assignChecked(target, name, native);
+  }
+  if (installedAddAnnotation) {
+    const { target, name, native } = installedAddAnnotation;
+    installedAddAnnotation = null;
+    assignChecked(target, name, native);
+  }
+}
+
 export const persistentDialogPatch: Feature = {
   name: "persistentDialogPatch",
   start() {
@@ -978,9 +1187,14 @@ export const persistentDialogPatch: Feature = {
     if (!persistentSupported()) return;
     alive = true;
     // ohne Befehlsmerker würde ein Blätterfenster den Dialog verschlucken: lieber gar nicht patchen
-    if (!patchDisplayDialog() || !patchExecCommand()) {
+    if (
+      !patchDisplayDialog() ||
+      !patchExecCommand() ||
+      !patchInterfaceMethods()
+    ) {
       unpatchDisplayDialog();
       unpatchExecCommand();
+      unpatchInterfaceMethods();
       alive = false;
       return;
     }
@@ -999,6 +1213,7 @@ export const persistentDialogPatch: Feature = {
     unpatchDisplayDialog();
     unpatchProgressBar();
     unpatchExecCommand();
+    unpatchInterfaceMethods();
     pendingInsert = null;
     lastCommand = null;
     activeAgent = null;
