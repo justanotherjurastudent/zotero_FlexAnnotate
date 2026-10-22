@@ -33,6 +33,8 @@ interface SessionProto {
     field: unknown,
     citation: Citation,
   ): Promise<unknown>;
+  resetRequest?(doc?: unknown): void;
+  rebuildCiteprocState?: boolean;
 }
 
 type InsertFn = (
@@ -44,7 +46,8 @@ type InsertFn = (
 
 interface Installed {
   proto: SessionProto;
-  native: InsertFn;
+  nativeInsert: InsertFn;
+  nativeResetRequest?: (doc?: unknown) => void;
 }
 
 /** Gesetzt, solange der Patch aktiv ist; hält das Original für unpatch(). */
@@ -167,7 +170,31 @@ export function patch(): boolean {
     return false;
   }
 
-  installed = { proto, native };
+  let nativeResetRequest: ((doc?: unknown) => void) | undefined;
+  if (typeof proto.resetRequest === "function") {
+    // Zotero-Bugfix (xpcom/integration.js:574, 1161, 1192–1195, 1914):
+    // getSession() bzw. setData() setzen session.rebuildCiteprocState = true.
+    // Session.prototype.resetRequest setzt dies bedingungslos auf false zurueck,
+    // noch bevor updateFromDocument() den Citeproc-Zustand wiederherstellen kann.
+    // Das fuehrt im Zitierdialog bei vorhandenen Zitaten zum Absturz in processCitationCluster.
+    const origReset = proto.resetRequest;
+    const patchedReset = function (this: SessionProto, doc?: unknown) {
+      const wasRebuilding = this.rebuildCiteprocState;
+      const result = origReset.call(this, doc);
+      if (wasRebuilding) {
+        this.rebuildCiteprocState = true;
+      }
+      return result;
+    };
+    if (assignChecked(proto, "resetRequest", patchedReset)) {
+      nativeResetRequest = origReset;
+      ztoolkit.log("Patched resetRequest to preserve citeproc state");
+    } else {
+      ztoolkit.log("FlexAnnotate: patch of resetRequest did not take effect");
+    }
+  }
+
+  installed = { proto, nativeInsert: native, nativeResetRequest };
   ztoolkit.log("Patched _insertCitingResult for citation-only mode");
   return true;
 }
@@ -177,15 +204,25 @@ export function unpatch(): void {
   if (!installed) {
     return;
   }
-  const { proto, native } = installed;
-  installed = null;
-  if (!assignChecked(proto, "_insertCitingResult", native)) {
+  const { proto, nativeInsert, nativeResetRequest } = installed;
+  let allRestored = true;
+  if (!assignChecked(proto, "_insertCitingResult", nativeInsert)) {
     ztoolkit.log(
       "FlexAnnotate: restore of _insertCitingResult did not take effect.",
     );
-    return;
+    allRestored = false;
   }
-  ztoolkit.log("Removed _insertCitingResult patch");
+  if (
+    nativeResetRequest &&
+    !assignChecked(proto, "resetRequest", nativeResetRequest)
+  ) {
+    ztoolkit.log("FlexAnnotate: restore of resetRequest did not take effect.");
+    allRestored = false;
+  }
+  if (allRestored) {
+    installed = null;
+    ztoolkit.log("Removed integration patches");
+  }
 }
 
 /** Ob der Patch gerade aktiv ist. */

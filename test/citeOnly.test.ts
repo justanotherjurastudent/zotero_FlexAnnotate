@@ -32,22 +32,65 @@ describe("citation-only patch", function () {
     const { patch, isPatched } = api().citeOnly;
     patch.stop?.();
     const native = proto()._insertCitingResult;
+    const nativeReset = proto().resetRequest;
     assert.isFalse(isPatched());
 
     patch.start?.();
     const patched = proto()._insertCitingResult;
+    const patchedReset = proto().resetRequest;
     assert.isTrue(isPatched());
     assert.notStrictEqual(patched, native, "start replaces the function");
+    assert.notStrictEqual(
+      patchedReset,
+      nativeReset,
+      "start replaces resetRequest",
+    );
 
     patch.start?.();
     assert.strictEqual(proto()._insertCitingResult, patched, "no double patch");
+    assert.strictEqual(
+      proto().resetRequest,
+      patchedReset,
+      "no double patch for resetRequest",
+    );
 
     patch.stop?.();
     assert.isFalse(isPatched());
     assert.strictEqual(proto()._insertCitingResult, native, "stop restores");
+    assert.strictEqual(
+      proto().resetRequest,
+      nativeReset,
+      "stop restores resetRequest",
+    );
 
     patch.start?.();
     assert.isTrue(isPatched());
+  });
+
+  it("resetRequest preserves rebuildCiteprocState when set", function () {
+    const fakeSession: any = {
+      rebuildCiteprocState: true,
+      newIndices: {},
+      citationsByIndex: {},
+    };
+    proto().resetRequest.call(fakeSession, {});
+    assert.isTrue(fakeSession.rebuildCiteprocState, "preserves rebuild flag");
+
+    fakeSession.rebuildCiteprocState = false;
+    fakeSession.newIndices = {};
+    proto().resetRequest.call(fakeSession, {});
+    assert.isFalse(
+      fakeSession.rebuildCiteprocState,
+      "remains false when not rebuilding",
+    );
+
+    fakeSession.rebuildCiteprocState = undefined;
+    fakeSession.newIndices = {};
+    proto().resetRequest.call(fakeSession, {});
+    assert.isFalse(
+      fakeSession.rebuildCiteprocState,
+      "becomes false when previously undefined",
+    );
   });
 
   it("with citationOnly the annotation is inserted as a citation on its parent with locator", async function () {
