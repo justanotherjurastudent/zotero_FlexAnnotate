@@ -21,6 +21,7 @@ import {
   patchExecCommand,
   unpatchExecCommand,
   openBrowseForTest,
+  makeBrowseIoForTest,
   persistentSupported,
   activatePersistentOnOpenDialog,
 } from "./features/organizer/dialog/dialogPersistent";
@@ -174,6 +175,7 @@ async function onStartup() {
       patchExec: patchExecCommand,
       unpatchExec: unpatchExecCommand,
       openBrowse: openBrowseForTest,
+      makeBrowseIo: makeBrowseIoForTest,
       activateOnOpenDialog: activatePersistentOnOpenDialog,
       supported: persistentSupported,
     },

@@ -504,18 +504,34 @@ function logError(where: string, e: unknown) {
  */
 function makeBrowseIo(command = "addAnnotation"): any {
   const integ = (Zotero as any).Integration;
+  const citation: any = {
+    citationItems: [],
+    sortedItems: [],
+    properties: {},
+    citationID: "flexannotate-browse",
+  };
+  const syncSortedItems = () => {
+    const items = citation.citationItems || [];
+    citation.sortedItems = items.map((ci: any) => [ci, ci]);
+  };
   const io = new integ.CitationEditInterface(
-    { citationItems: [], properties: {}, citationID: "flexannotate-browse" },
+    citation,
     true,
     Promise.resolve(-1),
     // die Sitzungs-Zitate (grüne Haken); {} ergäbe eine leere Menge statt des Rückfalls (dialogCited.ts)
     Promise.resolve(integ.currentSession?.citationsByItemID ?? {}),
-    async () => "",
+    async () => {
+      syncSortedItems();
+      return "";
+    },
   );
   io.isCitingNotes = false;
   io.isAddingAnnotations = command === "addAnnotation";
-  io.getItems = () => [];
-  io.sort = () => {};
+  io.getItems = async () => [];
+  io.sort = async () => {
+    syncSortedItems();
+    return "";
+  };
   return io;
 }
 
@@ -901,6 +917,10 @@ export function lastCommandForTest(): CommandRef | null {
 export function rememberCommandForTest(ref: CommandRef | null): void {
   lastCommand = ref;
   activeAgent = ref?.agent ?? null;
+}
+
+export function makeBrowseIoForTest(command = "addAnnotation"): any {
+  return makeBrowseIo(command);
 }
 
 /** Merkt sich bei jedem Befehl, an welches Dokument Word ihn geschickt hat (integration.js:240). */

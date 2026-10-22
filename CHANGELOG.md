@@ -29,6 +29,7 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 
 ### Fixed
 
+- Zitierfenster offen halten: Nach dem Einfügen über den Befehl „Add/Edit Citation“ (Zitationsmodus) öffnet sich das Blätterfenster wieder vollständig und reagiert normal. Zuvor blieb das Fenster schwarz und blockiert, weil Zoteros interne Sortierroutine `CitationDataManager.sort()` über ein fehlendes `io.citation.sortedItems` gestolpert war (`dialogPersistent.ts`).
 - Zitierdialog: Erster Aufruf in Word/LibreOffice stürzt bei bestehenden Zitaten im Dokument nicht mehr ab. Ursache war ein Zotero-Bug in `Session.prototype.resetRequest` (`xpcom/integration.js:1914`), der `rebuildCiteprocState` vor `updateFromDocument` auf `false` zurücksetzte, wodurch die Wiederherstellung des Citeproc-Zustands übersprungen wurde und `processCitationCluster` mit einem TypeError scheiterte (`integrationPatch.ts`).
 - Zitierfenster offen halten: Ein Befehl ohne Dialog (z. B. „Aktualisieren“) in Word ändert nicht mehr den Befehl, den das Blätterfenster beim Einfügen wiederholt; steht der Cursor in einem bestehenden Zitat, werden dessen Quellen beim Einfügen nicht mehr ersetzt, sondern ergänzt (`logic/lastCommand.ts`).
 - Zitierdialog, Gliederungsansicht: Ein Wechsel zwischen Annotationen- und Werke-Tab während des Aktivierens startet die Ansicht nicht mehr ein zweites Mal; fehlt `IOManager.addItemsToCitation`, steht das im Log statt still nichts zu tun (`dialogOutline.ts`, `dialogOutlineRender.ts`).

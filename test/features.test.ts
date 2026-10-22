@@ -2769,6 +2769,66 @@ describe("FlexAnnotate features", function () {
       });
     }
 
+    it("makeBrowseIo provides sortedItems and updates them on sort", async function () {
+      const io = api().persistentDialog.makeBrowseIo("addEditCitation");
+      assert.isFalse(
+        io.isAddingAnnotations,
+        "isAddingAnnotations is false for addEditCitation",
+      );
+      assert.isArray(
+        io.citation.sortedItems,
+        "sortedItems is initialized as array",
+      );
+      assert.strictEqual(io.citation.sortedItems.length, 0);
+
+      io.citation.citationItems = [{ id: 123, dialogReferenceID: "ref1" }];
+      await io.sort();
+      assert.strictEqual(io.citation.sortedItems.length, 1);
+      assert.strictEqual(
+        io.citation.sortedItems[0][1].dialogReferenceID,
+        "ref1",
+      );
+    });
+
+    it("a browse window opens after an addEditCitation command and loads completely", async function () {
+      this.timeout(60000);
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const integration = Zotero.Integration as any;
+      const origPref = api().persistentDialog.readPref();
+      const origDoc = integration.currentDoc;
+      await closeDialogs();
+      api().persistentDialog.writePref(true);
+      api().persistentDialog.rememberCommand({
+        agent: "WinWord",
+        command: "addEditCitation",
+        docId: "Dokument1",
+        templateVersion: 0,
+      });
+      try {
+        const io1 = makeIo();
+        const w1 = await firstInsert(io1, { x: 0, y: 0, w: 0, h: 0 });
+        const bw = await browseWindow(w1);
+        win = bw;
+        await waitFor(
+          () => (bw as any).DIALOG_STATE?.loaded || null,
+          8000,
+          "browse loaded for addEditCitation",
+        );
+        assert.isFalse(
+          bw.closed,
+          "browse window opened and loaded for addEditCitation",
+        );
+      } finally {
+        api().persistentDialog.writePref(origPref);
+        integration.currentDoc = origDoc;
+        win?.close();
+        await closeDialogs();
+      }
+    });
+
     it("browse mode is detected where Zotero has the addAnnotation command", function () {
       assert.strictEqual(
         api().persistentDialog.supported(),
