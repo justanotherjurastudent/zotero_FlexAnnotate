@@ -23,7 +23,6 @@
  * Injected by shared/citationDialog.ts; the rendering is in dialogOutlineRender.ts.
  */
 
-import { activeIds } from "../logic/cited";
 import {
   buildDialogSections,
   buildWorkDialogSections,
@@ -47,6 +46,7 @@ import {
 import {
   citedWorksOf,
   currentSessionId,
+  getActiveCitedIDs,
   hookAccept,
   readCitedStore,
 } from "./dialogCited";
@@ -561,7 +561,7 @@ async function buildView(win: Window, info: Attached): Promise<View> {
     counts: nodeCounts(roots, sections),
     rows: new Map(rows.map((r) => [r.id, r])),
     showCommentsInRows,
-    cited: activeIds(readCitedStore(), currentSessionId(), citedWorks),
+    cited: getActiveCitedIDs(rows, citedWorks),
     node: selectedNode,
     query: info.view?.query ?? bubbleText(win.document),
     sel: emptySelection(),

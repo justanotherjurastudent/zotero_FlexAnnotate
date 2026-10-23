@@ -147,4 +147,102 @@ describe("citation-only patch", function () {
     assert.equal(item.locator, "22");
     assert.equal(item.label, "page");
   });
+
+  it("with citationOnly pre-assigns citationID and records annotation key in session doc prefs", async function () {
+    const work = await makeWork("Nachweis Prefs Testwerk");
+    const att = await makePdfAttachment(work);
+    const ann = await makeAnnotation(att, "Nur Nachweis Prefs Zitat", "44", 0);
+
+    Zotero.Prefs.set(PREF, true, true);
+    try {
+      const citation = new (Zotero as any).Integration.Citation(
+        null,
+        { citationItems: [{ id: ann.id }] },
+        0,
+      );
+      const fakeSession = Object.create(proto());
+      fakeSession.data = { prefs: {} };
+      const result = await proto()._insertCitingResult.call(
+        fakeSession,
+        0,
+        {},
+        citation,
+      );
+      assert.lengthOf(result, 1);
+      assert.ok(result[0].citationID, "pre-assigned citationID");
+      assert.notEqual(result[0].citationID, "flexannotate-browse");
+      const storedRaw = fakeSession.data.prefs.flexannotate_cited;
+      assert.ok(storedRaw, "flexannotate_cited was written to doc prefs");
+      const stored = JSON.parse(storedRaw);
+      assert.deepEqual(stored.citations[result[0].citationID], [ann.key]);
+    } finally {
+      Zotero.Prefs.set(PREF, false, true);
+    }
+  });
+
+  it("getActiveCitedIDs reconciles with documentCitationIDs and keeps empty doc prefs authoritative", async function () {
+    const work = await makeWork("Reconciliation Testwerk");
+    const att = await makePdfAttachment(work);
+    const ann = await makeAnnotation(att, "Reconciliation Annotation", "55", 0);
+
+    const dialogCited = api().dialogCited;
+    assert.ok(dialogCited, "dialogCited API available");
+
+    const citID = "cit_test_123";
+    const fakeSession: any = {
+      sessionID: "reconcile-session",
+      data: {
+        prefs: {
+          flexannotate_cited: JSON.stringify({
+            citations: { [citID]: [ann.key] },
+          }),
+        },
+      },
+      documentCitationIDs: { [citID]: 0 },
+    };
+
+    const origSession = (Zotero as any).Integration?.currentSession;
+    (Zotero as any).Integration.currentSession = fakeSession;
+
+    try {
+      const rows = [{ id: ann.id, key: ann.key, workID: work.id }];
+      const citedWorks = new Set([work.id]);
+
+      // 1. Initial check: footnote is in document -> annotation is cited
+      const active1 = dialogCited.getActiveCitedIDs(rows, citedWorks);
+      assert.ok(active1.has(ann.id), "annotation is marked as cited");
+
+      // 2. Footnote is deleted in Word (documentCitationIDs loses citID)
+      fakeSession.documentCitationIDs = {};
+      const active2 = dialogCited.getActiveCitedIDs(rows, citedWorks);
+      assert.equal(
+        active2.size,
+        0,
+        "checkmark removed when footnote is deleted in Word",
+      );
+
+      // 3. Document prefs now store empty citations
+      const updatedData = JSON.parse(fakeSession.data.prefs.flexannotate_cited);
+      assert.deepEqual(updatedData.citations, {});
+
+      // 4. Legacy store has an old entry for this session: empty doc prefs must NOT revive it
+      const legacyPrefKey = `${config.prefsPrefix}.citedAnnotations`;
+      Zotero.Prefs.set(
+        legacyPrefKey,
+        JSON.stringify({
+          "reconcile-session": { [String(ann.id)]: work.id },
+        }),
+        true,
+      );
+
+      const active3 = dialogCited.getActiveCitedIDs(rows, citedWorks);
+      assert.equal(
+        active3.size,
+        0,
+        "empty doc prefs remain authoritative; legacy store must NOT revive deleted checkmark",
+      );
+    } finally {
+      (Zotero as any).Integration.currentSession = origSession;
+    }
+  });
 });

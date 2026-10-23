@@ -43,7 +43,7 @@ Das gilt für alle Annotationen, auch für die aus PDF, EPUB und Snapshot.
 
 **3. Zitieren aus Word und LibreOffice (ab Zotero 9)**
 
-Im Zitierdialog gibt es die Option „Nach Gliederung anordnen“. Links stehen die Überschriften mit Anzahl, in der Mitte die Annotationen. Schon zitierte Annotationen tragen einen grünen Haken. Die Suche oben filtert mit, und „Zitatstelle anzeigen“ öffnet den Reader an der richtigen Stelle. Dazu kommt das **Nur-Nachweis-Zitieren**: Wer den Zitattext nicht im Dokument will, fügt nur die Zitation mit Fundstelle ein, im Dialog oder dauerhaft in den Einstellungen.
+Im Zitierdialog gibt es die Option „Nach Gliederung anordnen“. Links stehen die Überschriften mit Anzahl, in der Mitte die Annotationen. Schon zitierte Annotationen tragen einen grünen Haken (übersteht Neustarts und Rechnerwechsel im Word-Dokument; verschwindet beim Löschen der Fußnote wie bei Citavi, siehe [Dokumentation](docs/cited-tracking.md)). Die Suche oben filtert mit, und „Zitatstelle anzeigen“ öffnet den Reader an der richtigen Stelle. Dazu kommt das **Nur-Nachweis-Zitieren**: Wer den Zitattext nicht im Dokument will, fügt nur die Zitation mit Fundstelle ein, im Dialog oder dauerhaft in den Einstellungen.
 
 ![Zitierdialog mit Gliederungsansicht](docs/img/citation-dialog.png)
 
@@ -162,7 +162,7 @@ This applies to every annotation, including those from PDF, EPUB and snapshots.
 
 **3. Citing from Word and LibreOffice (Zotero 9 and later)**
 
-The citation dialog gets the option "Nach Gliederung anordnen" (arrange by outline). Headings with counts are on the left, annotations in the middle. Annotations you have already cited carry a green check. The search bar at the top filters the list too, and "Zitatstelle anzeigen" (show place) opens the reader at the passage. On top of that comes **citation-only insertion**: if you do not want the quoted text in the document, insert only the citation with its pinpoint, per dialog or permanently in the settings.
+The citation dialog gets the option "Nach Gliederung anordnen" (arrange by outline). Headings with counts are on the left, annotations in the middle. Annotations you have already cited carry a green check (persists across restarts and machines in the document; cleared when the footnote is deleted like in Citavi, see [documentation](docs/cited-tracking.md)). The search bar at the top filters the list too, and "Zitatstelle anzeigen" (show place) opens the reader at the passage. On top of that comes **citation-only insertion**: if you do not want the quoted text in the document, insert only the citation with its pinpoint, per dialog or permanently in the settings.
 
 **Keep the citation window open (option)**
 

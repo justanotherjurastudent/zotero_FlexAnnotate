@@ -20,6 +20,12 @@ import {
   type CitationItemLike,
 } from "./logic/citeOnly";
 import { getLocator } from "../print/printAnnotations";
+import {
+  parseDocData,
+  recordDocCitation,
+  serializeDocData,
+} from "../organizer/logic/cited";
+import { DOC_CITED_PREF } from "../organizer/dialog/dialogCited";
 
 type Citation = {
   citationItems: CitationItemLike[];
@@ -150,8 +156,31 @@ export function patch(): boolean {
   const patched: InsertFn = async function (fieldIndex, field, citation) {
     try {
       if (getPref("citationOnly")) {
+        const citationID =
+          !(citation as any).citationID ||
+          (citation as any).citationID === "flexannotate-browse"
+            ? ((citation as any).citationID =
+                (Zotero as any).Utilities?.randomString?.() ||
+                Math.random().toString(36).slice(2))
+            : (citation as any).citationID;
+
+        const annKeys: string[] = [];
+        for (const ci of citation?.citationItems ?? []) {
+          const item = (Zotero as any).Cite?.getItem(ci.id) as
+            Zotero.Item | undefined;
+          if (item && item.isAnnotation() && item.key) {
+            annKeys.push(item.key);
+          }
+        }
+
         const rewritten = await rewriteToCitationOnly(citation);
         if (rewritten) {
+          if (annKeys.length && (this as any).data?.prefs) {
+            const prefs = (this as any).data.prefs;
+            const docData = parseDocData(prefs[DOC_CITED_PREF]);
+            const next = recordDocCitation(docData, citationID, annKeys);
+            prefs[DOC_CITED_PREF] = serializeDocData(next);
+          }
           return [
             await this._insertItemsIntoDocument(fieldIndex, field, rewritten),
           ];

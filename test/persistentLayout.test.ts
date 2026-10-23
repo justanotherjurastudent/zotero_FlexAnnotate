@@ -93,6 +93,7 @@ describe("persistent citation window layout (screenshots)", function () {
 
   after(async function () {
     if (!enabled()) return;
+    api().persistentDialog.rememberCommand(null);
     api().persistentDialog.writePref(origPref as boolean);
     await closeDialogs();
     (Zotero.Items.get(noteID) as Zotero.Item)?.eraseTx?.();
@@ -150,6 +151,11 @@ describe("persistent citation window layout (screenshots)", function () {
     integration().currentCommandPromise = new Promise<void>(
       (r) => (endCommand = r),
     );
+    api().persistentDialog.rememberCommand({
+      agent: "WinWord",
+      docId: "Dokument1",
+      templateVersion: 0,
+    });
     const done = integration().displayDialog(
       DIALOG_URL,
       NATIVE_OPTIONS,

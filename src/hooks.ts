@@ -32,6 +32,7 @@ import { normalizePersistentOptions } from "./features/organizer/logic/persisten
 import * as openTarget from "./features/organizer/openTarget";
 import * as docOutlineCore from "./features/organizer/logic/docOutline";
 import * as citedCore from "./features/organizer/logic/cited";
+import * as dialogCitedModule from "./features/organizer/dialog/dialogCited";
 import * as organizerData from "./features/organizer/panel/organizerData";
 import * as outlineCore from "./features/organizer/logic/outline";
 import * as flatHeadingsCore from "./features/organizer/logic/flatHeadings";
@@ -166,6 +167,7 @@ async function onStartup() {
     openTarget,
     tagSuggest,
     cited: citedCore,
+    dialogCited: dialogCitedModule,
     CitationDialogPatch: { viewOf: outlineView.viewOf },
     persistentDialog: {
       feature: persistentDialogPatch,

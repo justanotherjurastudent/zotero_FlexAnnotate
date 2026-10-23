@@ -4,7 +4,7 @@
  * Einfügen) liegen hier, weil sie die Ansicht neu zeichnen.
  */
 
-import { record, unrecord } from "../logic/cited";
+import { record, toggleDocCited, unrecord } from "../logic/cited";
 import type { AnnLike } from "../logic/dialogView";
 import { formatLocator } from "../../../core/locator";
 import { applyClick, emptySelection } from "../logic/selection";
@@ -18,7 +18,9 @@ import { tr } from "../strings";
 import {
   currentSessionId,
   readCitedStore,
+  readDocCitedData,
   writeCitedStore,
+  writeDocCitedData,
 } from "./dialogCited";
 
 export const TREE_ID = "flexannotate-tree";
@@ -408,6 +410,21 @@ function setCited(win: Window, v: View, ids: number[], on: boolean) {
   } catch (e) {
     ztoolkit.log("flexannotate cited store write failed:", e);
   }
+
+  // Update document-level persistent store
+  try {
+    const keys = ids
+      .map((id) => v.rows.get(id)?.key)
+      .filter((k): k is string => !!k);
+    if (keys.length) {
+      const docData = readDocCitedData() || { citations: {} };
+      const updated = toggleDocCited(docData, keys, on);
+      writeDocCitedData(updated);
+    }
+  } catch (e) {
+    ztoolkit.log("flexannotate doc cited write failed:", e);
+  }
+
   for (const id of ids) {
     if (on) v.cited.add(id);
     else v.cited.delete(id);
