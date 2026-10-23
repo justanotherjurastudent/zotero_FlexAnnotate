@@ -243,6 +243,7 @@ describe("citation-only patch", function () {
       );
     } finally {
       (Zotero as any).Integration.currentSession = origSession;
+      Zotero.Prefs.clear(`${config.prefsPrefix}.citedAnnotations`, true);
     }
   });
 
@@ -329,6 +330,7 @@ describe("citation-only patch", function () {
       );
     } finally {
       (Zotero as any).Integration.currentSession = origSession;
+      Zotero.Prefs.clear(`${config.prefsPrefix}.citedAnnotations`, true);
     }
   });
 });
