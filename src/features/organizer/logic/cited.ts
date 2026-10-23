@@ -251,6 +251,7 @@ export interface CitationLocation {
   noteIndex: number;
   /** Sequential document order index in citationsByIndex (0-based) */
   index?: number;
+  plainCitation?: string;
   citation?: any;
 }
 
@@ -354,4 +355,82 @@ export function findCitationLocations(
 ): CitationLocation[] {
   if (!annKey) return [];
   return buildCitationLocationsMap(docData, citationsByIndex).get(annKey) ?? [];
+}
+
+/**
+ * Maps each itemID (workID) to its active citation locations in the document.
+ * Single-pass over citationsByItemID (Record<itemID, Citation[]>).
+ */
+export function buildWorkCitationLocationsMap(
+  citationsByItemID: Record<string, unknown> | null | undefined,
+): Map<number, CitationLocation[]> {
+  const map = new Map<number, CitationLocation[]>();
+  if (!citationsByItemID || typeof citationsByItemID !== "object") return map;
+
+  for (const [key, val] of Object.entries(citationsByItemID)) {
+    if (key === "__proto__" || key === "constructor" || key === "prototype") {
+      continue;
+    }
+    const itemID = Number(key);
+    if (!itemID || isNaN(itemID)) continue;
+
+    const list: any[] = Array.isArray(val)
+      ? val
+      : val && typeof val === "object"
+        ? [val]
+        : [];
+    if (!list.length) continue;
+
+    const locs: CitationLocation[] = [];
+    const seenCids = new Set<string>();
+
+    for (let i = 0; i < list.length; i++) {
+      const cit = list[i];
+      if (!cit || typeof cit !== "object") continue;
+      const cid = String(cit.citationID ?? "");
+      if (cid && seenCids.has(cid)) continue;
+      if (cid) seenCids.add(cid);
+
+      const rawNoteIndex =
+        cit.properties && typeof cit.properties === "object"
+          ? cit.properties.noteIndex
+          : cit.noteIndex;
+      const num =
+        typeof rawNoteIndex === "number" && !isNaN(rawNoteIndex)
+          ? rawNoteIndex
+          : Number(rawNoteIndex);
+      const noteIndex = !isNaN(num) && num > 0 ? Math.floor(num) : 0;
+      const zIndex = cit.properties?.zoteroIndex;
+      const docIndex =
+        typeof zIndex === "number" && !isNaN(zIndex) ? zIndex : i;
+
+      locs.push({
+        citationID: cid,
+        noteIndex,
+        index: docIndex,
+        plainCitation: cit.properties?.plainCitation,
+        citation: cit,
+      });
+    }
+
+    if (locs.length) {
+      locs.sort(
+        (a, b) => a.noteIndex - b.noteIndex || (a.index ?? 0) - (b.index ?? 0),
+      );
+      map.set(itemID, locs);
+    }
+  }
+
+  return map;
+}
+
+/**
+ * Returns active citation locations for a specific work ID.
+ */
+export function findWorkCitationLocations(
+  citationsByItemID: Record<string, unknown> | null | undefined,
+  workID: number,
+): CitationLocation[] {
+  if (!workID) return [];
+  return buildWorkCitationLocationsMap(citationsByItemID).get(workID) ?? [];
 }

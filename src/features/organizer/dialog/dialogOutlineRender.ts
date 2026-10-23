@@ -18,6 +18,7 @@ import { tr } from "../strings";
 import {
   currentSessionId,
   getAllCitationLocations,
+  getAllWorkCitationLocations,
   getCitationLocations,
   jumpToCitation,
   readCitedStore,
@@ -202,6 +203,15 @@ export function renderList(win: Window, v: View, keepScroll = true) {
   }
   const order = [...new Set(secs.flatMap((s) => s.items.map((i) => i.id)))];
   const locMap = getAllCitationLocations();
+  const workLocMap = getAllWorkCitationLocations();
+  list.addEventListener(
+    "scroll",
+    () => {
+      const existing = doc.getElementById("flexannotate-footnote-popover");
+      if (existing) existing.remove();
+    },
+    { passive: true },
+  );
   for (const sec of secs) {
     list.appendChild(
       el(
@@ -214,10 +224,115 @@ export function renderList(win: Window, v: View, keepScroll = true) {
     );
     for (const a of sec.items) {
       const r = v.rows.get(a.id);
-      if (r) list.appendChild(rowEl(win, v, r, order, locMap));
+      if (r) list.appendChild(rowEl(win, v, r, order, locMap, workLocMap));
     }
   }
   list.scrollTop = scroll;
+}
+
+function attachFootnotePopover(
+  win: Window,
+  check: HTMLElement,
+  locs: CitationLocation[],
+): void {
+  const doc = win.document;
+  let closeTimer: any = null;
+
+  const removeActivePopover = () => {
+    const existing = doc.getElementById("flexannotate-footnote-popover");
+    if (existing) existing.remove();
+  };
+
+  const scheduleClose = () => {
+    if (closeTimer) win.clearTimeout(closeTimer);
+    closeTimer = win.setTimeout(() => {
+      removeActivePopover();
+      closeTimer = null;
+    }, 200);
+  };
+
+  const cancelClose = () => {
+    if (closeTimer) {
+      win.clearTimeout(closeTimer);
+      closeTimer = null;
+    }
+  };
+
+  const show = () => {
+    cancelClose();
+    removeActivePopover();
+
+    const rect = check.getBoundingClientRect();
+    const popover = doc.createElement("div");
+    popover.id = "flexannotate-footnote-popover";
+    popover.style.cssText =
+      "position:fixed;z-index:99999;background:var(--material-background,#ffffff);" +
+      "color:var(--material-color,#222222);border:1px solid rgba(128,128,128,0.28);" +
+      "border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,0.22);padding:6px 8px;" +
+      "display:flex;flex-direction:column;gap:5px;font-size:11px;min-width:90px;max-width:260px;" +
+      "box-sizing:border-box;pointer-events:auto;";
+
+    const header = doc.createElement("div");
+    header.style.cssText =
+      `color:${MUTED};font-size:10px;font-weight:600;text-transform:uppercase;` +
+      "letter-spacing:0.4px;user-select:none;";
+    header.textContent = tr("dialogCitedIn");
+    popover.appendChild(header);
+
+    const chips = doc.createElement("div");
+    chips.style.cssText = "display:flex;gap:4px;flex-wrap:wrap;";
+
+    const counts = new Map<number, number>();
+    const totalCounts = new Map<number, number>();
+    for (const l of locs) {
+      totalCounts.set(l.noteIndex, (totalCounts.get(l.noteIndex) || 0) + 1);
+    }
+
+    for (const l of locs) {
+      const count = (counts.get(l.noteIndex) || 0) + 1;
+      counts.set(l.noteIndex, count);
+      const isMulti = (totalCounts.get(l.noteIndex) || 0) > 1;
+      const label =
+        l.noteIndex === 0
+          ? tr("dialogLocationText") + (isMulti ? ` (${count})` : "")
+          : tr("dialogLocationFootnote").replace("{n}", String(l.noteIndex)) +
+            (isMulti ? ` (${count})` : "");
+
+      const chip = doc.createElement("button");
+      chip.className = "flexannotate-loc-chip";
+      chip.style.cssText =
+        `background:rgba(31,157,85,0.12);color:${GREEN};border:1px solid rgba(31,157,85,0.4);` +
+        "border-radius:4px;padding:2px 6px;font-size:11px;font-weight:600;cursor:pointer;" +
+        "display:inline-flex;align-items:center;line-height:1.2;outline:none;";
+      chip.textContent = label;
+      chip.title = tr("dialogJumpToFootnote");
+      chip.addEventListener("click", (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        removeActivePopover();
+        void jumpToCitation(l.citation || l);
+      });
+      chips.appendChild(chip);
+    }
+    popover.appendChild(chips);
+
+    popover.addEventListener("mouseenter", cancelClose);
+    popover.addEventListener("mouseleave", scheduleClose);
+
+    (doc.body || doc.documentElement)?.appendChild(popover);
+
+    const popWidth = popover.offsetWidth || 120;
+    const left = Math.max(
+      8,
+      Math.min(rect.left, (win.innerWidth || 400) - popWidth - 10),
+    );
+    const top = rect.bottom + 4;
+    popover.style.left = `${left}px`;
+    popover.style.top = `${top}px`;
+  };
+
+  check.addEventListener("mouseenter", show);
+  check.addEventListener("mouseleave", scheduleClose);
 }
 
 function rowEl(
@@ -226,6 +341,7 @@ function rowEl(
   r: Row,
   order: number[],
   locMap?: Map<string, CitationLocation[]>,
+  workLocMap?: Map<number, CitationLocation[]>,
 ): HTMLElement {
   const doc = win.document;
   const on = v.sel.selected.has(r.id);
@@ -238,7 +354,13 @@ function rowEl(
   );
   d.dataset.annId = String(r.id);
   const cited = v.cited.has(r.id);
-  const locs = cited && r.key ? locMap?.get(r.key) : undefined;
+  const locs = cited
+    ? r.kind === "work"
+      ? workLocMap?.get(r.id)
+      : r.key
+        ? locMap?.get(r.key)
+        : undefined
+    : undefined;
   let checkTitle = cited ? tr("dialogCited") : tr("dialogCheckHint");
   if (locs && locs.length) {
     const labels = locs.map((l) =>
@@ -259,6 +381,9 @@ function rowEl(
     ? "flexannotate-check flexannotate-cited"
     : "flexannotate-check";
   check.title = checkTitle;
+  if (locs && locs.length) {
+    attachFootnotePopover(win, check, locs);
+  }
   // manual correction: click toggles the mark of this row (or the selection)
   check.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -437,7 +562,7 @@ export function renderPreview(win: Window, v: View) {
             ";font-weight:600;";
           chip.addEventListener("click", (e) => {
             e.stopPropagation();
-            void jumpToCitation(loc.citation);
+            void jumpToCitation(loc.citation || loc);
           });
           locContainer.appendChild(chip);
         }

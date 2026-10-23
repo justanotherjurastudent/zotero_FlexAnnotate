@@ -7,7 +7,9 @@ import {
   reconcileDocData,
   toggleDocCited,
   buildCitationLocationsMap,
+  buildWorkCitationLocationsMap,
   findCitationLocations,
+  findWorkCitationLocations,
   type CitedDocData,
   type CitationLocation,
 } from "../src/features/organizer/logic/cited.ts";
@@ -531,6 +533,99 @@ describe("citationLocations: footnote and document location mapping", () => {
     assert.ok(
       elapsed < 50,
       `buildCitationLocationsMap took ${elapsed.toFixed(2)}ms (expected < 50ms)`,
+    );
+  });
+});
+
+describe("cited: work citation locations (buildWorkCitationLocationsMap)", () => {
+  it("handles null, undefined, or empty inputs", () => {
+    assert.equal(buildWorkCitationLocationsMap(null).size, 0);
+    assert.equal(buildWorkCitationLocationsMap(undefined).size, 0);
+    assert.equal(buildWorkCitationLocationsMap({}).size, 0);
+    assert.deepEqual(findWorkCitationLocations(null, 123), []);
+  });
+
+  it("extracts and sorts footnote locations for multiple works", () => {
+    const citationsByItemID = {
+      "42": [
+        {
+          citationID: "cit_b",
+          properties: { noteIndex: 12, zoteroIndex: 5 },
+        },
+        {
+          citationID: "cit_a",
+          properties: { noteIndex: 3, zoteroIndex: 2 },
+        },
+        {
+          citationID: "cit_c",
+          properties: { noteIndex: 3, zoteroIndex: 4 },
+        },
+      ],
+      "99": [
+        {
+          citationID: "cit_x",
+          properties: { noteIndex: 0, zoteroIndex: 0 },
+        },
+      ],
+    };
+
+    const map = buildWorkCitationLocationsMap(citationsByItemID);
+    assert.equal(map.size, 2);
+
+    const locs42 = map.get(42) ?? [];
+    assert.equal(locs42.length, 3);
+    // Should be sorted by noteIndex ascending, then docIndex ascending:
+    // cit_a (fn 3, doc 2), cit_c (fn 3, doc 4), cit_b (fn 12, doc 5)
+    assert.equal(locs42[0].citationID, "cit_a");
+    assert.equal(locs42[0].noteIndex, 3);
+    assert.equal(locs42[1].citationID, "cit_c");
+    assert.equal(locs42[1].noteIndex, 3);
+    assert.equal(locs42[2].citationID, "cit_b");
+    assert.equal(locs42[2].noteIndex, 12);
+
+    const locs99 = findWorkCitationLocations(citationsByItemID, 99);
+    assert.equal(locs99.length, 1);
+    assert.equal(locs99[0].noteIndex, 0); // in-text
+  });
+
+  it("deduplicates citations with the same citationID", () => {
+    const citationsByItemID = {
+      "10": [
+        { citationID: "same_id", properties: { noteIndex: 1 } },
+        { citationID: "same_id", properties: { noteIndex: 1 } },
+      ],
+    };
+    const locs = findWorkCitationLocations(citationsByItemID, 10);
+    assert.equal(locs.length, 1);
+  });
+
+  it("safely ignores prototype pollution keys", () => {
+    const raw = JSON.parse(
+      '{"__proto__":[{"citationID":"evil"}],"constructor":[],"12":[{"citationID":"good","properties":{"noteIndex":1}}]}',
+    );
+    const map = buildWorkCitationLocationsMap(raw);
+    assert.equal(map.has(NaN), false);
+    assert.equal(map.size, 1);
+    assert.equal(map.get(12)?.[0].citationID, "good");
+  });
+
+  it("performance: processes 1,000 cited works in under 10ms", () => {
+    const byItemID: Record<string, any[]> = {};
+    for (let i = 1; i <= 1000; i++) {
+      byItemID[String(i)] = [
+        { citationID: `c_${i}_1`, properties: { noteIndex: i % 50 } },
+        { citationID: `c_${i}_2`, properties: { noteIndex: (i % 50) + 1 } },
+      ];
+    }
+
+    const start = performance.now();
+    const map = buildWorkCitationLocationsMap(byItemID);
+    const elapsed = performance.now() - start;
+
+    assert.equal(map.size, 1000);
+    assert.ok(
+      elapsed < 50,
+      `buildWorkCitationLocationsMap took ${elapsed.toFixed(2)}ms (expected < 50ms)`,
     );
   });
 });

@@ -128,24 +128,58 @@ In wissenschaftlichen Texten ändern sich Fußnotennummern fortlaufend (durch Ei
 - `citation.properties.noteIndex`: Enthält den aktuellen 1-basierten Index der Fußnote bzw. Endnote im Textverarbeitungsprogramm (bei Zitationen im Fließtext / In-Text-Stilen ist `noteIndex === 0`).
 - `buildCitationLocationsMap` / `getCitationLocations` (`src/features/organizer/logic/cited.ts`, `dialogCited.ts`): Verknüpft die `annKey`s aus `docData.citations` über die `citationID` mit den passenden Zitationsobjekten und sortiert sie aufsteigend nach ihrer Fußnotennummer sowie sekundär nach der Dokumentreihenfolge (`index` aus `citationsByIndex`).
 
-### 4.2 Direktsprung in Word / LibreOffice
+### 4.2 Direktsprung in Word / LibreOffice & Re-Acquisition
 
-Jeder Fußnoten-Badge in der Vorschau ist ein klickbarer Button. Beim Klick wird folgende Navigationssequenz ausgeführt:
+In der persistenten Aufgabenleiste (dem Begleitfenster / Blätterfenster) ist die Word-Transaktion des vorherigen Einfügebefehls bereits abgeschlossen (`execCommand` in `xpcom/integration.js:332` hat `await document.complete()` im `finally`-Block aufgerufen). Dadurch ist der interne C++-COM-Zeiger des Dokuments freigegeben (`_documentStatus.active = false` in `zoteroWinWordIntegration.mjs:415`), und ein direkter Aufruf von `citation.field.select()` würde mit `"complete() method already called on document"` abbrechen.
 
-```ts
-await citation.field.select();
-await session._doc?.activate?.();
-```
+FlexAnnotate löst das robust über ein zweistufiges Verfahren in `src/features/organizer/dialog/dialogCited.ts`:
 
-1. `citation.field.select()` selektiert und scrollt exakt zum Zitationsfeld im geöffneten Textverarbeitungsprogramm.
-2. `session._doc?.activate?.()` holt das Word- bzw. LibreOffice-Fenster in den Vordergrund.
-3. Der Zitierdialog (insbesondere in der persistenten Aufgabenleiste) bleibt dabei geöffnet und einsatzbereit.
-4. Schlägt der Aufruf fehl (z. B. weil das Dokument gerade extern geschlossen wurde), fängt `jumpToCitation` die Ausnahme sicher ab und protokolliert sie über `ztoolkit.log`.
+1. **Prüfung auf aktive Sitzung:**
+   Ist `citation.field` noch aktiv (`_documentStatus.active !== false`), wird `select()` direkt aufgerufen.
+2. **Dynamische Re-Acquisition bei freigegebenem Dokument:**
+   Ist das Dokument bereits abgeschlossen, holt `jumpToCitation` über Zoteros Integrations-Schnittstelle eine frische Verbindung zum laufenden Dokument:
+   ```ts
+   const app = Zotero.Integration.getApplication(agent, "jump", docId);
+   const doc = await (app.getDocument && docId
+     ? app.getDocument(docId)
+     : app.getActiveDocument());
+   const fields = await doc.getFields(fieldType);
+   // Matching nach citationID (oder noteIndex)
+   await matchedField.select();
+   ```
+3. **Sicheres Aufräumen:**
+   Im `finally`-Block werden `await doc.cleanup()` und `await doc.complete()` garantiert ausgeführt, sodass keine COM-Zeiger oder Dokument-Locks in Word lecken.
 
-### 4.3 UI-Darstellung im Zitierdialog
+### 4.3 Fenster-Aktivierung auf Betriebssystem-Ebene (`bringWordProcessorToFront`)
 
-- **Vorschau-Spalte (rechts):** Für zitierte Annotationen erscheint unter dem Quellenhinweis die Zeile `Zitiert in:` mit kompakten, abgerundeten Chips (z. B. `[ Fn. 3 ]`, `[ Fn. 12 ]` oder `[ Text ]`). Wird eine Annotation in derselben Fußnote mehrfach zitiert, werden die Chips automatisch disambiguiert (z. B. `[ Fn. 3 (1) ]`, `[ Fn. 3 (2) ]`). Hover-Effekt, barrierefreier Tastatur-Fokus (`:focus-visible`) und Tooltip (`Fn. 12 (Zur Zitation im Dokument springen)`).
-- **Liste (Mitte):** Der Tooltip des grünen Hakens (`✓`) zeigt die konkreten Fußnoten ohne Duplikate an, z. B. `Bereits zitiert (Fn. 3, Fn. 12)`, ohne horizontalen Platz in engen Spalten zu verbrauchen.
+In Zoteros nativer Windows-Integration ist `Document.prototype.activate` eine leere Funktion (`activate: function() {}`), weil Zotero im regulären Modus das Dialogfenster schließt und Windows den Fokus automatisch an Word zurückgibt. Im persistenten Begleitfenster bleibt der Dialog jedoch geöffnet.
+
+FlexAnnotate bringt Word bzw. LibreOffice daher zuverlässig auf Betriebssystem-Ebene in den Vordergrund:
+
+- **Windows:** Über Firefox/Zoteros natives `ctypes` (`resource://gre/modules/ctypes.sys.mjs`) wird `user32.dll` angesprochen:
+  - `FindWindowW("OpusApp", null)` ermittelt das Fenster-Handle von Word (`SALFRAME` für LibreOffice).
+  - `ShowWindow(hwnd, 9)` (`SW_RESTORE`) stellt das Fenster wieder her, falls es minimiert war.
+  - `SetForegroundWindow(hwnd)` setzt Word in den Vordergrund. Da Zotero zum Klickzeitpunkt das aktive Vordergrundfenster ist, gestattet Windows diesen Fokuswechsel ohne Verzögerung.
+- **macOS:** Auf Mac ruft FlexAnnotate `Zotero.Utilities.Internal.sendToBack()` auf, wodurch Zotero hinter Word tritt.
+- **LibreOffice:** Ruft zusätzlich `doc.activate()` auf, was über LibreOffices UNO-API `frame.getContainerWindow().toFront()` auslöst.
+
+### 4.4 UI-Darstellung: Vorschau-Chips & Hover-Popover (ohne Seitenleiste bei Titeln)
+
+- **Hover-Popover auf dem grünen Haken (`✓`) für Titel und Annotationen:**
+  Im `Titel`-Tab (Werks-Zitate) gibt es bewusst keine rechte Seitenleiste, um die Ansicht kompakt und übersichtlich zu halten.
+  Stattdessen erscheint beim Hovern über das grüne Häkchen (`mouseenter`) ein schlankes, schwebendes Popover:
+  ```text
+  ┌─────────────────────────┐
+  │ ZITIERT IN:             │
+  │ [ Fn. 2 ]  [ Fn. 15 ]   │
+  └─────────────────────────┘
+  ```
+  - **Click-to-Jump:** Jeder Chip ist ein Button, der beim Klick via `jumpToCitation` sofort zur entsprechenden Fußnote in Word springt und Word fokussiert.
+  - **Clipping-sicher:** Das Popover wird absolut am Dokument gerendert (`position: fixed`) und per `getBoundingClientRect()` unter dem Haken platziert, sodass es niemals durch `overflow: hidden` der Listenansicht abgeschnitten wird.
+  - **Automatisches Schließen:** Beim Verlassen von Haken und Popover schließt es sich mit einem kurzen Debounce (200 ms). Beim Scrollen der Liste schließt es sofort.
+- **Vorschau-Spalte (rechts, bei Annotationen):** Für zitierte Annotationen erscheint unter dem Quellenhinweis weiterhin die Zeile `Zitiert in:` mit interaktiven Chips (z. B. `[ Fn. 3 ]`, `[ Fn. 12 ]` oder `[ Text ]`).
+- **Liste (Mitte):** Der Tooltip des grünen Hakens (`✓`) zeigt die konkreten Fußnoten ohne Duplikate an, z. B. `Bereits zitiert (Fn. 3, Fn. 12)`.
+- **Datenquelle für Werke:** Bei regulären Titeln (`r.kind === "work"`) werden die Fundstellen in $\mathcal{O}(1)$ über `getAllWorkCitationLocations()` aus `session.citationsByItemID[workID]` bezogen und mit `buildWorkCitationLocationsMap` nach Fußnotennummer sortiert.
 
 ---
 

@@ -989,6 +989,13 @@ export function openBrowseForTest(rect?: {
 }
 
 /**
+ * Letzter vom Nutzer ausgeführter Word/LibreOffice-Befehl.
+ */
+export function getLastCommand(): CommandRef | null {
+  return lastCommand;
+}
+
+/**
  * Test-Hilfe: Befehl ohne Word vormerken (sonst merkt sich patchExecCommand ihn beim Befehl selbst).
  */
 export function lastCommandForTest(): CommandRef | null {

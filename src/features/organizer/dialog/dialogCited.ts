@@ -8,7 +8,9 @@
 import {
   activeIds,
   buildCitationLocationsMap,
+  buildWorkCitationLocationsMap,
   findCitationLocations,
+  findWorkCitationLocations,
   parseDocData,
   parseStore,
   record,
@@ -21,6 +23,7 @@ import type {
   CitedDocData,
   CitedStore,
 } from "../logic/cited";
+import { getLastCommand } from "./dialogPersistent";
 
 export type { CitationLocation };
 
@@ -215,24 +218,207 @@ export function getAllCitationLocations(
 }
 
 /**
- * Selects the citation field in Word/LibreOffice and brings the document window to the front.
+ * Maps all cited work IDs to their active citation locations in the document.
  */
-export async function jumpToCitation(citation: any): Promise<boolean> {
+export function getAllWorkCitationLocations(
+  citationsByItemID?: Record<string, unknown> | null,
+): Map<number, CitationLocation[]> {
+  const session = currentSession();
+  const resolved =
+    citationsByItemID !== undefined
+      ? citationsByItemID
+      : session?.citationsByItemID;
+  return buildWorkCitationLocationsMap(resolved);
+}
+
+/**
+ * Brings Microsoft Word, LibreOffice, or Mac Word to the foreground on the OS window level.
+ */
+export function bringWordProcessorToFront(agent?: string | null): void {
   try {
-    if (!citation) return false;
-    const session = currentSession() || citation.session;
-    if (citation.field && typeof citation.field.select === "function") {
-      await citation.field.select();
+    if ((Zotero as any).isWin) {
+      const { ctypes } = ChromeUtils.importESModule(
+        "resource://gre/modules/ctypes.sys.mjs",
+      );
+      const user32 = ctypes.open("user32.dll");
+      try {
+        const FindWindowW = user32.declare(
+          "FindWindowW",
+          ctypes.winapi_abi,
+          ctypes.voidptr_t,
+          ctypes.jschar.ptr,
+          ctypes.jschar.ptr,
+        );
+        const SetForegroundWindow = user32.declare(
+          "SetForegroundWindow",
+          ctypes.winapi_abi,
+          ctypes.bool,
+          ctypes.voidptr_t,
+        );
+        const ShowWindow = user32.declare(
+          "ShowWindow",
+          ctypes.winapi_abi,
+          ctypes.bool,
+          ctypes.voidptr_t,
+          ctypes.int32_t,
+        );
+        const className = agent === "LibreOffice" ? "SALFRAME" : "OpusApp";
+        const hwnd = FindWindowW(className, null);
+        if (hwnd && (typeof hwnd.isNull !== "function" || !hwnd.isNull())) {
+          ShowWindow(hwnd, 9); // SW_RESTORE
+          SetForegroundWindow(hwnd);
+        }
+      } finally {
+        user32.close();
+      }
+    } else if ((Zotero as any).isMac) {
+      (Zotero as any).Utilities?.Internal?.sendToBack?.();
     }
-    const doc = session?._doc || session?.doc || citation.doc;
-    if (doc && typeof doc.activate === "function") {
-      await doc.activate();
+  } catch (e) {
+    if (typeof ztoolkit !== "undefined" && ztoolkit?.log) {
+      ztoolkit.log("flexannotate bringWordProcessorToFront failed:", e);
     }
-    return true;
+  }
+}
+
+let isJumping = false;
+
+/**
+ * Selects the citation field in Word/LibreOffice and brings the document window to the front.
+ * If the original document session was already completed (e.g. in companion taskpane mode),
+ * safely acquires an active document connection via Zotero.Integration to locate and select the field.
+ */
+export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
+  if (isJumping) return false;
+  isJumping = true;
+  try {
+    if (!citationOrLoc) return false;
+    const citationID =
+      citationOrLoc?.citationID ||
+      citationOrLoc?.citation?.citationID ||
+      citationOrLoc?.properties?.citationID;
+    const noteIndex =
+      citationOrLoc?.noteIndex ??
+      citationOrLoc?.properties?.noteIndex ??
+      citationOrLoc?.citation?.properties?.noteIndex;
+    const directField = citationOrLoc?.field || citationOrLoc?.citation?.field;
+    const session =
+      currentSession() ||
+      citationOrLoc?.session ||
+      citationOrLoc?.citation?.session;
+    const directDoc =
+      session?._doc ||
+      session?.doc ||
+      citationOrLoc?.doc ||
+      citationOrLoc?.citation?.doc;
+
+    // 1. Direct field selection or document activation if session is still active
+    const docStatus = directDoc?._documentStatus;
+    const isDocActive = !docStatus || docStatus.active !== false;
+
+    if (
+      isDocActive &&
+      (directField || (directDoc && typeof directDoc.activate === "function"))
+    ) {
+      if (directField && typeof directField.select === "function") {
+        await directField.select();
+      }
+      if (directDoc && typeof directDoc.activate === "function") {
+        await directDoc.activate();
+      }
+      bringWordProcessorToFront(session?.agent);
+      return true;
+    }
+
+    // 2. Re-acquire active document via Zotero.Integration (for completed companion sessions)
+    const integration = (Zotero as any).Integration;
+    if (!integration) return false;
+
+    const cmd = getLastCommand();
+    const agent =
+      cmd?.agent ||
+      session?.agent ||
+      ((Zotero as any).isWin
+        ? "WinWord"
+        : (Zotero as any).isMac
+          ? "MacWord"
+          : "LibreOffice");
+    const docId = cmd?.docId;
+
+    const app = integration.getApplication?.(agent, "jump", docId);
+    if (!app) return false;
+
+    // Avoid RPC_E_CANTCALLOUT_ININPUTSYNCCALL (integration.js:268)
+    await (Zotero as any).Promise?.delay?.(10);
+
+    const docPromise =
+      app.getDocument && docId
+        ? app.getDocument(docId)
+        : app.getActiveDocument();
+    const doc = await docPromise;
+    if (!doc) return false;
+
+    try {
+      const fieldType =
+        session?.data?.prefs?.fieldType || app.primaryFieldType || "Field";
+      const fields = await doc.getFields(fieldType);
+      let matchedField: any = null;
+
+      if (citationID) {
+        for (let i = 0; i < fields.length; i++) {
+          const f = fields[i];
+          try {
+            const code = await f.getCode();
+            if (code && code.includes(citationID)) {
+              matchedField = f;
+              break;
+            }
+          } catch {
+            /* ignore field read error */
+          }
+        }
+      }
+
+      if (!matchedField && typeof noteIndex === "number" && noteIndex > 0) {
+        for (let i = 0; i < fields.length; i++) {
+          const f = fields[i];
+          try {
+            if (typeof f.getNoteIndex === "function") {
+              const idx = await f.getNoteIndex();
+              if (idx === noteIndex) {
+                matchedField = f;
+                break;
+              }
+            }
+          } catch {
+            /* ignore noteIndex read error */
+          }
+        }
+      }
+
+      if (matchedField && typeof matchedField.select === "function") {
+        await matchedField.select();
+      }
+
+      if (typeof doc.activate === "function") {
+        await doc.activate();
+      }
+      bringWordProcessorToFront(agent);
+      return !!matchedField;
+    } finally {
+      try {
+        if (typeof doc.cleanup === "function") await doc.cleanup();
+        if (typeof doc.complete === "function") await doc.complete();
+      } catch {
+        /* ignore cleanup error */
+      }
+    }
   } catch (e) {
     if (typeof ztoolkit !== "undefined" && ztoolkit?.log) {
       ztoolkit.log("flexannotate jump to citation failed:", e);
     }
     return false;
+  } finally {
+    isJumping = false;
   }
 }
