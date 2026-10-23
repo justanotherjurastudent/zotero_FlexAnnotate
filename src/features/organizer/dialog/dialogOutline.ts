@@ -93,6 +93,9 @@ const LAYOUT_CSS =
   "#item-tree-container{flex:1 1 0 !important;min-width:0 !important;overflow:hidden !important;}" +
   "#flexannotate-list-pane,#flexannotate-list-pane *{min-width:0;}" +
   "#flexannotate-preview{min-width:0;overflow-x:hidden;overflow-wrap:anywhere;}" +
+  ".flexannotate-citation-chip:hover{background:rgba(31,157,85,0.22) !important;}" +
+  ".flexannotate-citation-chip:active{background:rgba(31,157,85,0.35) !important;}" +
+  ".flexannotate-citation-chip:focus-visible{outline:2px solid #1f9d55 !important;outline-offset:1px !important;}" +
   // Unter 750 px, nur im persistenten Begleitfenster (Attribut von relaxDialogMinWidth):
   // in einem Testlauf auf 9.0.6 schlugen zwei Gliederungstests fehl (Ursache nicht abschliessend
   // geklaert); normale Dialoge sollen darum unveraendert bleiben. Baum oben als Streifen, Liste fuellt den Rest,

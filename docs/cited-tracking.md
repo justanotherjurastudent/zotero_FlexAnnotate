@@ -118,18 +118,50 @@ In der automatisierten Testsuite (`test-unit/cited.test.ts`):
 
 ---
 
-## 4. Manuelle Markierungen & Prototype-Sicherheit
+## 4. Fußnoten-Nummerierung & Dokumentennavigation (Direktsprung)
+
+### 4.1 Live-Extraktion aus `session.citationsByIndex`
+
+In wissenschaftlichen Texten ändern sich Fußnotennummern fortlaufend (durch Einfügen oder Löschen früherer Fußnoten). FlexAnnotate speichert Fußnotennummern daher **nicht** statisch im XML ab, sondern liest sie bei Bedarf live aus der Zotero-Integrationssitzung aus:
+
+- `session.citationsByIndex`: Zotero hält hier alle aktiven Zitationsfelder des Dokuments in Dokumentreihenfolge.
+- `citation.properties.noteIndex`: Enthält den aktuellen 1-basierten Index der Fußnote bzw. Endnote im Textverarbeitungsprogramm (bei Zitationen im Fließtext / In-Text-Stilen ist `noteIndex === 0`).
+- `buildCitationLocationsMap` / `getCitationLocations` (`src/features/organizer/logic/cited.ts`, `dialogCited.ts`): Verknüpft die `annKey`s aus `docData.citations` über die `citationID` mit den passenden Zitationsobjekten und sortiert sie aufsteigend nach ihrer Fußnotennummer sowie sekundär nach der Dokumentreihenfolge (`index` aus `citationsByIndex`).
+
+### 4.2 Direktsprung in Word / LibreOffice
+
+Jeder Fußnoten-Badge in der Vorschau ist ein klickbarer Button. Beim Klick wird folgende Navigationssequenz ausgeführt:
+
+```ts
+await citation.field.select();
+await session._doc?.activate?.();
+```
+
+1. `citation.field.select()` selektiert und scrollt exakt zum Zitationsfeld im geöffneten Textverarbeitungsprogramm.
+2. `session._doc?.activate?.()` holt das Word- bzw. LibreOffice-Fenster in den Vordergrund.
+3. Der Zitierdialog (insbesondere in der persistenten Aufgabenleiste) bleibt dabei geöffnet und einsatzbereit.
+4. Schlägt der Aufruf fehl (z. B. weil das Dokument gerade extern geschlossen wurde), fängt `jumpToCitation` die Ausnahme sicher ab und protokolliert sie über `ztoolkit.log`.
+
+### 4.3 UI-Darstellung im Zitierdialog
+
+- **Vorschau-Spalte (rechts):** Für zitierte Annotationen erscheint unter dem Quellenhinweis die Zeile `Zitiert in:` mit kompakten, abgerundeten Chips (z. B. `[ Fn. 3 ]`, `[ Fn. 12 ]` oder `[ Text ]`). Wird eine Annotation in derselben Fußnote mehrfach zitiert, werden die Chips automatisch disambiguiert (z. B. `[ Fn. 3 (1) ]`, `[ Fn. 3 (2) ]`). Hover-Effekt, barrierefreier Tastatur-Fokus (`:focus-visible`) und Tooltip (`Fn. 12 (Zur Zitation im Dokument springen)`).
+- **Liste (Mitte):** Der Tooltip des grünen Hakens (`✓`) zeigt die konkreten Fußnoten ohne Duplikate an, z. B. `Bereits zitiert (Fn. 3, Fn. 12)`, ohne horizontalen Platz in engen Spalten zu verbrauchen.
+
+---
+
+## 5. Manuelle Markierungen & Prototype-Sicherheit
 
 - **Manuelle Korrektur:** Klickt der Nutzer im Zitierdialog direkt auf das grüne Häkchen, wird die Annotation in `docData.manual` aufgenommen (oder daraus entfernt). Manuelle Markierungen sind bewusst dokumentweit aktiv und überstehen Zotero-Neustarts.
 - **Sicherheit gegen Prototype-Pollution:** Beim Parsen und Reconcilen (`parseDocData`, `reconcileDocData`) werden gefährliche Objektschlüssel (`__proto__`, `constructor`, `prototype`) strikt ignoriert.
 
 ---
 
-## 5. Beteiligte Dateien
+## 6. Beteiligte Dateien
 
-- `src/features/organizer/logic/cited.ts`: Reine Logik für Parsing, Serialisierung, Reconciliation und $\mathcal{O}(1)$-Set-Operationen (Node-testbar).
-- `src/features/organizer/dialog/dialogCited.ts`: Schnittstelle zu Zoteros Integrations-Session (`session.data.prefs`, `session.documentCitationIDs`), Mapping von Sync-Keys auf lokale Fenster-IDs.
+- `src/features/organizer/logic/cited.ts`: Reine Logik für Parsing, Serialisierung, Reconciliation, Fußnoten-Mapping (`buildCitationLocationsMap`, `findCitationLocations`) und $\mathcal{O}(1)$-Set-Operationen (Node-testbar).
+- `src/features/organizer/dialog/dialogCited.ts`: Schnittstelle zu Zoteros Integrations-Session (`session.data.prefs`, `session.documentCitationIDs`, `session.citationsByIndex`), Sprungfunktion (`jumpToCitation`).
 - `src/features/citeOnly/integrationPatch.ts`: Pre-Generierung der `citationID` und Protokollierung beim Einfügen von Zitationen.
-- `src/features/organizer/dialog/dialogOutline.ts` & `dialogOutlineRender.ts`: UI-Anbindung und Live-Aktualisierung im Zitierdialog.
-- `test-unit/cited.test.ts`: 15 Unit-Tests inkl. Performance-Benchmark und Randfall-Prüfungen.
-- `test/citeOnly.test.ts`: Zotero-Integrationstests für den vollständigen Lebenszyklus.
+- `src/features/organizer/dialog/dialogOutline.ts` & `dialogOutlineRender.ts`: UI-Anbindung (Footnote-Chips, Direktsprung, Checkmark-Tooltip) und Styling (`LAYOUT_CSS`).
+- `src/features/organizer/strings.ts`: Lokalisierte UI-Texte (Deutsch & Englisch für „Zitiert in:“, „Fn. {n}“, „Text“ und Sprunghinweise).
+- `test-unit/cited.test.ts`: 22 Unit-Tests inkl. Performance-Benchmark, Fußnoten-Mapping und Randfall-Prüfungen.
+- `test/citeOnly.test.ts`: Zotero-Integrationstests für den vollständigen Lebenszyklus und die Sprungnavigation.

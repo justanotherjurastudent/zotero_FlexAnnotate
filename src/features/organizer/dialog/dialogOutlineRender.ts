@@ -17,10 +17,14 @@ import { openRow } from "../openTarget";
 import { tr } from "../strings";
 import {
   currentSessionId,
+  getAllCitationLocations,
+  getCitationLocations,
+  jumpToCitation,
   readCitedStore,
   readDocCitedData,
   writeCitedStore,
   writeDocCitedData,
+  type CitationLocation,
 } from "./dialogCited";
 
 export const TREE_ID = "flexannotate-tree";
@@ -197,6 +201,7 @@ export function renderList(win: Window, v: View, keepScroll = true) {
     return;
   }
   const order = [...new Set(secs.flatMap((s) => s.items.map((i) => i.id)))];
+  const locMap = getAllCitationLocations();
   for (const sec of secs) {
     list.appendChild(
       el(
@@ -209,13 +214,19 @@ export function renderList(win: Window, v: View, keepScroll = true) {
     );
     for (const a of sec.items) {
       const r = v.rows.get(a.id);
-      if (r) list.appendChild(rowEl(win, v, r, order));
+      if (r) list.appendChild(rowEl(win, v, r, order, locMap));
     }
   }
   list.scrollTop = scroll;
 }
 
-function rowEl(win: Window, v: View, r: Row, order: number[]): HTMLElement {
+function rowEl(
+  win: Window,
+  v: View,
+  r: Row,
+  order: number[],
+  locMap?: Map<string, CitationLocation[]>,
+): HTMLElement {
   const doc = win.document;
   const on = v.sel.selected.has(r.id);
   const d = el(
@@ -227,6 +238,17 @@ function rowEl(win: Window, v: View, r: Row, order: number[]): HTMLElement {
   );
   d.dataset.annId = String(r.id);
   const cited = v.cited.has(r.id);
+  const locs = cited && r.key ? locMap?.get(r.key) : undefined;
+  let checkTitle = cited ? tr("dialogCited") : tr("dialogCheckHint");
+  if (locs && locs.length) {
+    const labels = locs.map((l) =>
+      l.noteIndex === 0
+        ? tr("dialogLocationText")
+        : tr("dialogLocationFootnote").replace("{n}", String(l.noteIndex)),
+    );
+    const uniqueLabels = [...new Set(labels)];
+    checkTitle = `${tr("dialogCited")} (${uniqueLabels.join(", ")})`;
+  }
   const check = el(
     doc,
     "span",
@@ -236,7 +258,7 @@ function rowEl(win: Window, v: View, r: Row, order: number[]): HTMLElement {
   check.className = cited
     ? "flexannotate-check flexannotate-cited"
     : "flexannotate-check";
-  check.title = cited ? tr("dialogCited") : tr("dialogCheckHint");
+  check.title = checkTitle;
   // manual correction: click toggles the mark of this row (or the selection)
   check.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -353,7 +375,7 @@ export function renderPreview(win: Window, v: View) {
         source,
       ),
     );
-    if (v.cited.has(r.id))
+    if (v.cited.has(r.id)) {
       host.appendChild(
         el(
           doc,
@@ -362,6 +384,66 @@ export function renderPreview(win: Window, v: View) {
           "✓ " + tr("dialogCited"),
         ),
       );
+      const locs = r.key ? getCitationLocations(r.key) : [];
+      if (locs.length) {
+        const locContainer = el(
+          doc,
+          "div",
+          "display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:12px;margin-top:2px;margin-bottom:2px;",
+        );
+        locContainer.appendChild(
+          el(
+            doc,
+            "span",
+            `color:${MUTED};font-weight:500;`,
+            tr("dialogCitedIn"),
+          ),
+        );
+        const counts = new Map<string, number>();
+        for (const loc of locs) {
+          const base =
+            loc.noteIndex === 0
+              ? tr("dialogLocationText")
+              : tr("dialogLocationFootnote").replace(
+                  "{n}",
+                  String(loc.noteIndex),
+                );
+          counts.set(base, (counts.get(base) || 0) + 1);
+        }
+        const seen = new Map<string, number>();
+        for (const loc of locs) {
+          const chip = doc.createElement("button");
+          chip.type = "button";
+          chip.className = "flexannotate-citation-chip";
+          const base =
+            loc.noteIndex === 0
+              ? tr("dialogLocationText")
+              : tr("dialogLocationFootnote").replace(
+                  "{n}",
+                  String(loc.noteIndex),
+                );
+          const total = counts.get(base) || 1;
+          const curr = (seen.get(base) || 0) + 1;
+          seen.set(base, curr);
+          const label = total > 1 ? `${base} (${curr})` : base;
+          chip.textContent = label;
+          chip.title = `${label} (${tr("dialogJumpToFootnote")})`;
+          chip.style.cssText =
+            "cursor:pointer;padding:2px 8px;font-size:11px;line-height:normal;" +
+            "font-family:inherit;margin:0;border-radius:10px;" +
+            "border:1px solid var(--fill-quinary, rgba(128,128,128,0.3));" +
+            "background:rgba(31,157,85,0.1);color:" +
+            GREEN +
+            ";font-weight:600;";
+          chip.addEventListener("click", (e) => {
+            e.stopPropagation();
+            void jumpToCitation(loc.citation);
+          });
+          locContainer.appendChild(chip);
+        }
+        host.appendChild(locContainer);
+      }
+    }
   }
   const bar = el(doc, "div", "display:flex;flex-wrap:wrap;gap:6px;");
   host.appendChild(bar);

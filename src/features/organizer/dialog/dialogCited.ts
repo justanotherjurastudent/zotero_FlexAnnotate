@@ -7,6 +7,8 @@
 
 import {
   activeIds,
+  buildCitationLocationsMap,
+  findCitationLocations,
   parseDocData,
   parseStore,
   record,
@@ -14,7 +16,13 @@ import {
   reconcileDocData,
   serializeDocData,
 } from "../logic/cited";
-import type { CitedDocData, CitedStore } from "../logic/cited";
+import type {
+  CitationLocation,
+  CitedDocData,
+  CitedStore,
+} from "../logic/cited";
+
+export type { CitationLocation };
 
 const CITED_PREF = "citedAnnotations";
 export const DOC_CITED_PREF = "flexannotate_cited";
@@ -172,5 +180,59 @@ export function hookAccept(win: Window): void {
       return original.apply(this, args);
     };
     io.__flexannotateHooked = true;
+  }
+}
+
+/**
+ * Returns active citation locations (e.g. footnote numbers) for a specific annotation key.
+ */
+export function getCitationLocations(
+  annKey: string,
+  docData?: CitedDocData | null,
+  citations?: any[] | Record<string, any> | null,
+): CitationLocation[] {
+  if (!annKey) return [];
+  const resolvedDocData = docData !== undefined ? docData : readDocCitedData();
+  if (!resolvedDocData) return [];
+  const session = currentSession();
+  const resolvedCitations =
+    citations !== undefined ? citations : session?.citationsByIndex;
+  return findCitationLocations(resolvedDocData, resolvedCitations, annKey);
+}
+
+/**
+ * Maps all annotation keys to their active citation locations in the document.
+ */
+export function getAllCitationLocations(
+  docData?: CitedDocData | null,
+  citations?: any[] | Record<string, any> | null,
+): Map<string, CitationLocation[]> {
+  const resolvedDocData = docData !== undefined ? docData : readDocCitedData();
+  const session = currentSession();
+  const resolvedCitations =
+    citations !== undefined ? citations : session?.citationsByIndex;
+  return buildCitationLocationsMap(resolvedDocData, resolvedCitations);
+}
+
+/**
+ * Selects the citation field in Word/LibreOffice and brings the document window to the front.
+ */
+export async function jumpToCitation(citation: any): Promise<boolean> {
+  try {
+    if (!citation) return false;
+    const session = currentSession() || citation.session;
+    if (citation.field && typeof citation.field.select === "function") {
+      await citation.field.select();
+    }
+    const doc = session?._doc || session?.doc || citation.doc;
+    if (doc && typeof doc.activate === "function") {
+      await doc.activate();
+    }
+    return true;
+  } catch (e) {
+    if (typeof ztoolkit !== "undefined" && ztoolkit?.log) {
+      ztoolkit.log("flexannotate jump to citation failed:", e);
+    }
+    return false;
   }
 }

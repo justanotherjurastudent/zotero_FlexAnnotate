@@ -245,4 +245,90 @@ describe("citation-only patch", function () {
       (Zotero as any).Integration.currentSession = origSession;
     }
   });
+
+  it("getCitationLocations and jumpToCitation find footnote index and activate document", async function () {
+    const work = await makeWork("Navigation Testwerk");
+    const att = await makePdfAttachment(work);
+    const ann = await makeAnnotation(att, "Navigation Annotation", "77", 0);
+
+    const dialogCited = api().dialogCited;
+    assert.ok(dialogCited, "dialogCited API available");
+
+    let selected = false;
+    let activated = false;
+
+    const fakeCitation = {
+      citationID: "cit_nav_1",
+      properties: { noteIndex: 14 },
+      field: {
+        select: async () => {
+          selected = true;
+        },
+      },
+    };
+
+    const fakeSession: any = {
+      sessionID: "nav-session",
+      data: {
+        prefs: {
+          flexannotate_cited: JSON.stringify({
+            citations: { cit_nav_1: [ann.key] },
+          }),
+        },
+      },
+      documentCitationIDs: { cit_nav_1: 0 },
+      citationsByIndex: [fakeCitation],
+      _doc: {
+        activate: async () => {
+          activated = true;
+        },
+      },
+    };
+
+    const origSession = (Zotero as any).Integration?.currentSession;
+    (Zotero as any).Integration.currentSession = fakeSession;
+
+    try {
+      // 1. Check getCitationLocations
+      const locs = dialogCited.getCitationLocations(ann.key);
+      assert.lengthOf(locs, 1);
+      assert.equal(locs[0].citationID, "cit_nav_1");
+      assert.equal(locs[0].noteIndex, 14);
+      assert.strictEqual(locs[0].citation, fakeCitation);
+
+      // 2. Check getAllCitationLocations
+      const allLocs = dialogCited.getAllCitationLocations();
+      assert.isTrue(allLocs.has(ann.key));
+      assert.lengthOf(allLocs.get(ann.key), 1);
+
+      // 3. Check jumpToCitation execution
+      const success = await dialogCited.jumpToCitation(locs[0].citation);
+      assert.isTrue(success, "jumpToCitation returns true on success");
+      assert.isTrue(selected, "citation.field.select() was called");
+      assert.isTrue(activated, "session._doc.activate() was called");
+
+      // 4. Safe execution without session or field
+      const emptyResult = await dialogCited.jumpToCitation(null);
+      assert.isFalse(emptyResult, "returns false for null citation");
+
+      const noFieldResult = await dialogCited.jumpToCitation({});
+      assert.isTrue(noFieldResult, "survives missing field gracefully");
+
+      // 5. Safe exception handling when field.select() or doc.activate() throws
+      const failingCitation = {
+        field: {
+          select: async () => {
+            throw new Error("RPC disconnected");
+          },
+        },
+      };
+      const failedResult = await dialogCited.jumpToCitation(failingCitation);
+      assert.isFalse(
+        failedResult,
+        "returns false without throwing when field.select fails",
+      );
+    } finally {
+      (Zotero as any).Integration.currentSession = origSession;
+    }
+  });
 });

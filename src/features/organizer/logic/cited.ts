@@ -242,3 +242,116 @@ export function toggleDocCited(
     };
   }
 }
+
+// ── Footnote and document location mapping ─────────────────────────────────
+
+export interface CitationLocation {
+  citationID: string;
+  /** 0 for in-text / body citations, >= 1 for footnotes / endnotes */
+  noteIndex: number;
+  /** Sequential document order index in citationsByIndex (0-based) */
+  index?: number;
+  citation?: any;
+}
+
+/**
+ * Maps each annotation key to the active citation locations in the document.
+ * Single-pass over citations and docData.
+ */
+export function buildCitationLocationsMap(
+  docData: CitedDocData | null | undefined,
+  citationsByIndex: unknown[] | Record<string, unknown> | null | undefined,
+): Map<string, CitationLocation[]> {
+  const map = new Map<string, CitationLocation[]>();
+  if (!docData?.citations) return map;
+
+  let rawList: any[] = [];
+  if (Array.isArray(citationsByIndex)) {
+    rawList = citationsByIndex;
+  } else if (citationsByIndex && typeof citationsByIndex === "object") {
+    // If integer keys, sort numerically so document order is preserved
+    const keys = Object.keys(citationsByIndex).sort((a, b) => {
+      const na = Number(a);
+      const nb = Number(b);
+      return !isNaN(na) && !isNaN(nb) ? na - nb : a.localeCompare(b);
+    });
+    rawList = keys.map((k) => (citationsByIndex as Record<string, unknown>)[k]);
+  }
+
+  if (!rawList.length) return map;
+
+  // Map citationID -> { citation, index } (deduplicated)
+  const citationById = new Map<string, { citation: any; index: number }>();
+  for (let i = 0; i < rawList.length; i++) {
+    const cit = rawList[i];
+    if (!cit || typeof cit !== "object") continue;
+    const cid = String(cit.citationID ?? "");
+    if (cid && !citationById.has(cid)) {
+      const zIndex = cit.properties?.zoteroIndex;
+      const docIndex =
+        typeof zIndex === "number" && !isNaN(zIndex) ? zIndex : i;
+      citationById.set(cid, { citation: cit, index: docIndex });
+    }
+  }
+
+  for (const [cid, keys] of Object.entries(docData.citations)) {
+    if (cid === "__proto__" || cid === "constructor" || cid === "prototype") {
+      continue;
+    }
+    if (!Array.isArray(keys)) continue;
+    const info = citationById.get(cid);
+    if (!info) continue;
+
+    const cit = info.citation;
+    const rawNoteIndex =
+      cit.properties && typeof cit.properties === "object"
+        ? cit.properties.noteIndex
+        : cit.noteIndex;
+    const num =
+      typeof rawNoteIndex === "number" && !isNaN(rawNoteIndex)
+        ? rawNoteIndex
+        : Number(rawNoteIndex);
+    const noteIndex = !isNaN(num) && num > 0 ? Math.floor(num) : 0;
+
+    const loc: CitationLocation = {
+      citationID: cid,
+      noteIndex,
+      index: info.index,
+      citation: cit,
+    };
+
+    for (const key of keys) {
+      if (typeof key !== "string" || !key) continue;
+      let list = map.get(key);
+      if (!list) {
+        list = [];
+        map.set(key, list);
+      }
+      if (!list.some((existing) => existing.citationID === cid)) {
+        list.push(loc);
+      }
+    }
+  }
+
+  // Sort each list: first by noteIndex ascending (0 for text, then fn 1, fn 2...),
+  // and for citations with the same noteIndex, by document order index ascending
+  for (const list of map.values()) {
+    list.sort(
+      (a, b) => a.noteIndex - b.noteIndex || (a.index ?? 0) - (b.index ?? 0),
+    );
+  }
+
+  return map;
+}
+
+/**
+ * Returns active citation locations (e.g. footnote numbers) for a specific annotation key.
+ */
+export function findCitationLocations(
+  docData: CitedDocData | null | undefined,
+  citationsByIndex: unknown[] | Record<string, unknown> | null | undefined,
+  annKey: string,
+): CitationLocation[] {
+  if (!annKey) return [];
+  return buildCitationLocationsMap(docData, citationsByIndex).get(annKey) ?? [];
+}

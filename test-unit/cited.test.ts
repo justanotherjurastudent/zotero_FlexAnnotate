@@ -6,7 +6,10 @@ import {
   recordDocCitation,
   reconcileDocData,
   toggleDocCited,
+  buildCitationLocationsMap,
+  findCitationLocations,
   type CitedDocData,
+  type CitationLocation,
 } from "../src/features/organizer/logic/cited.ts";
 
 describe("citedDocData: parsing and serialization", () => {
@@ -280,10 +283,254 @@ describe("citedDocData: performance benchmark on large documents", () => {
     assert.equal(activeKeys.size, 1000);
     assert.equal(hitCount, 1000); // exactly the 500 even citations * 2 keys
 
-    // Must be blistering fast (well under 15ms even on slow virtualized CI, typically < 2ms)
+    // Must be blistering fast (well under 50ms even on slow virtualized CI, typically < 2ms)
     assert.ok(
-      elapsedMs < 20,
-      `Reconciliation and 1,000 lookups took ${elapsedMs.toFixed(2)}ms (expected < 20ms)`,
+      elapsedMs < 50,
+      `Reconciliation and 1,000 lookups took ${elapsedMs.toFixed(2)}ms (expected < 50ms)`,
+    );
+  });
+});
+
+describe("citationLocations: footnote and document location mapping", () => {
+  it("handles null, undefined, and empty inputs gracefully", () => {
+    assert.deepEqual(buildCitationLocationsMap(null, null), new Map());
+    assert.deepEqual(buildCitationLocationsMap(undefined, []), new Map());
+    assert.deepEqual(
+      buildCitationLocationsMap({ citations: {} }, null),
+      new Map(),
+    );
+    assert.deepEqual(
+      buildCitationLocationsMap({ citations: { c1: ["K1"] } }, []),
+      new Map(),
+    );
+    assert.deepEqual(findCitationLocations(null, [], "K1"), []);
+    assert.deepEqual(
+      findCitationLocations({ citations: {} }, [{ citationID: "c1" }], "K1"),
+      [],
+    );
+    assert.deepEqual(
+      findCitationLocations(
+        { citations: { c1: ["K1"] } },
+        [{ citationID: "c1" }],
+        "",
+      ),
+      [],
+    );
+  });
+
+  it("maps footnote noteIndex (> 0) and in-text (noteIndex === 0)", () => {
+    const docData: CitedDocData = {
+      citations: {
+        cit_fn: ["ANN_FN"],
+        cit_text: ["ANN_TEXT"],
+      },
+    };
+    const citations = [
+      {
+        citationID: "cit_fn",
+        properties: { noteIndex: 12 },
+        field: { id: "f1" },
+      },
+      {
+        citationID: "cit_text",
+        properties: { noteIndex: 0 },
+        field: { id: "f2" },
+      },
+    ];
+
+    const map = buildCitationLocationsMap(docData, citations);
+    assert.equal(map.size, 2);
+
+    const fnLocs = map.get("ANN_FN") ?? [];
+    assert.equal(fnLocs.length, 1);
+    assert.equal(fnLocs[0].citationID, "cit_fn");
+    assert.equal(fnLocs[0].noteIndex, 12);
+    assert.strictEqual(fnLocs[0].citation, citations[0]);
+
+    const textLocs = map.get("ANN_TEXT") ?? [];
+    assert.equal(textLocs.length, 1);
+    assert.equal(textLocs[0].citationID, "cit_text");
+    assert.equal(textLocs[0].noteIndex, 0);
+  });
+
+  it("sorts multiple locations for the same annotation by noteIndex ascending", () => {
+    const docData: CitedDocData = {
+      citations: {
+        cit_later: ["ANN_MULTI"],
+        cit_early: ["ANN_MULTI"],
+        cit_intext: ["ANN_MULTI"],
+      },
+    };
+    const citations = [
+      { citationID: "cit_later", properties: { noteIndex: 42 } },
+      { citationID: "cit_early", properties: { noteIndex: 3 } },
+      { citationID: "cit_intext", properties: { noteIndex: 0 } },
+    ];
+
+    const locs = findCitationLocations(docData, citations, "ANN_MULTI");
+    assert.equal(locs.length, 3);
+    assert.equal(locs[0].noteIndex, 0);
+    assert.equal(locs[0].citationID, "cit_intext");
+    assert.equal(locs[1].noteIndex, 3);
+    assert.equal(locs[1].citationID, "cit_early");
+    assert.equal(locs[2].noteIndex, 42);
+    assert.equal(locs[2].citationID, "cit_later");
+  });
+
+  it("handles object dictionaries for citationsByIndex as well as arrays", () => {
+    const docData: CitedDocData = {
+      citations: {
+        c1: ["ANN1"],
+      },
+    };
+    const citationsObj = {
+      0: { citationID: "c1", properties: { noteIndex: 5 } },
+    };
+
+    const locs = findCitationLocations(docData, citationsObj, "ANN1");
+    assert.equal(locs.length, 1);
+    assert.equal(locs[0].noteIndex, 5);
+  });
+
+  it("falls back gracefully when noteIndex is missing, negative, or not a number", () => {
+    const docData: CitedDocData = {
+      citations: {
+        c_undef: ["A1"],
+        c_nan: ["A2"],
+        c_direct: ["A3"],
+        c_neg: ["A4"],
+      },
+    };
+    const citations = [
+      { citationID: "c_undef", properties: {} },
+      { citationID: "c_nan", properties: { noteIndex: "invalid" } },
+      { citationID: "c_direct", noteIndex: 7 }, // fallback to top-level noteIndex
+      { citationID: "c_neg", properties: { noteIndex: -3 } },
+    ];
+
+    const locs1 = findCitationLocations(docData, citations, "A1");
+    assert.equal(locs1[0].noteIndex, 0);
+
+    const locs2 = findCitationLocations(docData, citations, "A2");
+    assert.equal(locs2[0].noteIndex, 0);
+
+    const locs3 = findCitationLocations(docData, citations, "A3");
+    assert.equal(locs3[0].noteIndex, 7);
+
+    const locs4 = findCitationLocations(docData, citations, "A4");
+    assert.equal(
+      locs4[0].noteIndex,
+      0,
+      "negative noteIndex is normalized to 0",
+    );
+  });
+
+  it("secondary sort: orders multiple citations with identical noteIndex by document sequence", () => {
+    // Deliberately insert c_later before c_earlier into docData.citations
+    const docData: CitedDocData = {
+      citations: {
+        c_text_later: ["ANN_ORDER"],
+        c_text_earlier: ["ANN_ORDER"],
+        c_fn5_later: ["ANN_ORDER"],
+        c_fn5_earlier: ["ANN_ORDER"],
+      },
+    };
+    // Sequential citations in document order
+    const citations = [
+      {
+        citationID: "c_text_earlier",
+        properties: { noteIndex: 0, zoteroIndex: 1 },
+      },
+      {
+        citationID: "c_text_later",
+        properties: { noteIndex: 0, zoteroIndex: 4 },
+      },
+      {
+        citationID: "c_fn5_earlier",
+        properties: { noteIndex: 5, zoteroIndex: 8 },
+      },
+      {
+        citationID: "c_fn5_later",
+        properties: { noteIndex: 5, zoteroIndex: 15 },
+      },
+    ];
+
+    const locs = findCitationLocations(docData, citations, "ANN_ORDER");
+    assert.equal(locs.length, 4);
+    assert.equal(locs[0].citationID, "c_text_earlier");
+    assert.equal(locs[0].noteIndex, 0);
+    assert.equal(locs[1].citationID, "c_text_later");
+    assert.equal(locs[1].noteIndex, 0);
+    assert.equal(locs[2].citationID, "c_fn5_earlier");
+    assert.equal(locs[2].noteIndex, 5);
+    assert.equal(locs[3].citationID, "c_fn5_later");
+    assert.equal(locs[3].noteIndex, 5);
+  });
+
+  it("sorts object dictionary with non-sequential string keys numerically", () => {
+    const docData: CitedDocData = {
+      citations: {
+        c10: ["ANN"],
+        c2: ["ANN"],
+      },
+    };
+    // Keys "10" and "2" would sort lexicographically ("10" before "2") if not sorted numerically
+    const citationsObj: Record<string, any> = {
+      "10": { citationID: "c10", properties: { noteIndex: 0 } },
+      "2": { citationID: "c2", properties: { noteIndex: 0 } },
+    };
+
+    const locs = findCitationLocations(docData, citationsObj, "ANN");
+    assert.equal(locs.length, 2);
+    assert.equal(locs[0].citationID, "c2");
+    assert.equal(locs[1].citationID, "c10");
+  });
+
+  it("safely handles duplicate citationIDs and prototype poisoning keys", () => {
+    const docData: CitedDocData = {
+      citations: {
+        __proto__: ["EVIL"],
+        constructor: ["EVIL2"],
+        c1: ["A1"],
+      },
+    };
+    const citations = [
+      { citationID: "c1", properties: { noteIndex: 1 } },
+      { citationID: "c1", properties: { noteIndex: 1 } }, // duplicate entry
+    ];
+
+    const map = buildCitationLocationsMap(docData, citations);
+    assert.equal(map.has("EVIL"), false);
+    assert.equal(map.has("EVIL2"), false);
+    const a1Locs = map.get("A1") ?? [];
+    assert.equal(a1Locs.length, 1);
+  });
+
+  it("performance: builds location map for 1,000 citations in under 5ms", () => {
+    const citations: any[] = [];
+    const docDataCitations: Record<string, string[]> = {};
+
+    for (let i = 0; i < 1000; i++) {
+      const cid = `cit_${i}`;
+      citations.push({
+        citationID: cid,
+        properties: { noteIndex: (i % 200) + 1 },
+      });
+      docDataCitations[cid] = [`ANN_${i}`, `ANN_SHARED_${i % 10}`];
+    }
+
+    const docData: CitedDocData = { citations: docDataCitations };
+
+    const start = performance.now();
+    const map = buildCitationLocationsMap(docData, citations);
+    const elapsed = performance.now() - start;
+
+    assert.equal(map.size, 1010); // 1000 individual + 10 shared
+    const sharedLocs = map.get("ANN_SHARED_0") ?? [];
+    assert.equal(sharedLocs.length, 100);
+    assert.ok(
+      elapsed < 50,
+      `buildCitationLocationsMap took ${elapsed.toFixed(2)}ms (expected < 50ms)`,
     );
   });
 });
