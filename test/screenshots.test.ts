@@ -221,6 +221,37 @@ describe("screenshots", function () {
     organizer?.close();
     organizer = null;
 
+    // (a1) Organizer mit geöffnetem Bearbeitungsformular in der rechten Spalte
+    await step("organizer-edit", async () => {
+      await waitFor(() => !findOrganizerWindow());
+      await api().OrganizerFactory.open();
+      organizer = await waitFor(findOrganizerWindow);
+      const doc = organizer.document;
+      await waitFor(() => doc.getElementById("flexannotate-scope"));
+      const row = await waitFor(
+        () =>
+          doc.querySelector(
+            "#flexannotate-rows [data-row-id]",
+          ) as HTMLElement | null,
+      );
+      click(row);
+      await Zotero.Promise.delay(300);
+      const editBtn = await waitFor(() => {
+        const btns = Array.from(
+          doc.querySelectorAll("#flexannotate-details button"),
+        );
+        return btns.find((b) =>
+          /Bearbeiten|Edit/.test(b.textContent || ""),
+        ) as HTMLElement | null;
+      });
+      click(editBtn);
+      await waitFor(() => doc.getElementById("flexannotate-edit-quote"));
+      await Zotero.Promise.delay(400);
+      return screenshot(organizer, "organizer-edit");
+    });
+    (organizer as Window | null)?.close();
+    organizer = null;
+
     // (a2) Vorschau des Gliederungsimports (Overlay im Organizer-Fenster)
     await step("import-preview", async () => {
       await waitFor(() => !findOrganizerWindow()); // das vorige ist zu
@@ -297,6 +328,34 @@ describe("screenshots", function () {
       await Zotero.Promise.delay(300);
       return screenshot(dialog, "citation-dialog-place");
     });
+
+    // Schmaler Zitierdialog (Aufgabenleisten-Modus / unter 750 px Breite):
+    // Gliederungsbaum oben, Annotationsliste in der Mitte, Vorschau unten
+    await step("citation-dialog-narrow", async () => {
+      dialog = await openCitationDialog(true);
+      const doc = dialog.document;
+      const row = await waitFor(
+        () =>
+          doc.querySelector(
+            "#flexannotate-list-pane [data-ann-id]",
+          ) as HTMLElement | null,
+      );
+      click(row);
+      await waitFor(() => doc.getElementById("flexannotate-show-place"));
+      api().persistentDialog.writePref(true);
+      try {
+        dialog.document.documentElement.setAttribute(
+          "flexannotate-persistent",
+          "",
+        );
+        api().persistentDialog.relaxMinWidth?.(dialog);
+        dialog.resizeTo(520, 750);
+        await Zotero.Promise.delay(1000);
+        return await screenshot(dialog, "citation-dialog-narrow");
+      } finally {
+        api().persistentDialog.writePref(false);
+      }
+    });
     await closeDialogs();
     dialog = null;
 
@@ -358,9 +417,56 @@ describe("screenshots", function () {
       });
     });
 
-    // (g) Die Print-Annotation-Maske fehlt bewusst: sie ist ein <panel>
-    // (Popup), das drawWindow weder ohne noch mit USE_WIDGET_LAYERS erfasst;
-    // das Bild zeigte nur den Inhalt darunter. Siehe Bericht.
+    // (g) Bearbeitungsmodal einer Print-Annotation
+    await step("edit-annotation", async () => {
+      const main = Zotero.getMainWindow() as Window;
+      const placeholder = api().print.placeholder.find(work);
+      const anns = placeholder.getAnnotations();
+      // Annotation mit Locator und Kommentar für ein vollständiges Bild
+      const ann = anns.find((a: Zotero.Item) => a.annotationComment) || anns[0];
+      await api().print.dialog.openForEdit(main, ann);
+      await Zotero.Promise.delay(300);
+
+      const doc = main.document;
+      const panel = doc.getElementById(
+        "flexannotate-print-annotation-panel",
+      ) as any;
+      const container = doc.getElementById(
+        "flexannotate-dialog-container",
+      ) as HTMLElement;
+      if (!container) throw new Error("dialog container not found");
+
+      // Weil Gecko OS-Popups (<panel>) bei drawWindow ignoriert, rendern wir den
+      // Container für die Aufnahme kurz in einer modalen Karte im Hauptfenster:
+      const wrapper = doc.createElement("div");
+      wrapper.id = "flexannotate-modal-screenshot-card";
+      wrapper.style.cssText =
+        "position:fixed;top:60px;left:50%;transform:translateX(-50%);" +
+        "background:#23222b;color:#fbfbfe;" +
+        "border:1px solid #52525e;border-radius:8px;box-shadow:0 12px 36px rgba(0,0,0,0.6);" +
+        "z-index:999999;box-sizing:border-box;";
+
+      try {
+        panel.removeChild(container);
+        wrapper.appendChild(container);
+        doc.documentElement.appendChild(wrapper);
+        wrapper
+          .querySelectorAll("label, description, span")
+          .forEach((el) => ((el as HTMLElement).style.color = "#fbfbfe"));
+        await Zotero.Promise.delay(400);
+
+        return await screenshot(main, "edit-annotation", {
+          selector: "#flexannotate-modal-screenshot-card",
+        });
+      } finally {
+        if (container.parentElement === wrapper) {
+          wrapper.removeChild(container);
+          panel.appendChild(container);
+        }
+        wrapper.remove();
+        panel?.hidePopup?.();
+      }
+    });
 
     assert.isAbove(written.length, 0, "at least one screenshot written");
     Zotero.debug(

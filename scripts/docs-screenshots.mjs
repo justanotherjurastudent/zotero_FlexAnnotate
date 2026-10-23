@@ -11,10 +11,15 @@ const srcDir = join(root, ".scaffold", "screenshots");
 const dstDir = join(root, "docs", "img");
 const CURATED = [
   "organizer.png",
+  "organizer-titel.png",
   "citation-dialog.png",
+  "dialog-three-columns.png",
+  "citation-dialog-narrow.png",
+  "dialog-cited.png",
   "citation-dialog-native.png",
   "citation-dialog-place.png",
   "citation-dialog-search.png",
+  "edit-annotation.png",
   "preferences.png",
   "main-window.png",
   "toolbar.png",

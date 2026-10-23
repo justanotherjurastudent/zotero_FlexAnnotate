@@ -24,15 +24,7 @@ FlexAnnotate nimmt sich genau das vor. Es ist im Kern eine Überarbeitung der An
 
 ### Was es kann
 
-**1. Annotationen nachträglich bearbeiten**
-
-Das gilt für alle Annotationen, auch für die aus PDF, EPUB und Snapshot.
-
-- **Im Reader:** Rechtsklick auf eine Annotation, dann _Kommentar hinzufügen…_ oder _Locator festlegen…_. Im Seitenzahl-Popup lässt sich der Locator-Typ wählen und für das ganze Dokument merken.
-- **Im Zotero-Fenster:** Rechtsklick auf eine Annotation, _Annotation bearbeiten…_. Die Eingabemaske ändert Seitenangabe, Locator, Kommentar und Farbe.
-- **Locator nach Wahl:** Seite, Kapitel, Abschnitt, Absatz, Spalte und die weiteren Locator-Typen, die Zotero selbst kennt. Der Typ wandert in den Zitiernachweis.
-
-**2. Organizer**
+**1. Organizer**
 
 - **Gliederung.** Überschriften beliebig verschachteln und Annotationen oder Werke per Drag and Drop darunter einsortieren. Es gibt eine Ansicht für Annotationen („Wissen“) und eine für Werke („Titel“).
 - **Eine Gliederung je Sammlung.** Jede Hauptsammlung kann ihren eigenen Baum haben.
@@ -41,11 +33,25 @@ Das gilt für alle Annotationen, auch für die aus PDF, EPUB und Snapshot.
 
 ![Organizer mit Gliederung, Annotationsliste und Detailbereich](docs/img/organizer.png)
 
-**3. Zitieren aus Word und LibreOffice (ab Zotero 9)**
+**2. Bücher ohne Datei: Print-Annotationen**
 
-Im Zitierdialog gibt es die Option „Nach Gliederung anordnen“. Links stehen die Überschriften mit Anzahl, in der Mitte die Annotationen. Schon zitierte Annotationen tragen einen grünen Haken. Die Suche oben filtert mit, und „Zitatstelle anzeigen“ öffnet den Reader an der richtigen Stelle. Dazu kommt das **Nur-Nachweis-Zitieren**: Wer den Zitattext nicht im Dokument will, fügt nur die Zitation mit Fundstelle ein, im Dialog oder dauerhaft in den Einstellungen.
+Rechtsklick auf einen Titel, _Print-Annotation hinzufügen…_, Text, Kommentar und Seite eintragen. Im Hintergrund legt das Plugin einen Platzhalter-Anhang an, die Annotation verhält sich wie jede andere: Sie lässt sich ordnen, durchsuchen und aus Word zitieren.
 
-![Zitierdialog mit Gliederungsansicht](docs/img/citation-dialog.png)
+**3. Annotationen nachträglich bearbeiten**
+
+Das gilt für alle Annotationen, auch für die aus PDF, EPUB und Snapshot.
+
+- **Im Reader:** Rechtsklick auf eine Annotation, dann _Kommentar hinzufügen…_ oder _Locator festlegen…_. Im Seitenzahl-Popup lässt sich der Locator-Typ wählen und für das ganze Dokument merken.
+- **Im Zotero-Fenster:** Rechtsklick auf eine Annotation, _Annotation bearbeiten…_. Die Eingabemaske ändert Seitenangabe, Locator-Typ, Zitat, Kommentar und Farbe.
+- **Locator nach Wahl:** Seite, Kapitel, Abschnitt, Absatz, Spalte und die weiteren Locator-Typen, die Zotero selbst kennt. Der Typ wird direkt in der Zeile im Item-Baum angezeigt und wandert in den Zitiernachweis.
+
+![Eingabemaske zum Bearbeiten einer Annotation](docs/img/edit-annotation.png)
+
+**4. Zitieren aus Word und LibreOffice (ab Zotero 9)**
+
+Im Zitierdialog gibt es die Option „Nach Gliederung anordnen“. Links stehen die Überschriften mit Anzahl, in der Mitte die Annotationen und rechts die Vorschau. Schon zitierte Annotationen tragen einen grünen Haken (übersteht Neustarts und Rechnerwechsel im Word-Dokument; verschwindet beim Löschen der Fußnote wie bei Citavi, siehe [Dokumentation](docs/cited-tracking.md)). Die Suche oben filtert mit, und „Zitatstelle anzeigen“ öffnet den Reader an der richtigen Stelle. Dazu kommt das **Nur-Nachweis-Zitieren**: Wer den Zitattext nicht im Dokument will, fügt nur die Zitation mit Fundstelle ein, im Dialog oder dauerhaft in den Einstellungen.
+
+![Zitierdialog mit dreispaltiger Gliederungsansicht](docs/img/dialog-three-columns.png)
 
 **Zitierfenster offen halten (Option)**
 
@@ -56,17 +62,16 @@ Mit „Als Aufgabenleiste geöffnet halten“ (Einstellungen → FlexAnnotate, o
 - Zotero lädt einen offenen Dialog nicht mit einem neuen Auftrag neu. Deshalb wird das Fenster nach jedem Einfügen neu geöffnet; ein angedocktes Fenster muss danach neu angedockt werden.
 - Unter 750 px Breite stehen die beiden Schalter im Einstellungsmenü (Zahnrad unten rechts) statt in der Zeile, damit die Liste mehr Platz hat.
 - Das Fenster lässt sich wie ein normales andocken (etwa an den Rand unter Windows). Die Mindesthöhe liegt bei rund 590 px, weil Zotero sie erzwingt. Unter 750 px Breite liegt der Baum oben, die Liste darunter und die Details unten.
+
+![Schmaler Zitierdialog als Aufgabenleiste neben Word](docs/img/citation-dialog-narrow.png)
+
 - Ausschalten schließt ein offenes Blätterfenster nicht sofort, sondern erst mit dem nächsten Einfügen (dann wie in Vanilla-Zotero). Einschalten wirkt auch auf einem bereits geöffneten Zitierfenster: das nächste Einfügen dort hält es wieder offen.
 - Das Blätterfenster nach dem Einfügen öffnet sich bei Word für Windows, LibreOffice Writer und Word für Mac (freigeschaltet, realer Mac-Test steht aus). Bei Google Docs nicht. Zotero 7 und 8 haben den nötigen Befehl nicht; dort gibt es die Option nicht.
 - Der erste Dialog nach einem Neustart öffnet an der zuletzt benutzten Stelle und Größe, sofern sie noch auf dem Bildschirm liegt; sonst nur mit der Größe, die Position bestimmt das System.
 - Geprüft mit Zotero 10.0.6 (installierte Version) und 9.0.6 (Testsuite grün). 7.0.32 und 8.0.4 haben keinen Annotationsmodus; dort fehlt die Option. In echtem Word für Windows und in echtem LibreOffice Writer bestätigt; nicht geprüft: Word für Mac, macOS, Linux und der dunkle Modus.
 - Warum ein dauerhaft angedocktes Zitierfenster mit Zoteros Word-Integration nicht möglich ist (Englisch): [docs/persistent-window-limits.md](docs/persistent-window-limits.md).
 
-**4. Bücher ohne Datei: Print-Annotationen**
-
-Rechtsklick auf einen Titel, _Print-Annotation hinzufügen…_, Text, Kommentar und Seite eintragen. Im Hintergrund legt das Plugin einen Platzhalter-Anhang an, die Annotation verhält sich wie jede andere: Sie lässt sich ordnen, durchsuchen und aus Word zitieren.
-
-**Außerdem: Citavi-Import**
+**5. Citavi-Import**
 
 Zitate ohne Dateianhang, die Zoteros Citavi-Import verwirft, bleiben erhalten und werden zu Print-Annotationen. Außerdem lässt sich einstellen, welchem Zotero-Locator die Seitentypen aus Citavi (Seite, Spalte, Absatz, Randnummer, Andere) entsprechen. Standardmäßig wird eine Citavi-Randnummer zum Locator „Absatz“. Das Plugin selbst führt keinen eigenen Locator „Randnummer“ ein: Es nutzt die Locator-Typen von Zotero.
 
@@ -145,24 +150,34 @@ FlexAnnotate goes after exactly that. At its core it is an overhaul of annotatio
 
 ### What it does
 
-**1. Edit annotations afterwards**
-
-This applies to every annotation, including those from PDF, EPUB and snapshots.
-
-- **In the reader:** right-click an annotation, then _Add comment…_ or _Set locator…_. The page-number popup lets you pick the locator type and remember it for the whole document.
-- **In the Zotero window:** right-click an annotation, _Edit annotation…_. The input panel changes page, locator, comment and colour.
-- **Locator of your choice:** page, chapter, section, paragraph, column and the other locator types Zotero itself knows. The type goes into the citation.
-
-**2. Organizer**
+**1. Organizer**
 
 - **Outline.** Nest headings as deeply as you like and drag annotations or works under them. One view lists annotations ("Wissen"), another lists works ("Titel").
 - **One outline per collection.** Every top-level collection can have its own tree.
 - **Word and LibreOffice.** Import an outline from a `.docx` or `.odt`, or export your outline as a document with numbered headings and keep writing there.
 - **Note export.** On request the outline with all assigned quotes becomes a Zotero note.
 
-**3. Citing from Word and LibreOffice (Zotero 9 and later)**
+![Organizer with outline, annotation list and details](docs/img/organizer.png)
 
-The citation dialog gets the option "Nach Gliederung anordnen" (arrange by outline). Headings with counts are on the left, annotations in the middle. Annotations you have already cited carry a green check. The search bar at the top filters the list too, and "Zitatstelle anzeigen" (show place) opens the reader at the passage. On top of that comes **citation-only insertion**: if you do not want the quoted text in the document, insert only the citation with its pinpoint, per dialog or permanently in the settings.
+**2. Books without a file: print annotations**
+
+Right-click an item, _Add print annotation…_, then enter text, comment and page. In the background the plugin creates a placeholder attachment, and the annotation behaves like any other: you can organise it, search it and cite it from Word.
+
+**3. Edit annotations afterwards**
+
+This applies to every annotation, including those from PDF, EPUB and snapshots.
+
+- **In the reader:** right-click an annotation, then _Add comment…_ or _Set locator…_. The page-number popup lets you pick the locator type and remember it for the whole document.
+- **In the Zotero window:** right-click an annotation, _Edit annotation…_. The input panel changes page, locator, quote text, comment and colour.
+- **Locator of your choice:** page, chapter, section, paragraph, column and the other locator types Zotero itself knows. The chosen type appears in the item tree row title and goes into the citation.
+
+![Editing modal for annotations](docs/img/edit-annotation.png)
+
+**4. Citing from Word and LibreOffice (Zotero 9 and later)**
+
+The citation dialog gets the option "Nach Gliederung anordnen" (arrange by outline). Headings with counts are on the left, annotations in the middle, and an excerpt preview on the right. Annotations you have already cited carry a green check (persists across restarts and machines in the document; cleared when the footnote is deleted like in Citavi, see [documentation](docs/cited-tracking.md)). The search bar at the top filters the list too, and "Zitatstelle anzeigen" (show place) opens the reader at the passage. On top of that comes **citation-only insertion**: if you do not want the quoted text in the document, insert only the citation with its pinpoint, per dialog or permanently in the settings.
+
+![Citation dialog with three-column outline view](docs/img/dialog-three-columns.png)
 
 **Keep the citation window open (option)**
 
@@ -173,17 +188,16 @@ With "Keep citation window open as a persistent task pane" (Settings → FlexAnn
 - Zotero does not reload an open dialog with a new request, so the window is opened again after each insert. A docked window therefore has to be docked again after each insert.
 - Below 750 px width the two switches are in the settings menu (gear at the bottom right) instead of the row, so the list has more room.
 - The window can be docked like any other (e.g. to a screen edge on Windows). The minimum height is about 590 px because Zotero enforces it. Below 750 px width the tree is on top, the list below it and the details at the bottom.
+
+![Narrow citation dialog docked as a task pane next to Word](docs/img/citation-dialog-narrow.png)
+
 - Switching off applies at once, switching on from the next request. If it is off, an open window closes after inserting as usual.
-- Tested only with Word for Windows. With Word for Mac, LibreOffice and Google Docs no browse window opens after inserting. Zotero 7 and 8 lack the needed command; the option is not offered there.
+- The browse window after inserting opens for Word for Windows, LibreOffice Writer, and Word for Mac (unlocked, physical Mac testing pending). For Google Docs, no browse window opens. Zotero 7 and 8 lack the needed command; the option is not offered there.
 - The first dialog after a restart opens at the last used position and size, if the position is still on the screen; otherwise only the size is kept and the system places the window.
 - Checked with Zotero 10.0.6 (the installed version) and 9.0.6 (test suite green). 7.0.32 and 8.0.4 have no annotations mode, so the option is absent there. Not checked in real Word: inserting from the open window (cursor position, footnote display). macOS, Linux and dark mode are not checked.
 - Why a permanently docked citation window is not possible with Zotero's Word integration: [docs/persistent-window-limits.md](docs/persistent-window-limits.md).
 
-**4. Books without a file: print annotations**
-
-Right-click an item, _Add print annotation…_, then enter text, comment and page. In the background the plugin creates a placeholder attachment, and the annotation behaves like any other: you can organise it, search it and cite it from Word.
-
-**Also: Citavi import**
+**5. Citavi import**
 
 Quotes without a file attachment, which Zotero's Citavi import discards, are kept and become print annotations. You can also set which Zotero locator each Citavi page type (page, column, paragraph, margin number, other) maps to. By default a Citavi margin number becomes the locator "paragraph". The plugin does not add a locator "margin number" of its own: it uses Zotero's locator types.
 
