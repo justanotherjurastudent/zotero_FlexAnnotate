@@ -2198,6 +2198,43 @@ describe("FlexAnnotate features", function () {
       }
     });
 
+    it("stop() leaves a foreign patch on displayDialog and Progress.show in place", function () {
+      const integration = Zotero.Integration as any;
+      const feature = api().persistentDialog.feature;
+      feature.stop();
+      const nativeDD = integration.displayDialog;
+      const nativeShow = integration.Progress.prototype.show;
+      try {
+        feature.start();
+        const oursDD = integration.displayDialog;
+        const oursShow = integration.Progress.prototype.show;
+        const foreignDD = function (this: any, ...args: any[]) {
+          return oursDD.apply(this, args);
+        };
+        const foreignShow = function (this: any, ...args: any[]) {
+          return oursShow.apply(this, args);
+        };
+        integration.displayDialog = foreignDD;
+        integration.Progress.prototype.show = foreignShow;
+
+        feature.stop();
+        assert.strictEqual(
+          integration.displayDialog,
+          foreignDD,
+          "foreign displayDialog patch survives stop()",
+        );
+        assert.strictEqual(
+          integration.Progress.prototype.show,
+          foreignShow,
+          "foreign Progress.show patch survives stop()",
+        );
+      } finally {
+        integration.displayDialog = nativeDD;
+        integration.Progress.prototype.show = nativeShow;
+        feature.start();
+      }
+    });
+
     it("keeps the list scroll on select, cited mark and arrow keys; a new query starts at the top", async function () {
       const work = await makeWork("Scroll Werk");
       const att = await makePdfAttachment(work);

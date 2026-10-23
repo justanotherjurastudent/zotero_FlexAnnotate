@@ -223,4 +223,19 @@ describe("tagSuggest", function () {
     const plain = await suggest("Ts", ann.id);
     assert.isTrue(plain.every((r) => r.value === r.label));
   });
+
+  it("suggests tags even when item is not editable", async function () {
+    const origEditable = ann.isEditable;
+    ann.isEditable = () => false;
+    try {
+      const rows = await suggest("§Ts", ann.id);
+      assert.isAbove(rows.length, 0);
+      assert.include(
+        rows.map((r) => r.value),
+        "§TsZeta",
+      );
+    } finally {
+      ann.isEditable = origEditable;
+    }
+  });
 });

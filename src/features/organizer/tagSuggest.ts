@@ -118,17 +118,17 @@ async function answer(
   const libraryID: number = params.libraryID;
   const itemID: number | null = params.itemID || null;
 
-  const [cand, treeHeads, library] = await Promise.all([
+  const [cand, treeHeads, libraryRoots] = await Promise.all([
     candidates(libraryID, itemID, searchString),
     treeHeadingsOf(libraryID, itemID),
-    OutlineModel.load(libraryID),
+    OutlineModel.loadTreeOnly(libraryID),
   ]);
   // Überholt (neue Eingabe) oder abgebrochen (stopSearch, Popup geschlossen)
   if (token !== seq || svc._cancelled) return true;
   const rows = suggestRows({
     candidates: cand,
     treeHeads,
-    libraryHeads: flatHeadings(library.roots),
+    libraryHeads: flatHeadings(libraryRoots),
     typed: searchString,
     mode,
     headingTree: getString("tag-suggest-heading-tree"),

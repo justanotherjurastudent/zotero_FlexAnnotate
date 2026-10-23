@@ -99,6 +99,7 @@ let notifierID: string | null = null;
 const watchedReaders = new WeakSet<ReaderInstance>();
 const observers = new Set<MutationObserver>();
 let origOpen: ReaderRegistry["open"] | null = null;
+let patchedOpen: ReaderRegistry["open"] | null = null;
 let updatingLocators = false;
 
 /** Ersatztext für die Seitenbezeichnung, wenn Zotero keine liefert. */
@@ -240,8 +241,13 @@ export function unpatch(): void {
   printDialog.setAfterSave(null);
   setLabelPopupHooks(null);
   if (origOpen && Zotero.Reader) {
-    assignChecked(Zotero.Reader, "open", origOpen);
+    if (Zotero.Reader.open === patchedOpen) {
+      assignChecked(Zotero.Reader, "open", origOpen);
+    } else {
+      ztoolkit.log("FlexAnnotate: Zotero.Reader.open patched by others, kept");
+    }
     origOpen = null;
+    patchedOpen = null;
   }
   disconnectObservers();
   resetOpenReaders();
@@ -357,6 +363,8 @@ function watchAllReaders(): void {
     if (!assignChecked(Zotero.Reader, "open", wrapper)) {
       origOpen = null;
       ztoolkit.log("FlexAnnotate: Zotero.Reader.open could not be patched");
+    } else {
+      patchedOpen = wrapper;
     }
   }
 }

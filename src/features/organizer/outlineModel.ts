@@ -180,6 +180,37 @@ export class OutlineModel {
   }
 
   /**
+   * Rein lesendes Laden des Gliederungsbaums (ohne syncAnchorTags / syncNoteHeading),
+   * z. B. für Tag-Vorschläge (tagSuggest) in schreibgeschützten Bibliotheken.
+   */
+  static async loadTreeOnly(
+    libraryID: number,
+    collectionKey: string | null = null,
+  ): Promise<OutlineNode[]> {
+    const note = await this.findNote(libraryID, collectionKey);
+    if (!note) return [];
+    return parseOutline(note.getNote());
+  }
+
+  /**
+   * Wendet die Anker-`§`-Tags auf das übergebene Notiz-Item im Speicher an.
+   * Gibt true zurück, wenn Tags hinzugefügt oder entfernt wurden.
+   */
+  private static applyAnchorTags(
+    note: Zotero.Item,
+    roots: OutlineNode[],
+  ): boolean {
+    const current = note.getTags().map((t) => t.tag);
+    const { add, remove } = anchorTagDiff(roots, current);
+    if (!add.length && !remove.length) return false;
+    for (const t of remove)
+      if (note.getTags().some((x) => x.tag === t)) note.removeTag(t);
+    for (const t of add)
+      if (!note.getTags().some((x) => x.tag === t)) note.addTag(t);
+    return true;
+  }
+
+  /**
    * Persist the tree. Creates the storage note on first save, updates it after.
    * Returns the note id so the caller can keep saving to the same note.
    * `collectionKey` (Sammlungsbaum) wird bei der Neuanlage als Zusatz-Tag gesetzt.
@@ -202,17 +233,19 @@ export class OutlineModel {
       note.setNote(html);
       note.addTag(OUTLINE_TAG);
       if (collectionKey) note.addTag(outlineCollectionTag(collectionKey));
+      this.applyAnchorTags(note, roots);
+      if (!note.isEditable?.()) return 0;
       // skipSelect: a selected note opens in Zotero's note editor, which later
       // writes its own (older) copy over our saves.
       await note.saveTx({ skipSelect: true });
-      await this.syncAnchorTags(note.id, roots);
       return note.id;
     }
+    if (!note.isEditable?.()) return note.id;
     note.setNote(html);
     if (!note.getTags().some((t) => t.tag === OUTLINE_TAG))
       note.addTag(OUTLINE_TAG);
+    this.applyAnchorTags(note, roots);
     await note.saveTx();
-    await this.syncAnchorTags(note.id, roots);
     return note.id;
   }
 
@@ -231,13 +264,9 @@ export class OutlineModel {
   ): Promise<void> {
     const note = Zotero.Items.get(noteID) as Zotero.Item | null;
     if (!note || !note.isNote?.()) return;
-    const current = note.getTags().map((t) => t.tag);
-    const { add, remove } = anchorTagDiff(roots, current);
-    if (!add.length && !remove.length) return;
-    for (const t of remove)
-      if (note.getTags().some((x) => x.tag === t)) note.removeTag(t);
-    for (const t of add)
-      if (!note.getTags().some((x) => x.tag === t)) note.addTag(t);
+    if (!note.isEditable?.()) return;
+    const changed = this.applyAnchorTags(note, roots);
+    if (!changed) return;
     await note.saveTx();
   }
 
@@ -271,6 +300,7 @@ export class OutlineModel {
   ): Promise<void> {
     const note = Zotero.Items.get(noteID) as Zotero.Item | null;
     if (!note || !note.isNote?.()) return;
+    if (!note.isEditable?.()) return;
     const current = note.getNote();
     const wanted = outlineHeading(
       this.scopeName(libraryID, collectionKey),
@@ -313,6 +343,7 @@ export class OutlineModel {
   static async fileUnder(itemID: number, tag: string): Promise<void> {
     const item = Zotero.Items.get(itemID) as Zotero.Item;
     if (!item) return;
+    if (!item.isEditable?.()) return;
     if (item.getTags().some((t) => t.tag === tag)) return;
     item.addTag(tag);
     await item.saveTx();
@@ -322,6 +353,7 @@ export class OutlineModel {
   static async unfile(itemID: number, tag: string): Promise<void> {
     const item = Zotero.Items.get(itemID) as Zotero.Item;
     if (!item) return;
+    if (!item.isEditable?.()) return;
     item.removeTag(tag);
     await item.saveTx();
   }
@@ -339,16 +371,20 @@ export class OutlineModel {
     if (oldTag === newTag) return;
     const ids = await this.itemsWithTag(libraryID, oldTag);
     const items = ((await Zotero.Items.getAsync(ids)) as Zotero.Item[]).filter(
-      (i) => !scope || scope.has(workOf(i)),
+      (i) => Boolean(i && (!scope || scope.has(workOf(i))) && i.isEditable?.()),
     );
-    for (const item of items) {
-      try {
-        item.removeTag(oldTag);
-        if (!item.getTags().some((t) => t.tag === newTag)) item.addTag(newTag);
-        await item.saveTx();
-      } catch (e) {
-        ztoolkit.log("outlineModel renameTag: one item failed:", e);
-      }
+    if (!items.length) return;
+    try {
+      await Zotero.DB.executeTransaction(async () => {
+        for (const item of items) {
+          item.removeTag(oldTag);
+          if (!item.getTags().some((t) => t.tag === newTag))
+            item.addTag(newTag);
+          await item.save();
+        }
+      });
+    } catch (e) {
+      ztoolkit.log("outlineModel renameTag failed:", e);
     }
   }
 
@@ -360,15 +396,18 @@ export class OutlineModel {
   ): Promise<void> {
     const ids = await this.itemsWithTag(libraryID, tag);
     const items = ((await Zotero.Items.getAsync(ids)) as Zotero.Item[]).filter(
-      (i) => !scope || scope.has(workOf(i)),
+      (i) => Boolean(i && (!scope || scope.has(workOf(i))) && i.isEditable?.()),
     );
-    for (const item of items) {
-      try {
-        item.removeTag(tag);
-        await item.saveTx();
-      } catch (e) {
-        ztoolkit.log("outlineModel purgeTag: one item failed:", e);
-      }
+    if (!items.length) return;
+    try {
+      await Zotero.DB.executeTransaction(async () => {
+        for (const item of items) {
+          item.removeTag(tag);
+          await item.save();
+        }
+      });
+    } catch (e) {
+      ztoolkit.log("outlineModel purgeTag failed:", e);
     }
   }
 

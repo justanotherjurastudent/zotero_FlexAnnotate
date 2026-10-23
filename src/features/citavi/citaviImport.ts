@@ -28,15 +28,16 @@ import { linkContributions, type CitaviTranslation } from "./citaviLinks";
 
 type AsyncFn = (...args: unknown[]) => unknown;
 
-/** { proto, original } des globalen translate()-Patches */
+/** { proto, original, patched } des globalen translate()-Patches */
 let translatePatch: {
   proto: { translate?: AsyncFn };
   original: AsyncFn;
+  patched: AsyncFn;
 } | null = null;
 /** Pro Fenster die ersetzten Methoden von Zotero_File_Interface */
 const windowPatches = new WeakMap<
   Window,
-  { target: object; name: string; original: AsyncFn }[]
+  { target: object; name: string; original: AsyncFn; patched: AsyncFn }[]
 >();
 /** Translation-Objekt eines Citavi-Imports, dessen Durchlauf noch aussteht */
 let pending: CitaviTranslation | null = null;
@@ -98,7 +99,7 @@ export const CitaviImport = {
       return false;
     }
 
-    translatePatch = { proto, original };
+    translatePatch = { proto, original, patched };
     ztoolkit.log("Patched Translate.Import.translate for Citavi print quotes");
     CitaviImport._watchWindows();
     return true;
@@ -115,9 +116,20 @@ export const CitaviImport = {
     if (!patch) {
       return;
     }
-    assignChecked(patch.proto, "translate", patch.original);
     translatePatch = null;
     pending = null;
+    if (patch.proto.translate !== patch.patched) {
+      ztoolkit.log(
+        "FlexAnnotate: Translate.Import.prototype.translate patched by others, kept",
+      );
+      return;
+    }
+    if (!assignChecked(patch.proto, "translate", patch.original)) {
+      ztoolkit.log(
+        "FlexAnnotate: restore of Translate.Import.prototype.translate did not take effect",
+      );
+      return;
+    }
     ztoolkit.log("Removed Translate.Import.translate patch");
   },
 
@@ -237,7 +249,12 @@ export const CitaviImport = {
       return;
     }
 
-    const patches: { target: object; name: string; original: AsyncFn }[] = [];
+    const patches: {
+      target: object;
+      name: string;
+      original: AsyncFn;
+      patched: AsyncFn;
+    }[] = [];
 
     for (const name of ["importFile", "importFromClipboard"]) {
       const original = fileInterface[name];
@@ -263,6 +280,7 @@ export const CitaviImport = {
         target: fileInterface,
         name,
         original: original as AsyncFn,
+        patched: patched as AsyncFn,
       });
     }
 
@@ -287,8 +305,16 @@ export const CitaviImport = {
     if (!patches) {
       return;
     }
-    for (const { target, name, original } of patches) {
-      assignChecked(target, name, original);
+    for (const { target, name, original, patched } of patches) {
+      if ((target as Record<string, unknown>)[name] !== patched) {
+        ztoolkit.log(`Citavi sequencing: ${name} patched by others, kept`);
+        continue;
+      }
+      if (!assignChecked(target, name, original)) {
+        ztoolkit.log(
+          `Citavi sequencing: restore of ${name} did not take effect`,
+        );
+      }
     }
     windowPatches.delete(window);
     sequencedWindows.delete(window);

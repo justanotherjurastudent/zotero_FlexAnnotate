@@ -157,6 +157,19 @@ interface InstalledMethod<F> {
   target: Record<string, any>;
   name: string;
   native: F;
+  patched: F;
+}
+
+function restoreMethod<F>(entry: InstalledMethod<F> | null): void {
+  if (!entry) return;
+  const { target, name, native, patched } = entry;
+  if (target[name] !== patched) {
+    ztoolkit.log(`FlexAnnotate: ${name} patched by others, kept`);
+    return;
+  }
+  if (!assignChecked(target, name, native)) {
+    ztoolkit.log(`FlexAnnotate: restore of ${name} did not take effect`);
+  }
 }
 
 let installed: InstalledMethod<DisplayDialogFn> | null = null;
@@ -189,15 +202,15 @@ export function patchProgressBar(): boolean {
     );
     return false;
   }
-  installedProgress = { target: proto, name: "show", native };
+  installedProgress = { target: proto, name: "show", native, patched };
   return true;
 }
 
 export function unpatchProgressBar(): void {
   if (!installedProgress) return;
-  const { target, name, native } = installedProgress;
+  const entry = installedProgress;
   installedProgress = null;
-  assignChecked(target, name, native);
+  restoreMethod(entry);
 }
 
 /**
@@ -950,15 +963,15 @@ export function patchDisplayDialog(): boolean {
     ztoolkit.log("FlexAnnotate: assignChecked for displayDialog failed");
     return false;
   }
-  installed = { target: integration, name: "displayDialog", native };
+  installed = { target: integration, name: "displayDialog", native, patched };
   return true;
 }
 
 export function unpatchDisplayDialog(): void {
   if (!installed) return;
-  const { target, name, native } = installed;
+  const entry = installed;
   installed = null;
-  assignChecked(target, name, native);
+  restoreMethod(entry);
 }
 
 /**
@@ -1031,15 +1044,15 @@ export function patchExecCommand(): boolean {
     ztoolkit.log("FlexAnnotate: assignChecked for execCommand failed");
     return false;
   }
-  installedExec = { target: integration, name: "execCommand", native };
+  installedExec = { target: integration, name: "execCommand", native, patched };
   return true;
 }
 
 export function unpatchExecCommand(): void {
   if (!installedExec) return;
-  const { target, name, native } = installedExec;
+  const entry = installedExec;
   installedExec = null;
-  assignChecked(target, name, native);
+  restoreMethod(entry);
 }
 
 async function interceptCommand(
@@ -1136,6 +1149,7 @@ export function patchInterfaceMethods(): boolean {
       target: ifaceProto,
       name: "addEditCitation",
       native,
+      patched,
     };
   }
 
@@ -1160,6 +1174,7 @@ export function patchInterfaceMethods(): boolean {
       target: ifaceProto,
       name: "addAnnotation",
       native,
+      patched,
     };
   }
 
@@ -1168,14 +1183,14 @@ export function patchInterfaceMethods(): boolean {
 
 export function unpatchInterfaceMethods(): void {
   if (installedAddEditCitation) {
-    const { target, name, native } = installedAddEditCitation;
+    const entry = installedAddEditCitation;
     installedAddEditCitation = null;
-    assignChecked(target, name, native);
+    restoreMethod(entry);
   }
   if (installedAddAnnotation) {
-    const { target, name, native } = installedAddAnnotation;
+    const entry = installedAddAnnotation;
     installedAddAnnotation = null;
-    assignChecked(target, name, native);
+    restoreMethod(entry);
   }
 }
 

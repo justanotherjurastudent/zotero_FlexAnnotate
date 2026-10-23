@@ -45,4 +45,27 @@ describe("reader menu lifecycle", function () {
     assert.isFalse(rm.isPatched());
     assert.lengthOf(listeners(), 0, "unpatch removes the listener");
   });
+
+  it("unpatch leaves a foreign patch on Zotero.Reader.open in place", function () {
+    const rm = api().reader.readerMenu;
+    rm.unpatch();
+    const native = Zotero.Reader.open;
+    rm.patch();
+    const ours = Zotero.Reader.open;
+    const foreign = async function (this: any, ...args: any[]) {
+      return (ours as any).apply(this, args);
+    };
+    (Zotero.Reader as any).open = foreign;
+    try {
+      rm.unpatch();
+      assert.strictEqual(
+        (Zotero.Reader as any).open,
+        foreign,
+        "foreign open patch survives unpatch()",
+      );
+    } finally {
+      (Zotero.Reader as any).open = native;
+      rm.patch();
+    }
+  });
 });

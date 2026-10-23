@@ -47,7 +47,9 @@ type InsertFn = (
 interface Installed {
   proto: SessionProto;
   nativeInsert: InsertFn;
+  patchedInsert: InsertFn;
   nativeResetRequest?: (doc?: unknown) => void;
+  patchedResetRequest?: (doc?: unknown) => void;
 }
 
 /** Gesetzt, solange der Patch aktiv ist; hält das Original für unpatch(). */
@@ -171,6 +173,7 @@ export function patch(): boolean {
   }
 
   let nativeResetRequest: ((doc?: unknown) => void) | undefined;
+  let patchedResetRequest: ((doc?: unknown) => void) | undefined;
   if (typeof proto.resetRequest === "function") {
     // Zotero-Bugfix (xpcom/integration.js:574, 1161, 1192–1195, 1914):
     // getSession() bzw. setData() setzen session.rebuildCiteprocState = true.
@@ -188,13 +191,20 @@ export function patch(): boolean {
     };
     if (assignChecked(proto, "resetRequest", patchedReset)) {
       nativeResetRequest = origReset;
+      patchedResetRequest = patchedReset;
       ztoolkit.log("Patched resetRequest to preserve citeproc state");
     } else {
       ztoolkit.log("FlexAnnotate: patch of resetRequest did not take effect");
     }
   }
 
-  installed = { proto, nativeInsert: native, nativeResetRequest };
+  installed = {
+    proto,
+    nativeInsert: native,
+    patchedInsert: patched,
+    nativeResetRequest,
+    patchedResetRequest,
+  };
   ztoolkit.log("Patched _insertCitingResult for citation-only mode");
   return true;
 }
@@ -204,20 +214,35 @@ export function unpatch(): void {
   if (!installed) {
     return;
   }
-  const { proto, nativeInsert, nativeResetRequest } = installed;
+  const {
+    proto,
+    nativeInsert,
+    patchedInsert,
+    nativeResetRequest,
+    patchedResetRequest,
+  } = installed;
   let allRestored = true;
-  if (!assignChecked(proto, "_insertCitingResult", nativeInsert)) {
+  if (proto._insertCitingResult !== patchedInsert) {
+    ztoolkit.log(
+      "FlexAnnotate: Session.prototype._insertCitingResult patched by others, kept",
+    );
+  } else if (!assignChecked(proto, "_insertCitingResult", nativeInsert)) {
     ztoolkit.log(
       "FlexAnnotate: restore of _insertCitingResult did not take effect.",
     );
     allRestored = false;
   }
-  if (
-    nativeResetRequest &&
-    !assignChecked(proto, "resetRequest", nativeResetRequest)
-  ) {
-    ztoolkit.log("FlexAnnotate: restore of resetRequest did not take effect.");
-    allRestored = false;
+  if (nativeResetRequest && patchedResetRequest) {
+    if (proto.resetRequest !== patchedResetRequest) {
+      ztoolkit.log(
+        "FlexAnnotate: Session.prototype.resetRequest patched by others, kept",
+      );
+    } else if (!assignChecked(proto, "resetRequest", nativeResetRequest)) {
+      ztoolkit.log(
+        "FlexAnnotate: restore of resetRequest did not take effect.",
+      );
+      allRestored = false;
+    }
   }
   if (allRestored) {
     installed = null;

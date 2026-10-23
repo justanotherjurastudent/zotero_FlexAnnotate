@@ -67,6 +67,29 @@ describe("citation-only patch", function () {
     assert.isTrue(isPatched());
   });
 
+  it("stop leaves a patch of another plugin in place", function () {
+    const { patch } = api().citeOnly;
+    patch.stop?.();
+    const native = proto()._insertCitingResult;
+    patch.start?.();
+    const ours = proto()._insertCitingResult;
+    const foreign = function (this: any, ...args: any[]) {
+      return ours.apply(this, args);
+    };
+    proto()._insertCitingResult = foreign;
+    try {
+      patch.stop?.();
+      assert.strictEqual(
+        proto()._insertCitingResult,
+        foreign,
+        "foreign patch survives stop()",
+      );
+    } finally {
+      proto()._insertCitingResult = native;
+      patch.start?.();
+    }
+  });
+
   it("resetRequest preserves rebuildCiteprocState when set", function () {
     const fakeSession: any = {
       rebuildCiteprocState: true,

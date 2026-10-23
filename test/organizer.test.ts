@@ -95,6 +95,85 @@ describe("FlexAnnotate", function () {
       const note = Zotero.Items.get(noteID) as Zotero.Item;
       await note.eraseTx();
     });
+
+    it("loadTreeOnly reads the tree without syncing tags or notes", async function () {
+      const model = api().outlineModel;
+      const core = api().outline;
+      const roots = [core.makeNode("Lto1"), core.makeNode("Lto2")];
+      const noteID = await model.OutlineModel.save(libraryID, null, roots);
+      const note = Zotero.Items.get(noteID) as Zotero.Item;
+      const tree = await model.OutlineModel.loadTreeOnly(libraryID);
+      assert.lengthOf(tree, 2);
+      assert.equal(tree[0].title, "Lto1");
+      assert.equal(tree[1].title, "Lto2");
+      await note.eraseTx();
+    });
+
+    it("save writes tags atomically and respects read-only guard", async function () {
+      const model = api().outlineModel;
+      const core = api().outline;
+      const roots = [core.makeNode("AtomA"), core.makeNode("AtomB")];
+      const noteID = await model.OutlineModel.save(libraryID, null, roots);
+      const note = Zotero.Items.get(noteID) as Zotero.Item;
+      const tags = note.getTags().map((t) => t.tag);
+      assert.include(
+        tags,
+        "§AtomA",
+        "tag is present immediately on first save",
+      );
+      assert.include(
+        tags,
+        "§AtomB",
+        "tag is present immediately on first save",
+      );
+
+      // Read-only guard
+      const origIsEditable = note.isEditable;
+      note.isEditable = () => false;
+      try {
+        const res = await model.OutlineModel.save(libraryID, noteID, [
+          core.makeNode("ReadOnlyTree"),
+        ]);
+        assert.equal(res, noteID);
+        const unchanged = Zotero.Items.get(noteID) as Zotero.Item;
+        assert.include(unchanged.getNote(), "AtomA");
+      } finally {
+        note.isEditable = origIsEditable;
+        await note.eraseTx();
+      }
+    });
+
+    it("renameTag and purgeTag filter non-editable items and handle null IDs", async function () {
+      const model = api().outlineModel;
+      const work1 = await makeWork("Batch Test 1");
+      const work2 = await makeWork("Batch Test 2");
+      work1.addTag("§BatchOld");
+      await work1.saveTx();
+      work2.addTag("§BatchOld");
+      await work2.saveTx();
+
+      const origEditable2 = work2.isEditable;
+      work2.isEditable = () => false;
+
+      try {
+        await model.OutlineModel.renameTag(libraryID, "§BatchOld", "§BatchNew");
+        const fresh1 = Zotero.Items.get(work1.id) as Zotero.Item;
+        const fresh2 = Zotero.Items.get(work2.id) as Zotero.Item;
+        assert.isTrue(fresh1.getTags().some((t) => t.tag === "§BatchNew"));
+        assert.isFalse(fresh1.getTags().some((t) => t.tag === "§BatchOld"));
+        assert.isTrue(
+          fresh2.getTags().some((t) => t.tag === "§BatchOld"),
+          "non-editable item kept old tag",
+        );
+
+        await model.OutlineModel.purgeTag(libraryID, "§BatchNew");
+        assert.isFalse(fresh1.getTags().some((t) => t.tag === "§BatchNew"));
+      } finally {
+        work2.isEditable = origEditable2;
+        await work1.eraseTx();
+        await work2.eraseTx();
+      }
+    });
   });
 
   describe("organizer window", function () {

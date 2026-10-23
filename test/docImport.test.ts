@@ -221,12 +221,17 @@ describe("docImport", function () {
   });
 
   it("shows the preview in the organizer window and imports on click", async function () {
-    this.timeout(40000);
+    this.timeout(60000);
+    findOrganizerWindow()?.close();
+    await waitFor(() => !findOrganizerWindow(), 8000).catch(() => {});
     await api().OrganizerFactory.open();
-    const win = await waitFor(findOrganizerWindow, 15000);
+    const win = await waitFor(findOrganizerWindow, 25000);
     try {
+      await waitFor(
+        () => win.document?.getElementById("flexannotate-scope"),
+        25000,
+      );
       const doc = win.document;
-      await waitFor(() => doc.getElementById("flexannotate-scope"), 15000);
       const state = api().OrganizerFactory.lastState;
       // own outline note: leave notes of other suites alone
       state.roots = [];
@@ -242,7 +247,7 @@ describe("docImport", function () {
       const done = api().docImport.importFromFile(ctx, file, {});
       const overlay = await waitFor(
         () => doc.querySelector("[data-import-preview]"),
-        15000,
+        25000,
       );
       const text = overlay.textContent as string;
       assert.include(text, "preview");

@@ -267,4 +267,52 @@ describe("citavi import", function () {
     api().citavi.feature.removeFromWindow(win);
     assert.equal(fileInterface.importFile, originalFile);
   });
+
+  it("stop leaves a patch of another plugin in place", function () {
+    const proto = (Zotero as any).Translate.Import.prototype;
+    const feature = api().citavi.feature;
+    feature.stop();
+    const original = proto.translate;
+    try {
+      feature.start();
+      const ours = proto.translate;
+      const foreign = function (this: any, ...args: any[]) {
+        return ours.apply(this, args);
+      };
+      proto.translate = foreign;
+      feature.stop();
+      assert.strictEqual(
+        proto.translate,
+        foreign,
+        "foreign translate patch survives",
+      );
+    } finally {
+      proto.translate = original;
+      feature.start();
+    }
+  });
+
+  it("removeFromWindow leaves a patch of another plugin on fileInterface", function () {
+    const fileInterface: Record<string, unknown> = {
+      importFile: async () => "file",
+      importFromClipboard: async () => "clip",
+    };
+    const originalFile = fileInterface.importFile;
+    const win = {
+      Zotero_File_Interface: fileInterface,
+      location: { href: "chrome://test/" },
+    } as unknown as Window;
+
+    api().citavi.feature.addToWindow(win);
+    const foreign = async () => "foreign";
+    fileInterface.importFile = foreign;
+
+    api().citavi.feature.removeFromWindow(win);
+    assert.strictEqual(
+      fileInterface.importFile,
+      foreign,
+      "foreign window patch survives",
+    );
+    fileInterface.importFile = originalFile;
+  });
 });
