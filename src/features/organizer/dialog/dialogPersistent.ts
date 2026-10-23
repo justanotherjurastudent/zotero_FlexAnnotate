@@ -1092,6 +1092,23 @@ async function interceptCommand(
     );
   }
 
+  // Dokumentfelder in die Session laden (wie session.cite in integration.js:1546-1565),
+  // damit citationsByIndex, citationsByItemID und documentCitationIDs im Blätterfenster aktuell sind.
+  if (
+    typeof iface._session?.updateFromDocument === "function" &&
+    !(
+      iface._session.data?.prefs?.delayCitationUpdates &&
+      iface._session.citationsByItemID &&
+      Object.keys(iface._session.citationsByItemID).length
+    )
+  ) {
+    try {
+      await iface._session.updateFromDocument(false);
+    } catch (e) {
+      logError("updateFromDocument", e);
+    }
+  }
+
   lastCommand = nextLastCommand(
     lastCommand,
     true,

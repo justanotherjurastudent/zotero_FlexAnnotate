@@ -231,27 +231,55 @@ export function getAllWorkCitationLocations(
   return buildWorkCitationLocationsMap(resolved);
 }
 
+function logJump(msg: string, detail?: unknown): void {
+  try {
+    const suffix =
+      detail === undefined
+        ? ""
+        : ` ${typeof detail === "string" ? detail : JSON.stringify(detail)}`;
+    (Zotero as any).debug?.(`[FlexAnnotate] ${msg}${suffix}`);
+  } catch {
+    /* ignore */
+  }
+  try {
+    if (typeof ztoolkit !== "undefined" && ztoolkit?.log) {
+      if (detail !== undefined) {
+        ztoolkit.log(`flexannotate ${msg}`, detail);
+      } else {
+        ztoolkit.log(`flexannotate ${msg}`);
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
 const WORD_JUMP_VBS = `' FlexAnnotate Word Jump Script
 Option Explicit
 
 Dim word, doc, shell, docId, noteIndex, citationId
-Dim i, found, targetDoc, fnRange, story
+Dim i, found, targetDoc, fnItem, fnRef, fnRange, story
 
 If WScript.Arguments.Count < 3 Then WScript.Quit 0
 
 docId = WScript.Arguments(0)
+If docId = "-" Then docId = ""
 If IsNumeric(WScript.Arguments(1)) Then
     noteIndex = CLng(WScript.Arguments(1))
 Else
     noteIndex = 0
 End If
 citationId = WScript.Arguments(2)
+If citationId = "-" Then citationId = ""
 
 On Error Resume Next
 Set word = GetObject(, "Word.Application")
 If Err.Number <> 0 Or word Is Nothing Then
     WScript.Quit 0
 End If
+
+word.Visible = True
+word.ScreenUpdating = True
 
 Set targetDoc = Nothing
 If docId <> "" Then
@@ -271,22 +299,36 @@ End If
 
 If targetDoc Is Nothing Then WScript.Quit 0
 
+targetDoc.Activate
+If Not targetDoc.ActiveWindow Is Nothing Then
+    targetDoc.ActiveWindow.Activate
+End If
+
 found = False
 
 ' 1. If noteIndex is valid, jump directly to the footnote
 If noteIndex > 0 And noteIndex <= targetDoc.Footnotes.Count Then
-    Set fnRange = targetDoc.Footnotes.Item(noteIndex).Range
-    If Not fnRange Is Nothing Then
-        fnRange.Select
-        targetDoc.ActiveWindow.ScrollIntoView fnRange
-        found = True
-        If citationId <> "" Then
-            For i = 1 To fnRange.Fields.Count
-                If InStr(1, fnRange.Fields.Item(i).Code.Text, citationId, 1) > 0 Then
-                    fnRange.Fields.Item(i).Select
-                    Exit For
-                End If
-            Next
+    Set fnItem = targetDoc.Footnotes.Item(noteIndex)
+    If Not fnItem Is Nothing Then
+        Set fnRef = fnItem.Reference
+        If Not fnRef Is Nothing Then
+            fnRef.Select
+            targetDoc.ActiveWindow.ScrollIntoView fnRef, True
+        End If
+        Set fnRange = fnItem.Range
+        If Not fnRange Is Nothing Then
+            fnRange.Select
+            targetDoc.ActiveWindow.ScrollIntoView fnRange, True
+            found = True
+            If citationId <> "" Then
+                For i = 1 To fnRange.Fields.Count
+                    If InStr(1, fnRange.Fields.Item(i).Code.Text, citationId, 1) > 0 Then
+                        fnRange.Fields.Item(i).Select
+                        targetDoc.ActiveWindow.ScrollIntoView word.Selection.Range, True
+                        Exit For
+                    End If
+                Next
+            End If
         End If
     End If
 End If
@@ -294,30 +336,39 @@ End If
 ' 2. If not found by footnote, search fields across all stories (e.g. in-text citations)
 If Not found And citationId <> "" Then
     For Each story In targetDoc.StoryRanges
-        For i = 1 To story.Fields.Count
-            If InStr(1, story.Fields.Item(i).Code.Text, citationId, 1) > 0 Then
-                story.Fields.Item(i).Select
-                found = True
-                Exit For
-            End If
-        Next
+        Do While Not story Is Nothing
+            For i = 1 To story.Fields.Count
+                If InStr(1, story.Fields.Item(i).Code.Text, citationId, 1) > 0 Then
+                    story.Fields.Item(i).Select
+                    targetDoc.ActiveWindow.ScrollIntoView word.Selection.Range, True
+                    found = True
+                    Exit For
+                End If
+            Next
+            If found Then Exit Do
+            Set story = story.NextStoryRange
+        Loop
         If found Then Exit For
     Next
 End If
 
-' 3. Activate document and Word application
+' 3. Refresh viewport and activate document and Word application
+word.ScreenRefresh
 targetDoc.Activate
+If Not targetDoc.ActiveWindow Is Nothing Then
+    targetDoc.ActiveWindow.Activate
+End If
 word.Activate
-word.Visible = True
 
 ' 4. Bring window to front via WScript.Shell
 Set shell = CreateObject("WScript.Shell")
 If Not shell Is Nothing Then
+    If Not targetDoc.ActiveWindow Is Nothing Then
+        shell.AppActivate targetDoc.ActiveWindow.Caption
+    End If
     shell.AppActivate word.Caption
 End If
 `;
-
-let vbsPathEnsured = false;
 
 function getWscriptPath(): string {
   try {
@@ -344,12 +395,6 @@ function getWscriptPath(): string {
   }
 }
 
-function quoteWinArg(arg: string): string {
-  if (!arg) return '""';
-  if (!/[ \t\n\v"]/.test(arg)) return arg;
-  return `"${arg.replace(/"/g, '""')}"`;
-}
-
 async function ensureVbsScript(): Promise<string | null> {
   try {
     const tempDir =
@@ -361,23 +406,30 @@ async function ensureVbsScript(): Promise<string | null> {
         ? PathUtils.join(tempDir, "flexannotate-jump-word.vbs")
         : `${tempDir}\\flexannotate-jump-word.vbs`;
 
-    if (!vbsPathEnsured) {
-      if (typeof IOUtils !== "undefined" && IOUtils.writeUTF8) {
-        await IOUtils.writeUTF8(vbsPath, WORD_JUMP_VBS);
-      } else {
-        (Zotero as any).File.putContents(
-          (Zotero as any).File.pathToFile(vbsPath),
-          WORD_JUMP_VBS,
-        );
-      }
-      vbsPathEnsured = true;
+    if (typeof IOUtils !== "undefined" && IOUtils.writeUTF8) {
+      await IOUtils.writeUTF8(vbsPath, WORD_JUMP_VBS);
+    } else {
+      (Zotero as any).File.putContents(
+        (Zotero as any).File.pathToFile(vbsPath),
+        WORD_JUMP_VBS,
+      );
     }
     return vbsPath;
   } catch (e) {
-    if (typeof ztoolkit !== "undefined" && ztoolkit?.log) {
-      ztoolkit.log("flexannotate ensureVbsScript failed:", e);
-    }
+    logJump("ensureVbsScript failed:", e);
     return null;
+  }
+}
+
+function isTestProfile(): boolean {
+  try {
+    const profDir =
+      (typeof PathUtils !== "undefined" && (PathUtils as any).profileDir) ||
+      (Zotero as any).Profile?.dir ||
+      "";
+    return /[\\/]\.scaffold[\\/]test[\\/]/.test(String(profDir));
+  } catch {
+    return false;
   }
 }
 
@@ -386,19 +438,29 @@ async function runWordJumpScript(
   noteIndex: number,
   citationID: string,
 ): Promise<boolean> {
+  if (isTestProfile()) return false;
   try {
     const scriptPath = await ensureVbsScript();
     if (!scriptPath) return false;
 
     const wscriptPath = getWscriptPath();
+    // Important: Subprocess.call on Windows automatically quotes arguments containing spaces
+    // via subprocess_win.worker.js quoteString(), and drops empty "" arguments in join(" ").
+    // Therefore, pass raw unquoted strings and use "-" as a non-empty sentinel for empty values.
     const args = [
       "//B",
       "//nologo",
-      quoteWinArg(scriptPath),
-      quoteWinArg(docId || ""),
+      scriptPath,
+      docId || "-",
       String(noteIndex || 0),
-      quoteWinArg(citationID || ""),
+      citationID || "-",
     ];
+
+    logJump("runWordJumpScript start:", {
+      docId: docId || "-",
+      noteIndex: noteIndex || 0,
+      citationID: citationID || "-",
+    });
 
     const { Subprocess } = ChromeUtils.importESModule(
       "resource://gre/modules/Subprocess.sys.mjs",
@@ -409,12 +471,11 @@ async function runWordJumpScript(
       stdout: "ignore",
       stderr: "ignore",
     });
-    await proc.wait();
+    const res = await proc.wait();
+    logJump("runWordJumpScript finished:", res);
     return true;
   } catch (e) {
-    if (typeof ztoolkit !== "undefined" && ztoolkit?.log) {
-      ztoolkit.log("flexannotate runWordJumpScript failed:", e);
-    }
+    logJump("runWordJumpScript failed:", e);
     return false;
   }
 }
@@ -423,6 +484,7 @@ async function runWordJumpScript(
  * Brings Microsoft Word, LibreOffice, or Mac Word to the foreground on the OS window level.
  */
 export function bringWordProcessorToFront(agent?: string | null): void {
+  if (isTestProfile()) return;
   try {
     if ((Zotero as any).isWin) {
       const { ctypes } = ChromeUtils.importESModule(
@@ -437,6 +499,12 @@ export function bringWordProcessorToFront(agent?: string | null): void {
           ctypes.voidptr_t,
           ctypes.jschar.ptr,
           ctypes.jschar.ptr,
+        );
+        const IsIconic = user32.declare(
+          "IsIconic",
+          abi,
+          ctypes.bool,
+          ctypes.voidptr_t,
         );
         const SetForegroundWindow = user32.declare(
           "SetForegroundWindow",
@@ -473,7 +541,11 @@ export function bringWordProcessorToFront(agent?: string | null): void {
         const className = agent === "LibreOffice" ? "SALFRAME" : "OpusApp";
         const hwnd = FindWindowW(className, null);
         if (hwnd && (typeof hwnd.isNull !== "function" || !hwnd.isNull())) {
-          ShowWindow(hwnd, 9); // SW_RESTORE
+          if (IsIconic(hwnd)) {
+            ShowWindow(hwnd, 9); // SW_RESTORE only when minimized
+          } else {
+            ShowWindow(hwnd, 5); // SW_SHOW preserves maximized/normal state
+          }
           BringWindowToTop(hwnd);
           SetForegroundWindow(hwnd);
           if (typeof SwitchToThisWindow === "function") {
@@ -487,9 +559,7 @@ export function bringWordProcessorToFront(agent?: string | null): void {
       (Zotero as any).Utilities?.Internal?.sendToBack?.();
     }
   } catch (e) {
-    if (typeof ztoolkit !== "undefined" && ztoolkit?.log) {
-      ztoolkit.log("flexannotate bringWordProcessorToFront failed:", e);
-    }
+    logJump("bringWordProcessorToFront failed:", e);
   }
 }
 
@@ -534,6 +604,12 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
           ? "MacWord"
           : "LibreOffice");
     const docId = cmd?.docId;
+    logJump("jumpToCitation invoked:", {
+      agent,
+      docId,
+      noteIndex,
+      citationID,
+    });
 
     // 1. Direct field selection or document activation if session is still active
     const docStatus = directDoc?._documentStatus;
@@ -640,9 +716,7 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
       }
     }
   } catch (e) {
-    if (typeof ztoolkit !== "undefined" && ztoolkit?.log) {
-      ztoolkit.log("flexannotate jump to citation failed:", e);
-    }
+    logJump("jump to citation failed:", e);
     return false;
   } finally {
     isJumping = false;
