@@ -185,11 +185,14 @@ describe("citedDocData: reconciliation and pruning", () => {
     assert.ok(!step1.activeKeys.has("ANN_ONLY_1"));
 
     // User also deletes footnote 2 in Word
+    // Leere aktive ID-Menge = Session nicht geladen: nichts löschen
     const step2 = reconcileDocData(step1.data, new Set<string>());
-    assert.equal(step2.pruned, true);
-    assert.deepEqual(step2.data.citations, {});
-    // Now ANN_SHARED is completely removed
+    assert.equal(step2.pruned, false);
+    assert.deepEqual(step2.data.citations, step1.data.citations);
     assert.equal(step2.activeKeys.size, 0);
+    const step3 = reconcileDocData(step1.data, {});
+    assert.equal(step3.pruned, false);
+    assert.deepEqual(step3.data.citations, step1.data.citations);
   });
 
   it("handles empty docData gracefully without pruning", () => {

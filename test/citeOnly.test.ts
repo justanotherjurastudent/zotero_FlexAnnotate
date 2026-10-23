@@ -213,7 +213,8 @@ describe("citation-only patch", function () {
       assert.ok(active1.has(ann.id), "annotation is marked as cited");
 
       // 2. Footnote is deleted in Word (documentCitationIDs loses citID)
-      fakeSession.documentCitationIDs = {};
+      // (leeres Objekt hieße "Session nicht geladen" und bereinigt nichts)
+      fakeSession.documentCitationIDs = { other_cit: 0 };
       const active2 = dialogCited.getActiveCitedIDs(rows, citedWorks);
       assert.equal(
         active2.size,
@@ -288,6 +289,10 @@ describe("citation-only patch", function () {
 
     const origSession = (Zotero as any).Integration?.currentSession;
     (Zotero as any).Integration.currentSession = fakeSession;
+    // Testschalter: kein echtes Word ansprechen (siehe isTestProfile).
+    const addonData = (Zotero as any)[config.addonInstance].data;
+    const origEnv = addonData.env;
+    addonData.env = "test";
 
     try {
       // 1. Check getCitationLocations
@@ -329,6 +334,7 @@ describe("citation-only patch", function () {
         "returns false without throwing when field.select fails",
       );
     } finally {
+      addonData.env = origEnv;
       (Zotero as any).Integration.currentSession = origSession;
       Zotero.Prefs.clear(`${config.prefsPrefix}.citedAnnotations`, true);
     }

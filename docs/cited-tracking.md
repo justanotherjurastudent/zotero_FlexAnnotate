@@ -164,7 +164,7 @@ FlexAnnotate bringt Word bzw. LibreOffice daher zuverlässig auf Betriebssystem-
   - `FindWindowW("OpusApp", null)` ermittelt das Fenster-Handle von Word (`SALFRAME` für LibreOffice).
   - `ShowWindow(hwnd, 9)` (`SW_RESTORE`) stellt das Fenster wieder her, falls es minimiert war.
   - `SetForegroundWindow(hwnd)` setzt Word in den Vordergrund. Da Zotero zum Klickzeitpunkt das aktive Vordergrundfenster ist, gestattet Windows diesen Fokuswechsel ohne Verzögerung.
-- **macOS:** Auf Mac ruft FlexAnnotate `Zotero.Utilities.Internal.sendToBack()` auf, wodurch Zotero hinter Word tritt.
+- **macOS:** Auf Mac ruft FlexAnnotate `Zotero.Utilities.Internal.sendToBack()` auf, wodurch Zotero (falls im Vordergrund) per AppleScript versteckt wird und die zuvor aktive App, i. d. R. Word, nach vorn kommt (Anker in `docs/anchors.md`; auf macOS nicht getestet).
 - **LibreOffice:** Ruft zusätzlich `doc.activate()` auf, was über LibreOffices UNO-API `frame.getContainerWindow().toFront()` auslöst.
 
 ### 4.4 UI-Darstellung: Vorschau-Chips & Hover-Popover (ohne Seitenleiste bei Titeln)

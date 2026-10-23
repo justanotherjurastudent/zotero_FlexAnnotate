@@ -168,6 +168,15 @@ export function reconcileDocData(
     return { data, activeKeys, pruned: false };
   }
 
+  // Leere Menge = Session (noch) nicht gefüllt (Zotero setzt documentCitationIDs
+  // in updateFromDocument auf {} zurück; bei delayCitationUpdates oder Fehlern
+  // bleibt es leer). Dann nie löschen, sonst gehen alle Einträge verloren.
+  const isEmpty =
+    activeCitationIDs instanceof Set
+      ? activeCitationIDs.size === 0
+      : Object.keys(activeCitationIDs).length === 0;
+  if (isEmpty) return { data, activeKeys, pruned: false };
+
   const isActive = (id: string): boolean => {
     if (activeCitationIDs instanceof Set) return activeCitationIDs.has(id);
     return Object.prototype.hasOwnProperty.call(activeCitationIDs, id);

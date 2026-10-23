@@ -8,7 +8,7 @@ class Addon {
     alive: boolean;
     config: typeof config;
     // Env type, see build.js
-    env: "development" | "production";
+    env: "development" | "production" | "test";
     initialized?: boolean;
     ztoolkit: ZToolkit;
     locale?: {

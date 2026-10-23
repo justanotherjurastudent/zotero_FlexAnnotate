@@ -10,7 +10,6 @@ import {
   buildCitationLocationsMap,
   buildWorkCitationLocationsMap,
   findCitationLocations,
-  findWorkCitationLocations,
   parseDocData,
   parseStore,
   record,
@@ -137,7 +136,13 @@ export function getActiveCitedIDs(
   return activeIds(readCitedStore(), currentSessionId(), citedWorks);
 }
 
-/** Remember which annotations the accepted citation contains. */
+/**
+ * Remember which annotations the accepted citation contains. Bewusst ohne
+ * `io.isAddingAnnotations`-Wache: Annotationen können auch im Zitiermodus
+ * (addEditCitation, Blätterfenster nach „Zitat bearbeiten“) eingefügt werden
+ * und müssen dann ebenfalls getrackt werden; Nicht-Annotationen werden unten
+ * ausgefiltert, es entsteht also kein Eintrag für gewöhnliche Zitate.
+ */
 function recordCited(io: any) {
   const entries: { id: number; workID: number }[] = [];
   const annKeys: string[] = [];
@@ -277,6 +282,7 @@ Set word = GetObject(, "Word.Application")
 If Err.Number <> 0 Or word Is Nothing Then
     WScript.Quit 0
 End If
+On Error GoTo 0
 
 word.Visible = True
 word.ScreenUpdating = True
@@ -285,8 +291,7 @@ Set targetDoc = Nothing
 If docId <> "" Then
     For i = 1 To word.Documents.Count
         Set doc = word.Documents.Item(i)
-        If InStr(1, doc.Name, docId, 1) > 0 Or InStr(1, docId, doc.Name, 1) > 0 Or _
-           InStr(1, doc.FullName, docId, 1) > 0 Or InStr(1, docId, doc.FullName, 1) > 0 Then
+        If StrComp(doc.FullName, docId, 1) = 0 Or StrComp(doc.Name, docId, 1) = 0 Then
             Set targetDoc = doc
             Exit For
         End If
@@ -395,25 +400,38 @@ function getWscriptPath(): string {
   }
 }
 
+// Pro Sitzung einmal unter zufälligem Namen geschrieben: parallele Instanzen
+// überschreiben sich nicht, und der Pfad ist nicht vorhersagbar.
+let cachedVbsPath: string | null = null;
+
 async function ensureVbsScript(): Promise<string | null> {
   try {
+    if (cachedVbsPath) {
+      const exists =
+        typeof IOUtils !== "undefined"
+          ? await IOUtils.exists(cachedVbsPath)
+          : true;
+      if (exists) return cachedVbsPath;
+    }
     const tempDir =
       typeof PathUtils !== "undefined"
         ? PathUtils.tempDir
         : (Services.dirsvc.get("TmpD", Ci.nsIFile) as any).path;
+    const fileName = `flexannotate-jump-${crypto.randomUUID()}.vbs`;
     const vbsPath =
       typeof PathUtils !== "undefined"
-        ? PathUtils.join(tempDir, "flexannotate-jump-word.vbs")
-        : `${tempDir}\\flexannotate-jump-word.vbs`;
+        ? PathUtils.join(tempDir, fileName)
+        : `${tempDir}\\${fileName}`;
 
     if (typeof IOUtils !== "undefined" && IOUtils.writeUTF8) {
-      await IOUtils.writeUTF8(vbsPath, WORD_JUMP_VBS);
+      await IOUtils.writeUTF8(vbsPath, WORD_JUMP_VBS, { mode: "create" });
     } else {
       (Zotero as any).File.putContents(
         (Zotero as any).File.pathToFile(vbsPath),
         WORD_JUMP_VBS,
       );
     }
+    cachedVbsPath = vbsPath;
     return vbsPath;
   } catch (e) {
     logJump("ensureVbsScript failed:", e);
@@ -421,22 +439,13 @@ async function ensureVbsScript(): Promise<string | null> {
   }
 }
 
-function isTestProfile(directDoc?: any): boolean {
-  if ((addon?.data as any)?.env === "test") {
-    return true;
-  }
-  if (directDoc && typeof directDoc.getFields !== "function") {
-    return true;
-  }
-  try {
-    const profDir =
-      (Zotero as any).Profile?.dir ||
-      (typeof PathUtils !== "undefined" && (PathUtils as any).profileDir) ||
-      "";
-    return /[\\/]\.scaffold[\\/]test/i.test(String(profDir));
-  } catch {
-    return false;
-  }
+/**
+ * Nur der ausdrückliche Testschalter (`addon.data.env === "test"`, setzen die
+ * Zotero-Tests), nie Profilpfad oder Duck-Typing: sonst würde ein echtes
+ * Nutzerprofil still das Springen verlieren.
+ */
+function isTestProfile(): boolean {
+  return (addon?.data as any)?.env === "test";
 }
 
 async function runWordJumpScript(
@@ -652,7 +661,7 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
       fieldDocId === undefined ||
       directDoc?._documentID === undefined ||
       fieldDocId === directDoc._documentID;
-    const isTest = isTestProfile(directDoc);
+    const isTest = isTestProfile();
     const isDocActive =
       Boolean(directDoc) &&
       (!docStatus || docStatus.active !== false) &&
