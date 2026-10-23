@@ -257,7 +257,8 @@ Set targetDoc = Nothing
 If docId <> "" Then
     For i = 1 To word.Documents.Count
         Set doc = word.Documents.Item(i)
-        If InStr(1, doc.Name, docId, 1) > 0 Or InStr(1, doc.FullName, docId, 1) > 0 Then
+        If InStr(1, doc.Name, docId, 1) > 0 Or InStr(1, docId, doc.Name, 1) > 0 Or _
+           InStr(1, doc.FullName, docId, 1) > 0 Or InStr(1, docId, doc.FullName, 1) > 0 Then
             Set targetDoc = doc
             Exit For
         End If
@@ -318,6 +319,37 @@ End If
 
 let vbsPathEnsured = false;
 
+function getWscriptPath(): string {
+  try {
+    if (typeof Services !== "undefined" && Services.dirsvc) {
+      const sysDir = (Services.dirsvc.get("SysD", Ci.nsIFile) as any).path;
+      if (sysDir) {
+        return typeof PathUtils !== "undefined"
+          ? PathUtils.join(sysDir, "wscript.exe")
+          : `${sysDir}\\wscript.exe`;
+      }
+    }
+  } catch {
+    /* fallback to default path */
+  }
+  try {
+    const winDir =
+      (typeof Services !== "undefined" && Services.env?.get?.("SystemRoot")) ||
+      "C:\\Windows";
+    return typeof PathUtils !== "undefined"
+      ? PathUtils.join(winDir, "System32", "wscript.exe")
+      : `${winDir}\\System32\\wscript.exe`;
+  } catch {
+    return "C:\\Windows\\System32\\wscript.exe";
+  }
+}
+
+function quoteWinArg(arg: string): string {
+  if (!arg) return '""';
+  if (!/[ \t\n\v"]/.test(arg)) return arg;
+  return `"${arg.replace(/"/g, '""')}"`;
+}
+
 async function ensureVbsScript(): Promise<string | null> {
   try {
     const tempDir =
@@ -358,29 +390,24 @@ async function runWordJumpScript(
     const scriptPath = await ensureVbsScript();
     if (!scriptPath) return false;
 
+    const wscriptPath = getWscriptPath();
     const args = [
       "//B",
       "//nologo",
-      scriptPath,
-      docId || "",
+      quoteWinArg(scriptPath),
+      quoteWinArg(docId || ""),
       String(noteIndex || 0),
-      citationID || "",
+      quoteWinArg(citationID || ""),
     ];
-
-    if (typeof (Zotero as any).Utilities?.Internal?.subprocess === "function") {
-      await (Zotero as any).Utilities.Internal.subprocess("wscript.exe", args);
-      return true;
-    }
 
     const { Subprocess } = ChromeUtils.importESModule(
       "resource://gre/modules/Subprocess.sys.mjs",
     ) as any;
-    const wscript =
-      (await Subprocess.pathSearch("wscript.exe")) ||
-      "C:\\Windows\\System32\\wscript.exe";
     const proc = await Subprocess.call({
-      command: wscript,
+      command: wscriptPath,
       arguments: args,
+      stdout: "ignore",
+      stderr: "ignore",
     });
     await proc.wait();
     return true;
