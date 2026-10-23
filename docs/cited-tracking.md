@@ -134,10 +134,14 @@ In der persistenten Aufgabenleiste (dem Begleitfenster / Blätterfenster) ist di
 
 FlexAnnotate löst das robust über ein zweistufiges Verfahren in `src/features/organizer/dialog/dialogCited.ts`:
 
-1. **Prüfung auf aktive Sitzung:**
-   Ist `citation.field` noch aktiv (`_documentStatus.active !== false`), wird `select()` direkt aufgerufen.
-2. **Dynamische Re-Acquisition bei freigegebenem Dokument:**
-   Ist das Dokument bereits abgeschlossen, holt `jumpToCitation` über Zoteros Integrations-Schnittstelle eine frische Verbindung zum laufenden Dokument:
+1. **Windows Word Direktsprung via WScript/COM (`runWordJumpScript`):**
+   Eine Disassemblierung der Zotero-C++-Bibliothek `libzoteroWinWordIntegration.dll` (Export `selectField` bei RVA `0xbd40`) belegt, dass Zotero auf Windows intern gar keine Selektion implementiert hat (der Aufruf setzt lediglich `Application.ScreenUpdating = 1` und liefert sofort Erfolg zurück). FlexAnnotate führt für Windows Word daher ein minimales, asynchrones VBScript (`flexannotate-jump-word.vbs`) über `wscript.exe` aus:
+   - Greift via `GetObject(, "Word.Application")` direkt auf die laufende Word-Instanz zu.
+   - Springt bei vorhandenem `noteIndex` direkt in die Fußnote (`targetDoc.Footnotes.Item(noteIndex).Range.Select`), scrollt das Word-Fenster per `targetDoc.ActiveWindow.ScrollIntoView` an die exakte Stelle und selektiert das Zitationsfeld.
+   - Für Fließtext-Zitationen durchsucht es `StoryRanges` nach der `citationID`.
+   - Aktiviert das Dokument und bringt Word per `WScript.Shell.AppActivate` sofort in den Vordergrund.
+2. **Dynamische Re-Acquisition bei freigegebenem Dokument (Fallback & LibreOffice):**
+   Für LibreOffice oder Mac-Umgebungen holt `jumpToCitation` über Zoteros Integrations-Schnittstelle eine frische Verbindung zum laufenden Dokument:
    ```ts
    const app = Zotero.Integration.getApplication(agent, "jump", docId);
    const doc = await (app.getDocument && docId

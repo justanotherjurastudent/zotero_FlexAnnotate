@@ -231,6 +231,167 @@ export function getAllWorkCitationLocations(
   return buildWorkCitationLocationsMap(resolved);
 }
 
+const WORD_JUMP_VBS = `' FlexAnnotate Word Jump Script
+Option Explicit
+
+Dim word, doc, shell, docId, noteIndex, citationId
+Dim i, found, targetDoc, fnRange, story
+
+If WScript.Arguments.Count < 3 Then WScript.Quit 0
+
+docId = WScript.Arguments(0)
+If IsNumeric(WScript.Arguments(1)) Then
+    noteIndex = CLng(WScript.Arguments(1))
+Else
+    noteIndex = 0
+End If
+citationId = WScript.Arguments(2)
+
+On Error Resume Next
+Set word = GetObject(, "Word.Application")
+If Err.Number <> 0 Or word Is Nothing Then
+    WScript.Quit 0
+End If
+
+Set targetDoc = Nothing
+If docId <> "" Then
+    For i = 1 To word.Documents.Count
+        Set doc = word.Documents.Item(i)
+        If InStr(1, doc.Name, docId, 1) > 0 Or InStr(1, doc.FullName, docId, 1) > 0 Then
+            Set targetDoc = doc
+            Exit For
+        End If
+    Next
+End If
+
+If targetDoc Is Nothing Then
+    Set targetDoc = word.ActiveDocument
+End If
+
+If targetDoc Is Nothing Then WScript.Quit 0
+
+found = False
+
+' 1. If noteIndex is valid, jump directly to the footnote
+If noteIndex > 0 And noteIndex <= targetDoc.Footnotes.Count Then
+    Set fnRange = targetDoc.Footnotes.Item(noteIndex).Range
+    If Not fnRange Is Nothing Then
+        fnRange.Select
+        targetDoc.ActiveWindow.ScrollIntoView fnRange
+        found = True
+        If citationId <> "" Then
+            For i = 1 To fnRange.Fields.Count
+                If InStr(1, fnRange.Fields.Item(i).Code.Text, citationId, 1) > 0 Then
+                    fnRange.Fields.Item(i).Select
+                    Exit For
+                End If
+            Next
+        End If
+    End If
+End If
+
+' 2. If not found by footnote, search fields across all stories (e.g. in-text citations)
+If Not found And citationId <> "" Then
+    For Each story In targetDoc.StoryRanges
+        For i = 1 To story.Fields.Count
+            If InStr(1, story.Fields.Item(i).Code.Text, citationId, 1) > 0 Then
+                story.Fields.Item(i).Select
+                found = True
+                Exit For
+            End If
+        Next
+        If found Then Exit For
+    Next
+End If
+
+' 3. Activate document and Word application
+targetDoc.Activate
+word.Activate
+word.Visible = True
+
+' 4. Bring window to front via WScript.Shell
+Set shell = CreateObject("WScript.Shell")
+If Not shell Is Nothing Then
+    shell.AppActivate word.Caption
+End If
+`;
+
+let vbsPathEnsured = false;
+
+async function ensureVbsScript(): Promise<string | null> {
+  try {
+    const tempDir =
+      typeof PathUtils !== "undefined"
+        ? PathUtils.tempDir
+        : (Services.dirsvc.get("TmpD", Ci.nsIFile) as any).path;
+    const vbsPath =
+      typeof PathUtils !== "undefined"
+        ? PathUtils.join(tempDir, "flexannotate-jump-word.vbs")
+        : `${tempDir}\\flexannotate-jump-word.vbs`;
+
+    if (!vbsPathEnsured) {
+      if (typeof IOUtils !== "undefined" && IOUtils.writeUTF8) {
+        await IOUtils.writeUTF8(vbsPath, WORD_JUMP_VBS);
+      } else {
+        (Zotero as any).File.putContents(
+          (Zotero as any).File.pathToFile(vbsPath),
+          WORD_JUMP_VBS,
+        );
+      }
+      vbsPathEnsured = true;
+    }
+    return vbsPath;
+  } catch (e) {
+    if (typeof ztoolkit !== "undefined" && ztoolkit?.log) {
+      ztoolkit.log("flexannotate ensureVbsScript failed:", e);
+    }
+    return null;
+  }
+}
+
+async function runWordJumpScript(
+  docId: string,
+  noteIndex: number,
+  citationID: string,
+): Promise<boolean> {
+  try {
+    const scriptPath = await ensureVbsScript();
+    if (!scriptPath) return false;
+
+    const args = [
+      "//B",
+      "//nologo",
+      scriptPath,
+      docId || "",
+      String(noteIndex || 0),
+      citationID || "",
+    ];
+
+    if (typeof (Zotero as any).Utilities?.Internal?.subprocess === "function") {
+      await (Zotero as any).Utilities.Internal.subprocess("wscript.exe", args);
+      return true;
+    }
+
+    const { Subprocess } = ChromeUtils.importESModule(
+      "resource://gre/modules/Subprocess.sys.mjs",
+    ) as any;
+    const wscript =
+      (await Subprocess.pathSearch("wscript.exe")) ||
+      "C:\\Windows\\System32\\wscript.exe";
+    const proc = await Subprocess.call({
+      command: wscript,
+      arguments: args,
+    });
+    await proc.wait();
+    return true;
+  } catch (e) {
+    if (typeof ztoolkit !== "undefined" && ztoolkit?.log) {
+      ztoolkit.log("flexannotate runWordJumpScript failed:", e);
+    }
+    return false;
+  }
+}
+
 /**
  * Brings Microsoft Word, LibreOffice, or Mac Word to the foreground on the OS window level.
  */
@@ -239,34 +400,58 @@ export function bringWordProcessorToFront(agent?: string | null): void {
     if ((Zotero as any).isWin) {
       const { ctypes } = ChromeUtils.importESModule(
         "resource://gre/modules/ctypes.sys.mjs",
-      );
+      ) as any;
+      const abi = ctypes.stdcall_abi || ctypes.default_abi;
       const user32 = ctypes.open("user32.dll");
       try {
         const FindWindowW = user32.declare(
           "FindWindowW",
-          ctypes.winapi_abi,
+          abi,
           ctypes.voidptr_t,
           ctypes.jschar.ptr,
           ctypes.jschar.ptr,
         );
         const SetForegroundWindow = user32.declare(
           "SetForegroundWindow",
-          ctypes.winapi_abi,
+          abi,
           ctypes.bool,
           ctypes.voidptr_t,
         );
         const ShowWindow = user32.declare(
           "ShowWindow",
-          ctypes.winapi_abi,
+          abi,
           ctypes.bool,
           ctypes.voidptr_t,
           ctypes.int32_t,
         );
+        const BringWindowToTop = user32.declare(
+          "BringWindowToTop",
+          abi,
+          ctypes.bool,
+          ctypes.voidptr_t,
+        );
+        let SwitchToThisWindow: any = null;
+        try {
+          SwitchToThisWindow = user32.declare(
+            "SwitchToThisWindow",
+            abi,
+            ctypes.void_t,
+            ctypes.voidptr_t,
+            ctypes.bool,
+          );
+        } catch {
+          /* optional API in user32 */
+        }
+
         const className = agent === "LibreOffice" ? "SALFRAME" : "OpusApp";
         const hwnd = FindWindowW(className, null);
         if (hwnd && (typeof hwnd.isNull !== "function" || !hwnd.isNull())) {
           ShowWindow(hwnd, 9); // SW_RESTORE
+          BringWindowToTop(hwnd);
           SetForegroundWindow(hwnd);
+          if (typeof SwitchToThisWindow === "function") {
+            SwitchToThisWindow(hwnd, true);
+          }
         }
       } finally {
         user32.close();
@@ -312,6 +497,17 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
       citationOrLoc?.doc ||
       citationOrLoc?.citation?.doc;
 
+    const cmd = getLastCommand();
+    const agent =
+      cmd?.agent ||
+      session?.agent ||
+      ((Zotero as any).isWin
+        ? "WinWord"
+        : (Zotero as any).isMac
+          ? "MacWord"
+          : "LibreOffice");
+    const docId = cmd?.docId;
+
     // 1. Direct field selection or document activation if session is still active
     const docStatus = directDoc?._documentStatus;
     const isDocActive = !docStatus || docStatus.active !== false;
@@ -326,24 +522,27 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
       if (directDoc && typeof directDoc.activate === "function") {
         await directDoc.activate();
       }
-      bringWordProcessorToFront(session?.agent);
+      if ((Zotero as any).isWin && agent !== "LibreOffice") {
+        await runWordJumpScript(docId || "", noteIndex || 0, citationID || "");
+      }
+      bringWordProcessorToFront(agent);
       return true;
     }
 
-    // 2. Re-acquire active document via Zotero.Integration (for completed companion sessions)
+    // 2. Windows Word direct jumper via WScript COM (bypasses stubbed selectField in libzoteroWinWordIntegration.dll)
+    if ((Zotero as any).isWin && agent !== "LibreOffice") {
+      const jumped = await runWordJumpScript(
+        docId || "",
+        noteIndex || 0,
+        citationID || "",
+      );
+      bringWordProcessorToFront(agent);
+      if (jumped) return true;
+    }
+
+    // 3. Re-acquire active document via Zotero.Integration (for LibreOffice / Mac / fallback)
     const integration = (Zotero as any).Integration;
     if (!integration) return false;
-
-    const cmd = getLastCommand();
-    const agent =
-      cmd?.agent ||
-      session?.agent ||
-      ((Zotero as any).isWin
-        ? "WinWord"
-        : (Zotero as any).isMac
-          ? "MacWord"
-          : "LibreOffice");
-    const docId = cmd?.docId;
 
     const app = integration.getApplication?.(agent, "jump", docId);
     if (!app) return false;
