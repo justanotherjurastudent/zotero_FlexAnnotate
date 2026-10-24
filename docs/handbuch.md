@@ -30,7 +30,7 @@ Ausführliche Bedienung und Nachschlagewerk. Der Überblick steht in der [README
 
 Erkannt werden die Formatvorlagen „Überschrift 1/2/3 …“ bzw. „Heading 1/2/3 …“, benutzerdefinierte Vorlagen mit Gliederungsebene (`outlineLvl`) und in ODT `text:h`. Die Ebenen werden lückenlos gemacht (die erste Überschrift ist Ebene 1, keine Ebene springt um mehr als eins).
 
-Der Import hängt nur an: Nichts wird gelöscht oder verschoben. Eine Überschrift mit gleichem Titel (ohne Beachtung von Groß-/Kleinschreibung und Leerraum) unter demselben Elternknoten wird wiederverwendet, sonst entsteht sie als letztes Kind. Ist „Nummerierung aus Titeln entfernen“ aktiv, werden auch bestehende Gliederungspunkte erkannt, deren Titel noch eine manuelle Nummerierung tragen; deren Titel wird bereinigt und zugeordnete Annotationen/Werke werden automatisch auf das bereinigte Tag umgehängt. Weil jede Überschrift ein Tag ist, müssen Titel eindeutig sein; Duplikate heißen „Titel (2)“, „Titel (3)“.
+Der Import hängt nur an; nichts wird gelöscht oder verschoben. Eine Überschrift mit gleichem Titel (ohne Beachtung von Groß-/Kleinschreibung und Leerraum) unter demselben Elternknoten wird wiederverwendet, sonst entsteht sie als letztes Kind. Ist „Nummerierung aus Titeln entfernen“ aktiv, werden auch bestehende Gliederungspunkte erkannt, deren Titel noch eine manuelle Nummerierung tragen; deren Titel wird bereinigt und zugeordnete Annotationen/Werke werden automatisch auf das bereinigte Tag umgehängt. Weil jede Überschrift ein Tag ist, müssen Titel eindeutig sein; Duplikate heißen „Titel (2)“, „Titel (3)“.
 
 Grenzen:
 
@@ -48,7 +48,7 @@ Ist das Dokument gerade in einem anderen Programm geöffnet und exklusiv gesperr
 2. Ort und Namen wählen; über das Format-Aufklappmenü zwischen `.docx` (Word) und `.odt` (LibreOffice) wechseln.
 3. Das Dokument enthält alle Überschriften in Gliederungsreihenfolge mit den Standard-Formatvorlagen „Überschrift 1–9“ (bzw. „Heading 1–9“) und einer mehrstufigen automatischen Nummerierung („1“, „1.1“ …), die beim Umstellen von Kapiteln in Word/LibreOffice automatisch mitläuft. Direkt loslegen und unter den Überschriften schreiben.
 
-Der Export ändert nichts in der Bibliothek; die Zieldatei wird überschrieben (der Dateidialog fragt vorher nach). Ist die Zieldatei gerade in Word/LibreOffice geöffnet oder schreibgeschützt, schlägt das Schreiben mit einer Meldung fehl, ohne die Datei zu beschädigen — das Dokument dort schließen und erneut exportieren.
+Der Export ändert nichts in der Bibliothek; die Zieldatei wird überschrieben (der Dateidialog fragt vorher nach). Ist die Zieldatei gerade in Word/LibreOffice geöffnet oder schreibgeschützt, schlägt das Schreiben mit einer Meldung fehl, ohne die Datei zu beschädigen. Das Dokument dort schließen und erneut exportieren.
 
 ## Einstellungen
 
@@ -98,7 +98,7 @@ Nutzerdaten der Version 1.x gelten unverändert weiter; die Preference-Schlüsse
 - `#flexannotate-default-locator-<typ>`: Standard-Locator eines Anhangs für künftige Annotationen.
 - `#flexannotate-placeholder`: kennzeichnet den Platzhalter-Anhang der Print-Annotationen.
 - `§Titel`: Überschrift der Gliederung als Tag an zugeordneten Annotationen und Werken (Lattice-kompatibel). Der Organizer verankert zusätzlich zu jeder Überschrift einen `§`-Tag an der `★outline`-Notiz (beim Speichern und beim Laden, sodass auch bestehende Notizen nachträglich befüllt werden), sodass der Tag auch ohne zugeordnete Einträge existiert: In der PDF-Ansicht genügt ein `§` in der Tag-Zeile des Anmerkungs-Popups, und die Überschriften dieses Baums werden vorgeschlagen. Umbenennen oder Löschen einer Überschrift verschiebt bzw. entfernt den Tag automatisch. Da Zotero Tag-Vorschläge bibliotheksweit vorschlägt, erscheinen dort auch `§`-Tags aus anderen Hauptsammlungen mit eigener Struktur.
-- `★outline` und `LATTICE-OUTLINE-V1`: Notiz mit dem Gliederungsbaum als JSON (Lattice-kompatibel); mit dem zusätzlichen Tag `#flexannotate-outline-<collectionKey>` gehört die Notiz zum Baum der jeweiligen Sammlung. Die Überschrift der Notiz nennt den Geltungsbereich — für die ganze Bibliothek den Bibliotheksnamen, für eine Hauptsammlung deren Namen —, sodass mehrere Gliederungsnotizen in der Item-Liste unterscheidbar sind.
+- `★outline` und `LATTICE-OUTLINE-V1`: Notiz mit dem Gliederungsbaum als JSON (Lattice-kompatibel); mit dem zusätzlichen Tag `#flexannotate-outline-<collectionKey>` gehört die Notiz zum Baum der jeweiligen Sammlung. Die Überschrift der Notiz nennt den Geltungsbereich: für die ganze Bibliothek den Bibliotheksnamen, für eine Hauptsammlung deren Namen. So sind mehrere Gliederungsnotizen in der Item-Liste unterscheidbar.
 - `flexannotate_cited`: Word-/LibreOffice-Dokumentvariable (`session.data.prefs`). Speichert zitierte Annotationen sitzungs- und rechnerübergreifend direkt im Dokument; reist in der `.docx`- bzw. `.odt`-Datei mit und zeigt auf Zweitgeräten mit FlexAnnotate sofort dieselben Haken an. Gleicht beim Öffnen automatisch mit den aktiven Feldern ab, sodass gelöschte Fußnoten die Haken wie bei Citavi verlieren (Details: [cited-tracking.md](cited-tracking.md)).
 
 Die alte Version 1.2.0 ist über den Git-Tag `pre-merge` erreichbar.

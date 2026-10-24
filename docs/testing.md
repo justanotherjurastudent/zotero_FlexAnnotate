@@ -1,95 +1,95 @@
 # Tests
 
-## Inhalt
+## Contents
 
-- [Befehle](#befehle)
-- [Strategie](#strategie)
-- [Zotero-Tests im Detail](#zotero-tests-im-detail)
-- [Mehrere Zotero-Versionen](#mehrere-zotero-versionen)
-- [Bildschirmfotos](#bildschirmfotos)
-- [Grenzen](#grenzen)
+- [Commands](#commands)
+- [Strategy](#strategy)
+- [Zotero tests in detail](#zotero-tests-in-detail)
+- [Multiple Zotero versions](#multiple-zotero-versions)
+- [Screenshots](#screenshots)
+- [Limits](#limits)
 
-## Befehle
+## Commands
 
-| Befehl                       | Wirkung                                                                                                                          |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run test:unit`          | Node-Tests in `test-unit/` (`node --test`), kein Zotero nötig                                                                    |
-| `npm run test:unit:coverage` | wie `test:unit`, ermittelt zusätzlich Testabdeckung (`--experimental-test-coverage`)                                             |
-| `npm run test:unit:repeat`   | führt die Unit-Tests 10-mal hintereinander aus zur Flake- und Determinismus-Prüfung                                              |
-| `npm run test:zotero`        | Mocha-Tests in `test/` in einer eigenen Zotero-Instanz (läuft rund 15 s)                                                         |
-| `npm run test:versions`      | wie `test:zotero`, nacheinander für die installierte Version und jede Testversion in `.zotero-versions/*`; Tabelle und Exit-Code |
-| `npm run screenshots`        | wie `test:zotero`, zusätzlich laufen die Aufnahmen aus `test/screenshots.test.ts`; PNGs nach `.scaffold/screenshots/`            |
-| `npm run screenshots:docs`   | `screenshots`, danach werden die kuratierten Bilder nach `docs/img/` kopiert (`scripts/docs-screenshots.mjs`)                    |
-| `npm run lint:check`         | `prettier --check .` und `eslint .`                                                                                              |
-| `npm run build`              | `zotero-plugin build` und `tsc --noEmit`                                                                                         |
-| `npm run verify`             | `lint:check`, `build`, `test:unit`, `test:zotero` nacheinander                                                                   |
+| Command                      | Effect                                                                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `npm run test:unit`          | Node tests in `test-unit/` (`node --test`), no Zotero needed                                                             |
+| `npm run test:unit:coverage` | like `test:unit`, also measures coverage (`--experimental-test-coverage`)                                                |
+| `npm run test:unit:repeat`   | runs the unit tests 10 times in a row to check for flakes and determinism                                                |
+| `npm run test:zotero`        | Mocha tests in `test/` in a dedicated Zotero instance (about 15 s)                                                       |
+| `npm run test:versions`      | like `test:zotero`, in turn for the installed version and each test version in `.zotero-versions/*`; table and exit code |
+| `npm run screenshots`        | like `test:zotero`, plus the recordings from `test/screenshots.test.ts`; PNGs into `.scaffold/screenshots/`              |
+| `npm run screenshots:docs`   | `screenshots`, then copies the curated images into `docs/img/` (`scripts/docs-screenshots.mjs`)                          |
+| `npm run lint:check`         | `prettier --check .` and `eslint .`                                                                                      |
+| `npm run build`              | `zotero-plugin build` and `tsc --noEmit`                                                                                 |
+| `npm run verify`             | `lint:check`, `build`, `test:unit`, `test:zotero` in sequence                                                            |
 
-Stand 2026-10-13 (`npm run test:versions`): 223 Unit-Tests, alle bestanden. Zotero-Tests ohne Fehler: 10.0.6 (installiert) 102 bestanden, 7 übersprungen; 9.0.6 102 bestanden, 7 übersprungen; 8.0.4 74 bestanden, 35 übersprungen; 7.0.32 76 bestanden, 33 übersprungen. Übersprungen werden Tests, die eine Funktion der jeweiligen Version brauchen (z. B. der Annotationsmodus des Zitierdialogs ab Zotero 9) oder Screenshots nur mit `npm run screenshots` erzeugen; siehe [Mehrere Zotero-Versionen](#mehrere-zotero-versionen).
+As of 2026-10-13 (`npm run test:versions`): 223 unit tests, all passed. Zotero tests without errors: 10.0.6 (installed) 102 passed, 7 skipped; 9.0.6 102 passed, 7 skipped; 8.0.4 74 passed, 35 skipped; 7.0.32 76 passed, 33 skipped. Tests are skipped when they need a feature of that version (for example the annotations mode of the citation dialog, from Zotero 9 on) or produce screenshots only with `npm run screenshots`; see [Multiple Zotero versions](#multiple-zotero-versions).
 
-## Teilmengen testen
+## Running a subset
 
-Beim Entwickeln lässt sich nur ein Teil der Tests laufen. Ohne Argumente laufen wie bisher alle Tests (`verify`, `test:versions` ändern sich nicht).
+While developing you can run only part of the tests. Without arguments all tests run as before (`verify`, `test:versions` do not change).
 
-- Unit-Tests nach Name: `node --test --test-name-pattern=persistent "test-unit/*.test.ts"` (Option von `node --test`; sie muss vor dem Dateiglob stehen, sonst wird sie als Datei gelesen, deshalb nicht über `npm run test:unit -- ...`). Nach Datei: `node --test test-unit/persistentRect.test.ts`.
-- Zotero-Tests nach Titel: `npm run test:zotero -- --grep "persistent"`. Gesucht wird im vollständigen Titel (describe und it). Umsetzung: `FLEXANNOTATE_GREP` wird in `test/helpers.ts` an `mocha.grep` übergeben; ohne Muster läuft alles.
-- Versionen: `npm run test:versions -- --versions 10.0.6,9.0.6 --grep "browse"` läuft nur diese Versionen mit der Auswahl.
+- Unit tests by name: `node --test --test-name-pattern=persistent "test-unit/*.test.ts"` (an option of `node --test`; it has to come before the file glob, otherwise it is read as a file, so not via `npm run test:unit -- ...`). By file: `node --test test-unit/persistentRect.test.ts`.
+- Zotero tests by title: `npm run test:zotero -- --grep "persistent"`. The search runs over the full title (describe and it). Implementation: `FLEXANNOTATE_GREP` is passed to `mocha.grep` in `test/helpers.ts`; without a pattern everything runs.
+- Versions: `npm run test:versions -- --versions 10.0.6,9.0.6 --grep "browse"` runs only those versions with the selection.
 
-Muster für das Blätterfenster (Zotero-Tests): `persistent` (erster Dialog nach dem Neustart, Layout, Teile des Schalters), `browse` (Blätterfenster, Einfügen aus ihm), `stored rect` (Position und Größe), `reopen` (zwei Öffnungen hintereinander), `switch` (Schalter), `wide window` (drei Spalten nach Neustart und Öffnung). Eine Auswahl ist nur ein Entwicklungswerkzeug: vor dem Abschluss immer `npm run verify` und `npm run test:versions` ohne Argumente laufen lassen.
+Patterns for the browse window (Zotero tests): `persistent` (first dialog after restart, layout, parts of the switch), `browse` (browse window, inserting from it), `stored rect` (position and size), `reopen` (two openings in a row), `switch` (switch), `wide window` (three columns after restart and opening). A selection is only a development tool: before finishing always run `npm run verify` and `npm run test:versions` without arguments.
 
-## Strategie
+## Strategy
 
-- Reine Logik gehört nach `src/core` und wird in `test-unit/` mit Node getestet. Node 24 führt `.ts` direkt aus, deshalb enden die Importe in `src/core` auf `.ts`. Keine Zotero-Globals in diesen Dateien.
-- Verhalten, das Zotero braucht (Items, Tags, Menüs, Fenster, Patches), wird in `test/` geprüft, im echten Zotero über zotero-plugin-scaffold und Mocha.
-- Zotero-Tests sprechen das Plugin nur über `addon.api` an (belegt in `src/hooks.ts`), nie über direkte Modulimporte: Module greifen auf das Global `ztoolkit` zu, das es im Testkontext nur über das Plugin gibt.
-- Die Zotero-Tests laufen in einem isolierten Profil unter `.scaffold/test/` (eigener Datenordner, Standardport des Scaffolds 23124). Das produktive Zotero und seine Bibliothek bleiben unberührt; Word wird nicht gestartet.
-- Testdaten sind synthetisch (`test/helpers.ts`: Werke, verlinkte PDF-Datei, Annotationen) und werden nach den Läufen gelöscht.
-- Neue Logik: zuerst als reine Funktion in `src/core` mit Unit-Test. Nur was ohne Zotero nicht prüfbar ist, bekommt einen Zotero-Test.
+- Pure logic belongs in `src/core` and is tested with Node in `test-unit/`. Node 24 runs `.ts` directly, so the imports in `src/core` end in `.ts`. No Zotero globals in these files.
+- Behaviour that needs Zotero (items, tags, menus, windows, patches) is checked in `test/`, in real Zotero through zotero-plugin-scaffold and Mocha.
+- Zotero tests reach the plugin only through `addon.api` (proven in `src/hooks.ts`), never through direct module imports: modules access the global `ztoolkit`, which exists in the test context only through the plugin.
+- The Zotero tests run in an isolated profile under `.scaffold/test/` (own data folder, the scaffold's standard port 23124). The productive Zotero and its library stay untouched; Word is not started.
+- Test data is synthetic (`test/helpers.ts`: works, linked PDF file, annotations) and is deleted after the runs.
+- New logic: first as a pure function in `src/core` with a unit test. Only what cannot be checked without Zotero gets a Zotero test.
 
-## Zotero-Tests im Detail
+## Zotero tests in detail
 
-`npm run test:zotero` startet `scripts/run-zotero-tests.mjs`. Der Wrapper
+`npm run test:zotero` starts `scripts/run-zotero-tests.mjs`. The wrapper
 
-- erkennt `zotero.exe` automatisch unter `%LOCALAPPDATA%\Zotero`, `%ProgramFiles%\Zotero` und `%ProgramFiles(x86)%\Zotero`, falls `ZOTERO_PLUGIN_ZOTERO_BIN_PATH` nicht gesetzt ist,
-- setzt `ZOTERO_PLUGIN_KILL_COMMAND` auf `scripts/kill-test-zotero.ps1`, das nur Prozesse beendet, deren Befehlszeile `.scaffold/test` enthält,
-- erkennt „Test run completed“ im Ausgabestrom und beendet die Testinstanz sofort (`zotero-plugin test` bliebe sonst bis zum Abbruch stehen),
-- bricht nach `FLEXANNOTATE_TEST_LIMIT_MS` Millisekunden ab (Standard 240000; die Suite ist auf älteren Zotero-Versionen langsamer).
+- detects `zotero.exe` automatically under `%LOCALAPPDATA%\Zotero`, `%ProgramFiles%\Zotero` and `%ProgramFiles(x86)%\Zotero`, if `ZOTERO_PLUGIN_ZOTERO_BIN_PATH` is not set,
+- sets `ZOTERO_PLUGIN_KILL_COMMAND` to `scripts/kill-test-zotero.ps1`, which ends only processes whose command line contains `.scaffold/test`,
+- detects "Test run completed" in the output stream and stops the test instance right away (`zotero-plugin test` would otherwise stay up until interrupted),
+- aborts after `FLEXANNOTATE_TEST_LIMIT_MS` milliseconds (default 240000; the suite is slower on older Zotero versions).
 
-Die Testdateien in `test/` decken: Start und Feature-Lebenszyklus, Einstellungen, Print-Annotationen (Platzhalter, Eingabemaske, Menüs), Nur-Nachweis-Patch und Modus-Auswahl, Citavi-Import (u. a. exakte Schlagwörter, Dubletten), Reader-Menü (nur An- und Abmelden), Werkzeugmenü-Rückfall, Organizer (Daten, Fenster, Toolbar-Button, Zitierdialog-Ansicht mit Suche und „Zitatstelle anzeigen“) und den Gliederungsimport (`docImport.test.ts`, Fixtures in `docFixtures.ts`; die reine Logik in `test-unit/docOutline.test.ts`).
+The test files in `test/` cover: startup and feature lifecycle, settings, print annotations (placeholder, input panel, menus), citation-only patch and mode selection, Citavi import (among others exact keywords, duplicates), reader menu (register and unregister only), tools menu fallback, organizer (data, window, toolbar button, citation dialog view with search and "show place") and the outline import (`docImport.test.ts`, fixtures in `docFixtures.ts`; the pure logic in `test-unit/docOutline.test.ts`).
 
-`scripts/word-smoke.ps1` startet eine eigene, unsichtbare Word-Instanz, prüft, dass `Zotero.dotm` geladen ist, und beendet sie. Es öffnet kein Dokument und berührt das laufende Word nicht.
+`scripts/word-smoke.ps1` starts a dedicated, invisible Word instance, checks that `Zotero.dotm` is loaded, and ends it. It opens no document and touches the running Word.
 
-## Mehrere Zotero-Versionen
+## Multiple Zotero versions
 
-`npm run test:versions` (`scripts/run-versions.mjs`) führt `scripts/run-zotero-tests.mjs` nacheinander aus für
+`npm run test:versions` (`scripts/run-versions.mjs`) runs `scripts/run-zotero-tests.mjs` in sequence for
 
-- die installierte Version (aus `%LOCALAPPDATA%\Zotero\app\application.ini`) und
-- jede Version in `.zotero-versions/<version>/core/zotero.exe`. Geprüft wurden 7.0.32, 8.0.4 und 9.0.6.
+- the installed version (from `%LOCALAPPDATA%\Zotero\app\application.ini`) and
+- each version in `.zotero-versions/<version>/core/zotero.exe`. Tested were 7.0.32, 8.0.4 and 9.0.6.
 
-Die Binaries in `.zotero-versions/` sind entpackte Installer, nicht installiert, und per `.gitignore` ausgeschlossen. So beschaffst du eine Version:
+The binaries in `.zotero-versions/` are unpacked installers, not installed, and excluded via `.gitignore`. This is how you get a version:
 
 ```powershell
 $v = "9.0.6"
 Invoke-WebRequest "https://download.zotero.org/client/release/$v/Zotero-${v}_x64_setup.exe" -OutFile "$env:TEMP\zotero-$v-setup.exe"
 7z x "-o.zotero-versions/$v" "$env:TEMP\zotero-$v-setup.exe"
-# die App liegt danach unter .zotero-versions/9.0.6/core/
+# the app then sits under .zotero-versions/9.0.6/core/
 ```
 
-Jede Version bekommt ein frisches Testprofil: Der Scaffold leert nur das Datenverzeichnis, das Profil bliebe sonst bei einem Versionswechsel mit Startup-Cache und Erweiterungsregister der vorigen Version stehen, und die Läufe hingen von der Reihenfolge ab (8.0.4 schlug nur direkt nach 7.0.32 fehl). Das Skript löscht dafür `.scaffold/test/profile` vor jedem Lauf, nie ein produktives Profil.
+Each version gets a fresh test profile: the scaffold only empties the data folder, otherwise the profile would keep the startup cache and extension registry of the previous version when switching, and the runs would depend on order (8.0.4 failed only right after 7.0.32). The script deletes `.scaffold/test/profile` before each run, never a productive profile.
 
-Am Ende steht eine Tabelle mit `version`, `passed`, `failed`, `pending`, `exit`; der Exit-Code ist 1, wenn eine Version Fehler hat oder kein Ergebnis liefert. Übersprungene Tests (pending) zählt das Skript aus den `ℹ … pending`-Zeilen, weil Zotero sie in der Ergebniszeile nicht nennt. Übersprungen wird, was es auf der Version nicht gibt: die Tests mit Annotationsmodus im Zitierdialog (`hasAnnotationDialog()` in `test/helpers.ts`, erst ab Zotero 9; `features.test.ts`, `modeSelector.test.ts`) und der Befehlstest des Werkzeugmenü-Rückfalls, sobald `Zotero.MenuManager` vorhanden ist (`toolsMenu.test.ts`).
+At the end comes a table with `version`, `passed`, `failed`, `pending`, `exit`; the exit code is 1 when a version has errors or yields no result. The script counts skipped tests (pending) from the `ℹ … pending` lines, because Zotero does not name them in the result line. What is skipped is what the version lacks: the tests with annotations mode in the citation dialog (`hasAnnotationDialog()` in `test/helpers.ts`, only from Zotero 9 on; `features.test.ts`, `modeSelector.test.ts`) and the command test of the tools menu fallback, once `Zotero.MenuManager` exists (`toolsMenu.test.ts`).
 
-## Bildschirmfotos
+## Screenshots
 
-`npm run screenshots` setzt `FLEXANNOTATE_SCREENSHOTS=1`; `test/screenshots.test.ts` macht dann Aufnahmen der Testfenster mit `drawWindow` (`test/screenshot.ts`) nach `.scaffold/screenshots/`. `npm run screenshots:docs` kopiert die kuratierten Dateien nach `docs/img/` (Liste `CURATED` in `scripts/docs-screenshots.mjs`) und warnt bei Dateien über 250 KB. `drawWindow` erfasst nur das Fenster selbst: Popups und Menüs erscheinen nicht. Die Aufnahmen laufen im Testprofil mit synthetischen Daten, nie im produktiven Zotero.
+`npm run screenshots` sets `FLEXANNOTATE_SCREENSHOTS=1`; `test/screenshots.test.ts` then records the test windows with `drawWindow` (`test/screenshot.ts`) into `.scaffold/screenshots/`. `npm run screenshots:docs` copies the curated files into `docs/img/` (list `CURATED` in `scripts/docs-screenshots.mjs`) and warns about files over 250 KB. `drawWindow` captures only the window itself: popups and menus do not appear. The recordings run in the test profile with synthetic data, never in the productive Zotero.
 
-## Grenzen
+## Limits
 
-Nicht automatisch getestet:
+Not tested automatically:
 
-- **Reader-Fenster:** Kontextmenü, Seitenzahl-Popup und Locator-Anzeige im Reader. Getestet ist nur, dass sich das Reader-Menü an- und abmeldet.
-- **Echter Word-Lauf:** Der Weg „Word-Schaltfläche → Zitierdialog → Einfügen“ braucht das laufende Zotero des Nutzers und würde dessen Bibliothek berühren. Getestet wird der Zitierdialog selbst mit dem echten Zotero-Fenster und einem Dialogobjekt wie in `Zotero.Integration.Session.cite`.
-- **Echter Citavi-Translator:** Die Tests benutzen synthetische Fixtures. Das Format `PageRange` (`<os>`/`<nt>`) ist daher nur gegen Fixtures belegt.
-- **Dark Mode:** Darstellung der Toolbar- und Menü-Icons und des Reader-Popups nur per Code-Review.
-- **Andere Patchversionen:** Gelaufen sind nur 7.0.32, 8.0.4, 9.0.6 und 10.0.5/10.0.6. Zwischenversionen sind nicht geprüft.
-- **Zitierdialog vor Zotero 9:** Der Annotationsmodus fehlt dort; die Tests dafür sind übersprungen, nicht bestanden.
-- **Dateiauswahl des Gliederungsimports:** Der Test übergibt die Datei direkt an `docImport.importFromFile`; der native Dialog (`FilePicker`) ist nicht automatisch getestet.
+- **Reader window:** context menu, page-number popup and locator display in the reader. Tested is only that the reader menu registers and unregisters.
+- **Real Word run:** the path "Word button → citation dialog → insert" needs the user's running Zotero and would touch its library. Tested is the citation dialog itself with the real Zotero window and a dialog object as in `Zotero.Integration.Session.cite`.
+- **Real Citavi translator:** the tests use synthetic fixtures. The `PageRange` format (`<os>`/`<nt>`) is therefore only proven against fixtures.
+- **Dark mode:** appearance of the toolbar and menu icons and of the reader popup only by code review.
+- **Other patch versions:** run were only 7.0.32, 8.0.4, 9.0.6 and 10.0.5/10.0.6. In-between versions are not checked.
+- **Citation dialog before Zotero 9:** the annotations mode is missing there; the tests for it are skipped, not passed.
+- **File picker of the outline import:** the test hands the file directly to `docImport.importFromFile`; the native dialog (`FilePicker`) is not tested automatically.
