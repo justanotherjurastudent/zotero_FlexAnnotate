@@ -182,8 +182,7 @@ const gates: FeatureGate[] = [
   },
   {
     name: "modeSelector",
-    description:
-      "Modus-Auswahl (Annotationen/Werke) im Zitierdialog.",
+    description: "Modus-Auswahl (Annotationen/Werke) im Zitierdialog.",
     enabled: true,
   },
   {
@@ -223,8 +222,8 @@ const globalFeatureEntries: (Feature & { gate?: string })[] = [
 ];
 
 /** Aktive globale Features; deaktivierte Einträge sind herausgefiltert. */
-export const globalFeatures: Feature[] = globalFeatureEntries.filter(
-  (f) => isFeatureEnabled(f.gate ?? f.name),
+export const globalFeatures: Feature[] = globalFeatureEntries.filter((f) =>
+  isFeatureEnabled(f.gate ?? f.name),
 );
 
 // --- Zitierdialog-Injektoren ---------------------------------------------

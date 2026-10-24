@@ -66,10 +66,7 @@ import {
   startAll,
   stopAll,
 } from "./shared/feature";
-import {
-  dialogInjectors,
-  globalFeatures,
-} from "./features/registry";
+import { dialogInjectors, globalFeatures } from "./features/registry";
 
 // Zitierdialog-Injektoren: zentrale Liste aus der Registry übernehmen. Die
 // Reihenfolge (Modus-Auswahl, Gliederung, Zeilen-Patch) steht in registry.ts.
