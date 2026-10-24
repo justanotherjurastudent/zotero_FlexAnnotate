@@ -1,8 +1,7 @@
 import { initLocale } from "./utils/locale";
 import { createZToolkit } from "./utils/ztoolkit";
-import { AnnotationIndex } from "./features/organizer/annotationIndex";
 import { OrganizerFactory } from "./features/organizer/panel/organizer";
-import * as citationDialog from "./shared/citationDialog";
+import { registerDialogInjector } from "./shared/citationDialog";
 import { outlineView } from "./features/organizer/dialog/dialogOutline";
 import * as modeSelector from "./features/citeOnly/modeSelector";
 import {
@@ -45,7 +44,6 @@ import {
   printMenus,
   updateVisibility as updatePrintMenus,
 } from "./features/print/menus";
-import { annotationRowMenu } from "./features/print/annotationRowMenu";
 import {
   patchAnnotationRow,
   unpatchAnnotationRow,
@@ -56,87 +54,32 @@ import { linkContributions } from "./features/citavi/citaviLinks";
 import { importPrintQuotes } from "./features/citavi/citaviPrintQuotes";
 
 import { organizerToolbarButton } from "./features/organizer/toolbarButton";
-import { collectionMenu } from "./features/organizer/collectionMenu";
 import { tagSuggest } from "./features/organizer/tagSuggest";
 import { toolsMenuFallback } from "./features/organizer/toolsMenuFallback";
 import {
   installExternalApi,
   uninstallExternalApi,
 } from "./features/organizer/externalApi";
-import { unregisterAllPluginMenus } from "./utils/menu";
 import {
   addToWindow,
-  type Feature,
   removeFromWindow,
   startAll,
   stopAll,
 } from "./shared/feature";
+import {
+  dialogInjectors,
+  globalFeatures,
+} from "./features/registry";
 
-// Injektionsreihenfolge im Zitierdialog: erst die Modus-Auswahl, dann die Gliederung.
-citationDialog.registerDialogInjector({
-  name: "modeSelector",
-  inject: modeSelector.injectModeSelector,
-  detach: modeSelector.removeModeSelector,
-});
-citationDialog.registerDialogInjector(outlineView);
-citationDialog.registerDialogInjector({
-  name: "annotationRowPatch",
-  inject: patchAnnotationRow,
-  detach: unpatchAnnotationRow,
-});
+// Zitierdialog-Injektoren: zentrale Liste aus der Registry übernehmen. Die
+// Reihenfolge (Modus-Auswahl, Gliederung, Zeilen-Patch) steht in registry.ts.
+for (const injector of dialogInjectors) {
+  registerDialogInjector(injector);
+}
 
-/**
- * Reihenfolge = Startreihenfolge; gestoppt wird in umgekehrter Reihenfolge.
- * Die Hooks sind voneinander unabhängig.
- */
-const features: Feature[] = [
-  {
-    name: "organizer",
-    start: () => OrganizerFactory.registerMenu(),
-    stop: () => {
-      unregisterAllPluginMenus();
-      OrganizerFactory.close();
-    },
-  },
-  organizerToolbarButton,
-  toolsMenuFallback,
-  collectionMenu,
-  {
-    name: "citationDialog",
-    start: () => citationDialog.start(),
-    stop: () => citationDialog.stop(),
-  },
-  persistentDialogPatch,
-  citeOnlyPatch,
-  readerMenuModule.readerMenu,
-  citaviImport,
-  {
-    // Cross-paper annotation layer: Notifier observer keeps the index fresh as
-    // annotations are added/edited/removed anywhere in the library.
-    name: "annotationIndex",
-    start: () => AnnotationIndex.init(),
-    stop: () => AnnotationIndex.unload(),
-  },
-  {
-    // Public plugin-to-plugin interface: other plugins read the outline
-    // headings with their numbers through Zotero.FlexAnnotate.
-    name: "externalApi",
-    start: () => installExternalApi(),
-    stop: () => uninstallExternalApi(),
-  },
-  tagSuggest.feature,
-  printMenus,
-  annotationRowMenu,
-  {
-    name: "annotationRowPatch",
-    addToWindow: (win) => {
-      patchAnnotationRow(win);
-    },
-    removeFromWindow: (win) => {
-      unpatchAnnotationRow(win);
-    },
-  },
-];
+// Globale Lebenszyklus-Features: zentrale Liste aus der Registry übernehmen.
+// Reihenfolge = Startreihenfolge; gestoppt wird in umgekehrter Reihenfolge.
+const features = globalFeatures;
 
 async function onStartup() {
   await Promise.all([
