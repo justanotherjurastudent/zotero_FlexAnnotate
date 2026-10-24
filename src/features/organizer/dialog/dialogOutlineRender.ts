@@ -4,7 +4,12 @@
  * Einfügen) liegen hier, weil sie die Ansicht neu zeichnen.
  */
 
-import { record, toggleDocCited, unrecord } from "../logic/cited";
+import {
+  formatCitationLocationList,
+  record,
+  toggleDocCited,
+  type FormatLocationOptions,
+} from "../logic/cited";
 import type { AnnLike } from "../logic/dialogView";
 import { formatLocator } from "../../../core/locator";
 import { applyClick, emptySelection } from "../logic/selection";
@@ -17,12 +22,14 @@ import { openRow } from "../openTarget";
 import { tr } from "../strings";
 import {
   currentSessionId,
+  getActiveCitedIDs,
   getAllCitationLocations,
   getAllWorkCitationLocations,
   getCitationLocations,
   jumpToCitation,
   readCitedStore,
   readDocCitedData,
+  syncSessionFromDocument,
   writeCitedStore,
   writeDocCitedData,
   type CitationLocation,
@@ -230,8 +237,38 @@ export function renderList(win: Window, v: View, keepScroll = true) {
   list.scrollTop = scroll;
 }
 
+export async function refreshCitedInView(win: Window, v: View): Promise<void> {
+  const changed = await syncSessionFromDocument();
+  if (!changed || win.closed) return;
+  const doc = win.document;
+  const existing = doc.getElementById("flexannotate-footnote-popover");
+  if (existing) existing.remove();
+  const isCitation =
+    (doc.documentElement?.getAttribute("dialog-type") ||
+      (win as any).DIALOG_STATE?.type) === "citation";
+  const session = (Zotero as any).Integration?.currentSession;
+  const map = session?.citationsByItemID ?? null;
+  const citedWorks = map
+    ? new Set<number>(Object.keys(map).map((k) => Number(k)))
+    : null;
+  v.cited = isCitation
+    ? (citedWorks ?? new Set<number>())
+    : getActiveCitedIDs([...v.rows.values()], citedWorks);
+  renderList(win, v, true);
+  renderPreview(win, v);
+}
+
+function getLocationOptions(): FormatLocationOptions {
+  return {
+    textLabel: tr("dialogLocationText"),
+    footnotePattern: tr("dialogLocationFootnote"),
+    endnotePattern: tr("dialogLocationEndnote"),
+  };
+}
+
 function attachFootnotePopover(
   win: Window,
+  v: View,
   check: HTMLElement,
   locs: CitationLocation[],
 ): void {
@@ -276,28 +313,19 @@ function attachFootnotePopover(
     header.style.cssText =
       `color:${MUTED};font-size:10px;font-weight:600;text-transform:uppercase;` +
       "letter-spacing:0.4px;user-select:none;";
-    header.textContent = tr("dialogCitedIn");
+    header.textContent =
+      locs.length > 1
+        ? `${tr("dialogCitedIn")} (${locs.length})`
+        : tr("dialogCitedIn");
     popover.appendChild(header);
 
     const chips = doc.createElement("div");
-    chips.style.cssText = "display:flex;gap:4px;flex-wrap:wrap;";
+    chips.style.cssText =
+      "display:flex;gap:4px;flex-wrap:wrap;max-height:180px;overflow-y:auto;padding-right:2px;" +
+      "scrollbar-width:thin;scrollbar-color:rgba(128,128,128,0.4) transparent;";
 
-    const counts = new Map<number, number>();
-    const totalCounts = new Map<number, number>();
-    for (const l of locs) {
-      totalCounts.set(l.noteIndex, (totalCounts.get(l.noteIndex) || 0) + 1);
-    }
-
-    for (const l of locs) {
-      const count = (counts.get(l.noteIndex) || 0) + 1;
-      counts.set(l.noteIndex, count);
-      const isMulti = (totalCounts.get(l.noteIndex) || 0) > 1;
-      const label =
-        l.noteIndex === 0
-          ? tr("dialogLocationText") + (isMulti ? ` (${count})` : "")
-          : tr("dialogLocationFootnote").replace("{n}", String(l.noteIndex)) +
-            (isMulti ? ` (${count})` : "");
-
+    const items = formatCitationLocationList(locs, getLocationOptions());
+    for (const { loc: l, label } of items) {
       const chip = doc.createElement("button");
       chip.className = "flexannotate-loc-chip";
       chip.style.cssText =
@@ -305,12 +333,15 @@ function attachFootnotePopover(
         "border-radius:4px;padding:2px 6px;font-size:11px;font-weight:600;cursor:pointer;" +
         "display:inline-flex;align-items:center;line-height:1.2;outline:none;";
       chip.textContent = label;
-      chip.title = tr("dialogJumpToFootnote");
+      const hint = l.plainCitation ? `${label}: ${l.plainCitation}` : label;
+      chip.title = `${hint} (${tr("dialogJumpToFootnote")})`;
       chip.addEventListener("click", (e) => {
         e.stopPropagation();
         e.preventDefault();
         removeActivePopover();
-        void jumpToCitation(l.citation || l);
+        void jumpToCitation(l.citation || l).then((ok) => {
+          if (!ok) void refreshCitedInView(win, v);
+        });
       });
       chips.appendChild(chip);
     }
@@ -321,12 +352,16 @@ function attachFootnotePopover(
 
     (doc.body || doc.documentElement)?.appendChild(popover);
 
-    const popWidth = popover.offsetWidth || 120;
-    const left = Math.max(
-      8,
-      Math.min(rect.left, (win.innerWidth || 400) - popWidth - 10),
-    );
-    const top = rect.bottom + 4;
+    const popWidth = popover.offsetWidth || 140;
+    const popHeight = popover.offsetHeight || 100;
+    const winWidth = win.innerWidth || 400;
+    const winHeight = win.innerHeight || 500;
+    const left = Math.max(8, Math.min(rect.left, winWidth - popWidth - 10));
+    const fitsBelow = rect.bottom + popHeight + 8 <= winHeight;
+    const top =
+      fitsBelow || rect.top - popHeight - 4 < 0
+        ? rect.bottom + 4
+        : rect.top - popHeight - 4;
     popover.style.left = `${left}px`;
     popover.style.top = `${top}px`;
   };
@@ -363,18 +398,20 @@ function rowEl(
     : undefined;
   let checkTitle = cited ? tr("dialogCited") : tr("dialogCheckHint");
   if (locs && locs.length) {
-    const labels = locs.map((l) =>
-      l.noteIndex === 0
-        ? tr("dialogLocationText")
-        : tr("dialogLocationFootnote").replace("{n}", String(l.noteIndex)),
-    );
-    const uniqueLabels = [...new Set(labels)];
-    checkTitle = `${tr("dialogCited")} (${uniqueLabels.join(", ")})`;
+    const items = formatCitationLocationList(locs, getLocationOptions());
+    const uniqueLabels = [...new Set(items.map((x) => x.label))];
+    const maxVisible = 6;
+    const summary =
+      uniqueLabels.length > maxVisible
+        ? `${uniqueLabels.slice(0, maxVisible).join(", ")}, … (+${uniqueLabels.length - maxVisible})`
+        : uniqueLabels.join(", ");
+    checkTitle = `${tr("dialogCited")} (${summary})`;
   }
+  const canMark = !cited && r.kind !== "work";
   const check = el(
     doc,
     "span",
-    `flex:none;width:16px;text-align:center;cursor:pointer;color:${GREEN};font-weight:700;`,
+    `flex:none;width:16px;text-align:center;cursor:${canMark ? "pointer" : "default"};color:${GREEN};font-weight:700;`,
     cited ? "✓" : "",
   );
   check.className = cited
@@ -382,13 +419,15 @@ function rowEl(
     : "flexannotate-check";
   check.title = checkTitle;
   if (locs && locs.length) {
-    attachFootnotePopover(win, check, locs);
+    attachFootnotePopover(win, v, check, locs);
   }
-  // manual correction: click toggles the mark of this row (or the selection)
+  // Die Markierung wird dynamisch ermittelt und lässt sich nicht entfernen;
+  // ein Klick auf eine leere Zelle markiert die Zeile (nur Annotationen, keine Werke) von Hand.
   check.addEventListener("click", (e) => {
     e.stopPropagation();
+    if (!canMark) return;
     const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
-    setCited(win, v, ids, !cited);
+    setCited(win, v, ids);
   });
   const dot = el(
     doc,
@@ -514,7 +553,9 @@ export function renderPreview(win: Window, v: View) {
         const locContainer = el(
           doc,
           "div",
-          "display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:12px;margin-top:2px;margin-bottom:2px;",
+          "display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:12px;margin-top:2px;margin-bottom:2px;" +
+            "max-height:100px;overflow-y:auto;padding-right:2px;scrollbar-width:thin;" +
+            "scrollbar-color:rgba(128,128,128,0.4) transparent;",
         );
         locContainer.appendChild(
           el(
@@ -524,35 +565,16 @@ export function renderPreview(win: Window, v: View) {
             tr("dialogCitedIn"),
           ),
         );
-        const counts = new Map<string, number>();
-        for (const loc of locs) {
-          const base =
-            loc.noteIndex === 0
-              ? tr("dialogLocationText")
-              : tr("dialogLocationFootnote").replace(
-                  "{n}",
-                  String(loc.noteIndex),
-                );
-          counts.set(base, (counts.get(base) || 0) + 1);
-        }
-        const seen = new Map<string, number>();
-        for (const loc of locs) {
+        const items = formatCitationLocationList(locs, getLocationOptions());
+        for (const { loc, label } of items) {
           const chip = doc.createElement("button");
           chip.type = "button";
           chip.className = "flexannotate-citation-chip";
-          const base =
-            loc.noteIndex === 0
-              ? tr("dialogLocationText")
-              : tr("dialogLocationFootnote").replace(
-                  "{n}",
-                  String(loc.noteIndex),
-                );
-          const total = counts.get(base) || 1;
-          const curr = (seen.get(base) || 0) + 1;
-          seen.set(base, curr);
-          const label = total > 1 ? `${base} (${curr})` : base;
           chip.textContent = label;
-          chip.title = `${label} (${tr("dialogJumpToFootnote")})`;
+          const hint = loc.plainCitation
+            ? `${label}: ${loc.plainCitation}`
+            : label;
+          chip.title = `${hint} (${tr("dialogJumpToFootnote")})`;
           chip.style.cssText =
             "cursor:pointer;padding:2px 8px;font-size:11px;line-height:normal;" +
             "font-family:inherit;margin:0;border-radius:10px;" +
@@ -562,7 +584,9 @@ export function renderPreview(win: Window, v: View) {
             ";font-weight:600;";
           chip.addEventListener("click", (e) => {
             e.stopPropagation();
-            void jumpToCitation(loc.citation || loc);
+            void jumpToCitation(loc.citation || loc).then((ok) => {
+              if (!ok) void refreshCitedInView(win, v);
+            });
           });
           locContainer.appendChild(chip);
         }
@@ -589,29 +613,29 @@ export function renderPreview(win: Window, v: View) {
     bar.appendChild(show);
   }
 
-  // manual correction of the green check
-  const allCited = picked.every((r) => v.cited.has(r.id));
-  const mark = doc.createElement("button");
-  mark.id = "flexannotate-toggle-cited";
-  mark.textContent = allCited ? tr("dialogUncite") : tr("dialogMark");
-  mark.style.cssText = BUTTON_CSS;
-  mark.addEventListener("click", () =>
-    setCited(win, v, [...v.sel.selected], !allCited),
+  // manual marking of the green check (only for annotations, works are strictly dynamic)
+  const canMarkManually = picked.some(
+    (r) => !v.cited.has(r.id) && r.kind !== "work",
   );
-  bar.appendChild(mark);
+  if (canMarkManually) {
+    const mark = doc.createElement("button");
+    mark.id = "flexannotate-toggle-cited";
+    mark.textContent = tr("dialogMark");
+    mark.style.cssText = BUTTON_CSS;
+    mark.addEventListener("click", () => setCited(win, v, [...v.sel.selected]));
+    bar.appendChild(mark);
+  }
 }
 
-/** Set or remove the green check of annotations for this document. */
-function setCited(win: Window, v: View, ids: number[], on: boolean) {
+/** Set the green check of annotations for this document. */
+function setCited(win: Window, v: View, ids: number[]) {
   const sessionID = currentSessionId();
   const store = readCitedStore();
   const entries = ids.flatMap((id) => {
     const r = v.rows.get(id);
     return r ? [{ id, workID: r.workID }] : [];
   });
-  const next = on
-    ? record(store, sessionID, entries)
-    : unrecord(store, sessionID, ids);
+  const next = record(store, sessionID, entries);
   try {
     writeCitedStore(next);
   } catch (e) {
@@ -625,17 +649,14 @@ function setCited(win: Window, v: View, ids: number[], on: boolean) {
       .filter((k): k is string => !!k);
     if (keys.length) {
       const docData = readDocCitedData() || { citations: {} };
-      const updated = toggleDocCited(docData, keys, on);
+      const updated = toggleDocCited(docData, keys, true);
       writeDocCitedData(updated);
     }
   } catch (e) {
     ztoolkit.log("flexannotate doc cited write failed:", e);
   }
 
-  for (const id of ids) {
-    if (on) v.cited.add(id);
-    else v.cited.delete(id);
-  }
+  for (const id of ids) v.cited.add(id);
   renderList(win, v);
   renderPreview(win, v);
 }

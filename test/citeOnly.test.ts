@@ -333,6 +333,38 @@ describe("citation-only patch", function () {
         failedResult,
         "returns false without throwing when field.select fails",
       );
+
+      // 6. syncSessionFromDocument updates session and prunes deleted footnote
+      let docDataSaved: string | null = null;
+      const origGetApp = (Zotero as any).Integration.getApplication;
+      (Zotero as any).Integration.getApplication = () => ({
+        getActiveDocument: async () => ({
+          setDocumentData: async (s: string) => {
+            docDataSaved = s;
+          },
+          cleanup: async () => {},
+          complete: async () => {},
+        }),
+      });
+      fakeSession.data.serialize = () =>
+        JSON.stringify(fakeSession.data.prefs.flexannotate_cited);
+      fakeSession.updateFromDocument = async function () {
+        this.documentCitationIDs = {};
+        this.citationsByIndex = {};
+        this.citationsByItemID = {};
+      };
+      try {
+        const changed = await dialogCited.syncSessionFromDocument();
+        assert.isTrue(changed, "detects deleted footnote in document");
+        assert.deepEqual(
+          JSON.parse(fakeSession.data.prefs.flexannotate_cited).citations,
+          {},
+          "prunes last deleted citation when empty is verified",
+        );
+        assert.isNotNull(docDataSaved, "persists pruned data to document");
+      } finally {
+        (Zotero as any).Integration.getApplication = origGetApp;
+      }
     } finally {
       addonData.env = origEnv;
       (Zotero as any).Integration.currentSession = origSession;

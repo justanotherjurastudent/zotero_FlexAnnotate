@@ -915,7 +915,7 @@ describe("FlexAnnotate features", function () {
       }
       await screenshot(w, "dialog-cited");
 
-      // the mark can be removed by hand and set again
+      // the mark is dynamic: a click on it and the preview do not remove it
       const readStore = () =>
         Zotero.Prefs.get(`${prefs}.citedAnnotations`, true) as string;
       click(
@@ -923,18 +923,12 @@ describe("FlexAnnotate features", function () {
           `[data-ann-id="${anns[0].id}"] .flexannotate-cited`,
         )!,
       );
-      await waitFor(
-        () => w.document.querySelectorAll(".flexannotate-cited").length === 1,
-      );
-      assert.notInclude(readStore(), `"${anns[0].id}"`);
-      // select it: the preview offers the opposite action
       click(w.document.querySelector(`[data-ann-id="${anns[0].id}"]`)!);
-      const mark = await waitFor(() =>
+      await waitFor(() => w.document.getElementById("flexannotate-insert"));
+      assert.lengthOf(w.document.querySelectorAll(".flexannotate-cited"), 2);
+      assert.isNull(
         w.document.getElementById("flexannotate-toggle-cited"),
-      );
-      click(mark);
-      await waitFor(
-        () => w.document.querySelectorAll(".flexannotate-cited").length === 2,
+        "no button to remove the mark",
       );
       assert.include(readStore(), `"${anns[0].id}"`);
 

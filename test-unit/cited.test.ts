@@ -10,6 +10,8 @@ import {
   buildWorkCitationLocationsMap,
   findCitationLocations,
   findWorkCitationLocations,
+  formatCitationLocationLabel,
+  formatCitationLocationList,
   type CitedDocData,
   type CitationLocation,
 } from "../src/features/organizer/logic/cited.ts";
@@ -185,7 +187,7 @@ describe("citedDocData: reconciliation and pruning", () => {
     assert.ok(!step1.activeKeys.has("ANN_ONLY_1"));
 
     // User also deletes footnote 2 in Word
-    // Leere aktive ID-Menge = Session nicht geladen: nichts löschen
+    // Leere aktive ID-Menge ohne authoritativeEmpty = Session nicht geladen: nichts löschen
     const step2 = reconcileDocData(step1.data, new Set<string>());
     assert.equal(step2.pruned, false);
     assert.deepEqual(step2.data.citations, step1.data.citations);
@@ -193,6 +195,12 @@ describe("citedDocData: reconciliation and pruning", () => {
     const step3 = reconcileDocData(step1.data, {});
     assert.equal(step3.pruned, false);
     assert.deepEqual(step3.data.citations, step1.data.citations);
+
+    // Mit authoritativeEmpty = true (nach echtem Dokument-Scan): letzte Fußnote wird bereinigt
+    const step4 = reconcileDocData(step1.data, {}, true);
+    assert.equal(step4.pruned, true);
+    assert.deepEqual(step4.data.citations, {});
+    assert.equal(step4.activeKeys.size, 0);
   });
 
   it("handles empty docData gracefully without pruning", () => {
@@ -591,6 +599,48 @@ describe("cited: work citation locations (buildWorkCitationLocationsMap)", () =>
     assert.equal(locs99[0].noteIndex, 0); // in-text
   });
 
+  it("distinguishes noteType (footnotes vs endnotes vs in-text)", () => {
+    const docData: CitedDocData = {
+      citations: {
+        cit_fn: ["A_KEY"],
+        cit_en: ["A_KEY"],
+        cit_txt: ["A_KEY"],
+      },
+    };
+    const citations = [
+      {
+        citationID: "cit_txt",
+        properties: { noteIndex: 0, noteType: 0 },
+      },
+      {
+        citationID: "cit_fn",
+        properties: { noteIndex: 3, noteType: 1 },
+      },
+      {
+        citationID: "cit_en",
+        properties: { noteIndex: 5, noteType: 2 },
+      },
+    ];
+
+    const locs = findCitationLocations(docData, citations, "A_KEY");
+    assert.equal(locs.length, 3);
+    assert.equal(locs[0].noteIndex, 0);
+    assert.equal(locs[0].noteType, 0);
+    assert.equal(locs[1].noteIndex, 3);
+    assert.equal(locs[1].noteType, 1);
+    assert.equal(locs[2].noteIndex, 5);
+    assert.equal(locs[2].noteType, 2);
+
+    // Default noteType from document prefs
+    const locsDefault = findCitationLocations(
+      { citations: { c_auto: ["K"] } },
+      [{ citationID: "c_auto", properties: { noteIndex: 4 } }],
+      "K",
+      2, // defaultNoteType = 2 (endnotes)
+    );
+    assert.equal(locsDefault[0].noteType, 2);
+  });
+
   it("deduplicates citations with the same citationID", () => {
     const citationsByItemID = {
       "10": [
@@ -630,5 +680,207 @@ describe("cited: work citation locations (buildWorkCitationLocationsMap)", () =>
       elapsed < 50,
       `buildWorkCitationLocationsMap took ${elapsed.toFixed(2)}ms (expected < 50ms)`,
     );
+  });
+
+  it("sorts citations by noteType first so footnotes and endnotes do not interleave", () => {
+    const citationsByItemID = {
+      "20": [
+        {
+          citationID: "en1",
+          properties: { noteIndex: 1, noteType: 2, zoteroIndex: 2 },
+        },
+        {
+          citationID: "fn1",
+          properties: { noteIndex: 1, noteType: 1, zoteroIndex: 1 },
+        },
+        {
+          citationID: "txt1",
+          properties: { noteIndex: 0, noteType: 0, zoteroIndex: 0 },
+        },
+      ],
+    };
+    const locs = findWorkCitationLocations(citationsByItemID, 20);
+    assert.equal(locs.length, 3);
+    assert.equal(locs[0].citationID, "txt1");
+    assert.equal(locs[0].noteType, 0);
+    assert.equal(locs[1].citationID, "fn1");
+    assert.equal(locs[1].noteType, 1);
+    assert.equal(locs[2].citationID, "en1");
+    assert.equal(locs[2].noteType, 2);
+  });
+
+  it("findWorkCitationLocations respects defaultNoteType when cit.noteType is omitted", () => {
+    const citationsByItemID = {
+      "30": [{ citationID: "c_end", properties: { noteIndex: 7 } }],
+    };
+    const locs = findWorkCitationLocations(citationsByItemID, 30, 2);
+    assert.equal(locs.length, 1);
+    assert.equal(locs[0].noteIndex, 7);
+    assert.equal(locs[0].noteType, 2);
+  });
+
+  it("sorts citations by noteType first so footnotes and endnotes do not interleave", () => {
+    const citationsByItemID = {
+      "20": [
+        {
+          citationID: "en1",
+          properties: { noteIndex: 1, noteType: 2, zoteroIndex: 2 },
+        },
+        {
+          citationID: "fn1",
+          properties: { noteIndex: 1, noteType: 1, zoteroIndex: 1 },
+        },
+        {
+          citationID: "txt1",
+          properties: { noteIndex: 0, noteType: 0, zoteroIndex: 0 },
+        },
+      ],
+    };
+    const locs = findWorkCitationLocations(citationsByItemID, 20);
+    assert.equal(locs.length, 3);
+    assert.equal(locs[0].citationID, "txt1");
+    assert.equal(locs[0].noteType, 0);
+    assert.equal(locs[1].citationID, "fn1");
+    assert.equal(locs[1].noteType, 1);
+    assert.equal(locs[2].citationID, "en1");
+    assert.equal(locs[2].noteType, 2);
+  });
+
+  it("findWorkCitationLocations respects defaultNoteType when cit.noteType is omitted", () => {
+    const citationsByItemID = {
+      "30": [{ citationID: "c_end", properties: { noteIndex: 7 } }],
+    };
+    const locs = findWorkCitationLocations(citationsByItemID, 30, 2);
+    assert.equal(locs.length, 1);
+    assert.equal(locs[0].noteIndex, 7);
+    assert.equal(locs[0].noteType, 2);
+  });
+});
+
+describe("citedDocData: location label formatting", () => {
+  it("formats in-text citations as Text or Text n", () => {
+    const loc: CitationLocation = {
+      citationID: "c1",
+      noteIndex: 0,
+      noteType: 0,
+    };
+    assert.equal(formatCitationLocationLabel(loc, 1, 1), "Text");
+    assert.equal(formatCitationLocationLabel(loc, 1, 2), "Text 1");
+    assert.equal(formatCitationLocationLabel(loc, 2, 2), "Text 2");
+  });
+
+  it("formats footnotes as Fn. {n} or Fn. {n} (count)", () => {
+    const loc: CitationLocation = {
+      citationID: "c2",
+      noteIndex: 4,
+      noteType: 1,
+    };
+    assert.equal(formatCitationLocationLabel(loc, 1, 1), "Fn. 4");
+    assert.equal(formatCitationLocationLabel(loc, 1, 2), "Fn. 4 (1)");
+    assert.equal(formatCitationLocationLabel(loc, 2, 2), "Fn. 4 (2)");
+  });
+
+  it("formats endnotes as Endn. {n} or Endn. {n} (count)", () => {
+    const loc: CitationLocation = {
+      citationID: "c3",
+      noteIndex: 6,
+      noteType: 2,
+    };
+    assert.equal(formatCitationLocationLabel(loc, 1, 1), "Endn. 6");
+    assert.equal(formatCitationLocationLabel(loc, 1, 2), "Endn. 6 (1)");
+    assert.equal(formatCitationLocationLabel(loc, 2, 2), "Endn. 6 (2)");
+  });
+
+  it("supports custom formatting options (e.g. English labels)", () => {
+    const locEn: CitationLocation = {
+      citationID: "c4",
+      noteIndex: 3,
+      noteType: 2,
+    };
+    const label = formatCitationLocationLabel(locEn, 1, 1, {
+      endnotePattern: "En. {n}",
+    });
+    assert.equal(label, "En. 3");
+  });
+
+  it("formatCitationLocationList numbers duplicate locations correctly", () => {
+    const locs: CitationLocation[] = [
+      { citationID: "t1", noteIndex: 0, noteType: 0 },
+      { citationID: "t2", noteIndex: 0, noteType: 0 },
+      { citationID: "f1", noteIndex: 5, noteType: 1 },
+      { citationID: "f2", noteIndex: 5, noteType: 1 },
+      { citationID: "e1", noteIndex: 2, noteType: 2 },
+    ];
+    const formatted = formatCitationLocationList(locs);
+    assert.equal(formatted.length, 5);
+    assert.equal(formatted[0].label, "Text 1");
+    assert.equal(formatted[1].label, "Text 2");
+    assert.equal(formatted[2].label, "Fn. 5 (1)");
+    assert.equal(formatted[3].label, "Fn. 5 (2)");
+    assert.equal(formatted[4].label, "Endn. 2");
+  });
+});
+
+describe("citedDocData: location label formatting", () => {
+  it("formats in-text citations as Text or Text n", () => {
+    const loc: CitationLocation = {
+      citationID: "c1",
+      noteIndex: 0,
+      noteType: 0,
+    };
+    assert.equal(formatCitationLocationLabel(loc, 1, 1), "Text");
+    assert.equal(formatCitationLocationLabel(loc, 1, 2), "Text 1");
+    assert.equal(formatCitationLocationLabel(loc, 2, 2), "Text 2");
+  });
+
+  it("formats footnotes as Fn. {n} or Fn. {n} (count)", () => {
+    const loc: CitationLocation = {
+      citationID: "c2",
+      noteIndex: 4,
+      noteType: 1,
+    };
+    assert.equal(formatCitationLocationLabel(loc, 1, 1), "Fn. 4");
+    assert.equal(formatCitationLocationLabel(loc, 1, 2), "Fn. 4 (1)");
+    assert.equal(formatCitationLocationLabel(loc, 2, 2), "Fn. 4 (2)");
+  });
+
+  it("formats endnotes as Endn. {n} or Endn. {n} (count)", () => {
+    const loc: CitationLocation = {
+      citationID: "c3",
+      noteIndex: 6,
+      noteType: 2,
+    };
+    assert.equal(formatCitationLocationLabel(loc, 1, 1), "Endn. 6");
+    assert.equal(formatCitationLocationLabel(loc, 1, 2), "Endn. 6 (1)");
+    assert.equal(formatCitationLocationLabel(loc, 2, 2), "Endn. 6 (2)");
+  });
+
+  it("supports custom formatting options (e.g. English labels)", () => {
+    const locEn: CitationLocation = {
+      citationID: "c4",
+      noteIndex: 3,
+      noteType: 2,
+    };
+    const label = formatCitationLocationLabel(locEn, 1, 1, {
+      endnotePattern: "En. {n}",
+    });
+    assert.equal(label, "En. 3");
+  });
+
+  it("formatCitationLocationList numbers duplicate locations correctly", () => {
+    const locs: CitationLocation[] = [
+      { citationID: "t1", noteIndex: 0, noteType: 0 },
+      { citationID: "t2", noteIndex: 0, noteType: 0 },
+      { citationID: "f1", noteIndex: 5, noteType: 1 },
+      { citationID: "f2", noteIndex: 5, noteType: 1 },
+      { citationID: "e1", noteIndex: 2, noteType: 2 },
+    ];
+    const formatted = formatCitationLocationList(locs);
+    assert.equal(formatted.length, 5);
+    assert.equal(formatted[0].label, "Text 1");
+    assert.equal(formatted[1].label, "Text 2");
+    assert.equal(formatted[2].label, "Fn. 5 (1)");
+    assert.equal(formatted[3].label, "Fn. 5 (2)");
+    assert.equal(formatted[4].label, "Endn. 2");
   });
 });

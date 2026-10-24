@@ -114,11 +114,15 @@ export function getActiveCitedIDs(
 
   if (docData !== null) {
     const docCitationIDs = session?.documentCitationIDs;
+    const authoritativeEmpty =
+      Boolean(session?._sessionUpToDate) &&
+      Array.isArray(session?._fields) &&
+      session._fields.length === 0;
     const {
       data: reconciled,
       activeKeys,
       pruned,
-    } = reconcileDocData(docData, docCitationIDs);
+    } = reconcileDocData(docData, docCitationIDs, authoritativeEmpty);
     if (pruned) {
       writeDocCitedData(reconciled);
     }
@@ -203,9 +207,15 @@ export function getCitationLocations(
   const resolvedDocData = docData !== undefined ? docData : readDocCitedData();
   if (!resolvedDocData) return [];
   const session = currentSession();
+  const defaultNoteType = session?.data?.prefs?.noteType;
   const resolvedCitations =
     citations !== undefined ? citations : session?.citationsByIndex;
-  return findCitationLocations(resolvedDocData, resolvedCitations, annKey);
+  return findCitationLocations(
+    resolvedDocData,
+    resolvedCitations,
+    annKey,
+    defaultNoteType,
+  );
 }
 
 /**
@@ -217,9 +227,14 @@ export function getAllCitationLocations(
 ): Map<string, CitationLocation[]> {
   const resolvedDocData = docData !== undefined ? docData : readDocCitedData();
   const session = currentSession();
+  const defaultNoteType = session?.data?.prefs?.noteType;
   const resolvedCitations =
     citations !== undefined ? citations : session?.citationsByIndex;
-  return buildCitationLocationsMap(resolvedDocData, resolvedCitations);
+  return buildCitationLocationsMap(
+    resolvedDocData,
+    resolvedCitations,
+    defaultNoteType,
+  );
 }
 
 /**
@@ -229,11 +244,12 @@ export function getAllWorkCitationLocations(
   citationsByItemID?: Record<string, unknown> | null,
 ): Map<number, CitationLocation[]> {
   const session = currentSession();
+  const defaultNoteType = session?.data?.prefs?.noteType;
   const resolved =
     citationsByItemID !== undefined
       ? citationsByItemID
       : session?.citationsByItemID;
-  return buildWorkCitationLocationsMap(resolved);
+  return buildWorkCitationLocationsMap(resolved, defaultNoteType);
 }
 
 function logJump(msg: string, detail?: unknown): void {
@@ -262,10 +278,10 @@ function logJump(msg: string, detail?: unknown): void {
 const WORD_JUMP_VBS = `' FlexAnnotate Word Jump Script
 Option Explicit
 
-Dim word, doc, shell, docId, noteIndex, citationId
+Dim word, doc, shell, docId, noteIndex, citationId, noteType
 Dim i, found, targetDoc, fnItem, fnRef, fnRange, story
 
-If WScript.Arguments.Count < 3 Then WScript.Quit 0
+If WScript.Arguments.Count < 3 Then WScript.Quit 1
 
 docId = WScript.Arguments(0)
 If docId = "-" Then docId = ""
@@ -277,10 +293,17 @@ End If
 citationId = WScript.Arguments(2)
 If citationId = "-" Then citationId = ""
 
+noteType = 0
+If WScript.Arguments.Count >= 4 Then
+    If IsNumeric(WScript.Arguments(3)) Then
+        noteType = CLng(WScript.Arguments(3))
+    End If
+End If
+
 On Error Resume Next
 Set word = GetObject(, "Word.Application")
 If Err.Number <> 0 Or word Is Nothing Then
-    WScript.Quit 0
+    WScript.Quit 1
 End If
 On Error GoTo 0
 
@@ -302,7 +325,7 @@ If targetDoc Is Nothing Then
     Set targetDoc = word.ActiveDocument
 End If
 
-If targetDoc Is Nothing Then WScript.Quit 0
+If targetDoc Is Nothing Then WScript.Quit 1
 
 targetDoc.Activate
 If Not targetDoc.ActiveWindow Is Nothing Then
@@ -311,34 +334,153 @@ End If
 
 found = False
 
-' 1. If noteIndex is valid, jump directly to the footnote
-If noteIndex > 0 And noteIndex <= targetDoc.Footnotes.Count Then
-    Set fnItem = targetDoc.Footnotes.Item(noteIndex)
-    If Not fnItem Is Nothing Then
-        Set fnRef = fnItem.Reference
-        If Not fnRef Is Nothing Then
-            fnRef.Select
-            targetDoc.ActiveWindow.ScrollIntoView fnRef, True
-        End If
-        Set fnRange = fnItem.Range
-        If Not fnRange Is Nothing Then
-            fnRange.Select
-            targetDoc.ActiveWindow.ScrollIntoView fnRange, True
-            found = True
-            If citationId <> "" Then
-                For i = 1 To fnRange.Fields.Count
-                    If InStr(1, fnRange.Fields.Item(i).Code.Text, citationId, 1) > 0 Then
-                        fnRange.Fields.Item(i).Select
-                        targetDoc.ActiveWindow.ScrollIntoView word.Selection.Range, True
-                        Exit For
+' 1. If noteIndex is valid, check Footnotes or Endnotes depending on noteType
+If noteIndex > 0 Then
+    If noteType = 2 Then
+        ' Endnotes
+        If noteIndex <= targetDoc.Endnotes.Count Then
+            Set fnItem = targetDoc.Endnotes.Item(noteIndex)
+            If Not fnItem Is Nothing Then
+                Set fnRange = fnItem.Range
+                If Not fnRange Is Nothing Then
+                    If citationId <> "" Then
+                        For i = 1 To fnRange.Fields.Count
+                            If InStr(1, fnRange.Fields.Item(i).Code.Text, citationId, 1) > 0 Then
+                                Set fnRef = fnItem.Reference
+                                If Not fnRef Is Nothing Then
+                                    fnRef.Select
+                                    targetDoc.ActiveWindow.ScrollIntoView fnRef, True
+                                End If
+                                fnRange.Fields.Item(i).Select
+                                targetDoc.ActiveWindow.ScrollIntoView word.Selection.Range, True
+                                found = True
+                                Exit For
+                            End If
+                        Next
+                    Else
+                        Set fnRef = fnItem.Reference
+                        If Not fnRef Is Nothing Then
+                            fnRef.Select
+                            targetDoc.ActiveWindow.ScrollIntoView fnRef, True
+                        End If
+                        fnRange.Select
+                        targetDoc.ActiveWindow.ScrollIntoView fnRange, True
+                        found = True
                     End If
-                Next
+                End If
+            End If
+        End If
+    Else
+        ' Footnotes
+        If noteIndex <= targetDoc.Footnotes.Count Then
+            Set fnItem = targetDoc.Footnotes.Item(noteIndex)
+            If Not fnItem Is Nothing Then
+                Set fnRange = fnItem.Range
+                If Not fnRange Is Nothing Then
+                    If citationId <> "" Then
+                        For i = 1 To fnRange.Fields.Count
+                            If InStr(1, fnRange.Fields.Item(i).Code.Text, citationId, 1) > 0 Then
+                                Set fnRef = fnItem.Reference
+                                If Not fnRef Is Nothing Then
+                                    fnRef.Select
+                                    targetDoc.ActiveWindow.ScrollIntoView fnRef, True
+                                End If
+                                fnRange.Fields.Item(i).Select
+                                targetDoc.ActiveWindow.ScrollIntoView word.Selection.Range, True
+                                found = True
+                                Exit For
+                            End If
+                        Next
+                    Else
+                        Set fnRef = fnItem.Reference
+                        If Not fnRef Is Nothing Then
+                            fnRef.Select
+                            targetDoc.ActiveWindow.ScrollIntoView fnRef, True
+                        End If
+                        fnRange.Select
+                        targetDoc.ActiveWindow.ScrollIntoView fnRange, True
+                        found = True
+                    End If
+                End If
             End If
         End If
     End If
 End If
 
-' 2. If not found by footnote, search fields across all stories (e.g. in-text citations)
+' 2. Fast-path: if noteType = 0 (in-text), search document body / StoryRanges first
+If Not found And citationId <> "" And noteType = 0 Then
+    For Each story In targetDoc.StoryRanges
+        Do While Not story Is Nothing
+            For i = 1 To story.Fields.Count
+                If InStr(1, story.Fields.Item(i).Code.Text, citationId, 1) > 0 Then
+                    story.Fields.Item(i).Select
+                    targetDoc.ActiveWindow.ScrollIntoView word.Selection.Range, True
+                    found = True
+                    Exit For
+                End If
+            Next
+            If found Then Exit Do
+            Set story = story.NextStoryRange
+        Loop
+        If found Then Exit For
+    Next
+End If
+
+' 3. Search footnotes and endnotes by citationId if not found yet
+If Not found And citationId <> "" Then
+    Dim j, fnCandidate
+    If noteType <> 2 Then
+        For j = 1 To targetDoc.Footnotes.Count
+            Set fnCandidate = targetDoc.Footnotes.Item(j)
+            If Not fnCandidate Is Nothing Then
+                Set fnRange = fnCandidate.Range
+                If Not fnRange Is Nothing Then
+                    For i = 1 To fnRange.Fields.Count
+                        If InStr(1, fnRange.Fields.Item(i).Code.Text, citationId, 1) > 0 Then
+                            Set fnRef = fnCandidate.Reference
+                            If Not fnRef Is Nothing Then
+                                fnRef.Select
+                                targetDoc.ActiveWindow.ScrollIntoView fnRef, True
+                            End If
+                            fnRange.Fields.Item(i).Select
+                            targetDoc.ActiveWindow.ScrollIntoView word.Selection.Range, True
+                            found = True
+                            Exit For
+                        End If
+                    Next
+                End If
+            End If
+            If found Then Exit For
+        Next
+    End If
+
+    If Not found And noteType <> 1 Then
+        For j = 1 To targetDoc.Endnotes.Count
+            Set fnCandidate = targetDoc.Endnotes.Item(j)
+            If Not fnCandidate Is Nothing Then
+                Set fnRange = fnCandidate.Range
+                If Not fnRange Is Nothing Then
+                    For i = 1 To fnRange.Fields.Count
+                        If InStr(1, fnRange.Fields.Item(i).Code.Text, citationId, 1) > 0 Then
+                            Set fnRef = fnCandidate.Reference
+                            If Not fnRef Is Nothing Then
+                                fnRef.Select
+                                targetDoc.ActiveWindow.ScrollIntoView fnRef, True
+                            End If
+                            fnRange.Fields.Item(i).Select
+                            targetDoc.ActiveWindow.ScrollIntoView word.Selection.Range, True
+                            found = True
+                            Exit For
+                        End If
+                    Next
+                End If
+            End If
+            If found Then Exit For
+        Next
+    End If
+End If
+
+' 4. Fallback search in document body / StoryRanges if not searched yet
 If Not found And citationId <> "" Then
     For Each story In targetDoc.StoryRanges
         Do While Not story Is Nothing
@@ -357,7 +499,9 @@ If Not found And citationId <> "" Then
     Next
 End If
 
-' 3. Refresh viewport and activate document and Word application
+If Not found Then WScript.Quit 2
+
+' 4. Refresh viewport and activate document and Word application
 word.ScreenRefresh
 targetDoc.Activate
 If Not targetDoc.ActiveWindow Is Nothing Then
@@ -365,7 +509,7 @@ If Not targetDoc.ActiveWindow Is Nothing Then
 End If
 word.Activate
 
-' 4. Bring window to front via WScript.Shell
+' 5. Bring window to front via WScript.Shell
 Set shell = CreateObject("WScript.Shell")
 If Not shell Is Nothing Then
     If Not targetDoc.ActiveWindow Is Nothing Then
@@ -452,6 +596,7 @@ async function runWordJumpScript(
   docId: string,
   noteIndex: number,
   citationID: string,
+  noteType = 0,
 ): Promise<boolean> {
   if (isTestProfile()) return false;
   try {
@@ -469,12 +614,14 @@ async function runWordJumpScript(
       docId || "-",
       String(noteIndex || 0),
       citationID || "-",
+      String(noteType || 0),
     ];
 
     logJump("runWordJumpScript start:", {
       docId: docId || "-",
       noteIndex: noteIndex || 0,
       citationID: citationID || "-",
+      noteType: noteType || 0,
     });
 
     const { Subprocess } = ChromeUtils.importESModule(
@@ -488,7 +635,7 @@ async function runWordJumpScript(
     });
     const res = await proc.wait();
     logJump("runWordJumpScript finished:", res);
-    return true;
+    return (res?.exitCode ?? 0) === 0;
   } catch (e) {
     logJump("runWordJumpScript failed:", e);
     return false;
@@ -620,6 +767,7 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
     const noteIndex =
       citationOrLoc?.noteIndex ??
       citationOrLoc?.properties?.noteIndex ??
+      citationOrLoc?.citation?.noteIndex ??
       citationOrLoc?.citation?.properties?.noteIndex;
     const directField = citationOrLoc?.field || citationOrLoc?.citation?.field;
     const session =
@@ -631,6 +779,13 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
       session?.doc ||
       citationOrLoc?.doc ||
       citationOrLoc?.citation?.doc;
+    const noteType =
+      citationOrLoc?.noteType ??
+      citationOrLoc?.properties?.noteType ??
+      citationOrLoc?.citation?.noteType ??
+      citationOrLoc?.citation?.properties?.noteType ??
+      session?.data?.prefs?.noteType ??
+      (noteIndex > 0 ? 1 : 0);
 
     const cmd = getLastCommand();
     const agent =
@@ -646,6 +801,7 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
       agent,
       docId,
       noteIndex,
+      noteType,
       citationID,
     });
 
@@ -685,6 +841,7 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
             docId || "",
             noteIndex || 0,
             citationID || "",
+            noteType,
           );
         }
         bringWordProcessorToFront(agent);
@@ -704,9 +861,18 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
         docId || "",
         noteIndex || 0,
         citationID || "",
+        noteType,
       );
-      bringWordProcessorToFront(agent);
-      if (jumped) return true;
+      if (jumped) {
+        bringWordProcessorToFront(agent);
+        return true;
+      }
+      // Wurde nach einer konkreten citationID gesucht und das VBS-Skript hat sie
+      // im gesamten Word-Dokument nicht mehr gefunden (Exit-Code 2, Fußnote gelöscht),
+      // nicht mehr in ein fremdes Feld springen.
+      if (citationID && !isTestProfile()) {
+        return false;
+      }
     }
 
     // 3. Re-acquire active document via Zotero.Integration (natively supported by LibreOffice on Win/Mac/Linux and MacWord)
@@ -728,14 +894,29 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
 
     try {
       const prefFieldType = session?.data?.prefs?.fieldType;
-      const fieldType =
+      let fieldType =
         prefFieldType &&
         (!app.primaryFieldType ||
           prefFieldType === app.primaryFieldType ||
           prefFieldType === app.secondaryFieldType)
           ? prefFieldType
           : app.primaryFieldType || prefFieldType || "Field";
-      const fields = await doc.getFields(fieldType);
+      let fields = await doc.getFields(fieldType);
+      if (
+        (!fields || fields.length === 0) &&
+        app.secondaryFieldType &&
+        fieldType !== app.secondaryFieldType
+      ) {
+        try {
+          const altFields = await doc.getFields(app.secondaryFieldType);
+          if (altFields && altFields.length > 0) {
+            fields = altFields;
+            fieldType = app.secondaryFieldType;
+          }
+        } catch {
+          /* ignore secondary field fetch */
+        }
+      }
       logJump("re-acquired document fields:", {
         agent,
         fieldType,
@@ -758,7 +939,12 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
         }
       }
 
-      if (!matchedField && typeof noteIndex === "number" && noteIndex > 0) {
+      if (
+        !matchedField &&
+        !citationID &&
+        typeof noteIndex === "number" &&
+        noteIndex > 0
+      ) {
         for (let i = 0; i < fields.length; i++) {
           const f = fields[i];
           try {
@@ -782,13 +968,14 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
           citationID,
           noteIndex,
         });
+        if (typeof doc.activate === "function") {
+          await doc.activate();
+        }
+        bringWordProcessorToFront(agent);
+        return true;
       }
 
-      if (typeof doc.activate === "function") {
-        await doc.activate();
-      }
-      bringWordProcessorToFront(agent);
-      return !!matchedField;
+      return false;
     } finally {
       try {
         if (typeof doc.cleanup === "function") await doc.cleanup();
@@ -802,5 +989,127 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
     return false;
   } finally {
     isJumping = false;
+  }
+}
+
+let isSyncingSession = false;
+
+/**
+ * Liest die Zitierfelder im geöffneten Textdokument neu ein und aktualisiert
+ * `session.citationsByIndex`, `session.citationsByItemID` und `session.documentCitationIDs`.
+ * Gibt `true` zurück, wenn sich der Dokumentstand (Zitate oder Fußnotennummern) geändert hat.
+ */
+export async function syncSessionFromDocument(): Promise<boolean> {
+  if (isSyncingSession || isJumping) return false;
+  const integration = (Zotero as any).Integration;
+  if (!integration || integration.currentDoc) return false;
+  const session = currentSession();
+  if (!session || typeof session.updateFromDocument !== "function") {
+    return false;
+  }
+
+  const snapshot = (s: any): string => {
+    try {
+      const cids = Object.keys(s?.documentCitationIDs || {}).sort();
+      const locs: string[] = [];
+      for (const [idx, cit] of Object.entries(s?.citationsByIndex || {})) {
+        const c = cit as any;
+        const nIndex = c?.properties?.noteIndex ?? 0;
+        const nType = c?.properties?.noteType ?? s?.data?.prefs?.noteType ?? 0;
+        locs.push(`${idx}:${c?.citationID ?? ""}:${nIndex}:${nType}`);
+      }
+      const prefNoteType = s?.data?.prefs?.noteType ?? 0;
+      return `${prefNoteType}|${cids.join(",")}|${locs.join(";")}`;
+    } catch {
+      return "";
+    }
+  };
+
+  const before = snapshot(session);
+  isSyncingSession = true;
+  let doc: any = null;
+  const prevDoc = session._doc;
+  const prevProgress = session.progressBar;
+  try {
+    const cmd = getLastCommand();
+    const agent =
+      cmd?.agent ||
+      session.agent ||
+      ((Zotero as any).isWin
+        ? "WinWord"
+        : (Zotero as any).isMac
+          ? "MacWord"
+          : "LibreOffice");
+    const docId = cmd?.docId;
+
+    const app = integration.getApplication?.(agent, "sync", docId);
+    if (!app) return false;
+
+    if (!isTestProfile()) {
+      await (Zotero as any).Promise?.delay?.(10);
+    }
+
+    const docPromise =
+      app.getDocument && docId
+        ? app.getDocument(docId)
+        : app.getActiveDocument?.();
+    if (!docPromise) return false;
+    doc = await docPromise;
+    if (!doc) return false;
+
+    session._doc = doc;
+    session._fields = null;
+    session._transactionUpToDate = false;
+    session.progressBar = {
+      show() {},
+      hide() {},
+      start() {},
+      finishSegment() {},
+    };
+
+    await session.updateFromDocument(false);
+
+    // Wurden Fußnoten gelöscht, bereinigte flexannotate_cited-Daten auch im Dokument sichern
+    const docData = readDocCitedData();
+    if (docData !== null) {
+      const { data: reconciled, pruned } = reconcileDocData(
+        docData,
+        session.documentCitationIDs,
+        true,
+      );
+      if (pruned) {
+        writeDocCitedData(reconciled);
+        if (
+          typeof doc.setDocumentData === "function" &&
+          typeof session.data?.serialize === "function"
+        ) {
+          try {
+            await doc.setDocumentData(session.data.serialize());
+          } catch {
+            /* ignore setDocumentData error during background sync */
+          }
+        }
+      }
+    }
+
+    const after = snapshot(session);
+    return before !== after;
+  } catch (e) {
+    logJump("syncSessionFromDocument failed:", e);
+    return false;
+  } finally {
+    session._doc = prevDoc;
+    session.progressBar = prevProgress;
+    session._fields = null;
+    session._transactionUpToDate = false;
+    if (doc) {
+      try {
+        if (typeof doc.cleanup === "function") await doc.cleanup();
+        if (typeof doc.complete === "function") await doc.complete();
+      } catch {
+        /* ignore cleanup error */
+      }
+    }
+    isSyncingSession = false;
   }
 }

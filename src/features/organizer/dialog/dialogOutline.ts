@@ -63,6 +63,7 @@ import {
   PREVIEW_ID,
   TREE_ID,
   insert,
+  refreshCitedInView,
   renderAll,
   renderList,
   renderPreview,
@@ -115,6 +116,7 @@ interface Attached {
   view: View | null;
   keyHandler: ((e: Event) => void) | null;
   searchHandler: ((e: Event) => void) | null;
+  focusHandler: (() => void) | null;
   /** Schmal: die Schalter stehen im Einstellungsmenue statt in der Zeile. */
   narrow: boolean;
   mq: MediaQueryList | null;
@@ -183,6 +185,7 @@ function inject(win: Window) {
     view: null,
     keyHandler: null,
     searchHandler: null,
+    focusHandler: null,
     narrow: false,
     mq: null,
     onMq: null,
@@ -362,6 +365,7 @@ async function enable(win: Window, cb: HTMLInputElement) {
     renderAll(win, view);
     addKeys(win, info);
     addSearchSync(win, info);
+    addFocusSync(win, info);
     addPicker(win, info);
     updateHint(win, view);
     cb.checked = true;
@@ -661,6 +665,26 @@ function addSearchSync(win: Window, info: Attached) {
   win.document.addEventListener("handle-input", handler);
 }
 
+/**
+ * Aktualisiert Zitatmarkierungen und Fußnotennummern im Hintergrund, sobald
+ * das Begleitfenster nach Bearbeitung im Textdokument wieder fokussiert wird.
+ * Gedrosselt (mind. 2 s Abstand), um wiederholte IPC-Scans bei schnellem Fensterwechsel zu vermeiden.
+ */
+function addFocusSync(win: Window, info: Attached) {
+  if (info.focusHandler) return;
+  let lastSync = 0;
+  const handler = () => {
+    const v = info.view;
+    if (!v || !info.enabled) return;
+    const now = Date.now();
+    if (now - lastSync < 2000) return;
+    lastSync = now;
+    void refreshCitedInView(win, v);
+  };
+  info.focusHandler = handler;
+  win.addEventListener("focus", handler);
+}
+
 /** Hide Zotero's native columns and add the containers for ours. */
 function applyLayout(win: Window) {
   const doc = win.document;
@@ -716,6 +740,10 @@ function restoreLayout(win: Window) {
   if (info?.searchHandler) {
     doc.removeEventListener("handle-input", info.searchHandler);
     info.searchHandler = null;
+  }
+  if (info?.focusHandler) {
+    win.removeEventListener("focus", info.focusHandler);
+    info.focusHandler = null;
   }
   for (const id of [TREE_ID, LIST_ID, PREVIEW_ID, NATIVE_ID, STYLE_ID])
     doc.getElementById(id)?.remove();

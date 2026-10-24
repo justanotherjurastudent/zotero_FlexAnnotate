@@ -146,6 +146,7 @@ export function recordDocCitation(
 export function reconcileDocData(
   data: CitedDocData,
   activeCitationIDs?: Set<string> | Record<string, unknown> | null,
+  authoritativeEmpty = false,
 ): { data: CitedDocData; activeKeys: Set<string>; pruned: boolean } {
   const activeKeys = new Set<string>(data.manual ?? []);
   if (!data.citations) {
@@ -168,14 +169,16 @@ export function reconcileDocData(
     return { data, activeKeys, pruned: false };
   }
 
-  // Leere Menge = Session (noch) nicht gefüllt (Zotero setzt documentCitationIDs
-  // in updateFromDocument auf {} zurück; bei delayCitationUpdates oder Fehlern
-  // bleibt es leer). Dann nie löschen, sonst gehen alle Einträge verloren.
-  const isEmpty =
-    activeCitationIDs instanceof Set
-      ? activeCitationIDs.size === 0
-      : Object.keys(activeCitationIDs).length === 0;
-  if (isEmpty) return { data, activeKeys, pruned: false };
+  // Leere Menge ohne authoritativeEmpty = Session (noch) nicht gefüllt (Zotero setzt
+  // documentCitationIDs in updateFromDocument auf {} zurück; bei delayCitationUpdates
+  // oder Fehlern bleibt es leer). Dann nie löschen, sonst gehen alle Einträge verloren.
+  if (!authoritativeEmpty) {
+    const isEmpty =
+      activeCitationIDs instanceof Set
+        ? activeCitationIDs.size === 0
+        : Object.keys(activeCitationIDs).length === 0;
+    if (isEmpty) return { data, activeKeys, pruned: false };
+  }
 
   const isActive = (id: string): boolean => {
     if (activeCitationIDs instanceof Set) return activeCitationIDs.has(id);
@@ -258,6 +261,8 @@ export interface CitationLocation {
   citationID: string;
   /** 0 for in-text / body citations, >= 1 for footnotes / endnotes */
   noteIndex: number;
+  /** 0 = in-text, 1 = footnote, 2 = endnote */
+  noteType?: number;
   /** Sequential document order index in citationsByIndex (0-based) */
   index?: number;
   plainCitation?: string;
@@ -271,6 +276,7 @@ export interface CitationLocation {
 export function buildCitationLocationsMap(
   docData: CitedDocData | null | undefined,
   citationsByIndex: unknown[] | Record<string, unknown> | null | undefined,
+  defaultNoteType?: number,
 ): Map<string, CitationLocation[]> {
   const map = new Map<string, CitationLocation[]>();
   if (!docData?.citations) return map;
@@ -323,9 +329,21 @@ export function buildCitationLocationsMap(
         : Number(rawNoteIndex);
     const noteIndex = !isNaN(num) && num > 0 ? Math.floor(num) : 0;
 
+    const rawNoteType =
+      cit.properties && typeof cit.properties === "object"
+        ? cit.properties.noteType
+        : cit.noteType;
+    const resolvedNoteType =
+      typeof rawNoteType === "number"
+        ? rawNoteType
+        : noteIndex > 0
+          ? (defaultNoteType ?? 1)
+          : 0;
+
     const loc: CitationLocation = {
       citationID: cid,
       noteIndex,
+      noteType: resolvedNoteType,
       index: info.index,
       citation: cit,
     };
@@ -343,11 +361,14 @@ export function buildCitationLocationsMap(
     }
   }
 
-  // Sort each list: first by noteIndex ascending (0 for text, then fn 1, fn 2...),
+  // Sort each list: first by noteType, then by noteIndex ascending (0 for text, then fn 1, fn 2...),
   // and for citations with the same noteIndex, by document order index ascending
   for (const list of map.values()) {
     list.sort(
-      (a, b) => a.noteIndex - b.noteIndex || (a.index ?? 0) - (b.index ?? 0),
+      (a, b) =>
+        (a.noteType ?? 0) - (b.noteType ?? 0) ||
+        a.noteIndex - b.noteIndex ||
+        (a.index ?? 0) - (b.index ?? 0),
     );
   }
 
@@ -361,9 +382,14 @@ export function findCitationLocations(
   docData: CitedDocData | null | undefined,
   citationsByIndex: unknown[] | Record<string, unknown> | null | undefined,
   annKey: string,
+  defaultNoteType?: number,
 ): CitationLocation[] {
   if (!annKey) return [];
-  return buildCitationLocationsMap(docData, citationsByIndex).get(annKey) ?? [];
+  return (
+    buildCitationLocationsMap(docData, citationsByIndex, defaultNoteType).get(
+      annKey,
+    ) ?? []
+  );
 }
 
 /**
@@ -372,6 +398,7 @@ export function findCitationLocations(
  */
 export function buildWorkCitationLocationsMap(
   citationsByItemID: Record<string, unknown> | null | undefined,
+  defaultNoteType?: number,
 ): Map<number, CitationLocation[]> {
   const map = new Map<number, CitationLocation[]>();
   if (!citationsByItemID || typeof citationsByItemID !== "object") return map;
@@ -413,9 +440,21 @@ export function buildWorkCitationLocationsMap(
       const docIndex =
         typeof zIndex === "number" && !isNaN(zIndex) ? zIndex : i;
 
+      const rawNoteType =
+        cit.properties && typeof cit.properties === "object"
+          ? cit.properties.noteType
+          : cit.noteType;
+      const resolvedNoteType =
+        typeof rawNoteType === "number"
+          ? rawNoteType
+          : noteIndex > 0
+            ? (defaultNoteType ?? 1)
+            : 0;
+
       locs.push({
         citationID: cid,
         noteIndex,
+        noteType: resolvedNoteType,
         index: docIndex,
         plainCitation: cit.properties?.plainCitation,
         citation: cit,
@@ -424,7 +463,10 @@ export function buildWorkCitationLocationsMap(
 
     if (locs.length) {
       locs.sort(
-        (a, b) => a.noteIndex - b.noteIndex || (a.index ?? 0) - (b.index ?? 0),
+        (a, b) =>
+          (a.noteType ?? 0) - (b.noteType ?? 0) ||
+          a.noteIndex - b.noteIndex ||
+          (a.index ?? 0) - (b.index ?? 0),
       );
       map.set(itemID, locs);
     }
@@ -439,7 +481,79 @@ export function buildWorkCitationLocationsMap(
 export function findWorkCitationLocations(
   citationsByItemID: Record<string, unknown> | null | undefined,
   workID: number,
+  defaultNoteType?: number,
 ): CitationLocation[] {
   if (!workID) return [];
-  return buildWorkCitationLocationsMap(citationsByItemID).get(workID) ?? [];
+  return (
+    buildWorkCitationLocationsMap(citationsByItemID, defaultNoteType).get(
+      workID,
+    ) ?? []
+  );
+}
+
+export interface FormatLocationOptions {
+  textLabel?: string;
+  footnotePattern?: string; // e.g. "Fn. {n}"
+  endnotePattern?: string; // e.g. "Endn. {n}"
+}
+
+/**
+ * Formatiert den Anzeigetext eines einzelnen Nachweises (z. B. "Text", "Text 2", "Fn. 3", "Endn. 4 (1)").
+ */
+export function formatCitationLocationLabel(
+  loc: CitationLocation,
+  count?: number,
+  total?: number,
+  options?: FormatLocationOptions,
+): string {
+  const isMulti = total !== undefined && total > 1;
+  const numSuffix = count !== undefined ? ` ${count}` : "";
+  const parenSuffix = count !== undefined ? ` (${count})` : "";
+
+  if (loc.noteIndex === 0) {
+    const textBase = options?.textLabel ?? "Text";
+    return textBase + (isMulti ? numSuffix : "");
+  }
+  if (loc.noteType === 2) {
+    const pattern = options?.endnotePattern ?? "Endn. {n}";
+    const base = pattern.replace("{n}", String(loc.noteIndex));
+    return base + (isMulti ? parenSuffix : "");
+  }
+  const pattern = options?.footnotePattern ?? "Fn. {n}";
+  const base = pattern.replace("{n}", String(loc.noteIndex));
+  return base + (isMulti ? parenSuffix : "");
+}
+
+export interface FormattedCitationLocation {
+  loc: CitationLocation;
+  label: string;
+}
+
+/**
+ * Wandelt eine Liste von Nachweisen in formatierte Labels um, inkl. korrekter Zählung
+ * bei Mehrfachvorkommen am selben Ort (z. B. Text 1, Text 2 bzw. Fn. 3 (1), Fn. 3 (2)).
+ */
+export function formatCitationLocationList(
+  locs: CitationLocation[],
+  options?: FormatLocationOptions,
+): FormattedCitationLocation[] {
+  if (!locs || !locs.length) return [];
+  const keyOf = (l: CitationLocation) => `${l.noteType ?? 0}:${l.noteIndex}`;
+  const totalCounts = new Map<string, number>();
+  for (const l of locs) {
+    const k = keyOf(l);
+    totalCounts.set(k, (totalCounts.get(k) || 0) + 1);
+  }
+
+  const counts = new Map<string, number>();
+  const result: FormattedCitationLocation[] = [];
+  for (const l of locs) {
+    const k = keyOf(l);
+    const count = (counts.get(k) || 0) + 1;
+    counts.set(k, count);
+    const total = totalCounts.get(k) || 1;
+    const label = formatCitationLocationLabel(l, count, total, options);
+    result.push({ loc: l, label });
+  }
+  return result;
 }
