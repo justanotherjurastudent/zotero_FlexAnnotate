@@ -301,7 +301,7 @@ export function buildCitationLocationsMap(
   for (let i = 0; i < rawList.length; i++) {
     const cit = rawList[i];
     if (!cit || typeof cit !== "object") continue;
-    const cid = String(cit.citationID ?? "");
+    const cid = String(cit.citationID || cit.properties?.citationID || "");
     if (cid && !citationById.has(cid)) {
       const zIndex = cit.properties?.zoteroIndex;
       const docIndex =
@@ -423,7 +423,7 @@ export function buildWorkCitationLocationsMap(
     for (let i = 0; i < list.length; i++) {
       const cit = list[i];
       if (!cit || typeof cit !== "object") continue;
-      const cid = String(cit.citationID ?? "");
+      const cid = String(cit.citationID || cit.properties?.citationID || "");
       if (cid && seenCids.has(cid)) continue;
       if (cid) seenCids.add(cid);
 
@@ -489,6 +489,36 @@ export function findWorkCitationLocations(
       workID,
     ) ?? []
   );
+}
+
+export interface RowLikeForLocation {
+  id: number;
+  kind?: string;
+  key?: string;
+  workID?: number;
+}
+
+/**
+ * Ermittelt die Fundstellen für eine Zeile (Werk oder Annotation).
+ * Falls für eine Annotation keine direkte Fundstelle in docData.citations existiert,
+ * wird auf die Zitationsstellen des übergeordneten Gesamtwerks (workID) zurückgegriffen.
+ */
+export function getLocationsForRow(
+  r: RowLikeForLocation,
+  locMap?: Map<string, CitationLocation[]>,
+  workLocMap?: Map<number, CitationLocation[]>,
+): CitationLocation[] | undefined {
+  if (r.kind === "work") {
+    const locs = workLocMap?.get(r.id);
+    return locs && locs.length ? locs : undefined;
+  }
+  const annLocs = r.key ? locMap?.get(r.key) : undefined;
+  if (annLocs && annLocs.length) return annLocs;
+  if (r.workID) {
+    const workLocs = workLocMap?.get(r.workID);
+    if (workLocs && workLocs.length) return workLocs;
+  }
+  return undefined;
 }
 
 export interface FormatLocationOptions {

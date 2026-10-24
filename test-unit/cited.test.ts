@@ -10,6 +10,7 @@ import {
   buildWorkCitationLocationsMap,
   findCitationLocations,
   findWorkCitationLocations,
+  getLocationsForRow,
   formatCitationLocationLabel,
   formatCitationLocationList,
   type CitedDocData,
@@ -519,6 +520,37 @@ describe("citationLocations: footnote and document location mapping", () => {
     assert.equal(a1Locs.length, 1);
   });
 
+  it("extracts citationID from properties.citationID when missing at top level", () => {
+    const docData: CitedDocData = {
+      citations: {
+        nested_cid: ["ANN_NESTED"],
+      },
+    };
+    const citations = [
+      {
+        properties: { citationID: "nested_cid", noteIndex: 7 },
+      },
+    ];
+
+    const map = buildCitationLocationsMap(docData, citations);
+    const locs = map.get("ANN_NESTED") ?? [];
+    assert.equal(locs.length, 1);
+    assert.equal(locs[0].citationID, "nested_cid");
+    assert.equal(locs[0].noteIndex, 7);
+
+    const workMap = buildWorkCitationLocationsMap({
+      "99": [
+        {
+          properties: { citationID: "nested_cid", noteIndex: 7 },
+        },
+      ],
+    });
+    const workLocs = workMap.get(99) ?? [];
+    assert.equal(workLocs.length, 1);
+    assert.equal(workLocs[0].citationID, "nested_cid");
+    assert.equal(workLocs[0].noteIndex, 7);
+  });
+
   it("performance: builds location map for 1,000 citations in under 5ms", () => {
     const citations: any[] = [];
     const docDataCitations: Record<string, string[]> = {};
@@ -819,68 +851,63 @@ describe("citedDocData: location label formatting", () => {
     assert.equal(formatted[3].label, "Fn. 5 (2)");
     assert.equal(formatted[4].label, "Endn. 2");
   });
-});
 
-describe("citedDocData: location label formatting", () => {
-  it("formats in-text citations as Text or Text n", () => {
-    const loc: CitationLocation = {
-      citationID: "c1",
-      noteIndex: 0,
-      noteType: 0,
-    };
-    assert.equal(formatCitationLocationLabel(loc, 1, 1), "Text");
-    assert.equal(formatCitationLocationLabel(loc, 1, 2), "Text 1");
-    assert.equal(formatCitationLocationLabel(loc, 2, 2), "Text 2");
-  });
-
-  it("formats footnotes as Fn. {n} or Fn. {n} (count)", () => {
-    const loc: CitationLocation = {
-      citationID: "c2",
-      noteIndex: 4,
+  it("getLocationsForRow resolves locations for work, annotation and falls back to parent work", () => {
+    const workLoc: CitationLocation = {
+      citationID: "w1",
+      noteIndex: 2,
       noteType: 1,
     };
-    assert.equal(formatCitationLocationLabel(loc, 1, 1), "Fn. 4");
-    assert.equal(formatCitationLocationLabel(loc, 1, 2), "Fn. 4 (1)");
-    assert.equal(formatCitationLocationLabel(loc, 2, 2), "Fn. 4 (2)");
-  });
-
-  it("formats endnotes as Endn. {n} or Endn. {n} (count)", () => {
-    const loc: CitationLocation = {
-      citationID: "c3",
-      noteIndex: 6,
-      noteType: 2,
+    const annLoc: CitationLocation = {
+      citationID: "a1",
+      noteIndex: 5,
+      noteType: 1,
     };
-    assert.equal(formatCitationLocationLabel(loc, 1, 1), "Endn. 6");
-    assert.equal(formatCitationLocationLabel(loc, 1, 2), "Endn. 6 (1)");
-    assert.equal(formatCitationLocationLabel(loc, 2, 2), "Endn. 6 (2)");
-  });
 
-  it("supports custom formatting options (e.g. English labels)", () => {
-    const locEn: CitationLocation = {
-      citationID: "c4",
-      noteIndex: 3,
-      noteType: 2,
-    };
-    const label = formatCitationLocationLabel(locEn, 1, 1, {
-      endnotePattern: "En. {n}",
-    });
-    assert.equal(label, "En. 3");
-  });
+    const locMap = new Map<string, CitationLocation[]>([
+      ["ANN_CITED", [annLoc]],
+      ["ANN_EMPTY", []],
+    ]);
+    const workLocMap = new Map<number, CitationLocation[]>([[42, [workLoc]]]);
 
-  it("formatCitationLocationList numbers duplicate locations correctly", () => {
-    const locs: CitationLocation[] = [
-      { citationID: "t1", noteIndex: 0, noteType: 0 },
-      { citationID: "t2", noteIndex: 0, noteType: 0 },
-      { citationID: "f1", noteIndex: 5, noteType: 1 },
-      { citationID: "f2", noteIndex: 5, noteType: 1 },
-      { citationID: "e1", noteIndex: 2, noteType: 2 },
-    ];
-    const formatted = formatCitationLocationList(locs);
-    assert.equal(formatted.length, 5);
-    assert.equal(formatted[0].label, "Text 1");
-    assert.equal(formatted[1].label, "Text 2");
-    assert.equal(formatted[2].label, "Fn. 5 (1)");
-    assert.equal(formatted[3].label, "Fn. 5 (2)");
-    assert.equal(formatted[4].label, "Endn. 2");
+    // Work row
+    const workRes = getLocationsForRow(
+      { id: 42, kind: "work" },
+      locMap,
+      workLocMap,
+    );
+    assert.deepEqual(workRes, [workLoc]);
+
+    // Annotation row with direct citation
+    const annDirect = getLocationsForRow(
+      { id: 101, key: "ANN_CITED", workID: 42 },
+      locMap,
+      workLocMap,
+    );
+    assert.deepEqual(annDirect, [annLoc]);
+
+    // Annotation row without direct citation -> falls back to parent workID 42
+    const annFallback = getLocationsForRow(
+      { id: 102, key: "ANN_UNCITED", workID: 42 },
+      locMap,
+      workLocMap,
+    );
+    assert.deepEqual(annFallback, [workLoc]);
+
+    // Annotation row with empty list in locMap -> falls back to parent workID 42
+    const annEmptyFallback = getLocationsForRow(
+      { id: 103, key: "ANN_EMPTY", workID: 42 },
+      locMap,
+      workLocMap,
+    );
+    assert.deepEqual(annEmptyFallback, [workLoc]);
+
+    // Annotation row with neither direct citation nor parent work citation
+    const annNone = getLocationsForRow(
+      { id: 104, key: "ANN_NONE", workID: 99 },
+      locMap,
+      workLocMap,
+    );
+    assert.equal(annNone, undefined);
   });
 });

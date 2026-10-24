@@ -6,8 +6,10 @@
 
 import {
   formatCitationLocationList,
+  getLocationsForRow,
   record,
   toggleDocCited,
+  unrecord,
   type FormatLocationOptions,
 } from "../logic/cited";
 import type { AnnLike } from "../logic/dialogView";
@@ -67,9 +69,10 @@ function el(doc: Document, tag: string, css = "", text?: string): HTMLElement {
 
 export function renderAll(win: Window, v: View) {
   renderTree(win, v);
-  // neue Daten oder neuer Knoten: die Liste beginnt oben
-  renderList(win, v, false);
-  renderPreview(win, v);
+  const locMap = getAllCitationLocations();
+  const workLocMap = getAllWorkCitationLocations();
+  renderList(win, v, false, locMap, workLocMap);
+  renderPreview(win, v, locMap, workLocMap);
 }
 
 function renderTree(win: Window, v: View) {
@@ -165,7 +168,13 @@ export function visibleSections(v: View): Section<AnnLike>[] {
 }
 
 /** keepScroll: Auswahl und Häkchen bauen die Liste neu auf, die Scrollposition soll bleiben. */
-export function renderList(win: Window, v: View, keepScroll = true) {
+export function renderList(
+  win: Window,
+  v: View,
+  keepScroll = true,
+  locMap?: Map<string, CitationLocation[]>,
+  workLocMap?: Map<number, CitationLocation[]>,
+) {
   const doc = win.document;
   const host = doc.getElementById(LIST_ID);
   if (!host) return;
@@ -209,8 +218,8 @@ export function renderList(win: Window, v: View, keepScroll = true) {
     return;
   }
   const order = [...new Set(secs.flatMap((s) => s.items.map((i) => i.id)))];
-  const locMap = getAllCitationLocations();
-  const workLocMap = getAllWorkCitationLocations();
+  const resolvedLocMap = locMap ?? getAllCitationLocations();
+  const resolvedWorkLocMap = workLocMap ?? getAllWorkCitationLocations();
   list.addEventListener(
     "scroll",
     () => {
@@ -231,7 +240,10 @@ export function renderList(win: Window, v: View, keepScroll = true) {
     );
     for (const a of sec.items) {
       const r = v.rows.get(a.id);
-      if (r) list.appendChild(rowEl(win, v, r, order, locMap, workLocMap));
+      if (r)
+        list.appendChild(
+          rowEl(win, v, r, order, resolvedLocMap, resolvedWorkLocMap),
+        );
     }
   }
   list.scrollTop = scroll;
@@ -254,8 +266,10 @@ export async function refreshCitedInView(win: Window, v: View): Promise<void> {
   v.cited = isCitation
     ? (citedWorks ?? new Set<number>())
     : getActiveCitedIDs([...v.rows.values()], citedWorks);
-  renderList(win, v, true);
-  renderPreview(win, v);
+  const locMap = getAllCitationLocations();
+  const workLocMap = getAllWorkCitationLocations();
+  renderList(win, v, true, locMap, workLocMap);
+  renderPreview(win, v, locMap, workLocMap);
 }
 
 function getLocationOptions(): FormatLocationOptions {
@@ -389,13 +403,7 @@ function rowEl(
   );
   d.dataset.annId = String(r.id);
   const cited = v.cited.has(r.id);
-  const locs = cited
-    ? r.kind === "work"
-      ? workLocMap?.get(r.id)
-      : r.key
-        ? locMap?.get(r.key)
-        : undefined
-    : undefined;
+  const locs = cited ? getLocationsForRow(r, locMap, workLocMap) : undefined;
   let checkTitle = cited ? tr("dialogCited") : tr("dialogCheckHint");
   if (locs && locs.length) {
     const items = formatCitationLocationList(locs, getLocationOptions());
@@ -407,7 +415,7 @@ function rowEl(
         : uniqueLabels.join(", ");
     checkTitle = `${tr("dialogCited")} (${summary})`;
   }
-  const canMark = !cited && r.kind !== "work";
+  const canMark = r.kind !== "work";
   const check = el(
     doc,
     "span",
@@ -421,13 +429,11 @@ function rowEl(
   if (locs && locs.length) {
     attachFootnotePopover(win, v, check, locs);
   }
-  // Die Markierung wird dynamisch ermittelt und lässt sich nicht entfernen;
-  // ein Klick auf eine leere Zelle markiert die Zeile (nur Annotationen, keine Werke) von Hand.
   check.addEventListener("click", (e) => {
     e.stopPropagation();
     if (!canMark) return;
     const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
-    setCited(win, v, ids);
+    setCited(win, v, ids, !cited);
   });
   const dot = el(
     doc,
@@ -476,14 +482,19 @@ function rowEl(
       ctrl: m.ctrlKey || m.metaKey,
       shift: m.shiftKey,
     });
-    renderList(win, v);
-    renderPreview(win, v);
+    renderList(win, v, true, locMap, workLocMap);
+    renderPreview(win, v, locMap, workLocMap);
   });
   d.addEventListener("dblclick", () => void insert(win, [r.id]));
   return d;
 }
 
-export function renderPreview(win: Window, v: View) {
+export function renderPreview(
+  win: Window,
+  v: View,
+  locMap?: Map<string, CitationLocation[]>,
+  workLocMap?: Map<number, CitationLocation[]>,
+) {
   const doc = win.document;
   const host = doc.getElementById(PREVIEW_ID);
   if (!host) return;
@@ -548,14 +559,17 @@ export function renderPreview(win: Window, v: View) {
           "✓ " + tr("dialogCited"),
         ),
       );
-      const locs = r.key ? getCitationLocations(r.key) : [];
+      const locs =
+        getLocationsForRow(
+          r,
+          locMap ?? getAllCitationLocations(),
+          workLocMap ?? getAllWorkCitationLocations(),
+        ) ?? [];
       if (locs.length) {
         const locContainer = el(
           doc,
           "div",
-          "display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:12px;margin-top:2px;margin-bottom:2px;" +
-            "max-height:100px;overflow-y:auto;padding-right:2px;scrollbar-width:thin;" +
-            "scrollbar-color:rgba(128,128,128,0.4) transparent;",
+          "display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:12px;margin-top:2px;margin-bottom:2px;flex:none;",
         );
         locContainer.appendChild(
           el(
@@ -594,7 +608,11 @@ export function renderPreview(win: Window, v: View) {
       }
     }
   }
-  const bar = el(doc, "div", "display:flex;flex-wrap:wrap;gap:6px;");
+  const bar = el(
+    doc,
+    "div",
+    "display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:8px;",
+  );
   host.appendChild(bar);
   const btn = doc.createElement("button");
   btn.id = "flexannotate-insert";
@@ -613,29 +631,32 @@ export function renderPreview(win: Window, v: View) {
     bar.appendChild(show);
   }
 
-  // manual marking of the green check (only for annotations, works are strictly dynamic)
-  const canMarkManually = picked.some(
-    (r) => !v.cited.has(r.id) && r.kind !== "work",
-  );
-  if (canMarkManually) {
+  // manual marking/unmarking of the green check (only for annotations, works are strictly dynamic)
+  const canToggle = picked.length > 0 && picked.every((r) => r.kind !== "work");
+  if (canToggle) {
+    const allCited = picked.every((r) => v.cited.has(r.id));
     const mark = doc.createElement("button");
     mark.id = "flexannotate-toggle-cited";
-    mark.textContent = tr("dialogMark");
+    mark.textContent = allCited ? tr("dialogUncite") : tr("dialogMark");
     mark.style.cssText = BUTTON_CSS;
-    mark.addEventListener("click", () => setCited(win, v, [...v.sel.selected]));
+    mark.addEventListener("click", () =>
+      setCited(win, v, [...v.sel.selected], !allCited),
+    );
     bar.appendChild(mark);
   }
 }
 
-/** Set the green check of annotations for this document. */
-function setCited(win: Window, v: View, ids: number[]) {
+/** Set or remove the green check of annotations for this document. */
+function setCited(win: Window, v: View, ids: number[], on: boolean) {
   const sessionID = currentSessionId();
   const store = readCitedStore();
   const entries = ids.flatMap((id) => {
     const r = v.rows.get(id);
     return r ? [{ id, workID: r.workID }] : [];
   });
-  const next = record(store, sessionID, entries);
+  const next = on
+    ? record(store, sessionID, entries)
+    : unrecord(store, sessionID, ids);
   try {
     writeCitedStore(next);
   } catch (e) {
@@ -649,16 +670,21 @@ function setCited(win: Window, v: View, ids: number[]) {
       .filter((k): k is string => !!k);
     if (keys.length) {
       const docData = readDocCitedData() || { citations: {} };
-      const updated = toggleDocCited(docData, keys, true);
+      const updated = toggleDocCited(docData, keys, on);
       writeDocCitedData(updated);
     }
   } catch (e) {
     ztoolkit.log("flexannotate doc cited write failed:", e);
   }
 
-  for (const id of ids) v.cited.add(id);
-  renderList(win, v);
-  renderPreview(win, v);
+  for (const id of ids) {
+    if (on) v.cited.add(id);
+    else v.cited.delete(id);
+  }
+  const locMap = getAllCitationLocations();
+  const workLocMap = getAllWorkCitationLocations();
+  renderList(win, v, true, locMap, workLocMap);
+  renderPreview(win, v, locMap, workLocMap);
 }
 
 // ── inserting via Zotero's own handler ───────────────────────────────────────

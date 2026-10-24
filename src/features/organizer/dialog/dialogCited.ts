@@ -1100,8 +1100,6 @@ export async function syncSessionFromDocument(): Promise<boolean> {
   } finally {
     session._doc = prevDoc;
     session.progressBar = prevProgress;
-    session._fields = null;
-    session._transactionUpToDate = false;
     if (doc) {
       try {
         if (typeof doc.cleanup === "function") await doc.cleanup();
