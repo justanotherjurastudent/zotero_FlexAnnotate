@@ -7,9 +7,6 @@
 import {
   formatCitationLocationList,
   getLocationsForRow,
-  record,
-  toggleDocCited,
-  unrecord,
   type FormatLocationOptions,
 } from "../logic/cited";
 import type { AnnLike } from "../logic/dialogView";
@@ -23,25 +20,21 @@ import type { Row } from "../panel/organizerData";
 import { openRow } from "../openTarget";
 import { tr } from "../strings";
 import {
-  currentSessionId,
   getActiveCitedIDs,
   getAllCitationLocations,
   getAllWorkCitationLocations,
   getCitationLocations,
   jumpToCitation,
-  readCitedStore,
-  readDocCitedData,
   syncSessionFromDocument,
-  writeCitedStore,
-  writeDocCitedData,
   type CitationLocation,
 } from "./dialogCited";
+import { GREEN, setCited } from "./citedToggle";
+import { attachFootnotePopover, makeCitationChip } from "./footnoteChips";
 
 export const TREE_ID = "flexannotate-tree";
 export const LIST_ID = "flexannotate-list-pane";
 export const PREVIEW_ID = "flexannotate-preview";
 export const NATIVE_ID = "flexannotate-native";
-const GREEN = "#1f9d55";
 const SELECTED = "rgba(60,120,220,0.16)";
 const LINE = "var(--fill-quinary, rgba(128,128,128,0.25))";
 const MUTED = "var(--fill-secondary, #777)";
@@ -280,110 +273,6 @@ function getLocationOptions(): FormatLocationOptions {
   };
 }
 
-function attachFootnotePopover(
-  win: Window,
-  v: View,
-  check: HTMLElement,
-  locs: CitationLocation[],
-): void {
-  const doc = win.document;
-  let closeTimer: any = null;
-
-  const removeActivePopover = () => {
-    const existing = doc.getElementById("flexannotate-footnote-popover");
-    if (existing) existing.remove();
-  };
-
-  const scheduleClose = () => {
-    if (closeTimer) win.clearTimeout(closeTimer);
-    closeTimer = win.setTimeout(() => {
-      removeActivePopover();
-      closeTimer = null;
-    }, 200);
-  };
-
-  const cancelClose = () => {
-    if (closeTimer) {
-      win.clearTimeout(closeTimer);
-      closeTimer = null;
-    }
-  };
-
-  const show = () => {
-    cancelClose();
-    removeActivePopover();
-
-    const rect = check.getBoundingClientRect();
-    const popover = doc.createElement("div");
-    popover.id = "flexannotate-footnote-popover";
-    popover.style.cssText =
-      "position:fixed;z-index:99999;background:var(--material-background,#ffffff);" +
-      "color:var(--material-color,#222222);border:1px solid rgba(128,128,128,0.28);" +
-      "border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,0.22);padding:6px 8px;" +
-      "display:flex;flex-direction:column;gap:5px;font-size:11px;min-width:90px;max-width:260px;" +
-      "box-sizing:border-box;pointer-events:auto;";
-
-    const header = doc.createElement("div");
-    header.style.cssText =
-      `color:${MUTED};font-size:10px;font-weight:600;text-transform:uppercase;` +
-      "letter-spacing:0.4px;user-select:none;";
-    header.textContent =
-      locs.length > 1
-        ? `${tr("dialogCitedIn")} (${locs.length})`
-        : tr("dialogCitedIn");
-    popover.appendChild(header);
-
-    const chips = doc.createElement("div");
-    chips.style.cssText =
-      "display:flex;gap:4px;flex-wrap:wrap;max-height:180px;overflow-y:auto;padding-right:2px;" +
-      "scrollbar-width:thin;scrollbar-color:rgba(128,128,128,0.4) transparent;";
-
-    const items = formatCitationLocationList(locs, getLocationOptions());
-    for (const { loc: l, label } of items) {
-      const chip = doc.createElement("button");
-      chip.className = "flexannotate-loc-chip";
-      chip.style.cssText =
-        `background:rgba(31,157,85,0.12);color:${GREEN};border:1px solid rgba(31,157,85,0.4);` +
-        "border-radius:4px;padding:2px 6px;font-size:11px;font-weight:600;cursor:pointer;" +
-        "display:inline-flex;align-items:center;line-height:1.2;outline:none;";
-      chip.textContent = label;
-      const hint = l.plainCitation ? `${label}: ${l.plainCitation}` : label;
-      chip.title = `${hint} (${tr("dialogJumpToFootnote")})`;
-      chip.addEventListener("click", (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        removeActivePopover();
-        void jumpToCitation(l.citation || l).then((ok) => {
-          if (!ok) void refreshCitedInView(win, v);
-        });
-      });
-      chips.appendChild(chip);
-    }
-    popover.appendChild(chips);
-
-    popover.addEventListener("mouseenter", cancelClose);
-    popover.addEventListener("mouseleave", scheduleClose);
-
-    (doc.body || doc.documentElement)?.appendChild(popover);
-
-    const popWidth = popover.offsetWidth || 140;
-    const popHeight = popover.offsetHeight || 100;
-    const winWidth = win.innerWidth || 400;
-    const winHeight = win.innerHeight || 500;
-    const left = Math.max(8, Math.min(rect.left, winWidth - popWidth - 10));
-    const fitsBelow = rect.bottom + popHeight + 8 <= winHeight;
-    const top =
-      fitsBelow || rect.top - popHeight - 4 < 0
-        ? rect.bottom + 4
-        : rect.top - popHeight - 4;
-    popover.style.left = `${left}px`;
-    popover.style.top = `${top}px`;
-  };
-
-  check.addEventListener("mouseenter", show);
-  check.addEventListener("mouseleave", scheduleClose);
-}
-
 function rowEl(
   win: Window,
   v: View,
@@ -427,13 +316,24 @@ function rowEl(
     : "flexannotate-check";
   check.title = checkTitle;
   if (locs && locs.length) {
-    attachFootnotePopover(win, v, check, locs);
+    attachFootnotePopover(
+      win,
+      v,
+      check,
+      locs,
+      () => void refreshCitedInView(win, v),
+    );
   }
   check.addEventListener("click", (e) => {
     e.stopPropagation();
     if (!canMark) return;
     const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
-    setCited(win, v, ids, !cited);
+    setCited(win, v, ids, !cited, () => {
+      const lm = getAllCitationLocations();
+      const wlm = getAllWorkCitationLocations();
+      renderList(win, v, true, lm, wlm);
+      renderPreview(win, v, lm, wlm);
+    });
   });
   const dot = el(
     doc,
@@ -581,23 +481,10 @@ export function renderPreview(
         );
         const items = formatCitationLocationList(locs, getLocationOptions());
         for (const { loc, label } of items) {
-          const chip = doc.createElement("button");
-          chip.type = "button";
-          chip.className = "flexannotate-citation-chip";
-          chip.textContent = label;
           const hint = loc.plainCitation
             ? `${label}: ${loc.plainCitation}`
             : label;
-          chip.title = `${hint} (${tr("dialogJumpToFootnote")})`;
-          chip.style.cssText =
-            "cursor:pointer;padding:2px 8px;font-size:11px;line-height:normal;" +
-            "font-family:inherit;margin:0;border-radius:10px;" +
-            "border:1px solid var(--fill-quinary, rgba(128,128,128,0.3));" +
-            "background:rgba(31,157,85,0.1);color:" +
-            GREEN +
-            ";font-weight:600;";
-          chip.addEventListener("click", (e) => {
-            e.stopPropagation();
+          const chip = makeCitationChip(doc, label, hint, () => {
             void jumpToCitation(loc.citation || loc).then((ok) => {
               if (!ok) void refreshCitedInView(win, v);
             });
@@ -640,51 +527,15 @@ export function renderPreview(
     mark.textContent = allCited ? tr("dialogUncite") : tr("dialogMark");
     mark.style.cssText = BUTTON_CSS;
     mark.addEventListener("click", () =>
-      setCited(win, v, [...v.sel.selected], !allCited),
+      setCited(win, v, [...v.sel.selected], !allCited, () => {
+        const lm = getAllCitationLocations();
+        const wlm = getAllWorkCitationLocations();
+        renderList(win, v, true, lm, wlm);
+        renderPreview(win, v, lm, wlm);
+      }),
     );
     bar.appendChild(mark);
   }
-}
-
-/** Set or remove the green check of annotations for this document. */
-function setCited(win: Window, v: View, ids: number[], on: boolean) {
-  const sessionID = currentSessionId();
-  const store = readCitedStore();
-  const entries = ids.flatMap((id) => {
-    const r = v.rows.get(id);
-    return r ? [{ id, workID: r.workID }] : [];
-  });
-  const next = on
-    ? record(store, sessionID, entries)
-    : unrecord(store, sessionID, ids);
-  try {
-    writeCitedStore(next);
-  } catch (e) {
-    ztoolkit.log("flexannotate cited store write failed:", e);
-  }
-
-  // Update document-level persistent store
-  try {
-    const keys = ids
-      .map((id) => v.rows.get(id)?.key)
-      .filter((k): k is string => !!k);
-    if (keys.length) {
-      const docData = readDocCitedData() || { citations: {} };
-      const updated = toggleDocCited(docData, keys, on);
-      writeDocCitedData(updated);
-    }
-  } catch (e) {
-    ztoolkit.log("flexannotate doc cited write failed:", e);
-  }
-
-  for (const id of ids) {
-    if (on) v.cited.add(id);
-    else v.cited.delete(id);
-  }
-  const locMap = getAllCitationLocations();
-  const workLocMap = getAllWorkCitationLocations();
-  renderList(win, v, true, locMap, workLocMap);
-  renderPreview(win, v, locMap, workLocMap);
 }
 
 // ── inserting via Zotero's own handler ───────────────────────────────────────
