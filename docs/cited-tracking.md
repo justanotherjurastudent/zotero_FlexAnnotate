@@ -81,6 +81,26 @@ Wie bei Citavi verschwindet der grüne Haken automatisch, wenn der Nutzer die zu
 
 ---
 
+### 2.4 Nutzung auf mehreren Geräten (Multi-Device & Co-Autoren)
+
+Häufige Fragestellung: _„Wie verhält sich das Plugin, wenn ich auf mehreren Rechnern arbeite oder nur auf einem davon das Plugin installiert ist?“_
+
+1. **Rechner A (mit FlexAnnotate) → Rechner B (mit FlexAnnotate):**
+   - **Nahtlose Mitnahme:** Da die Tracking-Informationen (`flexannotate_cited`) direkt in den Dokumenteigenschaften der `.docx`- oder `.odt`-Datei gespeichert werden, reisen sie beim Übertragen der Datei (z. B. via OneDrive, Google Drive, Dropbox, Nextcloud, E-Mail oder USB-Stick) automatisch mit.
+   - **Bibliotheks-Sync:** Zoteros Standard-Synchronisation gleicht die PDF-Annotationen und deren eindeutige 8-stellige Schlüssel (`item.key`) zwischen beiden Rechnern ab.
+   - **Ergebnis:** Beim Öffnen des Dokuments auf Rechner B liest FlexAnnotate die Zitationsdaten aus dem Word-Dokument aus und zeigt exakt dieselben grünen Haken und Fußnoten-Chips an wie auf Rechner A.
+
+2. **Rechner A (mit FlexAnnotate) → Rechner B (OHNE FlexAnnotate, nur Standard-Zotero):**
+   - **Kein Datenverlust:** Zoteros native Textverarbeitungs-Integration schleift unbekannte `<pref>`-Elemente in den Dokumentdaten (`session.data.prefs`) unverändert durch.
+   - **Reguläre Zitate:** Alle mit FlexAnnotate eingefügten Nachweise sind standardmäßige Zotero-Zitierfelder. Sie können auf Rechner B ganz gewöhnlich aktualisiert, formatiert oder ergänzt werden.
+   - **Automatische Synchronisation bei Rückkehr:** Wird das Dokument später wieder auf Rechner A geöffnet, gleicht `reconcileDocData` die Liste der Zitate automatisch mit den tatsächlichen Feldern im Dokument ab: Wurden auf Rechner B Fußnoten gelöscht, verschwinden die grünen Haken automatisch.
+
+3. **Warum keine Speicherung in einer lokalen Datenbank?**
+   - Lokale SQLite-Primärschlüssel (`item.id`) sind auf verschiedenen Geräten nicht identisch (Rechner A kann für dieselbe Annotation ID `1420` vergeben, Rechner B ID `873`).
+   - Durch die Bindung an den globalen Zotero-Sync-Key (`item.key`) und die Ablage in der Word-Datei selbst ist das System vollständig dezentral, synchronisationsfrei und kollisionstolerant.
+
+---
+
 ## 3. Performance & Skalierbarkeit für große Dokumente
 
 Bei Dissertationen oder Monografien mit 500 bis 1.000+ Fußnoten darf die Zitationsprüfung weder das Tippen noch das Rendern des Dialogs verlangsamen.
