@@ -25,6 +25,7 @@ import type { Feature } from "../../shared/feature";
 import { getPref } from "../../utils/prefs";
 import { importPrintQuotes } from "./citaviPrintQuotes";
 import { linkContributions, type CitaviTranslation } from "./citaviLinks";
+import { isFeatureEnabled } from "../gates";
 
 type AsyncFn = (...args: unknown[]) => unknown;
 
@@ -135,7 +136,11 @@ export const CitaviImport = {
 
   async _afterTranslate(translation: CitaviTranslation): Promise<void> {
     try {
-      if (!getPref("citaviImport") && !getPref("citaviLinkContributions")) {
+      const quotesOn =
+        isFeatureEnabled("citaviPrintQuotes") && getPref("citaviImport");
+      const linksOn =
+        isFeatureEnabled("citaviLinks") && getPref("citaviLinkContributions");
+      if (!quotesOn && !linksOn) {
         return;
       }
       if (!CitaviImport._isCitavi(translation)) {
@@ -331,14 +336,14 @@ export const CitaviImport = {
     if (!translation) {
       return;
     }
-    if (getPref("citaviImport")) {
+    if (isFeatureEnabled("citaviPrintQuotes") && getPref("citaviImport")) {
       try {
         await importPrintQuotes(translation);
       } catch (e) {
         Zotero.logError(e as Error);
       }
     }
-    if (getPref("citaviLinkContributions")) {
+    if (isFeatureEnabled("citaviLinks") && getPref("citaviLinkContributions")) {
       try {
         await linkContributions(translation);
       } catch (e) {

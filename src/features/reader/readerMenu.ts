@@ -19,6 +19,7 @@ import type { DialogView } from "../../core/printDialog";
 import * as printDialog from "../print/dialog";
 import * as printAnnotations from "../print/printAnnotations";
 import { enhanceLabelPopup, setLabelPopupHooks } from "./labelPopup";
+import { isFeatureEnabled } from "../gates";
 
 type MainWin = _ZoteroTypes.MainWindow;
 type ReaderInstance = _ZoteroTypes.ReaderInstance;
@@ -398,7 +399,7 @@ function scanAddedNode(reader: ReaderInstance, node: Node | null): boolean {
   const popup = el.classList?.contains("label-popup")
     ? el
     : el.querySelector?.(".label-popup");
-  if (popup) {
+  if (popup && isFeatureEnabled("readerLabelPopup")) {
     enhanceLabelPopup(reader, popup);
   }
   return WATCHED_CLASSES.some(

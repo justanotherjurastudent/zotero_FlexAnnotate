@@ -10,17 +10,19 @@ import {
 } from "./annotationIndex";
 import { citationFor } from "./citation";
 import {
+  anchorTagDiff,
   HEADING_PREFIX,
   htmlToText,
   OUTLINE_TAG,
+  outlineHeading,
+  outlineHeadingOf,
   OutlineNode,
   parseOutline,
   pickNewest,
   serializeOutline,
 } from "./logic/outline";
 import { tr } from "./strings";
-import { applyAnchorTags, syncAnchorTags } from "./outlineAnchorTags";
-import { scopeName, syncNoteHeading } from "./outlineScope";
+import { isFeatureEnabled } from "../gates";
 export * from "./logic/outline";
 
 /**
@@ -171,10 +173,14 @@ export class OutlineModel {
     // Also pull forward the anchor § tags on load: thus a note that was created
     // before the §-tag synchronization gets its heading tags
     // retroactively. Idempotent — without a difference nothing is written.
-    await syncAnchorTags(note.id, roots);
+    if (isFeatureEnabled("outlineAnchorTags")) {
+      await this.syncAnchorTags(note.id, roots);
+    }
     // Pull forward the heading (name of the top-level collection/library) of existing notes
     // so that several outline notes are distinguishable.
-    await syncNoteHeading(note.id, libraryID, collectionKey);
+    if (isFeatureEnabled("outlineScopeHeading")) {
+      await this.syncNoteHeading(note.id, libraryID, collectionKey);
+    }
     return { noteID: note.id, roots };
   }
 
@@ -191,22 +197,92 @@ export class OutlineModel {
     return parseOutline(note.getNote());
   }
 
+  /** Display name of the scope (top-level collection or library). */
+  private static scopeName(
+    libraryID: number,
+    collectionKey: string | null,
+  ): string | null {
+    if (collectionKey) {
+      const col = Zotero.Collections.getByLibraryAndKey(
+        libraryID,
+        collectionKey,
+      );
+      return col ? col.name : null;
+    }
+    const lib = Zotero.Libraries.get(libraryID);
+    return lib ? lib.name : null;
+  }
+
+  /**
+   * Rewrites the note's `<h1>` heading to the scope if it differs (e.g.
+   * existing notes from an older version). Only the title is rewritten; the
+   * outline content (JSON + list) stays unchanged and idempotent.
+   */
+  private static async syncNoteHeading(
+    noteID: number,
+    libraryID: number,
+    collectionKey: string | null,
+  ): Promise<void> {
+    const note = Zotero.Items.get(noteID) as Zotero.Item | null;
+    if (!note || !note.isNote?.() || !note.isEditable?.()) return;
+    const current = note.getNote();
+    const wanted = outlineHeading(
+      this.scopeName(libraryID, collectionKey),
+      tr("outlineTitle"),
+    );
+    if (outlineHeadingOf(current) === wanted) return;
+    const replaced = current.replace(
+      /<h1>[\s\S]*?<\/h1>/,
+      `<h1>${wanted}</h1>`,
+    );
+    if (replaced === current) return;
+    note.setNote(replaced);
+    await note.saveTx();
+  }
+
   /**
    * Applies the anchor `§` tags to the given note item in storage.
-   * Logic in `outlineAnchorTags.ts` (own file so it can be adjusted/replaced
-   * individually).
+   * Returns true if tags were added or removed.
    */
+  private static applyAnchorTags(
+    note: Zotero.Item,
+    roots: OutlineNode[],
+  ): boolean {
+    const current = note.getTags().map((t) => t.tag);
+    const { add, remove } = anchorTagDiff(roots, current);
+    if (!add.length && !remove.length) return false;
+    for (const t of remove)
+      if (note.getTags().some((x) => x.tag === t)) note.removeTag(t);
+    for (const t of add)
+      if (!note.getTags().some((x) => x.tag === t)) note.addTag(t);
+    return true;
+  }
+
+  /**
+   * Synchronizes the heading `§` tags on the outline note so every heading in
+   * the tree has a tag in the library even without assigned items. Idempotent.
+   */
+  private static async syncAnchorTags(
+    noteID: number,
+    roots: OutlineNode[],
+  ): Promise<void> {
+    const note = Zotero.Items.get(noteID) as Zotero.Item | null;
+    if (!note || !note.isNote?.() || !note.isEditable?.()) return;
+    if (!this.applyAnchorTags(note, roots)) return;
+    await note.saveTx();
+  }
+
   static async save(
     libraryID: number,
     noteID: number | null,
     roots: OutlineNode[],
     collectionKey: string | null = null,
   ): Promise<number> {
-    const html = serializeOutline(
-      roots,
-      scopeName(libraryID, collectionKey),
-      tr("outlineTitle"),
-    );
+    const scope = isFeatureEnabled("outlineScopeHeading")
+      ? this.scopeName(libraryID, collectionKey)
+      : null;
+    const html = serializeOutline(roots, scope, tr("outlineTitle"));
+    const anchorOn = isFeatureEnabled("outlineAnchorTags");
     let note = noteID ? (Zotero.Items.get(noteID) as Zotero.Item) : null;
     if (!note || !note.isNote?.()) {
       note = new Zotero.Item("note");
@@ -214,7 +290,7 @@ export class OutlineModel {
       note.setNote(html);
       note.addTag(OUTLINE_TAG);
       if (collectionKey) note.addTag(outlineCollectionTag(collectionKey));
-      applyAnchorTags(note, roots);
+      if (anchorOn) this.applyAnchorTags(note, roots);
       if (!note.isEditable?.()) return 0;
       // skipSelect: a selected note opens in Zotero's note editor, which later
       // writes its own (older) copy over our saves.
@@ -225,7 +301,7 @@ export class OutlineModel {
     note.setNote(html);
     if (!note.getTags().some((t) => t.tag === OUTLINE_TAG))
       note.addTag(OUTLINE_TAG);
-    applyAnchorTags(note, roots);
+    if (anchorOn) this.applyAnchorTags(note, roots);
     await note.saveTx();
     return note.id;
   }

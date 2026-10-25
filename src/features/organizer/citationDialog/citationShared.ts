@@ -1,9 +1,19 @@
 /**
  * Shared helpers of the citation dialog, used by `citedTracking.ts`
- * (live sync) and `citationJump.ts` (direct jump). Separate module so the two
- * can stay independent: disabling or replacing the direct jump must not break
- * the cited tracking.
+ * (live sync) and `citationJump.ts` (direct jump). Separate module so both
+ * stay independent and cycle-free.
  */
+
+/** Active integration session if any. */
+export function currentSession(): any {
+  return (Zotero as any).Integration?.currentSession;
+}
+
+/** Id of the document the dialog was opened from (stored in the document). */
+export function currentSessionId(): string {
+  const session = currentSession();
+  return String(session?.sessionID ?? "unknown");
+}
 
 export function logJump(msg: string, detail?: unknown): void {
   try {

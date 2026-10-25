@@ -6,9 +6,9 @@
  * integration), other platforms via `Zotero.Integration.getApplication`.
  */
 
-import { currentSession } from "./citationSession";
 import { getLastCommand } from "./persistentState";
 import {
+  currentSession,
   isJumpingActive,
   isTestProfile,
   logJump,

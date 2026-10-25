@@ -5,6 +5,7 @@
  * Origin: pre-merge:src/preferences.js.
  */
 import { buildLocatorOptions } from "../core/labelPopup.ts";
+import { isFeatureEnabled } from "../features/gates.ts";
 
 // Sandbox typings lack `document`; at runtime it resolves to window.document.
 declare const document: Document;
@@ -55,22 +56,92 @@ async function fillLocatorMenus(): Promise<void> {
   }
 }
 
+function hideControlWithDescription(id: string): void {
+  const el = document.getElementById(id) as HTMLElement | null;
+  if (!el) return;
+  const row = (el.closest("hbox") as HTMLElement | null) ?? el;
+  row.hidden = true;
+  const note = row.nextElementSibling as HTMLElement | null;
+  if (note?.classList.contains("indented-pref")) note.hidden = true;
+}
+
 /**
- * Without the addAnnotation command (Zotero 7 and 8, integration.js lacking Interface.prototype.addAnnotation)
- * the persistent dialog is unavailable: hide the preference option. If Zotero.Integration is not accessible,
- * keep it visible.
+ * Hides preference controls (and empty groupboxes) for features that are
+ * disabled via `gates.ts` or unsupported by the running Zotero version (e.g.
+ * persistent citation dialog on Zotero 7 and 8 without `addAnnotation`).
  */
-function hidePersistentWhenUnsupported(): void {
+function hideUnsupportedOrDisabledFeatures(): void {
   const integration = (Zotero as any).Integration;
-  if (!integration || integration.Interface?.prototype?.addAnnotation) return;
-  const box = document.getElementById(
-    "flexannotate-pref-persistent-citation-dialog",
-  );
-  if (!box) return;
-  (box as HTMLElement).hidden = true;
-  // Also hide the explanatory description directly underneath
-  const note = box.nextElementSibling as HTMLElement | null;
-  if (note) note.hidden = true;
+  const persistentSupported =
+    isFeatureEnabled("persistentDialogPatch") &&
+    Boolean(!integration || integration.Interface?.prototype?.addAnnotation);
+  const citeOnlyOn = isFeatureEnabled("citeOnlyPatch");
+
+  if (!citeOnlyOn) {
+    hideControlWithDescription("flexannotate-pref-citation-only");
+  }
+  if (!persistentSupported) {
+    hideControlWithDescription("flexannotate-pref-persistent-citation-dialog");
+  }
+  if (!citeOnlyOn && !persistentSupported) {
+    const group = document
+      .getElementById("flexannotate-pref-citation-only")
+      ?.closest("groupbox") as HTMLElement | null;
+    if (group) group.hidden = true;
+  }
+
+  if (!isFeatureEnabled("printMenus")) {
+    const group = document
+      .getElementById("flexannotate-pref-keep-placeholders")
+      ?.closest("groupbox") as HTMLElement | null;
+    if (group) group.hidden = true;
+  }
+
+  const organizerUiOn =
+    isFeatureEnabled("organizer") || isFeatureEnabled("outlineView");
+  const tagSuggestOn = isFeatureEnabled("tagSuggest");
+  if (!organizerUiOn) {
+    hideControlWithDescription("zotero-prefpane-flexannotate-showworks");
+    hideControlWithDescription("zotero-prefpane-flexannotate-show-comments");
+  }
+  if (!tagSuggestOn) {
+    hideControlWithDescription("flexannotate-pref-tag-suggest");
+  }
+  if (!organizerUiOn && !tagSuggestOn) {
+    const group = document
+      .getElementById("flexannotate-pref-tag-suggest")
+      ?.closest("groupbox") as HTMLElement | null;
+    if (group) group.hidden = true;
+  }
+
+  const citaviQuotesOn = isFeatureEnabled("citaviPrintQuotes");
+  const citaviLinksOn = isFeatureEnabled("citaviLinks");
+  if (!citaviQuotesOn) {
+    hideControlWithDescription("flexannotate-pref-citavi-import");
+    hideControlWithDescription("flexannotate-pref-citavi-keep-notes");
+    const grid = document
+      .getElementById("flexannotate-pref-citavi-locator-page")
+      ?.closest("div") as HTMLElement | null;
+    if (grid) {
+      const heading = grid.previousElementSibling as HTMLElement | null;
+      const desc = grid.nextElementSibling as HTMLElement | null;
+      if (heading) heading.hidden = true;
+      grid.hidden = true;
+      if (desc) desc.hidden = true;
+    }
+  }
+  if (!citaviLinksOn) {
+    hideControlWithDescription("flexannotate-pref-citavi-link-contributions");
+  }
+  if (
+    !isFeatureEnabled("citaviImport") ||
+    (!citaviQuotesOn && !citaviLinksOn)
+  ) {
+    const group = document
+      .getElementById("flexannotate-pref-citavi-import")
+      ?.closest("groupbox") as HTMLElement | null;
+    if (group) group.hidden = true;
+  }
 }
 
 // Every pane dispatches its `load` event, including third-party ones; our fields are only
@@ -80,7 +151,7 @@ let queue: Promise<void> = Promise.resolve();
 document.addEventListener(
   "load",
   () => {
-    hidePersistentWhenUnsupported();
+    hideUnsupportedOrDisabledFeatures();
     queue = queue
       .then(fillLocatorMenus)
       .catch((e: unknown) => Zotero.logError(e as Error));

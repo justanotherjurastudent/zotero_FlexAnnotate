@@ -85,7 +85,7 @@ const annotationRowPatchFeature: Feature = {
 // --- Global lifecycle features ---------------------------------------
 
 /** Order = startup order; stopped in reverse order. */
-const globalFeatureEntries: Feature[] = [
+export const globalFeatureEntries: Feature[] = [
   organizerFeature,
   organizerToolbarButton,
   toolsMenuFallback,
@@ -111,7 +111,7 @@ export const globalFeatures: Feature[] = globalFeatureEntries.filter((f) =>
 // --- Citation dialog injectors ---------------------------------------------
 
 /** Order = injection order; detached in the same order. */
-const dialogInjectorEntries: DialogInjector[] = [
+export const dialogInjectorEntries: DialogInjector[] = [
   {
     name: "modeSelector",
     inject: modeSelector.injectModeSelector,

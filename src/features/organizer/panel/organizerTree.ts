@@ -27,6 +27,7 @@ import { assign } from "./organizerFiling";
 import { button, DND_TYPE, el, iconButton, input, toast } from "./organizerDom";
 import { docImport } from "../doc/docImport";
 import { docExport } from "../doc/docExport";
+import { isFeatureEnabled } from "../../gates";
 import { Ctx, NodeSel, persist, reload } from "./organizerState";
 import { Palette } from "../theme";
 import { tr } from "../strings";
@@ -102,38 +103,48 @@ export function renderTree(ctx: Ctx, c: HTMLElement, t: Palette) {
     `border-top:1px solid ${t.border};padding:6px;display:flex;flex-direction:column;gap:4px;`,
   );
   const row = el(doc, "div", "display:flex;gap:4px;");
-  row.append(
-    button(
-      doc,
-      t,
-      tr("importLabel"),
-      tr("importTitle"),
-      () => void docImport.start(ctx),
-      "importDoc",
-    ),
-    button(
-      doc,
-      t,
-      tr("exportDocLabel"),
-      tr("exportDocTitle"),
-      () => void docExport.start(ctx),
-      "exportDoc",
-    ),
-    button(
-      doc,
-      t,
-      tr("export"),
-      tr("exportTitle"),
-      () => void exportNote(s),
-      "export",
-    ),
-  );
+  if (isFeatureEnabled("docImport")) {
+    row.appendChild(
+      button(
+        doc,
+        t,
+        tr("importLabel"),
+        tr("importTitle"),
+        () => void docImport.start(ctx),
+        "importDoc",
+      ),
+    );
+  }
+  if (isFeatureEnabled("docExport")) {
+    row.appendChild(
+      button(
+        doc,
+        t,
+        tr("exportDocLabel"),
+        tr("exportDocTitle"),
+        () => void docExport.start(ctx),
+        "exportDoc",
+      ),
+    );
+  }
+  if (isFeatureEnabled("noteExport")) {
+    row.appendChild(
+      button(
+        doc,
+        t,
+        tr("export"),
+        tr("exportTitle"),
+        () => void exportNote(s),
+        "export",
+      ),
+    );
+  }
   for (const b of Array.from(row.children) as HTMLElement[]) {
     b.style.flex = "1";
     b.style.justifyContent = "center";
   }
-  foot.append(row);
-  if (s.orphans.length) {
+  if (row.childElementCount) foot.append(row);
+  if (isFeatureEnabled("orphanTags") && s.orphans.length) {
     const b = button(
       doc,
       t,
@@ -147,7 +158,7 @@ export function renderTree(ctx: Ctx, c: HTMLElement, t: Palette) {
     b.id = "flexannotate-orphans-open";
     foot.prepend(b);
   }
-  c.appendChild(foot);
+  if (foot.childElementCount) c.appendChild(foot);
 }
 
 function uniqueTitle(roots: OutlineNode[]): string {

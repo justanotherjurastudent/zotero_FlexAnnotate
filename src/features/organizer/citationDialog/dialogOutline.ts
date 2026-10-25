@@ -64,6 +64,7 @@ import {
 } from "./dialogOutlineRender";
 import type { View } from "./dialogOutlineRender";
 import { applyLayout, removeLayout } from "./dialogOutlineLayout";
+import { isFeatureEnabled } from "../../gates";
 import { tr } from "../strings";
 
 const PREF = "dialogOutlineView";
@@ -158,7 +159,7 @@ function inject(win: Window) {
   };
   attached.set(win, info);
 
-  hookAccept(win);
+  if (isFeatureEnabled("citedTracking")) hookAccept(win);
   const supported = persistentSupported(win);
   if (supported && readPersistentPref()) relaxDialogMinWidth(win);
 
@@ -246,7 +247,8 @@ function inject(win: Window) {
     info.lastDialogType = type;
   };
   const place = (narrow: boolean) => {
-    info.narrow = narrow && !!popupBox;
+    info.narrow =
+      narrow && isFeatureEnabled("narrowDialogLayout") && !!popupBox;
     const type =
       root.getAttribute("dialog-type") || (win as any).DIALOG_STATE?.type;
     const isAnn = type === "annotations";
@@ -329,7 +331,7 @@ async function enable(win: Window, cb: HTMLInputElement) {
     renderAll(win, view);
     addKeys(win, info);
     addSearchSync(win, info);
-    addFocusSync(win, info);
+    if (isFeatureEnabled("citedTracking")) addFocusSync(win, info);
     addPicker(win, info);
     updateHint(win, view);
     cb.checked = true;
@@ -493,11 +495,12 @@ async function buildView(win: Window, info: Attached): Promise<View> {
   };
   const selectedNode = validNode(info.view?.node);
 
+  const citedOn = isFeatureEnabled("citedTracking");
   if (isCitation) {
     const allWorks = await loadWorkRows(libraryID);
     const works = allWorks.filter((w) => inScope(w.workID));
     const sections = buildWorkDialogSections(roots, works);
-    const citedWorks = await citedWorksOf(win);
+    const citedWorks = citedOn ? await citedWorksOf(win) : null;
     return {
       roots,
       sections,
@@ -525,14 +528,14 @@ async function buildView(win: Window, info: Attached): Promise<View> {
     new Map(works.map((w) => [w.id, w.tags])),
     showWorks,
   );
-  const citedWorks = await citedWorksOf(win);
+  const citedWorks = citedOn ? await citedWorksOf(win) : null;
   return {
     roots,
     sections,
     counts: nodeCounts(roots, sections),
     rows: new Map(rows.map((r) => [r.id, r])),
     showCommentsInRows,
-    cited: getActiveCitedIDs(rows, citedWorks),
+    cited: citedOn ? getActiveCitedIDs(rows, citedWorks) : new Set<number>(),
     node: selectedNode,
     query: info.view?.query ?? bubbleText(win.document),
     sel: emptySelection(),

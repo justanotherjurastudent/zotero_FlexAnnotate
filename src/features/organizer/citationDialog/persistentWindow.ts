@@ -6,6 +6,7 @@
  */
 
 import { assignChecked } from "../../../shared/patch";
+import { isFeatureEnabled } from "../../gates";
 import { normalizePersistentOptions } from "../logic/persistentOptions";
 import type { WindowPosition } from "../logic/persistentOptions";
 import { mergeCitationItems } from "../logic/lastCommand";
@@ -55,6 +56,7 @@ export function getPersistentWindow(): Window | null {
  * and the platform is supported (Word, LibreOffice; not Google Docs/http).
  */
 export function persistentSupported(win?: Window): boolean {
+  if (!isFeatureEnabled("persistentDialogPatch")) return false;
   const versionOk =
     typeof (Zotero as any).Integration?.Interface?.prototype?.addAnnotation ===
     "function";

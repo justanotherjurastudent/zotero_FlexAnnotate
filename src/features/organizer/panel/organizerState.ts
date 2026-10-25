@@ -14,6 +14,7 @@ import {
 import { emptySelection, SelectionState } from "../logic/selection";
 import { formatLocator } from "../../../core/locator";
 import { OutlineModel } from "../outlineModel";
+import { isFeatureEnabled } from "../../gates";
 import {
   collectionKeyOf,
   listCollections,
@@ -253,10 +254,12 @@ export async function refreshOrphans(ctx: Ctx) {
       treeWorkIDs(s.libraryID, key),
     );
     if (s.collectionKey !== key) return; // Tree was switched in the meantime
-    const orphans = orphanHeadingTags(counts.keys(), s.roots).map((tag) => ({
-      tag,
-      count: counts.get(tag) ?? 0,
-    }));
+    const orphans = isFeatureEnabled("orphanTags")
+      ? orphanHeadingTags(counts.keys(), s.roots).map((tag) => ({
+          tag,
+          count: counts.get(tag) ?? 0,
+        }))
+      : [];
     let changed = JSON.stringify(orphans) !== JSON.stringify(s.orphans);
     s.orphans = orphans;
     if (!orphans.length && s.orphanOpen) {

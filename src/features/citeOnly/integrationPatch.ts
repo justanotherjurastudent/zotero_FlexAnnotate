@@ -26,6 +26,7 @@ import {
   serializeDocData,
 } from "../organizer/logic/cited";
 import { DOC_CITED_PREF } from "../organizer/citationDialog/dialogCited";
+import { isFeatureEnabled } from "../gates";
 
 type Citation = {
   citationItems: CitationItemLike[];
@@ -175,7 +176,11 @@ export function patch(): boolean {
 
         const rewritten = await rewriteToCitationOnly(citation);
         if (rewritten) {
-          if (annKeys.length && (this as any).data?.prefs) {
+          if (
+            isFeatureEnabled("citedTracking") &&
+            annKeys.length &&
+            (this as any).data?.prefs
+          ) {
             const prefs = (this as any).data.prefs;
             const docData = parseDocData(prefs[DOC_CITED_PREF]);
             const next = recordDocCitation(docData, citationID, annKeys);
@@ -203,7 +208,10 @@ export function patch(): boolean {
 
   let nativeResetRequest: ((doc?: unknown) => void) | undefined;
   let patchedResetRequest: ((doc?: unknown) => void) | undefined;
-  if (typeof proto.resetRequest === "function") {
+  if (
+    isFeatureEnabled("citeprocResetFix") &&
+    typeof proto.resetRequest === "function"
+  ) {
     // Zotero bugfix (xpcom/integration.js:574, 1161, 1192–1195, 1914):
     // getSession() resp. setData() set session.rebuildCiteprocState = true.
     // Session.prototype.resetRequest resets this unconditionally to false,

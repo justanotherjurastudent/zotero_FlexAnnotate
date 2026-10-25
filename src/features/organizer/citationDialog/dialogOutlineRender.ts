@@ -18,6 +18,7 @@ import type { OutlineNode, Section } from "../logic/outline";
 import { citationOfRow, locatorLabel } from "../panel/organizerData";
 import type { Row } from "../panel/organizerData";
 import { openRow } from "../openTarget";
+import { isFeatureEnabled } from "../../gates";
 import { tr } from "../strings";
 import {
   getActiveCitedIDs,
@@ -61,8 +62,9 @@ function el(doc: Document, tag: string, css = "", text?: string): HTMLElement {
 
 export function renderAll(win: Window, v: View) {
   renderTree(win, v);
-  const locMap = getAllCitationLocations();
-  const workLocMap = getAllWorkCitationLocations();
+  const jumpOn = isFeatureEnabled("footnoteJump");
+  const locMap = jumpOn ? getAllCitationLocations() : undefined;
+  const workLocMap = jumpOn ? getAllWorkCitationLocations() : undefined;
   renderList(win, v, false, locMap, workLocMap);
   renderPreview(win, v, locMap, workLocMap);
 }
@@ -210,8 +212,14 @@ export function renderList(
     return;
   }
   const order = [...new Set(secs.flatMap((s) => s.items.map((i) => i.id)))];
-  const resolvedLocMap = locMap ?? getAllCitationLocations();
-  const resolvedWorkLocMap = workLocMap ?? getAllWorkCitationLocations();
+  const citedOn = isFeatureEnabled("citedTracking");
+  const jumpOn = isFeatureEnabled("footnoteJump");
+  const resolvedLocMap = jumpOn
+    ? (locMap ?? getAllCitationLocations())
+    : undefined;
+  const resolvedWorkLocMap = jumpOn
+    ? (workLocMap ?? getAllWorkCitationLocations())
+    : undefined;
   list.addEventListener(
     "scroll",
     () => {
@@ -234,7 +242,16 @@ export function renderList(
       const r = v.rows.get(a.id);
       if (r)
         list.appendChild(
-          rowEl(win, v, r, order, resolvedLocMap, resolvedWorkLocMap),
+          rowEl(
+            win,
+            v,
+            r,
+            order,
+            resolvedLocMap,
+            resolvedWorkLocMap,
+            citedOn,
+            jumpOn,
+          ),
         );
     }
   }
@@ -279,6 +296,8 @@ function rowEl(
   order: number[],
   locMap?: Map<string, CitationLocation[]>,
   workLocMap?: Map<number, CitationLocation[]>,
+  citedOn = isFeatureEnabled("citedTracking"),
+  jumpOn = isFeatureEnabled("footnoteJump"),
 ): HTMLElement {
   const doc = win.document;
   const on = v.sel.selected.has(r.id);
@@ -290,8 +309,9 @@ function rowEl(
       `background:${on ? SELECTED : "transparent"};`,
   );
   d.dataset.annId = String(r.id);
-  const cited = v.cited.has(r.id);
-  const locs = cited ? getLocationsForRow(r, locMap, workLocMap) : undefined;
+  const cited = citedOn && v.cited.has(r.id);
+  const locs =
+    cited && jumpOn ? getLocationsForRow(r, locMap, workLocMap) : undefined;
   let checkTitle = cited ? tr("dialogCited") : tr("dialogCheckHint");
   if (locs && locs.length) {
     const items = formatCitationLocationList(locs, getLocationOptions());
@@ -303,7 +323,7 @@ function rowEl(
         : uniqueLabels.join(", ");
     checkTitle = `${tr("dialogCited")} (${summary})`;
   }
-  const canMark = r.kind !== "work";
+  const canMark = citedOn && r.kind !== "work";
   const check = el(
     doc,
     "span",
@@ -314,6 +334,7 @@ function rowEl(
     ? "flexannotate-check flexannotate-cited"
     : "flexannotate-check";
   check.title = checkTitle;
+  check.hidden = !citedOn;
   if (locs && locs.length) {
     attachFootnotePopover(
       win,
@@ -327,8 +348,8 @@ function rowEl(
     if (!canMark) return;
     const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
     setCited(win, v, ids, !cited, () => {
-      const lm = getAllCitationLocations();
-      const wlm = getAllWorkCitationLocations();
+      const lm = jumpOn ? getAllCitationLocations() : undefined;
+      const wlm = jumpOn ? getAllWorkCitationLocations() : undefined;
       renderList(win, v, true, lm, wlm);
       renderPreview(win, v, lm, wlm);
     });
@@ -448,7 +469,7 @@ export function renderPreview(
         source,
       ),
     );
-    if (v.cited.has(r.id)) {
+    if (isFeatureEnabled("citedTracking") && v.cited.has(r.id)) {
       host.appendChild(
         el(
           doc,
@@ -457,12 +478,13 @@ export function renderPreview(
           "✓ " + tr("dialogCited"),
         ),
       );
-      const locs =
-        getLocationsForRow(
-          r,
-          locMap ?? getAllCitationLocations(),
-          workLocMap ?? getAllWorkCitationLocations(),
-        ) ?? [];
+      const locs = isFeatureEnabled("footnoteJump")
+        ? (getLocationsForRow(
+            r,
+            locMap ?? getAllCitationLocations(),
+            workLocMap ?? getAllWorkCitationLocations(),
+          ) ?? [])
+        : [];
       if (locs.length) {
         const locContainer = el(
           doc,
@@ -507,7 +529,7 @@ export function renderPreview(
   bar.appendChild(btn);
 
   // one annotation only: jump to its place in the reader (the dialog stays open)
-  if (picked.length === 1) {
+  if (isFeatureEnabled("dialogShowPlace") && picked.length === 1) {
     const show = doc.createElement("button");
     show.id = "flexannotate-show-place";
     show.textContent = tr("dialogShowPlace");
@@ -517,7 +539,10 @@ export function renderPreview(
   }
 
   // manual marking/unmarking of the green check (only for annotations, works are strictly dynamic)
-  const canToggle = picked.length > 0 && picked.every((r) => r.kind !== "work");
+  const canToggle =
+    isFeatureEnabled("citedTracking") &&
+    picked.length > 0 &&
+    picked.every((r) => r.kind !== "work");
   if (canToggle) {
     const allCited = picked.every((r) => v.cited.has(r.id));
     const mark = doc.createElement("button");
@@ -526,8 +551,9 @@ export function renderPreview(
     mark.style.cssText = BUTTON_CSS;
     mark.addEventListener("click", () =>
       setCited(win, v, [...v.sel.selected], !allCited, () => {
-        const lm = getAllCitationLocations();
-        const wlm = getAllWorkCitationLocations();
+        const jumpOn = isFeatureEnabled("footnoteJump");
+        const lm = jumpOn ? getAllCitationLocations() : undefined;
+        const wlm = jumpOn ? getAllWorkCitationLocations() : undefined;
         renderList(win, v, true, lm, wlm);
         renderPreview(win, v, lm, wlm);
       }),

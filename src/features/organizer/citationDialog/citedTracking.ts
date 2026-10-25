@@ -25,8 +25,13 @@ import type {
   CitedStore,
 } from "../logic/cited";
 import { getLastCommand } from "./persistentState";
-import { isJumpingActive, isTestProfile, logJump } from "./citationShared";
-import { currentSession, currentSessionId } from "./citationSession";
+import {
+  currentSession,
+  currentSessionId,
+  isJumpingActive,
+  isTestProfile,
+  logJump,
+} from "./citationShared";
 
 export type { CitationLocation };
 

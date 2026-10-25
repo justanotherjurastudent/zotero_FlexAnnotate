@@ -8,6 +8,7 @@
  * this module stays independent.
  */
 
+import { isFeatureEnabled } from "../../gates";
 import { LIST_ID, NATIVE_ID, PREVIEW_ID, TREE_ID } from "./dialogOutlineRender";
 
 export const STYLE_ID = "flexannotate-dialog-style";
@@ -20,19 +21,21 @@ export const NATIVE_HIDE = [
   "annotations-message",
 ];
 /** A min-width chain is what makes long one-line rows push the layout wider. */
-export const LAYOUT_CSS =
+const BASE_LAYOUT_CSS =
   "#library-trees{overflow:hidden !important;min-width:0 !important;}" +
   "#item-tree-container{flex:1 1 0 !important;min-width:0 !important;overflow:hidden !important;}" +
   "#flexannotate-list-pane,#flexannotate-list-pane *{min-width:0;}" +
   "#flexannotate-preview{min-width:0;overflow-x:hidden;overflow-wrap:anywhere;}" +
   ".flexannotate-citation-chip:hover{background:rgba(31,157,85,0.22) !important;}" +
   ".flexannotate-citation-chip:active{background:rgba(31,157,85,0.35) !important;}" +
-  ".flexannotate-citation-chip:focus-visible{outline:2px solid #1f9d55 !important;outline-offset:1px !important;}" +
-  // Below 750 px, only in the persistent companion window (attribute set by relaxDialogMinWidth):
-  // on a 9.0.6 test run two outline tests failed (cause not fully clarified);
-  // normal dialogs therefore stay unchanged. Tree on top as a strip, list fills the rest,
-  // details at the bottom. Column instead of wrapping: the list otherwise grew and pushed
-  // the details out of the window.
+  ".flexannotate-citation-chip:focus-visible{outline:2px solid #1f9d55 !important;outline-offset:1px !important;}";
+
+// Below 750 px, only in the persistent companion window (attribute set by relaxDialogMinWidth):
+// on a 9.0.6 test run two outline tests failed (cause not fully clarified);
+// normal dialogs therefore stay unchanged. Tree on top as a strip, list fills the rest,
+// details at the bottom. Column instead of wrapping: the list otherwise grew and pushed
+// the details out of the window.
+const NARROW_LAYOUT_CSS =
   "@media (max-width:750px){" +
   "#citation-dialog[flexannotate-persistent] #library-trees{flex-direction:column !important;align-items:stretch !important;}" +
   "#citation-dialog[flexannotate-persistent] #collections-tree-container{flex:0 0 auto !important;height:130px !important;width:auto !important;min-width:0 !important;min-height:0 !important;}" +
@@ -41,17 +44,22 @@ export const LAYOUT_CSS =
   "#citation-dialog[flexannotate-persistent] #sidebar{flex:0 1 auto !important;width:auto !important;min-width:0 !important;max-height:30%;overflow-y:auto;}" +
   "}";
 
+export const LAYOUT_CSS = BASE_LAYOUT_CSS + NARROW_LAYOUT_CSS;
+
 /** Hide Zotero's native columns and add the containers for ours. */
 export function applyLayout(win: Window): void {
   const doc = win.document;
   if (!doc.getElementById(STYLE_ID)) {
     const st = doc.createElement("style");
     st.id = STYLE_ID;
+    const css = isFeatureEnabled("narrowDialogLayout")
+      ? LAYOUT_CSS
+      : BASE_LAYOUT_CSS;
     st.textContent =
       NATIVE_HIDE.map((id) => `#${id}`)
         .concat(["#annotations-list collapsible-section"])
         .join(",")
-        .concat("{display:none !important;}") + LAYOUT_CSS;
+        .concat("{display:none !important;}") + css;
     doc.documentElement!.appendChild(st);
   }
   const mk = (parentId: string, id: string, css: string) => {
