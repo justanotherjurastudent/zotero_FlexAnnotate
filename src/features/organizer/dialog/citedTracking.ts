@@ -25,11 +25,10 @@ import type {
   CitedStore,
 } from "../logic/cited";
 import { getLastCommand } from "./persistentState";
-import { isJumpingActive, isTestProfile, logJump } from "./citationJump";
+import { isJumpingActive, isTestProfile, logJump } from "./citationShared";
 import { currentSession, currentSessionId } from "./citationSession";
 
 export type { CitationLocation };
-export { currentSession, currentSessionId };
 
 const CITED_PREF = "citedAnnotations";
 export const DOC_CITED_PREF = "flexannotate_cited";

@@ -11,11 +11,7 @@
  * `logic/outline.ts`.
  */
 
-import {
-  outlineHeading,
-  outlineHeadingOf,
-  type OutlineNode,
-} from "./logic/outline";
+import { outlineHeading, outlineHeadingOf } from "./logic/outline";
 import { tr } from "./strings";
 
 /** Anzeigename des Geltungsbereichs (Hauptsammlung oder Bibliothek). */
@@ -40,7 +36,6 @@ export function scopeName(
 export async function syncNoteHeading(
   noteID: number,
   libraryID: number,
-  roots: OutlineNode[],
   collectionKey: string | null,
 ): Promise<void> {
   const note = Zotero.Items.get(noteID) as Zotero.Item | null;

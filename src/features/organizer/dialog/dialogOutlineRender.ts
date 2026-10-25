@@ -23,7 +23,6 @@ import {
   getActiveCitedIDs,
   getAllCitationLocations,
   getAllWorkCitationLocations,
-  getCitationLocations,
   jumpToCitation,
   syncSessionFromDocument,
   type CitationLocation,
@@ -318,7 +317,6 @@ function rowEl(
   if (locs && locs.length) {
     attachFootnotePopover(
       win,
-      v,
       check,
       locs,
       () => void refreshCitedInView(win, v),

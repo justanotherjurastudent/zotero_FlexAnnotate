@@ -43,13 +43,7 @@ import {
   readShowCommentsInRows,
   readShowWorks,
 } from "../panel/organizerData";
-import {
-  citedWorksOf,
-  currentSessionId,
-  getActiveCitedIDs,
-  hookAccept,
-  readCitedStore,
-} from "./dialogCited";
+import { citedWorksOf, getActiveCitedIDs, hookAccept } from "./dialogCited";
 import {
   activatePersistentOnOpenDialog,
   persistentSupported,
@@ -59,7 +53,6 @@ import {
 } from "./dialogPersistent";
 import {
   LIST_ID,
-  NATIVE_ID,
   PREVIEW_ID,
   TREE_ID,
   insert,

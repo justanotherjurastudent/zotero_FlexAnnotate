@@ -4,11 +4,10 @@
  * Vorschau. Ein Klick springt zur Fußnote (jumpToCitation); schlägt das
  * fehl, wird über den `refresh`-Callback neu gezeichnet.
  *
- * Kein Import aus `dialogOutlineRender.ts` (nur den View-Typ), damit dieses
- * Modul zyklenfrei bleibt — das Neuzeichnen übernimmt der Aufrufer.
+ * Kein Import aus `dialogOutlineRender.ts`, damit dieses Modul zyklenfrei
+ * bleibt — das Neuzeichnen übernimmt der Aufrufer über den `refresh`-Callback.
  */
 
-import type { View } from "./dialogOutlineRender";
 import {
   formatCitationLocationList,
   type CitationLocation,
@@ -28,7 +27,6 @@ function getLocationOptions(): FormatLocationOptions {
 
 function attachFootnotePopover(
   win: Window,
-  v: View,
   check: HTMLElement,
   locs: CitationLocation[],
   refresh: () => void,
@@ -158,4 +156,3 @@ function makeCitationChip(
 }
 
 export { attachFootnotePopover, makeCitationChip };
-export type { CitationLocation };

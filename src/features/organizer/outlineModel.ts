@@ -174,7 +174,7 @@ export class OutlineModel {
     await syncAnchorTags(note.id, roots);
     // Überschrift (Name der Hauptsammlung/Bibliothek) bestehender Notizen
     // nachziehen, damit mehrere Gliederungsnotizen unterscheidbar sind.
-    await syncNoteHeading(note.id, libraryID, roots, collectionKey);
+    await syncNoteHeading(note.id, libraryID, collectionKey);
     return { noteID: note.id, roots };
   }
 

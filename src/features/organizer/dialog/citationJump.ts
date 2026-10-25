@@ -9,29 +9,12 @@
 
 import { currentSession } from "./citationSession";
 import { getLastCommand } from "./persistentState";
-
-export function logJump(msg: string, detail?: unknown): void {
-  try {
-    const suffix =
-      detail === undefined
-        ? ""
-        : ` ${typeof detail === "string" ? detail : JSON.stringify(detail)}`;
-    (Zotero as any).debug?.(`[FlexAnnotate] ${msg}${suffix}`);
-  } catch {
-    /* ignore */
-  }
-  try {
-    if (typeof ztoolkit !== "undefined" && ztoolkit?.log) {
-      if (detail !== undefined) {
-        ztoolkit.log(`flexannotate ${msg}`, detail);
-      } else {
-        ztoolkit.log(`flexannotate ${msg}`);
-      }
-    }
-  } catch {
-    /* ignore */
-  }
-}
+import {
+  isJumpingActive,
+  isTestProfile,
+  logJump,
+  setJumping,
+} from "./citationShared";
 
 const WORD_JUMP_VBS = `' FlexAnnotate Word Jump Script
 Option Explicit
@@ -341,15 +324,6 @@ async function ensureVbsScript(): Promise<string | null> {
   }
 }
 
-/**
- * Nur der ausdrückliche Testschalter (`addon.data.env === "test"`, setzen die
- * Zotero-Tests), nie Profilpfad oder Duck-Typing: sonst würde ein echtes
- * Nutzerprofil still das Springen verlieren.
- */
-export function isTestProfile(): boolean {
-  return (addon?.data as any)?.env === "test";
-}
-
 async function runWordJumpScript(
   docId: string,
   noteIndex: number,
@@ -505,21 +479,14 @@ export function bringWordProcessorToFront(agent?: string | null): void {
   }
 }
 
-let isJumping = false;
-
-/** Verhindert parallele Sprünge (und einen Live-Sync während eines Sprungs). */
-export function isJumpingActive(): boolean {
-  return isJumping;
-}
-
 /**
  * Selects the citation field in Word/LibreOffice and brings the document window to the front.
  * If the original document session was already completed (e.g. in companion taskpane mode),
  * safely acquires an active document connection via Zotero.Integration to locate and select the field.
  */
 export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
-  if (isJumping) return false;
-  isJumping = true;
+  if (isJumpingActive()) return false;
+  setJumping(true);
   try {
     if (!citationOrLoc) return false;
     const citationID =
@@ -750,6 +717,6 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
     logJump("jump to citation failed:", e);
     return false;
   } finally {
-    isJumping = false;
+    setJumping(false);
   }
 }
