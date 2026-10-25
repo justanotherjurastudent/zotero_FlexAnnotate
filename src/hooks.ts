@@ -2,7 +2,7 @@ import { initLocale } from "./utils/locale";
 import { createZToolkit } from "./utils/ztoolkit";
 import { OrganizerFactory } from "./features/organizer/panel/organizer";
 import { registerDialogInjector } from "./shared/citationDialog";
-import { outlineView } from "./features/organizer/dialog/dialogOutline";
+import { outlineView } from "./features/organizer/citationDialog/dialogOutline";
 import * as modeSelector from "./features/citeOnly/modeSelector";
 import {
   citeOnlyPatch,
@@ -26,12 +26,12 @@ import {
   activatePersistentOnOpenDialog,
   patchInterfaceMethods,
   unpatchInterfaceMethods,
-} from "./features/organizer/dialog/dialogPersistent";
+} from "./features/organizer/citationDialog/dialogPersistent";
 import { normalizePersistentOptions } from "./features/organizer/logic/persistentOptions";
 import * as openTarget from "./features/organizer/openTarget";
 import * as docOutlineCore from "./features/organizer/logic/docOutline";
 import * as citedCore from "./features/organizer/logic/cited";
-import * as dialogCitedModule from "./features/organizer/dialog/dialogCited";
+import * as dialogCitedModule from "./features/organizer/citationDialog/dialogCited";
 import * as organizerData from "./features/organizer/panel/organizerData";
 import * as outlineCore from "./features/organizer/logic/outline";
 import * as flatHeadingsCore from "./features/organizer/logic/flatHeadings";

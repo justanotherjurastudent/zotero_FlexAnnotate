@@ -31,8 +31,8 @@ import {
   unpatchAnnotationRow,
 } from "./print/annotationRowPatch";
 import * as modeSelector from "./citeOnly/modeSelector";
-import { outlineView } from "./organizer/dialog/dialogOutline";
-import { persistentDialogPatch } from "./organizer/dialog/dialogPersistent";
+import { outlineView } from "./organizer/citationDialog/dialogOutline";
+import { persistentDialogPatch } from "./organizer/citationDialog/dialogPersistent";
 import { citeOnlyPatch } from "./citeOnly/integrationPatch";
 import { readerMenu } from "./reader/readerMenu";
 import { citaviImport } from "./citavi/citaviImport";

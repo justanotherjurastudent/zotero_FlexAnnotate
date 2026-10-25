@@ -25,7 +25,7 @@ import {
   recordDocCitation,
   serializeDocData,
 } from "../organizer/logic/cited";
-import { DOC_CITED_PREF } from "../organizer/dialog/dialogCited";
+import { DOC_CITED_PREF } from "../organizer/citationDialog/dialogCited";
 
 type Citation = {
   citationItems: CitationItemLike[];
