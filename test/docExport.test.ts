@@ -4,10 +4,9 @@ import { lockFile, lastLockError } from "./helpers";
 import { files } from "./docFixtures";
 
 /**
- * Export der Gliederung als .docx/.odt im echten Zotero. Dateiauswahl wird
- * umgangen (exportTo direkt); der Rundlauf liest die exportierte Datei mit
- * dem Import zurueck, die exportierten XML-Teile zusaetzlich mit dem
- * strengen DOMParser.
+ * Outline export as .docx/.odt in real Zotero. File picker is
+ * bypassed (exportTo directly); roundtrip reads the exported file back
+ * via import, and the exported XML parts additionally via strict DOMParser.
  */
 
 const api = () => (Zotero as any)[config.addonInstance].api;
@@ -74,7 +73,7 @@ describe("docExport", function () {
 
   const tempPath = (name: string) => PathUtils.join(PathUtils.tempDir, name);
 
-  /** Eintraege einer ZIP-Datei als {Name: Text} lesen (nsIZipReader). */
+  /** Read entries of a ZIP file as {Name: Text} (nsIZipReader). */
   const readZip = (path: string): Record<string, string> => {
     const zr = (Components.classes as any)[
       "@mozilla.org/libjar/zip-reader;1"
@@ -85,7 +84,7 @@ describe("docExport", function () {
       const names = zr.findEntries("*");
       while (names.hasMore()) {
         const entry = names.getNext();
-        // Verzeichnis-Eintraege ("/" am Ende) liefern nur ein Listing
+        // Directory entries (trailing "/") only provide a listing
         if (entry.endsWith("/")) continue;
         out[entry] = Zotero.File.getContents(zr.getInputStream(entry), "UTF-8");
       }
@@ -107,7 +106,7 @@ describe("docExport", function () {
     const r = await api().docExport.exportTo(roots, { path, format: "docx" });
     assert.equal(r.status, "exported");
     assert.equal(r.count, 4);
-    // gueltiges XML (strenge Pruefung, nicht der tolerante Import-Scanner)
+    // Valid XML (strict validation, not the lenient import scanner)
     const entries = readZip(path);
     for (const name of Object.keys(entries)) assertNoXmlError(entries[name]);
     assert.deepEqual(Object.keys(entries).sort(), [
@@ -118,7 +117,7 @@ describe("docExport", function () {
       "word/numbering.xml",
       "word/styles.xml",
     ]);
-    // Rundlauf: der Import liest dieselben Titel und Ebenen
+    // Roundtrip: import reads back the same titles and levels
     const s = fresh();
     const r2 = await api().docImport.importFromFile(
       { s, render() {} },
@@ -141,7 +140,7 @@ describe("docExport", function () {
     assert.equal(r.status, "exported");
     const entries = readZip(path);
     for (const name of Object.keys(entries)) {
-      // mimetype ist kein XML
+      // mimetype is not XML
       if (name !== "mimetype") assertNoXmlError(entries[name]);
     }
     assert.include(Object.keys(entries), "mimetype");
@@ -213,7 +212,7 @@ describe("docExport", function () {
     assert.equal(r.status, "exported");
     const before = await IOUtils.read(path);
     const lock = lockFile(path);
-    // Die Sperre braucht kernel32 (nur Windows); anderswo ueberspringen.
+    // File lock requires kernel32 (Windows only); skip elsewhere.
     if (!lock && !Zotero.isWin) return this.skip();
     if (!lock) assert.fail(`lockFile null: ${lastLockError}`);
     try {
@@ -230,7 +229,7 @@ describe("docExport", function () {
     } finally {
       lock.close();
     }
-    // erst nach dem Freigeben lesbar: nichts wurde überschrieben
+    // Only readable after unlock: nothing was overwritten
     assert.deepEqual(await IOUtils.read(path), before);
   });
 

@@ -21,9 +21,9 @@ import {
 } from "./docFixtures";
 
 /**
- * Import der Gliederung aus .docx/.odt im echten Zotero. Die Dateien sind
- * echte ZIP-Archive (nsIZipWriter) im Temp-Ordner; Dateiauswahl und
- * Vorschaudialog werden umgangen (importFromFile mit confirm).
+ * Outline import from .docx/.odt in real Zotero. The files are
+ * real ZIP archives (nsIZipWriter) in the temp directory; file picker and
+ * preview dialog are bypassed (importFromFile with confirm).
  */
 
 const api = () => (Zotero as any)[config.addonInstance].api;
@@ -34,7 +34,7 @@ describe("docImport", function () {
   const messages: string[] = [];
   let oldAlert: any;
 
-  /** Leerer Zustand wie im Organizer (nur die benutzten Felder). */
+  /** Empty state as in the Organizer (only used fields). */
   const fresh = (roots: any[] = []) => {
     const s = {
       libraryID: Zotero.Libraries.userLibraryID,
@@ -47,7 +47,7 @@ describe("docImport", function () {
     return { s, render() {} };
   };
 
-  /** Baum als verschachtelte [Titel, Kinder]-Liste. */
+  /** Tree as nested [title, children] list. */
   const shape = (ns: any[]): unknown =>
     ns.map((n) => [n.title, shape(n.children)]);
 
@@ -179,7 +179,7 @@ describe("docImport", function () {
     const ctx = fresh();
     const file = makeDocx("locked.docx", DE_BODY, DE_STYLES);
     const lock = lockFile(file.path);
-    // Die Sperre braucht kernel32 (nur Windows); anderswo ueberspringen.
+    // File lock requires kernel32 (Windows only); skip elsewhere.
     if (!lock && !Zotero.isWin) return this.skip();
     if (!lock) assert.fail(`lockFile null: ${lastLockError}`);
     try {

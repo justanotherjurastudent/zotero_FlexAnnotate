@@ -2,7 +2,7 @@ import { assert } from "chai";
 import { config } from "../package.json";
 import { findOrganizerWindow, waitFor } from "./helpers";
 
-/** Toolbar-Button oben in der Zotero-Leiste (features/organizer/toolbarButton.ts). */
+/** Toolbar button at the top of the Zotero window (features/organizer/toolbarButton.ts). */
 const api = () => (Zotero as any)[config.addonInstance].api;
 const BUTTON_ID = "flexannotate-tb-organizer";
 

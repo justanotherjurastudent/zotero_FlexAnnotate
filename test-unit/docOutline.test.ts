@@ -618,11 +618,11 @@ describe("computePlanNumbers", () => {
     assert.equal(applied[0].children[0].title, "Problemstellung");
     assert.equal(applied[1].title, "Hauptteil");
 
-    // Ohne stripExistingNumbering: kein Match fuer "2. Hauptteil", wird neu angehaengt
+    // Without stripExistingNumbering: no match for "2. Hauptteil", appended as new
     const exactPlan = planOutlineImport(existing, items, {
       stripExistingNumbering: false,
     });
-    assert.equal(exactPlan.reused, 1); // nur "Einleitung" matcht
+    assert.equal(exactPlan.reused, 1); // only "Einleitung" matches
     const exactNums = computePlanNumbers(existing, exactPlan);
     assert.deepEqual(exactNums, ["1", "1.2", "3", "3.1"]);
   });

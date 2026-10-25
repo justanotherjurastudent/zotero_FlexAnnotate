@@ -3,8 +3,8 @@ import { config } from "../package.json";
 import { findWindowByUrl, hasAnnotationDialog, waitFor } from "./helpers";
 
 /**
- * "Vollnachweis / Nur Nachweis" im Zitationsdialog: Einbau an allen Einbauorten,
- * Entfernen beim Aufräumen, Schreiben der Pref bei Änderung.
+ * "Full citation / Citation only" mode toggle in citation dialog: integration at all mounting points,
+ * removal on teardown, writing pref on change.
  */
 
 const api = () => (Zotero as any)[config.addonInstance].api;

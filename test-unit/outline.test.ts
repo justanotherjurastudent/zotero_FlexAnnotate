@@ -110,7 +110,7 @@ describe("serialization", () => {
       html,
       /<h1>📚 FlexAnnotate — Gliederung — Meine Bibliothek<\/h1>/,
     );
-    // der JSON-Payload ändert sich nicht durch die Überschrift
+    // The JSON payload does not change due to the heading
     assert.deepEqual(parseOutline(html), r);
   });
 

@@ -8,10 +8,10 @@ import {
 } from "./helpers";
 
 /**
- * Nur-Nachweis-Zitieren: Patch an/aus in einer echten Zotero-Instanz, und die
- * Einfügung mit citationOnly=true ergibt ein Zitat auf den Elterntitel mit Locator.
- * Der Zugriff läuft über addon.api, damit das Plugin-Modul mit seinem ztoolkit-Global
- * getestet wird und nicht eine Kopie im Testbundle.
+ * Citation-only citing: patch enable/disable in a real Zotero instance, and
+ * inserting with citationOnly=true results in a citation of the parent item with locator.
+ * Accessed via addon.api so the plugin module with its ztoolkit global
+ * is tested rather than a copy in the test bundle.
  */
 
 const api = () => (Zotero as any)[config.addonInstance].api;
@@ -23,7 +23,7 @@ describe("citation-only patch", function () {
 
   after(async function () {
     Zotero.Prefs.clear(PREF, true);
-    // Plugin-Zustand wie beim Start wiederherstellen.
+    // Restore plugin state to startup baseline.
     api().citeOnly.patch.start?.();
     await cleanup();
   });
@@ -129,7 +129,7 @@ describe("citation-only patch", function () {
         { citationItems: [{ id: ann.id }] },
         0,
       );
-      // Ein gesetztes Feld überspringt addField(); der Pfad über die Session bleibt gleich.
+      // A populated field skips addField(); the session path remains identical.
       result = await proto()._insertCitingResult.call(
         Object.create(proto()),
         0,
@@ -213,7 +213,7 @@ describe("citation-only patch", function () {
       assert.ok(active1.has(ann.id), "annotation is marked as cited");
 
       // 2. Footnote is deleted in Word (documentCitationIDs loses citID)
-      // (leeres Objekt hieße "Session nicht geladen" und bereinigt nichts)
+      // (empty object would mean "session not loaded" and cleans nothing up)
       fakeSession.documentCitationIDs = { other_cit: 0 };
       const active2 = dialogCited.getActiveCitedIDs(rows, citedWorks);
       assert.equal(

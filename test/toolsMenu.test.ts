@@ -3,8 +3,8 @@ import { config } from "../package.json";
 import { findOrganizerWindow, waitFor } from "./helpers";
 
 /**
- * Werkzeugmenü-Eintrag ohne Zotero.MenuManager (features/organizer/toolsMenuFallback.ts).
- * Zotero 7.x: Eintrag vorhanden; 8.x und 10.x: der Manager übernimmt, kein Duplikat.
+ * Tools menu entry without Zotero.MenuManager (features/organizer/toolsMenuFallback.ts).
+ * Zotero 7.x: entry exists; 8.x and 10.x: manager handles it, preventing duplicates.
  */
 const api = () => (Zotero as any)[config.addonInstance].api;
 const ITEM_ID = "flexannotate-tools-organizer";

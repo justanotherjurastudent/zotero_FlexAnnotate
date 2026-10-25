@@ -98,7 +98,7 @@ describe("print annotation dialog", function () {
     try {
       field("flexannotate-dialog-page").value = "   ";
       save();
-      // Die Pflichtprüfung läuft synchron, vor dem ersten await: kein Warten nötig.
+      // Mandatory validation runs synchronously, prior to the first await: no wait needed.
       assert.equal(hidden, 0);
       assert.equal(annotationsOf(work).length, before);
     } finally {

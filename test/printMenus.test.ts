@@ -8,9 +8,9 @@ import {
 } from "./helpers";
 
 /**
- * Item-Kontextmenü (#zotero-itemmenu) im Hauptfenster. Die Auswahl wird direkt an
- * updateVisibility übergeben, weil die Zeilen im Item-Baum nicht zuverlässig selektierbar
- * sind. Der Popupshowing-Pfad, der die Auswahl aus ZoteroPane liest, ist nicht abgedeckt.
+ * Item context menu (#zotero-itemmenu) in main window. Selection is passed directly
+ * to updateVisibility because items in item tree cannot be reliably selected programmatically.
+ * The popupshowing path reading selection from ZoteroPane is not covered here.
  */
 const api = () => (Zotero as any)[config.addonInstance].api;
 const SEPARATOR = "flexannotate-itemmenu-separator";
@@ -42,7 +42,7 @@ describe("printMenus (item context menu)", function () {
   });
 
   after(async function () {
-    // Das Menü bleibt für die übrigen Tests im Hauptfenster erhalten.
+    // Menu remains in main window for remaining tests.
     api().print.menus.printMenus.addToWindow(win());
     await cleanup();
   });

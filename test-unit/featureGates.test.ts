@@ -3,15 +3,15 @@ import assert from "node:assert/strict";
 import { gates, isFeatureEnabled, isKnownGate } from "../src/features/gates.ts";
 
 /**
- * Erwartete Registrierungen des Plugins. Sie müssen mit den Einträgen in
- * `src/features/registry.ts` übereinstimmen: `globalFeatureEntries`
- * (Lebenszyklus-Features) und `dialogInjectorEntries` (Zitierdialog).
+ * Expected plugin registrations. They must match the entries in
+ * `src/features/registry.ts`: `globalFeatureEntries` (lifecycle features) and
+ * `dialogInjectorEntries` (citation dialog).
  *
- * `registry.ts` selbst ist unter `node --test` nicht importierbar (es lädt
- * Zotero-Module über Imports ohne `.ts`-Suffix). Darum prüft dieser Test die
- * pure `gates.ts` gegen diese explizite Erwartung: Ein Tippfehler im Gate-
- * Namen fällt sofort auf, statt das Deaktivieren eines Features still
- * wirkungslos zu machen.
+ * `registry.ts` itself is not importable under `node --test` (it loads Zotero
+ * modules through imports without a `.ts` suffix). This test therefore checks
+ * the pure `gates.ts` against this explicit expectation: a typo in a gate
+ * name fails immediately instead of silently making the disabling of a
+ * feature ineffective.
  */
 const globalFeatureNames = [
   "organizer",

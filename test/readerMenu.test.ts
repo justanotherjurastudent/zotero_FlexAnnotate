@@ -2,10 +2,10 @@ import { assert } from "chai";
 import { config } from "../package.json";
 
 /**
- * Lebenszyklus des Reader-Menüs: start richtet den Kontextmenü-Listener ein, stop nimmt
- * ihn wieder weg. Geprüft wird über die Listenliste von Zotero.Reader (xpcom/reader.js,
- * 10.0.5: _registeredListeners, Zeile 2772). Ein geöffneter Reader wird nicht verlangt;
- * dafür fehlt im Testprofil ein zuverlässig öffnbares PDF.
+ * Lifecycle of the reader menu: start sets up the context menu listener, stop removes
+ * it. Verified via the listener list of Zotero.Reader (xpcom/reader.js,
+ * 10.0.5: _registeredListeners, line 2772). An open reader is not required;
+ * the test profile lacks a reliably openable PDF.
  */
 
 const api = () => (Zotero as any)[config.addonInstance].api;
@@ -24,7 +24,7 @@ describe("reader menu lifecycle", function () {
   this.timeout(60000);
 
   after(function () {
-    // Plugin-Zustand wie beim Start wiederherstellen
+    // Restore plugin state to startup baseline
     api().reader.readerMenu.patch();
   });
 

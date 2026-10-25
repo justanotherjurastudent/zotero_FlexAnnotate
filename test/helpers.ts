@@ -77,13 +77,13 @@ export async function cleanup(): Promise<void> {
   created.length = 0;
 }
 
-/** Letzter Fehler von lockFile (fuer Skip-Meldungen in den Tests). */
+/** Last error from lockFile (for skip messages in tests). */
 export let lastLockError: unknown = null;
 
 /**
- * Exklusives Dateilock halten (Windows, kernel32!CreateFileW mit Share-Mode 0);
- * null, wenn ctypes fehlt oder die Sperre nicht moeglich ist (andere Plattform).
- * ctypes kommt wie in Zoteros Winword-Integration per importESModule.
+ * Hold exclusive file lock (Windows, kernel32!CreateFileW with share mode 0);
+ * null if ctypes is missing or locking is unavailable (non-Windows platform).
+ * ctypes is imported via importESModule as in Zotero's Winword integration.
  */
 export function lockFile(path: string): { close: () => void } | null {
   try {
@@ -91,7 +91,7 @@ export function lockFile(path: string): { close: () => void } | null {
       "resource://gre/modules/ctypes.sys.mjs",
     ) as any;
     const kernel32 = ctypes.open("kernel32.dll");
-    // stdcall_abi wie in Zoteros Winword-Integration (winapi_abi gibt es in fx140 nicht mehr)
+    // stdcall_abi as in Zotero's Winword integration (winapi_abi no longer exists in fx140)
     const CreateFileW = kernel32.declare(
       "CreateFileW",
       ctypes.stdcall_abi,
@@ -126,8 +126,8 @@ export function lockFile(path: string): { close: () => void } | null {
 }
 
 /**
- * Ob der Word-Zitierdialog den Annotationsmodus kennt (ab Zotero 9; 8.x hat dort
- * keine #annotations-sidebar, 7.x heißt die Datei addCitationDialog.xhtml).
+ * Whether the Word citation dialog supports annotation mode (Zotero 9+;
+ * 8.x lacks #annotations-sidebar, 7.x names the file addCitationDialog.xhtml).
  */
 export function hasAnnotationDialog(): boolean {
   try {
@@ -158,8 +158,8 @@ export function findOrganizerWindow(): Window | null {
   return null;
 }
 
-// FLEXANNOTATE_GREP (npm run test:zotero -- --grep <Muster>): nur Tests mit dem Muster im Titel.
-// Läuft beim Laden der Testdateien, also vor mocha.run.
+// FLEXANNOTATE_GREP (npm run test:zotero -- --grep <pattern>): only tests matching the pattern in their title.
+// Evaluated when test files are loaded, prior to mocha.run.
 const grepPattern = Services.env.get("FLEXANNOTATE_GREP");
 if (grepPattern) mocha.grep(grepPattern);
 

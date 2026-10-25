@@ -12,16 +12,16 @@ import {
 import { screenshot, screenshotDir } from "./screenshot";
 
 /**
- * Layout des persistenten Zitierfensters in verschiedenen Größen (Round 3).
- * Läuft nur mit `npm run screenshots` (FLEXANNOTATE_SCREENSHOTS=1); sonst geskippt.
- * Die PNGs landen in .scaffold/screenshots/persistent/.
+ * Layout of persistent citation window across various sizes (Round 3).
+ * Only runs with `npm run screenshots` (FLEXANNOTATE_SCREENSHOTS=1); skipped otherwise.
+ * PNGs are saved to .scaffold/screenshots/persistent/.
  */
 
 const api = () => (Zotero as any)[config.addonInstance].api;
 const DIALOG_URL = "chrome://zotero/content/integration/citationDialog.xhtml";
 const NATIVE_OPTIONS = "chrome,centerscreen,resizable=true,alwaysRaised";
 const enabled = () => Services.env.get("FLEXANNOTATE_SCREENSHOTS") === "1";
-/** Breite x Höhe; 700x300 = unter Word angedockt, 520x700 = links angedockt. */
+/** Width x Height; 700x300 = docked below Word, 520x700 = docked left. */
 const SIZES: [number, number][] = [
   [1100, 700],
   [800, 600],

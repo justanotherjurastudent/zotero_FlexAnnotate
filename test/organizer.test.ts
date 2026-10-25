@@ -243,9 +243,9 @@ describe("FlexAnnotate", function () {
       const rowText = (id: number) =>
         (win!.document.querySelector(`[data-row-id="${id}"]`) as HTMLElement)
           ?.textContent || "";
-      // Schließe das Fenster vollständig, bevor es neu geöffnet wird: die
-      // Fenster-Enumeration liefert sonst das halb geschlossene alte Fenster
-      // und `win` zeigt danach auf eine veraltete Referenz.
+      // Close the window completely before reopening: otherwise
+      // window enumeration yields the semi-closed stale window
+      // and `win` would point to an obsolete reference.
       const reopen = async () => {
         api().OrganizerFactory.close();
         await waitFor(() => !findOrganizerWindow());

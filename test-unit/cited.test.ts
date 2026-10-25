@@ -188,7 +188,7 @@ describe("citedDocData: reconciliation and pruning", () => {
     assert.ok(!step1.activeKeys.has("ANN_ONLY_1"));
 
     // User also deletes footnote 2 in Word
-    // Leere aktive ID-Menge ohne authoritativeEmpty = Session nicht geladen: nichts löschen
+    // Empty active ID set without authoritativeEmpty = session not loaded: delete nothing
     const step2 = reconcileDocData(step1.data, new Set<string>());
     assert.equal(step2.pruned, false);
     assert.deepEqual(step2.data.citations, step1.data.citations);
@@ -197,7 +197,7 @@ describe("citedDocData: reconciliation and pruning", () => {
     assert.equal(step3.pruned, false);
     assert.deepEqual(step3.data.citations, step1.data.citations);
 
-    // Mit authoritativeEmpty = true (nach echtem Dokument-Scan): letzte Fußnote wird bereinigt
+    // With authoritativeEmpty = true (after real document scan): last footnote is cleaned up
     const step4 = reconcileDocData(step1.data, {}, true);
     assert.equal(step4.pruned, true);
     assert.deepEqual(step4.data.citations, {});

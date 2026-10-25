@@ -14,7 +14,7 @@ import {
   xpathLiteral,
 } from "../src/features/citavi/logic/citavi.ts";
 
-// Standardwerte der Prefs (prefs.js)
+// Default pref values (prefs.js)
 const DEFAULT_PREFS: Record<string, string> = {
   citaviLocatorPage: "page",
   citaviLocatorColumn: "column",

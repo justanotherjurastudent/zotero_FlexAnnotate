@@ -170,7 +170,7 @@ describe("FlexAnnotate features", function () {
       work1.addToCollection(sub.id);
       await work1.saveTx();
 
-      // Der Start mit einer Sammlung fragt einmal nach dem Bibliotheksbaum.
+      // Starting with a collection prompts once for the library tree.
       const factory = api().OrganizerFactory;
       const originalConfirm = factory.confirm;
       factory.confirm = () => true;
@@ -201,7 +201,7 @@ describe("FlexAnnotate features", function () {
     after(async function () {
       win?.close();
       (Zotero.Items.get(noteID) as Zotero.Item)?.eraseTx?.();
-      // Outline-Notizen, die der Scope-Test pro Sammlung angelegt hat, wegputzen
+      // Clean up outline notes created per collection by the scope test
       const s = new Zotero.Search();
       (s as any).libraryID = libraryID();
       s.addCondition("tag", "contains", "#flexannotate-outline-");
@@ -263,7 +263,7 @@ describe("FlexAnnotate features", function () {
         new RegExp(`${rowCount()} (markiert|selected)`),
       );
 
-      // tree: Strg+Pfeil hoch verschiebt die Überschrift
+      // Tree: Ctrl+ArrowUp moves the heading up
       mousedown(nodeEl("Beta")!);
       click(nodeEl("Beta")!);
       await waitFor(() => nodeEl("Beta"));
@@ -286,7 +286,7 @@ describe("FlexAnnotate features", function () {
         );
       }
 
-      // Entf löscht die Überschrift (Rückfrage wird bestätigt)
+      // Delete key removes heading (confirmation dialog confirmed)
       const factory = api().OrganizerFactory;
       const original = factory.confirm;
       let asked = 0; // 0 = the Delete key never reached deleteNode's confirm
@@ -334,8 +334,8 @@ describe("FlexAnnotate features", function () {
       };
       const [sub, root] = cols;
       await showAll();
-      // Ein Schema-Wechsel auf eine Sammlung ohne eigenen Baum fragt einmal,
-      // ob der Bibliotheksbaum als Anfang übernommen werden soll.
+      // Changing schema to a collection without its own tree prompts once
+      // whether to initialize with the library tree.
       const factory = api().OrganizerFactory;
       const original = factory.confirm;
       factory.confirm = () => true;
@@ -370,7 +370,7 @@ describe("FlexAnnotate features", function () {
             String(sub.id),
         );
         await waitFor(() => rowCount() === 2);
-        // Untersammlung → Baum der Hauptsammlung
+        // Subcollection -> parent collection tree
         assert.equal(factory.lastState!.collectionKey, root.key);
         await factory.open({ collectionID: null });
         await waitFor(() => rowCount() === 3);
@@ -629,7 +629,7 @@ describe("FlexAnnotate features", function () {
     const anns: Zotero.Item[] = [];
     let win: Window | null = null;
 
-    // kein Befehlsmerker aus einem Test in den nächsten: sonst treibt ein späterer Test die echte Word-Integration
+    // No leaked command flags across tests: prevents later tests from triggering real Word integration
     afterEach(function () {
       api().persistentDialog.rememberCommand(null);
     });
@@ -2128,7 +2128,7 @@ describe("FlexAnnotate features", function () {
         const patchedAddEdit = ifaceProto?.addEditCitation;
         const patchedAddAnno = ifaceProto?.addAnnotation;
         feature.stop();
-        // die nativen Funktionen nach stop(): start() muss die Patches wieder anlegen
+        // Native functions after stop(): start() must reinstall the patches
         const nativeDD = integration.displayDialog;
         const nativeShow = integration.Progress.prototype.show;
         const nativeAddEdit = ifaceProto?.addEditCitation;
@@ -3319,10 +3319,10 @@ describe("FlexAnnotate features", function () {
   });
 
   // ── heading tags anchored to the outline note ─────────────────────────────
-  // Jede Überschrift bekommt einen `§`-Tag auf der Gliederungsnotiz, damit der
-  // Tag in der Bibliothek existiert und in der Tag-Zeile der PDF-Ansicht
-  // vorgeschlagen wird — auch ohne zugeordnete Items. Beim Umbenennen/Löschen
-  // wird er nachgeführt. Die Notiz selbst zählt nie als zugeordnetes Item.
+  // Each heading gets a `§` tag on the outline note so that the tag exists
+  // in the library and appears as a suggestion in the PDF viewer tag row,
+  // even without attached items. On rename/delete it is kept in sync.
+  // The note itself never counts as an attached item.
   describe("heading tags synced to the outline note", function () {
     let noteID: number | null = null;
     let tags: () => string[];
@@ -3380,8 +3380,8 @@ describe("FlexAnnotate features", function () {
     });
 
     it("backfills §-tags on load for a note created before the sync existed", async function () {
-      // Simuliert eine Bestands-Notiz: Bauminhalt + ★outline, aber noch keine
-      // §-Tags (von einer Version vor der §-Tag-Synchronisierung angelegt).
+      // Simulates an existing note: tree content + ★outline, but no
+      // §-tags yet (created by a version prior to §-tag synchronization).
       const core = api().outline;
       const model = api().outlineModel.OutlineModel;
       const oldNote = new Zotero.Item("note");
@@ -3453,7 +3453,7 @@ describe("FlexAnnotate features", function () {
       const label = api().organizerStrings.tr("outlineTitle");
       const oldNote = new Zotero.Item("note");
       oldNote.libraryID = libraryID();
-      // alte Notiz: Überschrift ohne Geltungsbereich und mit anderem Label
+      // Legacy note: heading without scope and with a different label
       oldNote.setNote(
         core.serializeOutline([core.makeNode("Titel Alt")], null, "Anything"),
       );

@@ -1,30 +1,30 @@
 /**
- * Test-Hilfe: rendert ein Fenster (oder nur ein Element darin) als PNG.
- * Läuft nur im Test-Bundle; nutzt die Zotero/Gecko-Globals, nicht ztoolkit.
+ * Test helper: renders a window (or a single element within it) to PNG.
+ * Runs only in the test bundle; uses Zotero/Gecko globals, not ztoolkit.
  */
 
 const HTML_NS = "http://www.w3.org/1999/xhtml";
 
 export interface ScreenshotOptions {
-  /** CSS-Selektor; ohne Angabe wird das ganze Fenster gerendert. */
+  /** CSS selector; without this, the entire window is rendered. */
   selector?: string;
-  /** Nur ohne `selector`: Breite und Höhe statt der Fenstergröße. */
+  /** Only without `selector`: width and height instead of window dimensions. */
   width?: number;
   height?: number;
-  /** Nur mit `selector`: nur die rechten N CSS-px des Elements. */
+  /** Only with `selector`: only the rightmost N CSS px of the element. */
   clipRight?: number;
-  /** Skalierung für schärfere Bilder (Standard 1). */
+  /** Scale factor for sharper images (default 1). */
   scale?: number;
   /**
-   * drawWindow-Flags (Gecko-Konstanten, in den Zotero-Quellen nicht belegt):
-   * 4 = DRAWWINDOW_USE_WIDGET_LAYERS, damit auch Popups/Panels mitgezeichnet werden.
+   * drawWindow flags (Gecko constants, undocumented in Zotero sources):
+   * 4 = DRAWWINDOW_USE_WIDGET_LAYERS, ensuring popups/panels are rendered.
    */
   flags?: number;
 }
 
 /**
- * Zielordner: `FLEXANNOTATE_SCREENSHOT_DIR` (vom Testläufer gesetzt, siehe
- * scripts/run-zotero-tests.mjs), sonst `.scaffold/test/shots` neben dem Profil.
+ * Destination directory: `FLEXANNOTATE_SCREENSHOT_DIR` (set by test runner, see
+ * scripts/run-zotero-tests.mjs), otherwise `.scaffold/test/shots` next to the profile.
  */
 export function screenshotDir(): string {
   const fromEnv = Services.env.get("FLEXANNOTATE_SCREENSHOT_DIR");
@@ -32,7 +32,7 @@ export function screenshotDir(): string {
   return PathUtils.join(PathUtils.parent(PathUtils.profileDir)!, "shots");
 }
 
-/** Schreibt `<dir>/<fileName>.png` und gibt den Pfad zurück. */
+/** Writes `<dir>/<fileName>.png` and returns the file path. */
 export async function screenshot(
   win: Window,
   fileName: string,

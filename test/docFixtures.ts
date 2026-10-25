@@ -1,6 +1,6 @@
 /**
- * Echte .docx/.odt-Dateien (ZIP per nsIZipWriter) fuer die Import-Tests.
- * Alle erzeugten Dateien stehen in `files` und werden vom Test aufgeraeumt.
+ * Real .docx/.odt files (ZIP via nsIZipWriter) for import tests.
+ * All created files are tracked in `files` and cleaned up by the test.
  */
 
 export const files: string[] = [];
@@ -57,9 +57,9 @@ export const ODT_CONTENT =
   '<text:h text:outline-level="1">Ausblick</text:h>' +
   "</office:text></office:body></office:document-content>";
 
-/** ZIP mit den Eintraegen {Name: Text} schreiben (nsIZipWriter). */
+/** Write a ZIP archive with entries {Name: Text} (nsIZipWriter). */
 export const makeZip = (name: string, entries: Record<string, string>) => {
-  // Eigenes Verzeichnis, damit der Dateiname (leafName) ohne Präfix bleibt
+  // Dedicated directory so the filename (leafName) remains without prefix
   const dir = Zotero.File.pathToFile(
     PathUtils.join(
       PathUtils.tempDir,
@@ -68,7 +68,7 @@ export const makeZip = (name: string, entries: Record<string, string>) => {
   );
   dir.create(Components.interfaces.nsIFile.DIRECTORY_TYPE ?? 1, 0o755);
   const path = PathUtils.join(dir.path, name);
-  files.push(path, dir.path); // Datei vor Verzeichnis: Aufräumen in Reihenfolge
+  files.push(path, dir.path); // File before directory: cleanup in order
   const zw = (Components.classes as any)[
     "@mozilla.org/zipwriter;1"
   ].createInstance(Components.interfaces.nsIZipWriter);

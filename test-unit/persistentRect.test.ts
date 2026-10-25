@@ -53,7 +53,7 @@ describe("parseStoredRect", () => {
   });
 
   it("clamps a stored size that exceeds the screen to the available area", () => {
-    // z. B. Monitorwechsel von einem größeren Bildschirm: nicht verwerfen, sondern klemmen
+    // e.g. switching from a larger monitor: do not discard, but clamp
     assert.deepEqual(parseStoredRect('{"w":2000,"h":720}', SCREEN), {
       w: 1920,
       h: 720,

@@ -46,7 +46,7 @@ describe("docxBody", () => {
     }
     const body = docxBody([top]);
     assert.doesNotMatch(body, /Heading1[0-9]/);
-    // Ebene 9 bis 12 landen auf 9
+    // Levels 9 through 12 map to 9
     assert.equal([...body.matchAll(/Heading9/g)].length, 4);
   });
 
@@ -96,7 +96,7 @@ describe("buildDocxParts", () => {
     for (let i = 1; i <= 9; i++) {
       assert.match(p.stylesXml, new RegExp(`w:styleId="Heading${i}">`));
     }
-    // Heading 1-3 sind sofort im Katalog sichtbar (kein unhideWhenUsed)
+    // Heading 1-3 are immediately visible in the gallery (no unhideWhenUsed)
     assert.match(
       p.stylesXml,
       /w:styleId="Heading1">.*?<w:uiPriority w:val="9"\/><w:qFormat\/>/,
@@ -105,7 +105,7 @@ describe("buildDocxParts", () => {
       p.stylesXml,
       /w:styleId="Heading3">.*?<w:uiPriority w:val="9"\/><w:qFormat\/>/,
     );
-    // Heading 4-9 haben unhideWhenUsed vor qFormat
+    // Heading 4-9 have unhideWhenUsed before qFormat
     assert.match(
       p.stylesXml,
       /w:styleId="Heading4">.*?<w:uiPriority w:val="9"\/><w:unhideWhenUsed\/><w:qFormat\/>/,
@@ -118,7 +118,7 @@ describe("buildDocxParts", () => {
       p.stylesXml,
       /w:styleId="Heading1">.*<w:numPr><w:ilvl w:val="0"\/><w:numId w:val="1"\/><\/w:numPr><w:outlineLvl w:val="0"\/>/,
     );
-    // jede Ebene auf ihrem ilvl, sonst nummerieren alle Vorlagen auf Ebene 0
+    // Each level on its own ilvl, otherwise all templates number at level 0
     assert.match(
       p.stylesXml,
       /w:styleId="Heading2">.*<w:numPr><w:ilvl w:val="1"\/><w:numId w:val="1"\/>/,

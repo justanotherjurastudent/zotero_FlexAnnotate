@@ -47,7 +47,7 @@ describe("suggestRows", () => {
         { tag: "§Hauptteil", num: "2" },
         { tag: "§Einleitung", num: "1.1" },
       ],
-      // gleicher Tag mit anderer Nummer: die der Hauptsammlung gilt
+      // Same tag with different number: the main collection's number applies
       libraryHeads: [
         { tag: "§Hauptteil", num: "9" },
         { tag: "§Zebra", num: "3" },

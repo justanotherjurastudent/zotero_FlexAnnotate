@@ -11,7 +11,7 @@ import {
 const api = () => (Zotero as any)[config.addonInstance].api;
 const modePref = `${config.prefsPrefix}.outlineTagSuggest`;
 
-/** Führt die zotero-Suche mit einem Dummy-Listener aus und liefert Wert/Label je Zeile. */
+/** Executes zotero search with a dummy listener and returns value/label per row. */
 async function suggest(
   typed: string,
   itemID: number,
@@ -72,7 +72,7 @@ describe("tagSuggest", function () {
     } as any);
     await plainCol.saveTx();
 
-    // Baumreihenfolge bewusst gegen die alphabetische: Zeta vor Alpha
+    // Tree order deliberately differs from alphabetical: Zeta before Alpha
     const { makeNode } = api().outline;
     const noteID = await api().outlineModel.OutlineModel.save(
       lib,
@@ -97,7 +97,7 @@ describe("tagSuggest", function () {
       0,
     );
 
-    // Ein §-Tag, das in keiner Gliederung der Hauptsammlung steht
+    // A §-tag that belongs to no outline in the main collection
     const other = await makeWork("TagSuggest Fremdwerk");
     other.addTag("§TsFremd");
     await other.saveTx();
@@ -139,12 +139,12 @@ describe("tagSuggest", function () {
     assert.deepEqual(labels.slice(1, 3), ["§TsZeta", "§TsAlpha"]);
     assert.include(labels, "§TsFremd");
     assert.isAbove(labels.indexOf("§TsFremd"), labels.indexOf("§TsAlpha"));
-    // zwei Überschriftzeilen, deren Wert nur aus Leerraum besteht
+    // Two header rows whose value consists solely of whitespace
     const headers = rows.filter((r) => !r.value.trim());
     assert.lengthOf(headers, 2);
     assert.notEqual(headers[0].value, headers[1].value);
     assert.equal(rows[0], headers[0]);
-    // Nummer nur im Label, der Wert bleibt der reine Tag-Name
+    // Number only in label; value remains purely the tag name
     assert.equal(rows[1].value, "§TsZeta");
     assert.equal(rows[1].label, "§TsZeta (1)");
     assert.equal(rows[2].label, "§TsAlpha (2)");

@@ -2,7 +2,7 @@ import { assert } from "chai";
 import { config } from "../package.json";
 import { waitFor } from "./helpers";
 
-// Die Pane wird über Zotero.PreferencePanes.register() in hooks.ts angemeldet.
+// Pane is registered via Zotero.PreferencePanes.register() in hooks.ts.
 function findPane() {
   return Zotero.PreferencePanes.pluginPanes.find(
     (pane) => pane.pluginID === config.addonID,

@@ -12,10 +12,10 @@ import { DE_BODY, DE_STYLES, files, makeDocx } from "./docFixtures";
 import { screenshot } from "./screenshot";
 
 /**
- * Bildschirmfotos für Layoutprüfung und README. Läuft nur mit
- * `npm run screenshots` (setzt FLEXANNOTATE_SCREENSHOTS=1); sonst geskippt.
- * Alle Daten sind synthetisch. Scheitert ein Bild, wird das protokolliert und
- * die übrigen Bilder entstehen trotzdem.
+ * Screenshots for layout inspection and README. Only runs with
+ * `npm run screenshots` (sets FLEXANNOTATE_SCREENSHOTS=1); skipped otherwise.
+ * All data is synthetic. If an image capture fails, it is recorded and
+ * remaining screenshots are still taken.
  */
 
 const api = () => (Zotero as any)[config.addonInstance].api;
@@ -35,7 +35,7 @@ describe("screenshots", function () {
   const outlinePrefKey = () => `${config.prefsPrefix}.dialogOutlineView`;
   let outlinePref: unknown;
 
-  /** Ein Bild erstellen; ein Fehler wird gesammelt, der Test läuft weiter. */
+  /** Capture an image; on error, records failure and continues test. */
   const step = async (name: string, fn: () => Promise<string>) => {
     try {
       const path = await fn();
@@ -103,11 +103,11 @@ describe("screenshots", function () {
   before(async function () {
     if (!enabled()) return this.skip();
     outlinePref = Zotero.Prefs.get(outlinePrefKey(), true);
-    await Zotero.Styles.init(); // Locator-Bezeichnungen brauchen die CSL-Locales
+    await Zotero.Styles.init(); // Locator labels require CSL locales
     work = await makeWork("Beispielkommentar zum Aktiengesetz");
     const print = api().print.printAnnotations;
     const samples: [string, string, string, string, string][] = [
-      // [Zitat, Seite/Locator, Farbe, Kommentar, Locator-Typ]
+      // [quote, page/locator, color, comment, locator type]
       [
         "Die Organe der Gesellschaft sind der Vorstand und der Aufsichtsrat.",
         "12",
@@ -164,7 +164,7 @@ describe("screenshots", function () {
     const anns = placeholder ? placeholder.getAnnotations() : [];
     assert.isAtLeast(anns.length, 6, "print annotations created");
 
-    // Gliederung mit drei Überschriften; die Zitate ordnen sich zu
+    // Outline with three headings; citations are assigned
     const core = api().outline;
     const roots = [
       core.makeNode("Einleitung"),
@@ -185,7 +185,7 @@ describe("screenshots", function () {
 
   after(async function () {
     if (!enabled()) return;
-    Zotero.Prefs.set(outlinePrefKey(), outlinePref as any, true); // Gliederungsschalter zurück
+    Zotero.Prefs.set(outlinePrefKey(), outlinePref as any, true); // Restore outline view pref
     organizer?.close();
     dialog?.close();
     prefs?.close();
@@ -199,7 +199,7 @@ describe("screenshots", function () {
         // already gone
       }
     }
-    await cleanup(); // Buch mit Print-Annotationen und Platzhalter
+    await cleanup(); // Book with print annotations and placeholder
     if (failed.length) {
       Zotero.debug(`screenshots: ${failed.length} step(s) failed`);
     }
@@ -223,7 +223,7 @@ describe("screenshots", function () {
 
     // (a2) Vorschau des Gliederungsimports (Overlay im Organizer-Fenster)
     await step("import-preview", async () => {
-      await waitFor(() => !findOrganizerWindow()); // das vorige ist zu
+      await waitFor(() => !findOrganizerWindow()); // previous window is closed
       await api().OrganizerFactory.open();
       organizer = await waitFor(findOrganizerWindow);
       const doc = organizer.document;
@@ -252,7 +252,7 @@ describe("screenshots", function () {
     organizer = null;
     for (const f of files) await IOUtils.remove(f, { ignoreAbsent: true });
 
-    // (b) und (c) Zitierdialog mit und ohne Gliederungsansicht
+    // (b) and (c) Citation dialog with and without outline view
     await step("citation-dialog", async () => {
       dialog = await openCitationDialog(true);
       return screenshot(dialog, "citation-dialog");
@@ -261,7 +261,7 @@ describe("screenshots", function () {
       dialog = await openCitationDialog(false);
       return screenshot(dialog, "citation-dialog-native");
     });
-    // Suchtext aus der Zoteros-Suchleiste filtert die Gliederungsliste
+    // Search query from Zotero search bar filters outline list
     await step("citation-dialog-search", async () => {
       dialog = await openCitationDialog(true);
       const doc = dialog.document;
@@ -282,7 +282,7 @@ describe("screenshots", function () {
       await Zotero.Promise.delay(300);
       return screenshot(dialog, "citation-dialog-search");
     });
-    // genau eine Annotation markiert: Button "Zitatstelle anzeigen"
+    // Exactly one annotation selected: button "Show citation place"
     await step("citation-dialog-place", async () => {
       dialog = await openCitationDialog(true);
       const doc = dialog.document;
@@ -300,7 +300,7 @@ describe("screenshots", function () {
     await closeDialogs();
     dialog = null;
 
-    // (d) Einstellungsfenster mit der Pane des Plugins
+    // (d) Preferences window with plugin pane
     await step("preferences", async () => {
       const pane = Zotero.PreferencePanes.pluginPanes.find(
         (p: any) => p.pluginID === config.addonID,
@@ -317,19 +317,19 @@ describe("screenshots", function () {
     prefs?.close();
     prefs = null;
 
-    // (e) Hauptfenster: Beispielbuch ausgewählt, Kinder ausgeklappt
+    // (e) Main window: example book selected, children expanded
     await step("main-window", async () => {
       const main = Zotero.getMainWindow() as Window;
       const zp = Zotero.getActiveZoteroPane() as any;
       const size = [main.outerWidth, main.outerHeight];
       try {
-        main.resizeTo(1280, 800); // best effort, Fenstermanager kann es verweigern
+        main.resizeTo(1280, 800); // best effort, window manager may refuse
         await Zotero.Promise.delay(300);
         await zp.selectItem(work.id);
         await waitFor(() => zp.itemsView.getSelectedItems(true)[0] === work.id);
         zp.itemsView.expandAllRows(true);
         await Zotero.Promise.delay(800);
-        // Hinweisbanner (Update, Sync-Erinnerung) fürs Bild ausblenden, danach zurück
+        // Hide notification banners (update, sync reminder) for screenshot, restore after
         const banners = Array.from(
           main.document.querySelectorAll<HTMLElement>(".banner-container"),
         ).map((el) => [el, el.getAttribute("collapsed")] as const);
@@ -348,19 +348,19 @@ describe("screenshots", function () {
       }
     });
 
-    // (f) Organizer-Button in der Titelleiste (flexannotate-tb-organizer)
+    // (f) Organizer button in title bar (flexannotate-tb-organizer)
     await step("toolbar", async () => {
       const main = Zotero.getMainWindow() as Window;
       return screenshot(main, "toolbar", {
         selector: "#zotero-tabs-toolbar",
-        clipRight: 80, // Trenner, Organizer- und Sync-Button
+        clipRight: 80, // separator, organizer and sync button
         scale: 3,
       });
     });
 
-    // (g) Die Print-Annotation-Maske fehlt bewusst: sie ist ein <panel>
-    // (Popup), das drawWindow weder ohne noch mit USE_WIDGET_LAYERS erfasst;
-    // das Bild zeigte nur den Inhalt darunter. Siehe Bericht.
+    // (g) Print annotation dialog is intentionally omitted: it is a <panel>
+    // (popup) that drawWindow does not capture with or without USE_WIDGET_LAYERS;
+    // the screenshot would only show underlying content. See report.
 
     assert.isAbove(written.length, 0, "at least one screenshot written");
     Zotero.debug(
