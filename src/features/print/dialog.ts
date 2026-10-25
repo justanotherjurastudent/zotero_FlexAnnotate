@@ -1,13 +1,12 @@
 /**
- * Eingabemaske für Print-Annotationen: anlegen, bearbeiten und Kommentar bzw. Locator
- * nachtragen, auch bei nativen Annotationen aus PDF, EPUB und Snapshot.
- * Herkunft: pre-merge:src/dialog.js. Die reinen Regeln stehen in core/printDialog.ts.
+ * Dialog panel for print annotations: create, edit, and add comments or locators,
+ * also for native annotations from PDF, EPUB, and snapshot.
+ * Origin: pre-merge:src/dialog.js. Pure business rules live in core/printDialog.ts.
  *
- * Kein eigenes Fenster: XUL-Elemente werden nur in privilegierten chrome-Dokumenten
- * geparst, eine chrome://-URI kann ein Plugin in Zotero 10 nicht registrieren, und
- * openDialog() mit file:// oder jar:// bleibt leer. Die Maske ist deshalb ein <panel>
- * im bereits privilegierten Hauptfenster, wie Zotero selbst seine Oberfläche baut
- * (MozXULElement.parseXULToFragment).
+ * Not an independent window: XUL elements are only parsed in privileged chrome documents,
+ * a plugin cannot register a chrome:// URI in Zotero 10, and openDialog() with file:// or jar://
+ * remains blank. The dialog is therefore a <panel> in the already privileged main window,
+ * matching how Zotero itself builds its UI (MozXULElement.parseXULToFragment).
  */
 import { config } from "../../../package.json";
 import {
@@ -31,7 +30,7 @@ import * as printAnnotations from "./printAnnotations";
 
 type MainWin = _ZoteroTypes.MainWindow;
 
-/** Felder der Maske: nur die Eigenschaften, die gelesen oder gesetzt werden. */
+/** Dialog fields: only properties that are read or set. */
 type Field = HTMLElement & {
   value: string;
   disabled: boolean;
@@ -50,7 +49,7 @@ const FTL = `${config.addonRef}-addon.ftl`;
 interface PanelState {
   mode: "create" | "edit";
   view: DialogView;
-  /** Titel-Item; beim Bearbeiten fehlt es, wenn die Annotation keinen Parent hat */
+  /** Top-level item; missing during edit if the annotation has no parent */
   item: Zotero.Item | null;
   annotation: Zotero.Item | null;
   annotations: Zotero.Item[];
@@ -58,14 +57,14 @@ interface PanelState {
 }
 
 /**
- * Zustand je Panel. Module sind je Sitzung einmal geladen, die Fenster aber nicht;
- * der Zustand gehört daher ans Element.
+ * State per panel. Modules are loaded once per session, but windows are not;
+ * the state is therefore attached to the element.
  */
 const states = new WeakMap<Element, PanelState>();
 
 /**
- * Wird nach jedem Speichern aufgerufen. Das Reader-Menü setzt es, um offene Reader
- * zu aktualisieren; so entsteht kein Zirkelimport zwischen beiden Modulen.
+ * Invoked after each save. The reader menu registers this callback to refresh open readers,
+ * avoiding a circular import between both modules.
  */
 let afterSave: (() => void) | null = null;
 
@@ -74,9 +73,9 @@ export function setAfterSave(fn: (() => void) | null): void {
 }
 
 /**
- * Öffnet die Maske zum Anlegen einer neuen Print-Annotation.
- * @param win - Zotero-Hauptfenster
- * @param parentItem - Reguläres Titel-Item
+ * Opens the dialog panel to create a new print annotation.
+ * @param win - Zotero main window
+ * @param parentItem - Regular top-level item
  */
 export async function open(
   win: MainWin,
@@ -94,7 +93,7 @@ export async function open(
     requirePage: true,
   });
 
-  // Ein vorhandener Platzhalter kann einen Standard-Locator tragen
+  // An existing placeholder can carry a default locator
   fill(panel, {
     source: parentItem.getDisplayTitle(),
     locator: printAnnotations.getDefaultLocator(placeholder.find(parentItem)),
@@ -105,18 +104,18 @@ export async function open(
     comment: "",
   });
   applyView(panel, "full", false);
-  // Der Typ bestimmt, ob Zotero ein Zitatfeld erlaubt — nachträglich nicht mehr änderbar
+  // The type determines whether Zotero permits a quote field — immutable once created
   byId(doc, "flexannotate-dialog-type").disabled = false;
 
   show(win, panel, "flexannotate-dialog-page");
 }
 
 /**
- * Öffnet die Maske für bestehende Annotationen, Print-Annotationen ebenso wie native.
- * Mehrere Annotationen nur in der Ansicht 'locator'.
- * @param win - Zotero-Hauptfenster oder Reader-Fenster
- * @param annotations - Eine Annotation oder mehrere
- * @param options.view - 'full' (Standard) | 'comment' | 'locator'
+ * Opens the dialog for existing annotations, print annotations as well as native ones.
+ * Multiple annotations only supported in 'locator' view.
+ * @param win - Zotero main window or reader window
+ * @param annotations - One annotation or multiple
+ * @param options.view - 'full' (default) | 'comment' | 'locator'
  */
 export async function openForEdit(
   win: MainWin,
@@ -136,8 +135,8 @@ export async function openForEdit(
   const item = annotation.topLevelItem;
   const multi = list.length > 1;
   const view = editView(list.length, options.view);
-  // Print-Quellen zitieren ausschließlich über die Seitenzahl; bei nativen
-  // Annotationen leitet Zotero sie notfalls aus dem Dokument ab.
+  // Print sources cite exclusively via page label; for native
+  // annotations Zotero derives them from the document if necessary.
   const isPrint = placeholder.isPlaceholder(annotation.parentItem);
   states.set(panel, {
     mode: "edit",
@@ -159,8 +158,8 @@ export async function openForEdit(
   });
   applyView(panel, view, multi);
 
-  // Zotero erlaubt nur den Wechsel zwischen highlight und underline (item.js:4494-4498),
-  // deshalb bleibt der Typ beim Bearbeiten fest.
+  // Zotero only permits switching between highlight and underline (item.js:4494-4498),
+  // so the type remains fixed during edit.
   byId(doc, "flexannotate-dialog-type").disabled = true;
 
   const focus = {
@@ -197,8 +196,8 @@ function fill(panel: Panel, values: FillValues): void {
 }
 
 /**
- * Setzt Haken und Sperre der Standard-Option anhand des gewählten Locators.
- * Das Dokument ist der Anhang der Annotation, bei Anlage der Platzhalter des Titels.
+ * Updates checked and disabled state of the default checkbox based on the selected locator.
+ * The document is the annotation's attachment, or for creation the item's placeholder.
  */
 function syncDefaultCheckbox(panel: Panel, locator: string): void {
   const checkbox = panel.ownerDocument.getElementById(
@@ -217,7 +216,7 @@ function syncDefaultCheckbox(panel: Panel, locator: string): void {
   checkbox.disabled = next.disabled;
 }
 
-/** Blendet Gruppen und Felder der Ansicht ein und passt die Breite des Fensters an. */
+/** Shows groups and fields for the view and adjusts container width. */
 function applyView(panel: Panel, view: DialogView, multi: boolean): void {
   const doc = panel.ownerDocument;
   const layout = viewLayout(view);
@@ -237,7 +236,7 @@ function applyView(panel: Panel, view: DialogView, multi: boolean): void {
   byId(doc, "flexannotate-dialog-page").hidden = multi;
 }
 
-/** Zeigt außer den wählbaren Typen nur den der bearbeiteten Annotation. */
+/** Shows only selectable types plus the type of the annotation being edited. */
 function updateTypeMenu(doc: Document, currentType: string): void {
   const popup = byId(doc, "flexannotate-dialog-type-popup");
   for (const menuitem of Array.from(popup.children) as Field[]) {
@@ -246,7 +245,7 @@ function updateTypeMenu(doc: Document, currentType: string): void {
   }
 }
 
-/** Zotero erlaubt annotationText nur bei highlight/underline; sonst ist das Zitatfeld gesperrt. */
+/** Zotero only allows annotationText for highlight/underline; otherwise quote field is disabled. */
 function updateTextFieldState(doc: Document): void {
   const type = byId(doc, "flexannotate-dialog-type").value;
   const textField = byId(doc, "flexannotate-dialog-text");
@@ -270,7 +269,7 @@ function show(win: MainWin, panel: Panel, focusID: string): void {
   }
 }
 
-/** Legt das Panel einmalig an und liefert es bei weiteren Aufrufen wieder. */
+/** Creates the panel once and returns it on subsequent calls. */
 function build(win: MainWin): Panel {
   const doc = win.document;
   const existing = doc.getElementById(PANEL_ID) as Panel | null;
@@ -278,7 +277,7 @@ function build(win: MainWin): Panel {
     return existing;
   }
 
-  // Auch Reader-Fenster bauen die Maske selbst; ihnen fehlt unsere FTL noch
+  // Reader windows also construct the panel themselves; they may lack our FTL initially
   try {
     win.MozXULElement.insertFTLIfNeeded(FTL);
   } catch (e) {
@@ -408,7 +407,7 @@ function build(win: MainWin): Panel {
       }
 
       if (event.key === "Enter") {
-        // Menüauswahl in geöffnetem Dropdown nicht vorzeitig als Speichern abfangen
+        // Do not intercept menu selection in an open dropdown as save
         if ((event.target as Element | null)?.closest?.("menupopup")) {
           return;
         }
@@ -418,13 +417,13 @@ function build(win: MainWin): Panel {
           ?.toLowerCase()
           .endsWith("textarea");
 
-        // In mehrzeiligen Textfeldern erzeugt Enter normale Zeilenumbrüche;
-        // Strg+Enter / Cmd+Enter speichert auch dort.
+        // In multiline text fields Enter creates normal line breaks;
+        // Ctrl+Enter / Cmd+Enter saves there as well.
         if (isTextarea && !event.ctrlKey && !event.metaKey) {
           return;
         }
 
-        // Wenn "Abbrechen" fokussiert ist, schließt Enter das Fenster
+        // If "Cancel" is focused, Enter closes the panel
         if (activeEl?.id === "flexannotate-dialog-cancel") {
           event.preventDefault();
           event.stopPropagation();
@@ -443,7 +442,7 @@ function build(win: MainWin): Panel {
   return panel;
 }
 
-/** Liefert alle sichtbaren und aktivierten fokussierbaren Elemente in DOM-Reihenfolge. */
+/** Returns all visible and enabled focusable elements in DOM order. */
 function getFocusableElements(panel: Panel): Field[] {
   const candidates = Array.from(
     panel.querySelectorAll(
@@ -469,16 +468,16 @@ function getFocusableElements(panel: Panel): Field[] {
 }
 
 /**
- * Muss vor build() laufen. getLocatorString() liest Object.keys(Zotero.Styles.locales):
- * vor dem Ende von Zotero.Styles.init() ist `locales` undefined, und weil build() das
- * Panel dann schon eingehängt hat, bliebe die Locator-Liste bis zum nächsten Start leer.
- * init() liefert eine laufende Initialisierung als Promise und ist beliebig oft aufrufbar.
+ * Must run before build(). getLocatorString() reads Object.keys(Zotero.Styles.locales):
+ * before Zotero.Styles.init() completes, `locales` is undefined, and because build()
+ * would already mount the panel, the locator list would stay empty until next restart.
+ * init() returns an ongoing initialization promise and is safe to call repeatedly.
  */
 async function ensureLocatorsReady(): Promise<void> {
   await Zotero.Styles.init();
 }
 
-/** Locator-Typen aus Zoteros Liste (Zotero.Cite.labels), beschriftet und alphabetisch sortiert. */
+/** Locator types from Zotero's list (Zotero.Cite.labels), labeled and alphabetically sorted. */
 function buildLocatorMenu(doc: Document): void {
   const popup = byId(doc, "flexannotate-dialog-locator-popup");
   for (const { value, label } of buildLocatorEntries(
@@ -493,12 +492,12 @@ function buildLocatorMenu(doc: Document): void {
 }
 
 /**
- * Farbauswahl aus Zoteros Palette. Die Namen kommen über Zotero.getString(), nicht über
- * data-l10n-id: ein XUL-<menuitem> zeigt das label-Attribut, Fluent setzt aber textContent.
+ * Color options from Zotero's palette. Names are retrieved via Zotero.getString(), not via
+ * data-l10n-id: a XUL <menuitem> displays the label attribute, whereas Fluent sets textContent.
  */
 function buildColorMenu(doc: Document): void {
   const popup = byId(doc, "flexannotate-dialog-color-popup");
-  // In zotero-types nicht typisiert; Zotero 7-9 führt COLORS nicht
+  // Untyped in zotero-types; Zotero 7-9 does not have COLORS
   const colors = annotationColors(
     (Zotero.Annotations as unknown as { COLORS?: unknown }).COLORS,
   );
@@ -511,8 +510,8 @@ function buildColorMenu(doc: Document): void {
 }
 
 /**
- * Name einer Farbe. 8.x/9.x/10.x: general-*; 7.x: general.* (zotero.properties).
- * Fehlt ein Schlüssel, wirft Zotero in en-US, in anderen Sprachen liefert es den Schlüssel.
+ * Name of a color. 8.x/9.x/10.x: general-*; 7.x: general.* (zotero.properties).
+ * If a key is missing, Zotero throws in en-US and returns the key string in other locales.
  */
 function colorLabel(nameKey: string): string {
   for (const key of [nameKey, nameKey.replace("-", ".")]) {
@@ -520,16 +519,16 @@ function colorLabel(nameKey: string): string {
       const label = Zotero.getString(key);
       if (label && label !== key) return label;
     } catch {
-      // Schlüssel in dieser Version unbekannt
+      // Key unknown in this version
     }
   }
   return nameKey;
 }
 
 /**
- * Speichert die Eingaben. Bei fehlender Pflichtseite bleibt die Maske offen.
- * Der Dokument-Standard wird vor den Annotationen gesetzt, weil applyLocatorTag() beim
- * Setzen des Tags gegen ihn prüft.
+ * Saves user input. If a required page label is missing, the panel remains open.
+ * The document default is set before annotations because applyLocatorTag() checks
+ * against it when setting tags.
  */
 async function accept(win: MainWin, panel: Panel): Promise<void> {
   const doc = win.document;
@@ -574,7 +573,7 @@ async function accept(win: MainWin, panel: Panel): Promise<void> {
         await printAnnotations.update(annotation, data);
       }
     } else {
-      // Im Anlegemodus ist das Titel-Item immer gesetzt
+      // In create mode the top-level item is always set
       const item = state.item as Zotero.Item;
       if (makeDefault) {
         const attachment = await placeholder.ensure(item);
@@ -588,7 +587,7 @@ async function accept(win: MainWin, panel: Panel): Promise<void> {
     afterSave?.();
   } catch (e) {
     defaultLogger("printDialog", "save", e);
-    // Der Rohtext der Ausnahme steht bereits im Debug-Log und ist für Lesende nutzlos.
+    // The raw exception is already logged to debug output and is not helpful to users.
     Zotero.alert(win, config.addonName, getString("save-failed"));
   }
 }

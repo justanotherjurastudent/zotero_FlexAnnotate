@@ -169,9 +169,9 @@ export function reconcileDocData(
     return { data, activeKeys, pruned: false };
   }
 
-  // Leere Menge ohne authoritativeEmpty = Session (noch) nicht gefüllt (Zotero setzt
-  // documentCitationIDs in updateFromDocument auf {} zurück; bei delayCitationUpdates
-  // oder Fehlern bleibt es leer). Dann nie löschen, sonst gehen alle Einträge verloren.
+  // Empty set without authoritativeEmpty = session (not yet) filled (Zotero resets
+  // documentCitationIDs to {} in updateFromDocument; with delayCitationUpdates
+  // or errors it stays empty). Then never delete, otherwise all entries are lost.
   if (!authoritativeEmpty) {
     const isEmpty =
       activeCitationIDs instanceof Set
@@ -499,9 +499,9 @@ export interface RowLikeForLocation {
 }
 
 /**
- * Ermittelt die Fundstellen für eine Zeile (Werk oder Annotation).
- * Falls für eine Annotation keine direkte Fundstelle in docData.citations existiert,
- * wird auf die Zitationsstellen des übergeordneten Gesamtwerks (workID) zurückgegriffen.
+ * Determines the locations for a row (work or annotation).
+ * If no direct location in docData.citations exists for an annotation,
+ * the citation locations of the parent work (workID) are used.
  */
 export function getLocationsForRow(
   r: RowLikeForLocation,
@@ -528,7 +528,7 @@ export interface FormatLocationOptions {
 }
 
 /**
- * Formatiert den Anzeigetext eines einzelnen Nachweises (z. B. "Text", "Text 2", "Fn. 3", "Endn. 4 (1)").
+ * Formats the display text of a single citation (e.g. "Text", "Text 2", "Fn. 3", "Endn. 4 (1)").
  */
 export function formatCitationLocationLabel(
   loc: CitationLocation,
@@ -560,8 +560,8 @@ export interface FormattedCitationLocation {
 }
 
 /**
- * Wandelt eine Liste von Nachweisen in formatierte Labels um, inkl. korrekter Zählung
- * bei Mehrfachvorkommen am selben Ort (z. B. Text 1, Text 2 bzw. Fn. 3 (1), Fn. 3 (2)).
+ * Converts a list of citations into formatted labels, incl. correct counting
+ * for multiple occurrences at the same place (e.g. Text 1, Text 2 resp. Fn. 3 (1), Fn. 3 (2)).
  */
 export function formatCitationLocationList(
   locs: CitationLocation[],

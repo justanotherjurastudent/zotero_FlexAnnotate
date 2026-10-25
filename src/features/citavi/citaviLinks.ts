@@ -1,15 +1,15 @@
 /**
- * Citavi: Beiträge mit ihrem Hauptwerk verknüpfen. Herkunft: pre-merge:src/citaviImport.js
- * (linkContributions). Läuft aus citaviImport.ts nach dem Print-Quoten-Durchlauf.
+ * Citavi: link contributions to their main work. Origin: pre-merge:src/citaviImport.js
+ * (linkContributions). Runs from citaviImport.ts after the print-quotes pass.
  *
- * Zotero 10.0.5: Der Übersetzer verarbeitet ReferenceReferences nicht. Der seeAlso-Code
- * in chrome/content/zotero/xpcom/translation/translate_item.js:1081-1089 ist auskommentiert
- * (10.0.1: translate_item.js:1080-1089); siehe docs/architecture.md.
+ * Zotero 10.0.5: The translator does not process ReferenceReferences. The seeAlso code
+ * in chrome/content/zotero/xpcom/translation/translate_item.js:1081-1089 is commented out
+ * (10.0.1: translate_item.js:1080-1089); see docs/architecture.md.
  */
 
 /**
- * Ausschnitt des Zotero-internen Translation-Objekts (nicht typisiert). Die Felder
- * stammen aus xpcom/translate/src/translation/translate.js (`_itemSaver` in :2474,
+ * Excerpt of Zotero's internal translation object (not typed). The fields come
+ * from xpcom/translate/src/translation/translate.js (`_itemSaver` in :2474,
  * `_io` in :2456, `_sandboxZotero` in :1864).
  */
 export interface CitaviTranslation {
@@ -24,21 +24,21 @@ export interface CitaviTranslation {
   };
 }
 
-/** Zotero.Utilities-XPath-Helfer aus der Sandbox (Zotero-Typen verlangen HTMLElement). */
+/** Zotero.Utilities XPath helpers from the sandbox (Zotero types require HTMLElement). */
 export interface CitaviXml {
   xpath(root: Node, expr: string): Element[];
   xpathText(root: Node, expr: string): string | null;
 }
 
 /**
- * Verknüpft Beiträge (Contribution, ContributionInLegalCommentary) mit ihrem
- * Hauptwerk als Zotero-Relationen. Citavis `ReferenceReferences` enthält
- * `OnetoN`-Knoten im Format `ParentID;ChildID1;ChildID2;…`.
+ * Links contributions (Contribution, ContributionInLegalCommentary) to their
+ * main work as Zotero relations. Citavi's `ReferenceReferences` contains
+ * `OnetoN` nodes in the format `ParentID;ChildID1;ChildID2;…`.
  *
- * Neben Parent↔Child werden auch Geschwister-Beiträge innerhalb derselben
- * Gruppe untereinander verknüpft.
+ * Besides Parent↔Child, sibling contributions within the same
+ * group are also linked to each other.
  *
- * @return Anzahl angelegter Relationen (Paare mit Änderung)
+ * @return Number of created relations (pairs with a change)
  */
 export async function linkContributions(
   translation: CitaviTranslation,
@@ -49,7 +49,7 @@ export async function linkContributions(
     return 0;
   }
 
-  // Stream ist nach importPrintQuotes verbraucht — re-initialisieren
+  // Stream is consumed after importPrintQuotes — re-initialize
   translation._io.init("xml/dom");
   const doc = translation._sandboxZotero.getXML();
   const ZU = translation._sandboxZotero.Utilities;
@@ -60,8 +60,8 @@ export async function linkContributions(
     return 0;
   }
 
-  // Alle Paare sammeln, um sie in einer DB-Transaktion zu speichern.
-  // Jedes Paar ist [itemA, itemB]; die Relation ist bidirektional.
+  // Collect all pairs to save them in one DB transaction.
+  // Each pair is [itemA, itemB]; the relation is bidirectional.
   const pairs: [Zotero.Item, Zotero.Item][] = [];
   const skipped = { noParent: 0, noChild: 0, sameItem: 0 };
   let groupsProcessed = 0;
@@ -95,7 +95,7 @@ export async function linkContributions(
       continue;
     }
 
-    // Kinder auflösen
+    // Resolve children
     const childItems: Zotero.Item[] = [];
     for (const childCitaviID of childCitaviIDs) {
       const childZoteroID = idMap[childCitaviID];
@@ -115,12 +115,12 @@ export async function linkContributions(
       childItems.push(childItem);
     }
 
-    // Parent ↔ jedes Kind
+    // Parent ↔ each child
     for (const child of childItems) {
       pairs.push([parentItem, child]);
     }
 
-    // Geschwister untereinander
+    // Siblings among themselves
     for (let i = 0; i < childItems.length; i++) {
       for (let j = i + 1; j < childItems.length; j++) {
         if (childItems[i].id !== childItems[j].id) {
@@ -143,8 +143,8 @@ export async function linkContributions(
     return 0;
   }
 
-  // Alle Relationen in einer Transaktion setzen und speichern.
-  // Deduplizieren: ein Item kann durch mehrere Paare berührt werden.
+  // Set and save all relations in one transaction.
+  // Deduplicate: an item can be touched by several pairs.
   let linked = 0;
   const changedItems = new Set<Zotero.Item>();
 

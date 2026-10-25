@@ -1,8 +1,8 @@
 /**
- * Lage/Größe des persistenten Begleitfensters: Festhalten während der
- * Ladephase (Zotero vergrößert den Dialog beim Öffnen mehrfach), laufendes
- * Festschreiben nach der Ladephase und die gespeicherte Geometrie für die
- * nächste Öffnung (Pref `persistentWindowRect`, über Neustarts).
+ * Position/size of the persistent companion window: pinning during the load
+ * phase (Zotero resizes the dialog several times when opening), continuous
+ * tracking after the load phase, and the saved geometry for the next opening
+ * (pref `persistentWindowRect`, across restarts).
  */
 
 import type { WindowPosition } from "../logic/persistentOptions";
@@ -16,35 +16,35 @@ import {
   trace,
 } from "./persistentState";
 
-/** Zotero ändert Größe und Position noch nach dem Laden (onLoad, resizeWindow, Animation). */
+/** Zotero still changes size and position after loading (onLoad, resizeWindow, animation). */
 const PIN_MS = 5000;
 /**
- * Ladephase: Lage und Größe werden bis hierher festgehalten. Sie endet LOAD_SETTLE_MS nach dem
- * Laden (DIALOG_STATE.loaded), spätestens LOAD_CAP_MS nach dem Öffnen. Danach hält der Pin die Lage
- * nicht mehr, weil der Nutzer sie ab dann verschiebt (ein Verschieben ändert keine Größe und löst
- * kein resize-Ereignis aus, also ließe sich ein Pin dafür nicht unterscheiden).
+ * Load phase: position and size are pinned until here. It ends LOAD_SETTLE_MS after
+ * loading (DIALOG_STATE.loaded), at the latest LOAD_CAP_MS after opening. Afterwards the
+ * pin no longer touches the position, because the user moves it from then on (moving
+ * changes no size and fires no resize event, so a pin could not tell the difference).
  */
 const LOAD_SETTLE_MS = 500;
 const LOAD_CAP_MS = 1500;
-/** Obergrenze für Korrekturen (Schutz gegen Hin-und-her mit Zotero, z. B. bei der Mindesthöhe). */
+/** Upper bound for corrections (protection against back-and-forth with Zotero, e.g. minimum height). */
 const MAX_FIXES = 30;
-/** Live-Geometrie je Fenster (Innenmaße, Position): Quelle für das nächste Fenster. */
+/** Live geometry per window (inner size, position): source for the next window. */
 const liveRects = new WeakMap<Window, Rect>();
-/** Fenster, deren Festhalten vorbei ist: ab dann misst captureLive das Fenster neu. */
+/** Windows whose pinning is over: from then on captureLive measures the window fresh. */
 const pinEnded = new WeakSet<Window>();
 
-/** Die zuletzt gemerkte Lage des Blätterfensters (Pref persistentWindowRect, über Neustarts). */
+/** The last remembered position of the companion window (pref persistentWindowRect, across restarts). */
 let pendingRect = "";
 let lastRect = "";
 let writeTimer: unknown = null;
 
 /**
- * Zotero liest die gespeicherte Größe beim Öffnen aus dieser Pref ein (citationDialog.js:96-100).
- * onLoad liest den Schlüssel des Startmodus: alle Modi schreiben wir.
+ * Zotero reads the saved size from this pref when opening (citationDialog.js:96-100).
+ * onLoad reads the key of the start mode: we write all modes.
  */
 const WINDOW_PARAMS_PREF = "integration.citationDialog.windowParams";
 
-/** Rahmen und Titelleiste: outer minus inner. */
+/** Frame and title bar: outer minus inner. */
 function chromeOf(win: Window): { w: number; h: number } {
   return {
     w: win.outerWidth - win.innerWidth,
@@ -56,14 +56,14 @@ export function rectOf(win: Window): Rect {
   return {
     x: win.screenX,
     y: win.screenY,
-    // Innenmaße: openWindow-Features setzen die Innengröße, Zotero resizeTo die äußere
+    // Inner sizes: openWindow features set the inner size, Zotero the outer via resizeTo
     w: win.innerWidth,
     h: win.innerHeight,
     dpr: win.devicePixelRatio || 1,
   };
 }
 
-/** Features für openWindow: Position und Größe in Geräte-Pixeln (bei 125 % gemessen). */
+/** Features for openWindow: position and size in device pixels (measured at 125%). */
 export function positionOf(rect: Rect): WindowPosition {
   return {
     left: rect.x * rect.dpr,
@@ -73,7 +73,7 @@ export function positionOf(rect: Rect): WindowPosition {
   };
 }
 
-/** Merkt die Lage, entprellt (500 ms), nie werfend. Geschrieben wird nur bei Änderung. */
+/** Remembers the position, debounced (500 ms), never throws. Only written on change. */
 function rememberRect(r: Rect): void {
   try {
     pendingRect = serializeRect(r);
@@ -97,12 +97,12 @@ function flushRect(): void {
 }
 
 export function trackLive(win: Window): void {
-  if ((win as any).accepted) return; // eingeklappt: nicht übernehmen und nicht in die Pref schreiben
+  if ((win as any).accepted) return; // collapsed: do not adopt and not write into the pref
   liveRects.set(win, rectOf(win));
   rememberRect(liveRects.get(win)!);
 }
 
-/** Lage für den ersten Dialog nach dem Start: validiert (parseStoredRect), sonst null (Standard). */
+/** Position for the first dialog after start: validated (parseStoredRect), otherwise null (default). */
 export function readStoredRect(): { rect: Rect; placed: boolean } | null {
   try {
     const main = mainWin();
@@ -136,13 +136,13 @@ export function readStoredRect(): { rect: Rect; placed: boolean } | null {
   }
 }
 
-/** Schreibt die Größe in die Zotero-Pref, die onLoad beim Öffnen einliest (citationDialog.js:96-100). */
+/** Writes the size into the Zotero pref that onLoad reads when opening (citationDialog.js:96-100). */
 export function writeStoredSize(width: number, height: number) {
   try {
     const all = JSON.parse(
       (Zotero as any).Prefs.get(WINDOW_PARAMS_PREF) || "{}",
     );
-    // onLoad liest den Schlüssel des Startmodus (citationDialog.js:96-100): alle Modi schreiben
+    // onLoad reads the key of the start mode (citationDialog.js:96-100): write all modes
     for (const mode of ["library", "list"]) {
       all[mode] = { ...(all[mode] || {}), width, height };
     }
@@ -152,9 +152,9 @@ export function writeStoredSize(width: number, height: number) {
   }
 }
 
-/** Die Geometrie für das nächste Fenster. Während des Festhaltens das Ziel, danach frisch gemessen. */
+/** Geometry for the next window. During pinning the target, afterwards measured fresh. */
 export function captureLive(win: Window): Rect {
-  // akzeptiert: Zotero hat schon eingeklappt (citationDialog.js:157-171); die Lage vor dem Accept gilt
+  // accepted: Zotero already collapsed (citationDialog.js:157-171); the position before accept counts
   if ((win as any).accepted) return liveRects.get(win) ?? rectOf(win);
   if (pinEnded.has(win) || !liveRects.has(win)) liveRects.set(win, rectOf(win));
   const r = liveRects.get(win)!;
@@ -163,9 +163,9 @@ export function captureLive(win: Window): Rect {
 }
 
 /**
- * Hält Innenmaße und Position für PIN_MS an `rect` fest. Zotero resized den Dialog nach dem Öffnen
- * mehrfach (gespeicherte Größe, resizeWindow mit Mindestbreite, Animation), daher wird über
- * einen Fenstertimer nachgezogen. Die Lage nur in der Ladephase, die Größe bis zur ersten fremden Größenänderung danach.
+ * Pins inner size and position to `rect` for PIN_MS. Zotero resizes the dialog several times
+ * after opening (saved size, resizeWindow with minimum width, animation), so a window timer
+ * re-applies it. Position only during the load phase, size until the first foreign size change after it.
  */
 export function pinRect(win: Window, rect: Rect, placed = true): void {
   const host = mainWin() || win;
@@ -173,18 +173,18 @@ export function pinRect(win: Window, rect: Rect, placed = true): void {
   liveRects.set(win, rect);
   let fixes = 0;
   let stopped = false;
-  // Ende der Ladephase: danach fasst der Pin die Lage nicht mehr an (der Nutzer darf verschieben)
+  // End of the load phase: after that the pin no longer touches the position (the user may move)
   let loadEnd: number | null = null;
   let ours = { w: -1, h: -1 };
   const off = (a: number, b: number, tol: number) => Math.abs(a - b) > tol;
   const inLoad = () => loadEnd === null || Date.now() < loadEnd;
-  // Zotero ruft resizeTo/moveTo selbst auf (smoothResize zeitbasiert, helpers.mjs:449-492, resizeWindow):
-  // in der Haltephase wird jeder Aufruf auf das Ziel begrenzt. shortcut: nur resizeTo/moveTo, Zotero
-  // setzt die Größe nicht anders; upgrade wenn ein Zotero-Pfad direkt über Fenster-Internas geht.
+  // Zotero calls resizeTo/moveTo itself (smoothResize time-based, helpers.mjs:449-492, resizeWindow):
+  // during the hold phase every call is clamped to the target. shortcut: only resizeTo/moveTo, Zotero
+  // sets the size no other way; upgrade if a Zotero path goes through window internals directly.
   const nativeResize = win.resizeTo.bind(win);
   const nativeMove = win.moveTo.bind(win);
   const pinning = () => !stopped && Date.now() - start <= PIN_MS;
-  // resizeTo setzt die äußere Größe: Innenmaß plus Rahmen
+  // resizeTo sets the outer size: inner size plus frame
   const outerTarget = () => {
     const c = chromeOf(win);
     return { w: rect.w + c.w, h: rect.h + c.h };
@@ -213,7 +213,7 @@ export function pinRect(win: Window, rect: Rect, placed = true): void {
       release();
       pinEnded.add(win);
       trackLive(win);
-      // ab jetzt die Geometrie laufend mitschreiben (nur lesen): der Nutzer darf verschieben und vergrößern
+      // from now on keep writing the geometry (read-only): the user may move and grow
       const tracking = host.setInterval(() => {
         if (win.closed) {
           host.clearInterval(tracking);
@@ -229,7 +229,7 @@ export function pinRect(win: Window, rect: Rect, placed = true): void {
     ) {
       loadEnd = Math.min(Date.now() + LOAD_SETTLE_MS, start + LOAD_CAP_MS);
     }
-    // Mindestbreite (CSS und Layout) wirkt schon beim Laden, vor inject: senken, sobald die Seite da ist
+    // The minimum width (CSS and layout) already applies on load, before inject: lower it as soon as the page is there
     const layouts = win as any;
     const relaxed =
       layouts.libraryLayout?.MIN_WIDTH === 360 &&
@@ -239,7 +239,7 @@ export function pinRect(win: Window, rect: Rect, placed = true): void {
     }
     const sizeOff =
       off(win.innerWidth, rect.w, 2) || off(win.innerHeight, rect.h, 2);
-    // die Lage nur während der Ladephase halten: danach kann der Nutzer verschieben
+    // hold the position only during the load phase: after that the user may move
     const posOff =
       placed &&
       inLoad() &&
@@ -259,23 +259,24 @@ export function pinRect(win: Window, rect: Rect, placed = true): void {
   }, 20);
   win.addEventListener("resize", () => {
     const ourSize = win.outerWidth === ours.w && win.outerHeight === ours.h;
-    // erste fremde Größenänderung nach der Ladephase beendet das Festhalten der Größe
+    // the first foreign size change after the load phase ends the size pinning
     if (!ourSize && loadEnd !== null && !inLoad()) stopped = true;
   });
 }
 
 /**
- * Zotero erzwingt im Bibliotheks-Layout eine Mindestbreite von 1000 px (citationDialog.js:510,
- * resizeWindow vergrößert das Fenster sonst). Im Begleitfenster soll es schmaler gehen. shortcut: 360 px
- * ist die Untergrenze des Layouts (CSS), upgrade wenn die Spalten anders gebaut werden. Das Listen-
- * Layout nutzt MIN_WIDTH als Höchstbreite (citationDialog.js:1180), es bleibt unverändert.
+ * Zotero enforces a minimum width of 1000 px in the library layout (citationDialog.js:510,
+ * resizeWindow otherwise enlarges the window). In the companion window it should be narrower.
+ * shortcut: 360 px is the lower bound of the layout (CSS), upgrade when the columns are built
+ * differently. The list layout uses MIN_WIDTH as the maximum width (citationDialog.js:1180), it
+ * stays unchanged.
  */
 export function relaxDialogMinWidth(win: Window): void {
   const w = win as any;
   if (w.libraryLayout) w.libraryLayout.MIN_WIDTH = 360;
-  // zotero.css setzt zusaetzlich min-width 800/1000 px auf #citation-dialog (-moz-platform-unabhaengig)
+  // zotero.css additionally sets min-width 800/1000 px on #citation-dialog (-moz-platform-unabhaengig)
   const doc = win.document;
-  // Schaltet die schmale Ansicht (LAYOUT_CSS) nur fuer dieses Fenster ein
+  // Switches the narrow view (LAYOUT_CSS) on only for this window
   doc.documentElement!.setAttribute("flexannotate-persistent", "");
   if (!doc.getElementById("flexannotate-persistent-style")) {
     const st = doc.createElement("style");
@@ -286,7 +287,7 @@ export function relaxDialogMinWidth(win: Window): void {
   }
 }
 
-/** Beim Stoppen des Features ausstehendes Speichern abgeben (nur lesend ausgeschrieben). */
+/** Flushes pending saving when the feature stops (only written read-only). */
 export function flushStoredRect(): void {
   flushRect();
   if (writeTimer) mainWin()?.clearTimeout(writeTimer as number);

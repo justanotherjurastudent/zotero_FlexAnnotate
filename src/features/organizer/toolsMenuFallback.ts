@@ -1,12 +1,12 @@
 /**
- * Eintrag "Werkzeuge -> FlexAnnotate: Organizer" für Zotero 7.x, das kein
- * Zotero.MenuManager hat. Ohne ihn bleibt registerPluginMenu wirkungslos. Eingehängt
- * wird nur, wenn der Manager fehlt, sonst gäbe es den Eintrag doppelt.
+ * Entry "Tools -> FlexAnnotate: Organizer" for Zotero 7.x, which has no
+ * Zotero.MenuManager. Without it registerPluginMenu stays ineffective. Attached
+ * only if the manager is missing, otherwise the entry would exist twice.
  *
- * Werkzeugmenü der Hauptfenster: zoteroPane.xhtml, <menupopup id="menu_ToolsPopup">
+ * Tools menu of the main windows: zoteroPane.xhtml, <menupopup id="menu_ToolsPopup">
  * (.zotero-reference/7.0.32/chrome/content/zotero/zoteroPane.xhtml:715).
- * Das Label kommt aus Fluent (Attribut .label), nicht über data-l10n-id: Fluent
- * setzt bei einem XUL-menuitem den Text, das Label-Attribut bleibt leer (wie in
+ * The label comes from Fluent (attribute .label), not via data-l10n-id: Fluent
+ * sets the text on a XUL-menuitem, the label attribute stays empty (like in
  * features/print/dialog.ts).
  */
 import { config } from "../../../package.json";
@@ -19,10 +19,10 @@ type MainWin = _ZoteroTypes.MainWindow;
 export const MENU_ITEM_ID = "flexannotate-tools-organizer";
 const POPUP_ID = "menu_ToolsPopup";
 
-/** Je Fenster der Klick-Listener, damit removeFromWindow ihn entfernen kann. */
+/** Per-window click listener so removeFromWindow can remove it. */
 const listeners = new WeakMap<MainWin, () => void>();
 
-/** Der Fallback gilt nur ohne MenuManager (Zotero 7.x). */
+/** The fallback only applies without MenuManager (Zotero 7.x). */
 function needed(): boolean {
   return typeof (Zotero as any).MenuManager?.registerMenu !== "function";
 }
@@ -45,7 +45,7 @@ export const toolsMenuFallback: Feature = {
       "image",
       `chrome://${config.addonRef}/content/icons/organizer.svg`,
     );
-    // Wie der Toolbar-Button: context-fill braucht die context-properties
+    // Like the toolbar button: context-fill requires context-properties
     item.style.setProperty("-moz-context-properties", "fill, fill-opacity");
     item.style.setProperty("fill", "currentColor");
     popup.appendChild(item);

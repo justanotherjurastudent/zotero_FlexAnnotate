@@ -1,9 +1,8 @@
 /**
- * Lebenszyklus des Zitierdialogs. Ein einziger Window-Watcher erkennt den
- * Dialog und ruft jeden registrierten Injector einmal pro Fenster auf, sobald
- * der Dialog fertig initialisiert ist. Beim Entladen eines Fensters und beim
- * Stoppen ruft er detach aller Injectoren auf. Ein fehlerhafter Injector hält
- * die anderen nicht an.
+ * Citation dialog lifecycle. A single window watcher detects the dialog and
+ * invokes each registered injector once per window as soon as the dialog finishes
+ * its own initialization. On window unload and on stop, it detaches all injectors.
+ * A failing injector does not abort the remaining ones.
  */
 
 export interface DialogInjector {
@@ -14,7 +13,7 @@ export interface DialogInjector {
 
 const DIALOG_URL = "chrome://zotero/content/integration/citationDialog.xhtml";
 
-/** Reihenfolge = Injektionsreihenfolge; detach läuft in derselben Reihenfolge. */
+/** Order = injection order; detach runs in the same order. */
 const injectors: DialogInjector[] = [];
 const tracked = new Set<Window>();
 let listener: any = null;

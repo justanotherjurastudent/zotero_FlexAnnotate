@@ -1,19 +1,18 @@
 /**
- * Zentrale Feature-Liste — der einzige Schaltknoten des Plugins.
+ * Central feature list — the single switchboard of the plugin.
  *
- * Jedes größere Feature ist über ein `FeatureGate` (siehe `gates.ts`) einzeln
- * abschaltbar — z. B. wenn Zotero eine Funktion später selbst mitbringt, eine
- * interne API sich ändert oder ein Feature vorübergehend deaktiviert werden
- * soll.
+ * Every major feature can be turned off individually through a `FeatureGate`
+ * (see `gates.ts`) — for example when Zotero later ships the feature itself,
+ * an internal API changes, or a feature should be disabled temporarily.
  *
- * - `globalFeatures` und `dialogInjectors` sind die Listen, die `src/hooks.ts`
- *   startet bzw. im Zitierdialog injiziert. Deaktivierte Einträge werden
- *   herausgefiltert und weder gestartet noch injiziert.
- * - Die Schalter liegen in `gates.ts` (pure, node-getestet).
+ * - `globalFeatures` and `dialogInjectors` are the lists that `src/hooks.ts`
+ *   starts or injects into the citation dialog. Disabled entries are filtered
+ *   out and neither started nor injected.
+ * - The switches live in `gates.ts` (pure, node-tested).
  *
- * So deaktiviert man ein Feature: in `src/features/gates.ts` den Eintrag auf
- * `enabled: false` setzen. Danach `npm run typecheck`, `npm run test:unit`,
- * `npm run test:zotero` und ein Neustart in Zotero.
+ * To disable a feature, set its entry to `enabled: false` in
+ * `src/features/gates.ts`. Afterwards run `npm run typecheck`,
+ * `npm run test:unit`, `npm run test:zotero` and restart Zotero.
  */
 
 import type { Feature } from "../shared/feature";
@@ -44,7 +43,7 @@ import { toolsMenuFallback } from "./organizer/toolsMenuFallback";
 import { collectionMenu } from "./organizer/collectionMenu";
 import { isFeatureEnabled } from "./gates";
 
-// --- Inline-Features (aus src/hooks.ts hierher gezogen) ------------------
+// --- Inline features (extracted from src/hooks.ts) ------------------
 
 const organizerFeature: Feature = {
   name: "organizer",
@@ -83,9 +82,9 @@ const annotationRowPatchFeature: Feature = {
   },
 };
 
-// --- Globale Lebenszyklus-Features ---------------------------------------
+// --- Global lifecycle features ---------------------------------------
 
-/** Reihenfolge = Startreihenfolge; gestoppt wird in umgekehrter Reihenfolge. */
+/** Order = startup order; stopped in reverse order. */
 const globalFeatureEntries: Feature[] = [
   organizerFeature,
   organizerToolbarButton,
@@ -104,14 +103,14 @@ const globalFeatureEntries: Feature[] = [
   annotationRowPatchFeature,
 ];
 
-/** Aktive globale Features; deaktivierte Einträge sind herausgefiltert. */
+/** Active global features; disabled entries are filtered out. */
 export const globalFeatures: Feature[] = globalFeatureEntries.filter((f) =>
   isFeatureEnabled(f.name),
 );
 
-// --- Zitierdialog-Injektoren ---------------------------------------------
+// --- Citation dialog injectors ---------------------------------------------
 
-/** Reihenfolge = Injektionsreihenfolge; detach läuft in derselben Reihenfolge. */
+/** Order = injection order; detached in the same order. */
 const dialogInjectorEntries: DialogInjector[] = [
   {
     name: "modeSelector",
@@ -126,7 +125,7 @@ const dialogInjectorEntries: DialogInjector[] = [
   },
 ];
 
-/** Aktive Zitierdialog-Injektoren; deaktivierte Einträge sind herausgefiltert. */
+/** Active citation dialog injectors; disabled entries are filtered out. */
 export const dialogInjectors: DialogInjector[] = dialogInjectorEntries.filter(
   (i) => isFeatureEnabled(i.name),
 );

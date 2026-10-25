@@ -1,12 +1,12 @@
 /**
- * docOutline — Gliederung aus Word (DOCX) und LibreOffice (ODT) importieren.
- * Reine Logik ohne DOM: ein kleiner XML-Scanner liest nur die benoetigten
- * Strukturen. Der Import ist ein Append-Merge in die bestehende Gliederung.
+ * docOutline — import the outline from Word (DOCX) and LibreOffice (ODT).
+ * Pure logic without DOM: a small XML scanner reads only the needed
+ * structures. The import is an append-merge into the existing outline.
  */
 import { makeNode, numbering, type OutlineNode } from "./outline.ts";
 
 export interface DocHeading {
-  /** 1-basiert. */
+  /** 1-based. */
   level: number;
   text: string;
 }
@@ -20,14 +20,14 @@ export interface NormalizeResult {
 
 export interface ImportOp {
   kind: "reuse" | "create";
-  /** Bei "reuse" der Titel des vorhandenen Knotens, bei "create" der (ggf. umbenannte) neue Titel. */
+  /** For "reuse" the title of the existing node, for "create" the (possibly renamed) new title. */
   title: string;
   level: number;
-  /** Titel des Elternknotens nach allen Umbenennungen; null = Wurzel. */
+  /** Title of the parent node after all renames; null = root. */
   parentTitle: string | null;
-  /** Id des vorhandenen Knotens bei "reuse", sonst null. */
+  /** Id of the existing node for "reuse", otherwise null. */
   id: string | null;
-  /** Urspruenglicher Titel bei "reuse", falls der Titel aktualisiert wurde. */
+  /** Original title for "reuse" if the title was updated. */
   oldTitle?: string;
 }
 
@@ -57,7 +57,7 @@ const NAMED: Record<string, string> = {
   apos: "'",
 };
 
-/** Entities in einem Durchgang dekodieren (&amp;lt; wird zu &lt;, nicht zu <). */
+/** Decodes XML entities in a single pass (&amp;lt; becomes &lt;, not <). */
 function decodeEntities(s: string): string {
   return s.replace(
     /&(#x[0-9a-fA-F]+|#[0-9]+|amp|lt|gt|quot|apos);/g,
@@ -76,7 +76,7 @@ const TAG =
   /<(\/?)([^\s/>!?]+)((?:\s+[^\s=/>]+\s*=\s*(?:"[^"]*"|'[^']*'))*)\s*(\/?)>/y;
 const ATTR = /([^\s=/>]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
 
-/** Position hinter dem Terminator; Dokumentende, wenn er fehlt. */
+/** Position following the terminator; end of document if absent. */
 function after(xml: string, term: string, from: number): number {
   const e = xml.indexOf(term, from);
   return e < 0 ? xml.length : e + term.length;
@@ -91,7 +91,7 @@ function tagToken(m: RegExpExecArray): Tok {
   return { t: m[4] ? "empty" : "start", name: m[2], attrs };
 }
 
-/** Tokenisiert XML grob: Tags, Text (dekodiert), Kommentare/PI/DOCTYPE werden verworfen. */
+/** Rough XML tokenization: tags, text (decoded), comments/PI/DOCTYPE are discarded. */
 function tokenize(xml: string): Tok[] {
   const out: Tok[] = [];
   const n = xml.length;
@@ -154,7 +154,7 @@ function outlineToLevel(raw: string | undefined): number | undefined {
 const HEADING_NAME = /^(?:heading|überschrift|titre|rubrik)\s*([1-9])$/i;
 const HEADING_ID = /^(?:heading|berschrift|titre|rubrik)\s*([1-9])$/i;
 
-/** Fallback nur ueber die styleId (Standard-IDs wie Heading1 / berschrift1). */
+/** Fallback by styleId only (standard IDs like Heading1 / Überschrift1). */
 function idLevel(id: string): number {
   const m = HEADING_ID.exec(id);
   return m ? Number(m[1]) : 0;
@@ -199,7 +199,7 @@ function parseStyles(xml: string): Map<string, StyleDef> {
   return map;
 }
 
-/** Ueberschriftsebene eines Absatzstils ueber die basedOn-Kette (0 = keine). */
+/** Heading level of a paragraph style via the basedOn chain (0 = none). */
 function levelOfStyle(id: string, styles: Map<string, StyleDef>): number {
   const seen = new Set<string>();
   let cur: string | undefined = id;
@@ -225,8 +225,8 @@ interface Para {
 const SPACE_TAGS = new Set(["w:tab", "w:br", "w:cr"]);
 
 /**
- * Ueberschriften aus document.xml (ggf. mit styles.xml fuer benutzerdefinierte
- * Stile). Text: w:t in Absaetzen; w:del/w:moveFrom und w:delText ausgeschlossen.
+ * Headings from document.xml (optionally with styles.xml for custom styles).
+ * Text: w:t in paragraphs; w:del/w:moveFrom and w:delText excluded.
  */
 export function parseDocxHeadings(
   documentXml: string,
@@ -306,7 +306,7 @@ function odtSpaceCount(attrs: Record<string, string>): number {
   return c === undefined ? 1 : Math.min(Math.max(c, 1), 1000);
 }
 
-/** Text, den ein Inline-Element beisteuert (Leerzeichen, Tab, Zeilenumbruch). */
+/** Text contributed by an inline element (spaces, tabs, line breaks). */
 function odtInlineText(name: string, attrs: Record<string, string>): string {
   if (name === "text:s") return " ".repeat(odtSpaceCount(attrs));
   return name === "text:tab" || name === "text:line-break" ? " " : "";
@@ -316,8 +316,8 @@ const odtLevel = (attrs: Record<string, string>) =>
   Math.max(1, positiveInt(attr(attrs, "outline-level")) ?? 1);
 
 /**
- * Ueberschriften aus content.xml (text:h). Fussnoten (text:note) und geloeschte
- * Bereiche (text:deletion) fliessen nicht in den Titel ein.
+ * Headings from content.xml (text:h). Footnotes (text:note) and deleted
+ * regions (text:deletion) are excluded from the title.
  */
 export function parseOdtHeadings(contentXml: string): DocHeading[] {
   const out: DocHeading[] = [];
@@ -345,16 +345,16 @@ export function parseOdtHeadings(contentXml: string): DocHeading[] {
   return out;
 }
 
-// ── Normalisierung ───────────────────────────────────────────────────────────
+// ── Normalization ───────────────────────────────────────────────────────────
 
-/** Manuelle Nummerierung am Anfang: 1. / 1.1 / 1.1.1 / A. / I. / a) / (1) / 1) */
+/** Leading manual numbering: 1. / 1.1 / 1.1.1 / A. / I. / a) / (1) / 1) */
 const STRIP_RE =
   /^(?:\d+(?:\.\d+)*\.|\d+(?:\.\d+)+|\d+\)|[A-Z]\.|[IVXLCDM]+\.|[a-z]\)|\(\d+\))\s+/;
 
 /**
- * Ebenen lueckenlos machen (erste Ueberschrift = Ebene 1, nie mehr als
- * Vorgaenger+1) und optional manuelle Nummerierung entfernen, wenn sie in
- * mindestens 80 % (und mind. 3) der Ueberschriften vorkommt.
+ * Ensures gap-free levels (first heading = level 1, never exceeding
+ * predecessor + 1) and optionally strips manual numbering if present in
+ * at least 80% (and minimum 3) of headings.
  */
 export function normalizeHeadings(
   headings: DocHeading[],
@@ -389,7 +389,7 @@ export function normalizeHeadings(
     items = leveled.map((h) => {
       const t = h.text.trim();
       const s = t.replace(STRIP_RE, "");
-      if (!STRIP_RE.test(t) || !s) return h; // nie einen leeren Titel erzeugen
+      if (!STRIP_RE.test(t) || !s) return h; // never produce an empty title
       numberingStripped = true;
       return { level: h.level, text: s };
     });
@@ -397,7 +397,7 @@ export function normalizeHeadings(
   return { items, levelsFixed, numberingDetected, numberingStripped };
 }
 
-// ── Import-Plan ──────────────────────────────────────────────────────────────
+// ── Import Plan ──────────────────────────────────────────────────────────────
 
 /** Titelvergleich: Unicode-NFC, Whitespace zusammenfassen, case-insensitiv. */
 const keyOf = (t: string) =>
@@ -416,17 +416,17 @@ interface Work {
 
 export interface PlanOutlineImportOptions {
   /**
-   * Wenn aktiv, werden beim Wiederverwenden vorhandener Knoten fuehrende
-   * Nummern (z. B. "2. ", "II. ") auch beim bestehenden Titel ignoriert.
+   * When enabled, ignores leading numbers (e.g. "2. ", "II. ") in existing
+   * titles as well when reusing existing nodes.
    */
   stripExistingNumbering?: boolean;
 }
 
 /**
- * Plant den Append-Merge der Ueberschriften in die bestehende Gliederung.
- * Wiederverwendung nur unter gleichem Elternknoten; sonst neu als letztes Kind.
- * Titel sind global eindeutig (jede Ueberschrift ist ein Tag): Kollisionen
- * erhalten " (2)", " (3)" ... Nichts wird geloescht oder verschoben.
+ * Plans append-merge of headings into the existing outline.
+ * Reuse occurs only under the same parent node; otherwise added as last child.
+ * Titles are globally unique (each heading is a tag): collisions
+ * receive " (2)", " (3)" ... Nothing is deleted or moved.
  */
 export function planOutlineImport(
   existing: OutlineNode[],
@@ -442,7 +442,7 @@ export function planOutlineImport(
       }
       return { id: n.id, title: n.title, children: toWork(n.children) };
     });
-  // stack[0] ist die virtuelle Wurzel; stack[d] = Knoten auf Ebene d.
+  // stack[0] is the virtual root; stack[d] = node at level d.
   const stack: Work[] = [{ id: null, title: "", children: toWork(existing) }];
   const used = new Set<string>();
   const ops: ImportOp[] = [];
@@ -456,7 +456,7 @@ export function planOutlineImport(
     const want = Number.isFinite(h.level)
       ? Math.max(1, Math.floor(h.level))
       : 1;
-    const level = Math.min(want, stack.length); // nie tiefer als Vorgaenger+1
+    const level = Math.min(want, stack.length); // never deeper than predecessor + 1
     stack.splice(level);
     const parent = stack[level - 1];
     const parentTitle = level === 1 ? null : parent.title;
@@ -510,10 +510,9 @@ export function planOutlineImport(
 }
 
 /**
- * Wendet den Plan auf eine Kopie der Gliederung an (die Eingabe bleibt
- * unveraendert). Die Operationen sind in Dokumentreihenfolge: neue Knoten
- * werden letztes Kind des Knotens auf Ebene-1; "reuse" wird ueber die Id
- * gefunden und bleibt an seinem Platz.
+ * Applies the plan to a copy of the outline (input remains unmodified).
+ * Operations follow document order: new nodes become the last child of
+ * the level - 1 node; "reuse" matches by id and preserves its position.
  */
 export function applyImportPlan(
   roots: OutlineNode[],
@@ -526,7 +525,7 @@ export function applyImportPlan(
   const index = (ns: OutlineNode[]) =>
     ns.forEach((n) => (byId.set(n.id, n), index(n.children)));
   index(out);
-  // stack[d] = Knoten auf Ebene d+1 im aktuellen Pfad
+  // stack[d] = node at level d + 1 in the current path
   const stack: OutlineNode[] = [];
   for (const op of plan.ops) {
     const level = Math.max(1, Math.min(op.level, stack.length + 1));
@@ -546,8 +545,8 @@ export function applyImportPlan(
 }
 
 /**
- * Berechnet fuer jede Operation im Import-Plan die Dezimalnummer ("1", "1.1", ...),
- * die der Knoten in der resultierenden Gliederung haben wird (wie im Organizer).
+ * Computes the decimal numbering ("1", "1.1", ...) for each operation in the
+ * import plan as it will appear in the resulting outline (matching Organizer).
  */
 export function computePlanNumbers(
   roots: OutlineNode[],

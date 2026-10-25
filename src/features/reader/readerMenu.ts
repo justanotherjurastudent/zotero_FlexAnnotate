@@ -1,10 +1,10 @@
 /**
- * Reader-Integration (Dokumentenansicht), Teil 1: Kontextmenü an Annotationen, Sidebar-
- * Header und Aktualisierung der Locator-Anzeige. Herkunft: pre-merge:src/readerMenu.js
- * (Zeilen 1-315 und 714-907). Das Seitenzahl-Popup steht in labelPopup.ts.
+ * Reader integration (document view), Part 1: Annotation context menu, sidebar
+ * header, and locator display updates. Origin: pre-merge:src/readerMenu.js
+ * (lines 1-315 and 714-907). The page label popup lives in labelPopup.ts.
  *
- * Zotero-Quelle (10.0.5, chrome/content/zotero/xpcom/reader.js): registerEventListener
- * Zeile 2771, unregisterEventListener 2780, Reader.open 2917, _readers 2680.
+ * Zotero source (10.0.5, chrome/content/zotero/xpcom/reader.js): registerEventListener
+ * line 2771, unregisterEventListener 2780, Reader.open 2917, _readers 2680.
  */
 import { config } from "../../../package.json";
 import { assignChecked } from "../../shared/patch";
@@ -27,7 +27,7 @@ const EVENT = "createAnnotationContextMenu";
 const HEADER_EVENT = "renderSidebarAnnotationHeader";
 const NOTIFIER_ID = "flexannotate-reader";
 
-/** Interne Felder des Reader-Objekts, die Zotero nicht typisiert. */
+/** Internal fields of Reader object untyped in Zotero. */
 interface ReaderInternals {
   itemID?: number;
   _window?: Window;
@@ -76,7 +76,7 @@ interface HeaderEvent {
   params: { annotation?: { id: string } };
 }
 
-/** Eingeschränkte Sicht auf Zoteros Reader-Registry. */
+/** Restricted view of Zotero's reader registry. */
 interface ReaderRegistry {
   _readers?: ReaderInstance[];
   open?: (...args: unknown[]) => Promise<ReaderInstance | undefined>;
@@ -102,23 +102,23 @@ let origOpen: ReaderRegistry["open"] | null = null;
 let patchedOpen: ReaderRegistry["open"] | null = null;
 let updatingLocators = false;
 
-/** Ersatztext für die Seitenbezeichnung, wenn Zotero keine liefert. */
+/** Fallback label for page locator when Zotero does not provide one. */
 const labels = () => ({
   page: getString("reader-locator-page", "label"),
   margin: getString("reader-locator-margin", "label"),
   opus: getString("reader-locator-opus", "label"),
 });
 
-/** Ist die Reader-Erweiterung eingerichtet? Ersetzt die Prüfung auf den Handler. */
+/** Checks if reader extension is installed. Replaces checking the handler directly. */
 export function isPatched(): boolean {
   return handler !== null;
 }
 
 /**
- * Registriert Kontextmenü, Sidebar-Header und Notifier und überwacht die Reader-Popups.
- * Mehrfacher Aufruf ist unschädlich.
+ * Registers context menu, sidebar header, notifier, and watches reader popups.
+ * Idempotent on repeated calls.
  *
- * @return true, wenn eingerichtet
+ * @returns true if patched
  */
 export function patch(): boolean {
   if (handler) {
@@ -130,7 +130,7 @@ export function patch(): boolean {
     return false;
   }
 
-  // 1. Kontextmenü-Handler für Annotationen im Reader
+  // 1. Context menu handler for annotations in reader
   handler = (event) => {
     try {
       onContextMenu(event);
@@ -140,7 +140,7 @@ export function patch(): boolean {
   };
   zr.registerEventListener(EVENT, handler as never, config.addonID);
 
-  // 2. Sidebar-Header-Handler: Passt „Seite“ an den gewählten Locator an (z. B. Randnummer)
+  // 2. Sidebar header handler: adapts "Page" to chosen locator (e.g. margin note / paragraph)
   headerHandler = (event) => {
     try {
       onSidebarAnnotationHeader(event);
@@ -154,7 +154,7 @@ export function patch(): boolean {
     config.addonID,
   );
 
-  // 3. Item-Änderungen überwachen, um geöffnete Reader sofort zu aktualisieren
+  // 3. Watch item changes to immediately update open readers
   notifierID = Zotero.Notifier.registerObserver(
     {
       notify: (event: string, type: string) => {
@@ -172,16 +172,16 @@ export function patch(): boolean {
     NOTIFIER_ID,
   );
 
-  // Nach dem Speichern im Dialog offene Reader aktualisieren (siehe print/dialog.ts)
+  // Refresh open readers after saving in the dialog (see print/dialog.ts)
   printDialog.setAfterSave(() => updateAllReaders());
-  // Callbacks für das Seitenzahl-Popup (labelPopup.ts importiert dieses Modul nicht)
+  // Callbacks for page label popup (labelPopup.ts does not import this module)
   setLabelPopupHooks({
     updateLocators: updateAllLocators,
     updateReaders: updateAllReaders,
     getAnnotationManager,
   });
 
-  // 4. Bestehende und künftige Reader überwachen für den Seitenzahl-Popup
+  // 4. Watch existing and future readers for the page label popup
   watchAllReaders();
 
   ztoolkit.log(
@@ -190,7 +190,7 @@ export function patch(): boolean {
   return true;
 }
 
-/** Trennt alle MutationObserver; ein Fehler stoppt die übrigen nicht. */
+/** Disconnects all MutationObservers; an error does not stop remaining ones. */
 function disconnectObservers(): void {
   for (const obs of observers) {
     try {
@@ -202,7 +202,7 @@ function disconnectObservers(): void {
   observers.clear();
 }
 
-/** Offene Reader zurücksetzen: UI-Elemente entfernen und Label auf Zotero-Standard zurücksetzen. */
+/** Resets open readers: removes UI elements and resets labels to Zotero default. */
 function resetOpenReaders(): void {
   const defaultLabel = pageLabel();
   for (const reader of registry()._readers ?? []) {
@@ -223,7 +223,7 @@ function resetOpenReaders(): void {
   }
 }
 
-/** Entfernt die Reader-Erweiterungen und setzt geöffnete Reader sauber zurück. */
+/** Removes reader extensions and resets open readers cleanly. */
 export function unpatch(): void {
   const zr = registry();
   if (handler) {
@@ -253,7 +253,7 @@ export function unpatch(): void {
   resetOpenReaders();
 }
 
-/** Feature-Registry: start richtet ein, stop räumt wieder auf. */
+/** Feature registry entry: start sets up, stop tears down. */
 export const readerMenu: Feature = {
   name: "readerMenu",
   start: () => {
@@ -263,7 +263,7 @@ export const readerMenu: Feature = {
 };
 
 //
-// 1. Annotations-Kontextmenü
+// 1. Annotation context menu
 //
 
 function onContextMenu(event: ReaderEvent): void {
@@ -302,7 +302,7 @@ function onContextMenu(event: ReaderEvent): void {
 }
 
 /**
- * Öffnet die Maske zur Bearbeitung von Kommentar oder Locator.
+ * Opens dialog panel to edit comment or locator.
  *
  * @param view - 'comment' | 'locator'
  */
@@ -339,10 +339,10 @@ async function openDialog(
 }
 
 //
-// 2. Reader-Überwachung (Popup-Hook und Locator-Aktualisierung)
+// 2. Reader observation (popup hook and locator updating)
 //
 
-/** Überwacht alle Reader-Instanzen (aktuelle und künftige). */
+/** Watches all reader instances (current and future). */
 function watchAllReaders(): void {
   for (const reader of registry()._readers ?? []) {
     watchReader(reader);
@@ -359,7 +359,7 @@ function watchAllReaders(): void {
       }
       return reader;
     };
-    // Ohne Rücklesen wäre ein wirkungsloser Patch nicht vom Erfolg zu unterscheiden
+    // Without checking the return value, an ineffective patch cannot be distinguished from success
     if (!assignChecked(Zotero.Reader, "open", wrapper)) {
       origOpen = null;
       ztoolkit.log("FlexAnnotate: Zotero.Reader.open could not be patched");
@@ -391,7 +391,7 @@ function watchReader(reader: ReaderInstance | undefined): void {
 
 const WATCHED_CLASSES = ["page", "preview", "annotation"];
 
-/** Verbessert neue Label-Popups; true, wenn eine Seite oder Karte hinzukam. */
+/** Enhances new label popups; returns true if a page or card was added. */
 function scanAddedNode(reader: ReaderInstance, node: Node | null): boolean {
   if (node?.nodeType !== 1) return false;
   const el = node as Element;
@@ -406,7 +406,7 @@ function scanAddedNode(reader: ReaderInstance, node: Node | null): boolean {
   );
 }
 
-/** Hängt einen MutationObserver an das Dokument des Reader-iFrames. */
+/** Attaches a MutationObserver to the reader iframe document. */
 function attachObserver(reader: ReaderInstance, iframeWin: Window): void {
   const doc = iframeWin.document;
   const observer = new iframeWin.MutationObserver(
@@ -433,12 +433,12 @@ function attachObserver(reader: ReaderInstance, iframeWin: Window): void {
   observers.add(observer);
   if (doc.body) observer.observe(doc.body, { childList: true, subtree: true });
 
-  // Initiale Lokalisierung bereits dargestellter Annotationen
+  // Initial localization of already rendered annotations
   updateAllLocators(reader, doc);
 }
 
 //
-// 3. Locator-Anzeige in Sidebar und Seite
+// 3. Locator display in sidebar and page
 //
 
 function getAnnotationManager(
@@ -458,7 +458,7 @@ function getAnnotationManager(
   }
 }
 
-/** Ermittelt das Zotero.Item einer Annotation. */
+/** Retrieves the Zotero.Item for an annotation. */
 function getAnnotationItem(
   reader: ReaderInstance,
   key: string | undefined,
@@ -477,7 +477,7 @@ function getAnnotationItem(
   return item || null;
 }
 
-/** Sucht die Annotation im Reader-Speicher, dann in der übergebenen Annotation, dann im State. */
+/** Looks up annotation in reader memory, then in passed annotation, then in state. */
 function findReaderAnnotation(
   reader: ReaderInstance,
   key: string | undefined,
@@ -492,9 +492,9 @@ function findReaderAnnotation(
 }
 
 /**
- * Ermittelt den CSL-Locator einer Annotation (z. B. 'opus', 'paragraph', 'page').
- * Zuerst der Reader-Speicher, da er bei Änderungen sofort aktuell ist, bevor Zotero
- * asynchron in die Datenbank schreibt.
+ * Determines CSL locator of an annotation (e.g. 'opus', 'paragraph', 'page').
+ * Checks reader memory first because it updates immediately on changes before
+ * Zotero persists asynchronously to SQLite.
  */
 function getAnnotationLocator(
   reader: ReaderInstance,
@@ -524,7 +524,7 @@ function getAnnotationLocator(
   return printAnnotations.getDefaultLocator(attachment);
 }
 
-/** Benutzerfreundliche Beschriftung eines Locators (z. B. „Randnummer“, „Seite“). */
+/** User-friendly label of a locator (e.g. "Margin note", "Page"). */
 function getLocatorLabel(locator: string | undefined): string {
   return locatorLabelText(
     locator,
@@ -533,12 +533,12 @@ function getLocatorLabel(locator: string | undefined): string {
   );
 }
 
-/** Beschriftung „Seite“ für offene Reader beim Zurücksetzen. */
+/** Label "Page" used when resetting open readers. */
 function pageLabel(): string {
   return getLocatorLabel(DEFAULT_LOCATOR);
 }
 
-/** Aktualisiert den Locator-Text im Header einer einzelnen Annotation. */
+/** Updates locator label text in the header of a single annotation. */
 function onSidebarAnnotationHeader(event: HeaderEvent): void {
   const { reader, doc, params } = event;
   const annId = params?.annotation?.id;
@@ -554,7 +554,7 @@ function onSidebarAnnotationHeader(event: HeaderEvent): void {
   }
 }
 
-/** Setzt den Locator-Text des Elements, falls er sich geändert hat. */
+/** Sets locator text on an element if it changed. */
 function setLocatorText(reader: ReaderInstance, el: Element, annId: string) {
   const labelText = getLocatorLabel(getAnnotationLocator(reader, annId));
   if (el.textContent !== labelText) {
@@ -570,7 +570,7 @@ function updatePageElements(reader: ReaderInstance, doc: Document): void {
   }
 }
 
-/** Auch über .annotation-Karten suchen (falls pageEl ohne id="page_" existiert). */
+/** Also scan .annotation cards (if pageEl exists without id="page_"). */
 function updateAnnotationCards(reader: ReaderInstance, doc: Document): void {
   for (const card of doc.querySelectorAll(
     ".annotation[data-id], .annotation[id]",
@@ -583,7 +583,7 @@ function updateAnnotationCards(reader: ReaderInstance, doc: Document): void {
   }
 }
 
-/** In-Page-Popup (.annotation-popup) ebenfalls aktualisieren. */
+/** Update in-page popup (.annotation-popup) as well. */
 function updatePopup(reader: ReaderInstance, doc: Document): void {
   const popup = doc.querySelector(".annotation-popup");
   if (!popup) return;
@@ -600,7 +600,7 @@ function updatePopup(reader: ReaderInstance, doc: Document): void {
   }
 }
 
-/** Aktualisiert alle sichtbaren Annotation-Header (Sidebar und In-Page-Popup). */
+/** Updates all visible annotation headers (sidebar and in-page popup). */
 function updateAllLocators(reader: ReaderInstance, doc: Document): void {
   if (!reader || !doc) {
     return;
@@ -615,7 +615,7 @@ function updateAllLocators(reader: ReaderInstance, doc: Document): void {
   }
 }
 
-/** Aktualisiert alle geöffneten Reader. */
+/** Updates all open readers. */
 function updateAllReaders(): void {
   for (const reader of registry()._readers ?? []) {
     const doc = internals(reader)._iframeWindow?.document;

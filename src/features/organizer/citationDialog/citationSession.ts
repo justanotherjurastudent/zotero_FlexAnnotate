@@ -1,7 +1,7 @@
 /**
- * Zugriff auf die aktive Word/LibreOffice-Integration-Session. Geteilt von
- * `citedTracking.ts` (Zitier-Tracking) und `citationJump.ts` (Direktsprung),
- * damit die beiden Module zyklenfrei bleiben.
+ * Access to the active Word/LibreOffice integration session. Shared between
+ * `citedTracking.ts` (citation tracking) and `citationJump.ts` (direct jump)
+ * so both modules remain cycle-free.
  */
 
 /** Active integration session if any. */

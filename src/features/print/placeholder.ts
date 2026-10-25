@@ -1,30 +1,30 @@
 /**
- * Verwaltung des Platzhalter-Attachments.
+ * Management of placeholder attachments.
  *
- * Zotero wirft beim Speichern eines Annotation-Items, wenn dessen Parent kein
- * Datei-Attachment mit `attachmentReaderType` (pdf | epub | snapshot) ist. Eine
- * Annotation direkt an einem Titel-Item ist damit nicht möglich, ebenso wenig ein
- * Linked-URL-Attachment. Für Print-Quellen hängen wir deshalb ein winziges, leeres
- * 1-Seiten-PDF unter den Titel und führen die Print-Annotationen darunter.
- * Herkunft: pre-merge:src/placeholder.js.
+ * Zotero throws when saving an annotation item if its parent is not a
+ * file attachment with `attachmentReaderType` (pdf | epub | snapshot).
+ * Attaching an annotation directly to a regular item is therefore not supported,
+ * nor is attaching one to a linked-URL attachment. For print sources we attach
+ * a tiny, blank 1-page PDF under the item and store print annotations beneath it.
+ * Origin: pre-merge:src/placeholder.js.
  */
 import { buildPlaceholderPDF } from "./logic/printAnnotation";
 import { getString } from "../../utils/locale";
 import { getPref } from "../../utils/prefs";
 
-/** Erkennung am Tag, nicht am Titel: ein Sprachwechsel lässt ältere Anhänge gültig */
+/** Identified by tag rather than title, so existing attachments survive UI language changes */
 export const TAG = "#flexannotate-placeholder";
 export const FILENAME = "flexannotate-placeholder.pdf";
 
 /**
- * @returns true, wenn das Item ein Platzhalter-Attachment ist
+ * @returns true if the item is a placeholder attachment
  */
 export function isPlaceholder(item: Zotero.Item | null | undefined): boolean {
   return !!item && item.isAttachment() && item.hasTag(TAG);
 }
 
 /**
- * Liefert das Platzhalter-Attachment eines Titel-Items, oder null.
+ * Returns the placeholder attachment of a regular item, or null.
  */
 export function find(item: Zotero.Item): Zotero.Item | null {
   for (const attachment of Zotero.Items.get(item.getAttachments())) {
@@ -36,26 +36,26 @@ export function find(item: Zotero.Item): Zotero.Item | null {
 }
 
 /**
- * Liefert das Platzhalter-Attachment und legt es an, falls noch keins existiert.
+ * Returns the placeholder attachment, creating it if it does not exist yet.
  */
 export async function ensure(item: Zotero.Item): Promise<Zotero.Item> {
   return find(item) ?? create(item);
 }
 
 /**
- * Legt das Platzhalter-Attachment unter einem regulären Titel-Item an.
+ * Creates the placeholder attachment under a regular item.
  */
 export async function create(item: Zotero.Item): Promise<Zotero.Item> {
   if (!item.isRegularItem()) {
     throw new Error("Placeholder parent must be a regular item");
   }
 
-  // Zur Laufzeit erzeugt statt als Asset mitgeliefert: importFromFile() braucht einen
-  // echten Dateipfad, und aus einem installierten XPI heraus ist rootURI eine jar:-URI.
+  // Generated at runtime instead of packaged as an asset: importFromFile() requires a
+  // real filesystem path, and inside an installed XPI rootURI is a jar: URI.
   const tmpPath = PathUtils.join(Zotero.getTempDirectory().path, FILENAME);
   await IOUtils.write(tmpPath, buildPlaceholderPDF());
 
-  // Der Titel wird beim Anlegen festgeschrieben.
+  // The title is set upon creation.
   const title = getString("placeholder-title");
 
   try {
@@ -77,10 +77,10 @@ export async function create(item: Zotero.Item): Promise<Zotero.Item> {
 }
 
 /**
- * Entfernt das Platzhalter-Attachment, sofern keine Annotationen mehr daran hängen
- * und die Einstellung das Aufräumen erlaubt.
+ * Removes the placeholder attachment if it has no annotations left
+ * and the preference permits cleanup.
  *
- * @returns true, wenn entfernt wurde
+ * @returns true if removed
  */
 export async function cleanUpIfEmpty(
   attachment: Zotero.Item,

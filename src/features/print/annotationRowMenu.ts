@@ -1,11 +1,11 @@
 /**
- * Kontextmenü an den Annotations-Zeilen im rechten Item-Bereich. Herkunft:
+ * Context menu on annotation rows in the right-hand item pane. Origin:
  * pre-merge:src/annotationMenu.js.
  *
- * Zotero zeichnet Annotationen dort als <annotation-row annotation-id="…"> und bringt
- * kein eigenes Menü dafür mit. Die Zeilen werden bei jeder Auswahländerung neu gebaut,
- * deshalb hängt der Listener am Dokument (Capture) und nicht an den Zeilen.
- * Bearbeiten gilt für jede Annotation, Löschen nur für Print-Annotationen.
+ * Zotero renders annotations there as <annotation-row annotation-id="…"> and does not
+ * provide its own context menu for them. Rows are rebuilt on every selection change,
+ * so the listener is attached to the document (capturing phase) rather than individual rows.
+ * Editing applies to all annotations; deletion only to print annotations.
  */
 import { config } from "../../../package.json";
 import { getLocaleID } from "../../utils/locale";
@@ -22,10 +22,10 @@ type Popup = HTMLElement & {
 const POPUP_ID = "flexannotate-annotation-popup";
 const EDIT_ID = "flexannotate-annotation-edit";
 const DELETE_ID = "flexannotate-annotation-delete";
-/** Die Zuordnung hängt am Popup: ein Rechtsklick in einem anderen Fenster überschreibt sie nicht. */
+/** The association is stored on the popup: right-clicking in another window will not overwrite it. */
 const ANNOTATION_ATTR = "data-flexannotate-annotation-id";
 
-/** Je Fenster der Kontextmenü-Listener, damit removeFromWindow ihn entfernen kann. */
+/** Context menu listener per window, allowing removeFromWindow to clean it up. */
 const listeners = new WeakMap<MainWin, (event: MouseEvent) => void>();
 
 function setIcon(item: HTMLElement, name: string): void {
@@ -34,7 +34,7 @@ function setIcon(item: HTMLElement, name: string): void {
     "image",
     `chrome://${config.addonRef}/content/icons/${name}.svg`,
   );
-  // Die SVGs füllen mit context-fill; erst die context-properties holen die Textfarbe.
+  // The SVGs use context-fill; context-properties are required to inherit the text color.
   item.style.setProperty("-moz-context-properties", "fill, fill-opacity");
   item.style.setProperty("fill", "currentColor");
 }
@@ -90,7 +90,7 @@ export const annotationRowMenu: Feature = {
     setIcon(doc.getElementById(EDIT_ID) as HTMLElement, "menu-edit");
     setIcon(doc.getElementById(DELETE_ID) as HTMLElement, "menu-delete");
 
-    // Die Befehls-Listener hängen an den Menüeinträgen und gehen mit dem Popup.
+    // Command listeners are bound to the menu items and get cleaned up when the popup is removed.
     doc.getElementById(EDIT_ID)?.addEventListener("command", () => {
       const annotation = annotationOf(popup);
       if (annotation) {

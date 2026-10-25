@@ -1,11 +1,11 @@
 /**
- * Layout Bausteine der Gliederungsansicht im Zitierdialog: das drei-Spalten-
- * Layout, das Zoteros native Spalten ausblendet, und die schmale Ansicht
- * unter 750 px (nur im persistenten Begleitfenster). Sowie die natives IDs,
- * die ausgeblendet werden.
+ * Layout building blocks of the outline view in the citation dialog: the
+ * three-column layout that hides Zotero's native columns, and the narrow view
+ * below 750 px (only in the persistent companion window). Also the native IDs
+ * that get hidden.
  *
- * Kein Import aus `dialogOutline.ts`: nur die Render-IDs und sonst nichts,
- * damit dieses Modul unabhängig gehalten wird.
+ * No import from `dialogOutline.ts`: only the render IDs, nothing else, so
+ * this module stays independent.
  */
 
 import { LIST_ID, NATIVE_ID, PREVIEW_ID, TREE_ID } from "./dialogOutlineRender";
@@ -28,11 +28,11 @@ export const LAYOUT_CSS =
   ".flexannotate-citation-chip:hover{background:rgba(31,157,85,0.22) !important;}" +
   ".flexannotate-citation-chip:active{background:rgba(31,157,85,0.35) !important;}" +
   ".flexannotate-citation-chip:focus-visible{outline:2px solid #1f9d55 !important;outline-offset:1px !important;}" +
-  // Unter 750 px, nur im persistenten Begleitfenster (Attribut von relaxDialogMinWidth):
-  // in einem Testlauf auf 9.0.6 schlugen zwei Gliederungstests fehl (Ursache nicht abschliessend
-  // geklaert); normale Dialoge sollen darum unveraendert bleiben. Baum oben als Streifen, Liste fuellt den Rest,
-  // Details unten. Spalte statt Zeilenumbruch: die Liste wuchs sonst und schob die Details
-  // aus dem Fenster.
+  // Below 750 px, only in the persistent companion window (attribute set by relaxDialogMinWidth):
+  // on a 9.0.6 test run two outline tests failed (cause not fully clarified);
+  // normal dialogs therefore stay unchanged. Tree on top as a strip, list fills the rest,
+  // details at the bottom. Column instead of wrapping: the list otherwise grew and pushed
+  // the details out of the window.
   "@media (max-width:750px){" +
   "#citation-dialog[flexannotate-persistent] #library-trees{flex-direction:column !important;align-items:stretch !important;}" +
   "#citation-dialog[flexannotate-persistent] #collections-tree-container{flex:0 0 auto !important;height:130px !important;width:auto !important;min-width:0 !important;min-height:0 !important;}" +
@@ -86,7 +86,7 @@ export function applyLayout(win: Window): void {
   }
 }
 
-/** Baut das eigene Layout ab (ohne Listener; die räumt der Injector ab). */
+/** Tears down our own layout (without listeners; the injector cleans those up). */
 export function removeLayout(win: Window): void {
   const doc = win.document;
   for (const id of [TREE_ID, LIST_ID, PREVIEW_ID, NATIVE_ID, STYLE_ID])

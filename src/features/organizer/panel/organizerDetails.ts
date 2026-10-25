@@ -103,8 +103,8 @@ export function renderDetails(
   const nums = numbering(s.roots);
   const known = tagIndex(s.roots);
   const cats = el(doc, "div", "display:flex;flex-wrap:wrap;gap:4px;");
-  // Werk in mehreren Hauptsammlungen: § Tags sind gemeinsam, darum zeigen wir,
-  // in welchem weiteren Baum dieselbe Überschrift vorkommt.
+  // Work in several top-level collections: § tags are shared, that is why we show
+  // in which further tree the same heading occurs.
   const member = s.otherTrees?.size
     ? workTreeKeys(s.libraryID, r.workID)
     : new Set<string>();

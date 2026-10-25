@@ -1,8 +1,8 @@
 /**
- * Fenster-Lebenszyklus des persistenten Begleitfensters ("Blätterfenster"):
- * öffnen, schließen, Einfügen aus dem Fenster und das Wiederöffnen nach einem
- * echten Befehl (patchDisplayDialog). Das Feature-Objekt liegt in
- * `persistentFeature.ts`, die übrigen Patches in `persistentPatches.ts`.
+ * Window lifecycle of the persistent companion window ("companion window"):
+ * open, close, insert from the window and reopening after a real command
+ * (patchDisplayDialog). The feature object lives in `persistentFeature.ts`,
+ * the remaining patches in `persistentPatches.ts`.
  */
 
 import { assignChecked } from "../../../shared/patch";
@@ -33,15 +33,15 @@ import {
 
 const DIALOG_MARK = "citationDialog.xhtml";
 const DIALOG_URL = `chrome://zotero/content/integration/${DIALOG_MARK}`;
-/** Fensteroptionen des normalen Zitierdialogs (integration.js:1603-1609). */
+/** Window options of the normal citation dialog (integration.js:1603-1609). */
 const DIALOG_OPTIONS = "chrome,centerscreen,resizable=true,alwaysRaised";
 
-/** Das offene Fenster (Blätterfenster oder laufender Dialog), sonst null. */
+/** The open window (companion window or running dialog), otherwise null. */
 let openWindow: Window | null = null;
-/** Fenster, die als Blätterfenster geöffnet wurden. */
+/** Windows that were opened as companion windows. */
 const browseWindows = new WeakSet<Window>();
 const windowAgents = new WeakMap<Window, string>();
-/** Gesetzt, sobald openNew das Fenster angelegt hat (danach kein Fallback mehr auf den Standarddialog). */
+/** Set as soon as openNew created the window (after that no fallback to the standard dialog). */
 let windowOpened = false;
 
 export function getPersistentWindow(): Window | null {
@@ -51,8 +51,8 @@ export function getPersistentWindow(): Window | null {
 }
 
 /**
- * Blätterfenster gibt es nur, wenn Zotero den Befehl addAnnotation hat (integration.js:781 in 9 und 10)
- * und die Plattform unterstützt wird (Word, LibreOffice; nicht Google Docs/http).
+ * The companion window only exists if Zotero has the addAnnotation command (integration.js:781 in 9 and 10)
+ * and the platform is supported (Word, LibreOffice; not Google Docs/http).
  */
 export function persistentSupported(win?: Window): boolean {
   const versionOk =
@@ -75,8 +75,8 @@ export function persistentSupported(win?: Window): boolean {
 }
 
 /**
- * io für das Blätterfenster: wie der vorherige Befehl (addAnnotation oder addEditCitation),
- * ohne Dokument. Der Dialog liest nur diese Felder (citationDialog.js, searchHandler.mjs).
+ * io for the companion window: like the previous command (addAnnotation or addEditCitation),
+ * without a document. The dialog only reads these fields (citationDialog.js, searchHandler.mjs).
  */
 export function makeBrowseIo(command = "addAnnotation"): any {
   const integ = (Zotero as any).Integration;
@@ -94,7 +94,7 @@ export function makeBrowseIo(command = "addAnnotation"): any {
     citation,
     true,
     Promise.resolve(-1),
-    // die Sitzungs-Zitate (grüne Haken); {} ergäbe eine leere Menge statt des Rückfalls (dialogCited.ts)
+    // the session's citations (green checks); {} would give an empty set instead of the fallback (dialogCited.ts)
     Promise.resolve(integ.currentSession?.citationsByItemID ?? {}),
     async () => {
       syncSortedItems();
@@ -111,7 +111,7 @@ export function makeBrowseIo(command = "addAnnotation"): any {
   return io;
 }
 
-/** Schließt das Blätterfenster, falls offen. */
+/** Closes the companion window if open. */
 function closeBrowse(): Promise<void> {
   const win = getPersistentWindow();
   if (!win || !browseWindows.has(win)) return Promise.resolve();
@@ -120,13 +120,13 @@ function closeBrowse(): Promise<void> {
     win.addEventListener("unload", () => resolve(), { once: true }),
   );
   win.close();
-  // shortcut: 3 s Obergrenze, falls unload nicht kommt; upgrade wenn Zotero ein Ereignis am Fenster liefert
+  // shortcut: 3 s cap in case unload does not come; upgrade if Zotero delivers an event on the window
   return Promise.race([gone, Zotero.Promise.delay(3000)]);
 }
 
 /**
- * Ermittelt die Geometrie für das nächste Blätterfenster: ein bereits offenes Fenster wird
- * gemessen und geschlossen; sonst die zuletzt gespeicherte Geometrie aus der Pref.
+ * Determines the geometry for the next companion window: an already open window is
+ * measured and closed; otherwise the last saved geometry from the pref.
  */
 export async function prepareTargetRect(): Promise<{
   rect: Rect | null;
@@ -165,11 +165,11 @@ export async function prepareTargetRect(): Promise<{
 }
 
 /**
- * Öffnet das Blätterfenster an der Stelle `rect`: der Dialog im Modus des letzten Befehls
- * mit einem eigenen io. Einfügen dort ist insertFromBrowse().
+ * Opens the companion window at `rect`: the dialog in the mode of the last command
+ * with its own io. Inserting there is insertFromBrowse().
  */
 export function openBrowse(rect?: Rect | null, placed = true): void {
-  // nach stop() kein neues Blätterfenster mehr (ein verspäteter Aufruf aus einem Befehl)
+  // after stop() no new companion window anymore (a late call from a command)
   if (!state.alive) return;
   if (rect === undefined) {
     const stored = readStoredRect();
@@ -204,14 +204,14 @@ export function openBrowse(rect?: Rect | null, placed = true): void {
   (Zotero as any).Utilities.Internal.activate(win);
   if (rect) pinRect(win, rect, placed);
   win.addEventListener("unload", () => {
-    // about:blank wird vor dem Dialog entladen (integration.js:498), das ist kein Schließen
+    // about:blank is unloaded before the dialog (integration.js:498), that is not a close
     if (win.location.toString() === "about:blank") return;
     if (openWindow === win) openWindow = null;
     trace("browse window closed");
   });
   io.accept = () => {
-    // accept() des Dialogs hat die Ansicht schon eingeklappt; das Original ist danach tot.
-    // Nur wenn Auswahl da ist, einfügen (cancel leert citationItems vorher).
+    // the dialog's accept() already collapsed the view; the original is dead afterwards.
+    // Only insert when a selection exists (cancel clears citationItems before).
     const items = (io.citation?.citationItems ?? []).map((i: any) => ({
       ...i,
     }));
@@ -228,15 +228,15 @@ export function openBrowse(rect?: Rect | null, placed = true): void {
 }
 
 /**
- * Einfügen aus dem Blätterfenster: den letzten Befehl (addAnnotation / addEditCitation) erneut ausführen.
- * Die Auswahl liegt in pendingInsert; displayDialog übergibt sie an den Befehl. Danach öffnet
- * sich das Blätterfenster wieder an derselben Stelle.
+ * Insert from the companion window: re-runs the last command (addAnnotation / addEditCitation).
+ * The selection sits in pendingInsert; displayDialog passes it to the command. Afterwards the
+ * companion window reopens at the same position.
  */
 function insertFromBrowse(pend: PendingInsert): void {
   const integ = (Zotero as any).Integration;
   const cmd = state.lastCommand!;
   state.pendingInsert = pend;
-  // currentWindow leer lassen, sonst bricht shouldAbortCommand das Blätterfenster ab (integration.js:358-373)
+  // leave currentWindow empty, otherwise shouldAbortCommand aborts the companion window (integration.js:358-373)
   integ.currentWindow = false;
   trace("insert from browse window", `items=${pend.items.length}`);
   Promise.resolve(
@@ -253,18 +253,18 @@ function insertFromBrowse(pend: PendingInsert): void {
         trace("insert did not reach the command", "");
         state.pendingInsert = null;
       }
-      // Der Befehl ist vor displayDialog gescheitert: das eingeklappte Fenster ist noch offen.
-      // Erst schließen, dann ein frisches Fenster (sonst zwei Fenster und eine verdorbene Lage).
+      // The command failed before displayDialog: the collapsed window is still open.
+      // Close first, then open a fresh window (otherwise two windows and a corrupted position).
       await closeBrowse();
       if (readPersistentPref()) openBrowse(pend.rect);
     });
 }
 
 /**
- * Wrappt io.accept einmal pro Dialog: Bei einem akzeptierten Einfügen wird die Lage
- * festgehalten und das Blätterfenster nach dem Befehl geöffnet. Nutzt readPersistentPref()
- * und lastCommand beim Einfügen. Wiederverwendet von openNew (persistenter Pfad) und von
- * activatePersistentOnOpenDialog (nachträgliches Anklicken der Checkbox im nativen Dialog).
+ * Wraps io.accept once per dialog: on an accepted insert the position is
+ * kept and the companion window is opened after the command. Uses readPersistentPref()
+ * and lastCommand on insert. Reused by openNew (persistent path) and by
+ * activatePersistentOnOpenDialog (later clicking the checkbox in the native dialog).
  */
 function wrapPersistentAccept(
   win: Window,
@@ -284,15 +284,15 @@ function wrapPersistentAccept(
     trace("io.accept entered", cw());
     acceptState.live = null;
     try {
-      // Der Schalter wird beim Einfuegen gelesen. Abbrechen leert citationItems vor dem accept.
+      // The switch is read on insert. Cancel clears citationItems before accept.
       if (readPersistentPref() && io.citation?.citationItems?.length) {
-        // vor allem, was das Fenster schließt: die Geometrie des Nutzers festhalten
+        // before anything that closes the window: keep the user's geometry
         acceptState.live = captureLive(win);
         const at = acceptState.live;
         (command || Promise.resolve()).then(() => {
           trace("command finished", `dialogClosed=${win.closed} ${cw()}`);
           if (!win.closed) win.close();
-          // Blätterfenster für Word für Windows und LibreOffice Writer; andere Agenten (http): keins
+          // companion window for Word for Windows and LibreOffice Writer; other agents (http): none
           if (
             readPersistentPref() &&
             state.lastCommand &&
@@ -305,7 +305,7 @@ function wrapPersistentAccept(
       logError("accept", e);
     }
     const result = origAccept.apply(this, args);
-    // Zotero hat eben windowParams mit der äußeren Größe geschrieben (cleanupBeforeDialogClosing); unsere gilt
+    // Zotero just wrote windowParams with the outer size (cleanupBeforeDialogClosing); ours counts
     if (acceptState.live)
       writeStoredSize(acceptState.live.w, acceptState.live.h);
     trace("io.accept finished", cw());
@@ -315,11 +315,11 @@ function wrapPersistentAccept(
 }
 
 /**
- * Wird aufgerufen, wenn die Checkbox nachträglich (bei einem bereits geöffneten, nativen
- * Dialog) aktiviert wird. Installiert den Accept-Wrapper auf dem offenen Fenster, damit es
- * nach dem nächsten Einfügen als Blätterfenster wieder aufgeht. Findet den aktuellen
- * Zitierdialog über den Befehlskontext (integration.currentWindow), ohne den nativen Pfad
- * zu verändern.
+ * Called when the checkbox is activated later (on an already open, native
+ * dialog). Installs the accept wrapper on the open window so it reopens as a
+ * companion window after the next insert. Finds the current citation dialog via
+ * the command context (integration.currentWindow), without changing the native
+ * path.
  */
 export function activatePersistentOnOpenDialog(): void {
   if (!state.alive) return;
@@ -334,9 +334,9 @@ export function activatePersistentOnOpenDialog(): void {
 }
 
 /**
- * Öffnet den Dialog für eine echte Anfrage. Die Promise löst auf, wenn der Nutzer
- * akzeptiert oder abbricht bzw. das Fenster ohne Akzeptieren geschlossen wird;
- * Zotero wartet darauf in addEditCitation (integration.js:1615).
+ * Opens the dialog for a real request. The promise resolves when the user
+ * accepts or cancels, or when the window is closed without accepting;
+ * Zotero waits for that in addEditCitation (integration.js:1615).
  */
 function openNew(
   url: string,
@@ -349,11 +349,11 @@ function openNew(
   const integration = (Zotero as any).Integration;
   let position: WindowPosition | null = null;
   if (rect) {
-    // screenX/outerWidth sind CSS-Pixel, die Features Geraetepixel (bei 125 % gemessen)
+    // screenX/outerWidth are CSS pixels, the features expect device pixels (measured at 125%)
     writeStoredSize(rect.w, rect.h);
     position = placed ? positionOf(rect) : null;
   }
-  // Ende des laufenden Befehls (integration.js:346-347): danach öffnet sich das Blätterfenster
+  // End of the running command (integration.js:346-347): after that the companion window opens
   const command: Promise<unknown> =
     integration.currentCommandPromise ?? Promise.resolve();
   const win = (Services.ww as any).openWindow(
@@ -377,7 +377,7 @@ function openNew(
 
   return new Promise<void>((resolve) => {
     let finished = false;
-    // Das Fenster bleibt currentWindow: execCommand's finally schließt es (integration.js:312-316)
+    // The window stays currentWindow: execCommand's finally closes it (integration.js:312-316)
     const finish = () => {
       if (finished) return;
       finished = true;
@@ -386,7 +386,7 @@ function openNew(
       resolve();
     };
     const onUnload = () => {
-      // about:blank wird vor dem Dialog entladen (integration.js:498)
+      // about:blank is unloaded before the dialog (integration.js:498)
       if (win.location.toString() === "about:blank") return;
       if (openWindow === win) openWindow = null;
       if (integration.currentWindow === win) integration.currentWindow = false;
@@ -400,9 +400,9 @@ function openNew(
       );
     }
     if (io && typeof io.accept === "function") {
-      // io.cancel ruft this.accept() (citationDialog.js:189, integration.js:1844-1846):
-      // der persistente Wrapper (wrapPersistentAccept) faengt beides. finish() meldet das
-      // Fenster an openNew zurueck und laeuft vor dem nativen accept, wie zuvor.
+      // io.cancel calls this.accept() (citationDialog.js:189, integration.js:1844-1846):
+      // the persistent wrapper (wrapPersistentAccept) catches both. finish() reports the
+      // window back to openNew and runs before the native accept, as before.
       wrapPersistentAccept(win, io, command);
       const origAccept = io.accept;
       io.accept = function (this: unknown, ...args: unknown[]) {
@@ -414,8 +414,8 @@ function openNew(
 }
 
 /**
- * Anfrage aus Zotero: ein offenes Blätterfenster wird geschlossen, der Dialog an derselben
- * Stelle mit derselben Größe geöffnet.
+ * Request from Zotero: an open companion window is closed, the dialog is opened at the
+ * same position and with the same size.
  */
 async function openPersistent(
   url: string,
@@ -425,7 +425,7 @@ async function openPersistent(
 ): Promise<void> {
   const integration = (Zotero as any).Integration;
   windowOpened = false;
-  // Wie integration.js:481-482: Cleanup starten, Fortschritt ausblenden; ein Fehler dort wird nur protokolliert
+  // Like integration.js:481-482: start cleanup, hide progress; an error there is only logged
   const cleanupPromise = (
     integration.currentDoc?.cleanup?.() ?? Promise.resolve()
   ).catch((e: unknown) => logError("cleanup", e));
@@ -436,18 +436,18 @@ async function openPersistent(
   let placed = true;
   const old = getPersistentWindow();
   if (old) {
-    // die Geometrie, die old gerade hat (Ziel des Festhaltens oder laufend gemessen)
+    // the geometry old currently has (target of the pinning or measured live)
     rect = captureLive(old);
     trace(
       "closes the open window",
       `rect=${rect.x},${rect.y} ${rect.w}x${rect.h}`,
     );
-    // close() reicht: ein offener Auftrag wird im onUnload des Dialogs ueber cancel() beendet
-    // (citationDialog.js:193-195); io.cancel() davor wuerde doppelt laufen.
+    // close() suffices: an open task is ended via cancel() in the dialog's onUnload
+    // (citationDialog.js:193-195); io.cancel() before would run twice.
     old.close();
     openWindow = null;
   } else {
-    // erster Dialog seit dem Start: die zuletzt gemerkte Lage (sonst Standardfenster)
+    // first dialog since start: the last remembered position (otherwise standard window)
     const stored = readStoredRect();
     if (stored) {
       rect = stored.rect;
@@ -475,12 +475,12 @@ export function patchDisplayDialog(): boolean {
     io,
     windowType,
   ) {
-    // Einfügen aus dem Blätterfenster: der Befehl bekommt die gemerkte Auswahl, ohne Fenster
+    // Insert from the companion window: the command gets the remembered selection, without a window
     if (state.pendingInsert && url.includes(DIALOG_MARK) && io) {
       const pend = state.pendingInsert;
       state.pendingInsert = null;
       const realIo = io as any;
-      // Das Blätterfenster schließt vor dem Einfügen, wie der Dialog im Original vor cleanup/complete
+      // The companion window closes before the insert, like the dialog in the original before cleanup/complete
       await closeBrowse();
       realIo.citation.citationItems = mergeCitationItems(
         realIo.citation.citationItems,
@@ -496,16 +496,16 @@ export function patchDisplayDialog(): boolean {
       `${persistent ? "persistent" : "native"} ${cw()}`,
     );
     if (!persistent) {
-      // Option aus: ein Blätterfenster schließt jetzt
+      // Option off: a companion window closes now
       await closeBrowse();
       return native.call(this, url, options, io, windowType);
     }
     try {
       return await openPersistent(url, options, io, windowType);
     } catch (e) {
-      // Vor dem Öffnen gescheitert: der normale Weg ist sicher und zeigt den Fehler wie gewohnt
+      // Failed before opening: the normal path is safe and shows the error as usual
       if (windowOpened) {
-        // Das Fenster existiert schon: ein zweiter Dialog auf demselben io wäre falsch
+        // The window already exists: a second dialog on the same io would be wrong
         logError("openPersistent after open", e);
         return;
       }

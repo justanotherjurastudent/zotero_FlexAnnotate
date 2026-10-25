@@ -1,7 +1,7 @@
 /**
- * Reine Entscheidungen des Seitenzahl-Popups (.label-popup): Locator-Auswahl,
- * Standard-Checkbox, Anwendungsplan, Zielmenge der Radio-Modi. Keine Zotero-Importe.
- * Herkunft: pre-merge:src/readerMenu.js enhanceLabelPopup (Zeilen 316-706).
+ * Pure decisions of the page-number popup (.label-popup): locator selection,
+ * default checkbox, application plan, target set of the radio modes. No Zotero imports.
+ * Origin: pre-merge:src/readerMenu.js enhanceLabelPopup (lines 316-706).
  */
 import { DEFAULT_LOCATOR, FALLBACK_LOCATORS } from "./locator.ts";
 
@@ -10,7 +10,7 @@ export interface LocatorOption {
   label: string;
 }
 
-/** Locator-Auswahl, nach Anzeigetext sortiert. Fehlt ein Name, zählt der Wert selbst. */
+/** Locator selection, sorted by display text. If a name is missing, the value itself counts. */
 export function buildLocatorOptions(
   values: readonly string[],
   nameOf: (value: string) => string | undefined,
@@ -20,7 +20,7 @@ export function buildLocatorOptions(
     .sort((a, b) => a.label.localeCompare(b.label));
 }
 
-/** Eingabevalidierung: nur bekannte Locator-Arten dürfen gespeichert werden. */
+/** Input validation: only known locator types may be stored. */
 export function isKnownLocator(
   value: string,
   known: readonly string[] = FALLBACK_LOCATORS,
@@ -31,13 +31,13 @@ export function isKnownLocator(
 export interface CheckboxState {
   checked: boolean;
   disabled: boolean;
-  /** true: Text "Ist bereits Standard", false: Text "künftig verwenden". */
+  /** true: text "Already default", false: text "Use from now on". */
   alreadyDefault: boolean;
 }
 
 /**
- * Die Checkbox ist gesperrt und angehakt, wenn der gewählte Locator schon der
- * Dokument-Standard ist. 'page' gilt als Grundzustand und sperrt nie.
+ * The checkbox is locked and checked when the chosen locator is already the
+ * document default. 'page' counts as the base state and never locks.
  */
 export function defaultCheckboxState(
   selected: string,
@@ -49,9 +49,9 @@ export function defaultCheckboxState(
 }
 
 export interface ApplyPlan {
-  /** Überhaupt etwas zu tun? Ohne Änderung greift FlexAnnotate nicht ein. */
+  /** Anything to do at all? Without a change FlexAnnotate does not intervene. */
   apply: boolean;
-  /** Dokument-Standard ist neu zu setzen. */
+  /** Set new document default. */
   setDefault: boolean;
 }
 
@@ -70,7 +70,7 @@ export function planApply(
   return { apply: locatorChanged || setDefault, setDefault };
 }
 
-/** Lineare Modi ('from', 'all') und Zoteros Auto-Erkennung gelten nur für 'page'. */
+/** Linear modes ('from', 'all') and Zotero's auto-detection only apply to 'page'. */
 export function isPageLocator(locator: string): boolean {
   return locator === DEFAULT_LOCATOR;
 }
@@ -82,7 +82,7 @@ export function preferredRadio(values: readonly string[]): string | null {
   return null;
 }
 
-/** Seitennummer nur übernehmen, wenn sie eindeutig einer Annotation gilt. */
+/** Take the page number only if it unambiguously applies to one annotation. */
 export function shouldSetPageLabel(
   newLabel: string | undefined,
   targetCount: number,
@@ -91,7 +91,7 @@ export function shouldSetPageLabel(
   return !!newLabel && (targetCount === 1 || mode === "single");
 }
 
-/** Ein Ziel: Schlüssel, Seitenindex (null = Position nicht lesbar), Nutzlast. */
+/** One target: key, page index (null = position not readable), payload. */
 export interface Ref<T = unknown> {
   key: string;
   pageIndex?: number | null;
@@ -99,8 +99,8 @@ export interface Ref<T = unknown> {
 }
 
 /**
- * Welche Annotationen ein Radio-Modus anfasst. 'page', 'from' und 'all' wirken nur
- * bei Locator 'page' flächig; sonst nur auf die aktuelle Annotation.
+ * Which annotations a radio mode touches. 'page', 'from' and 'all' only act area-wide
+ * for locator 'page'; otherwise only on the current annotation.
  */
 export function selectTargets<T>(
   mode: string,

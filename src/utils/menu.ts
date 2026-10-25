@@ -10,7 +10,7 @@ export interface RegisterMenuOptions {
   onCommand: (e: Event, context: any) => void;
 }
 
-/** menuID -> Schlüssel, unter dem Zotero das Menü führt (mit Plugin-Präfix). */
+/** menuID -> key under which Zotero registers the menu (with plugin prefix). */
 const registeredMenus = new Map<string, string>();
 
 export function registerPluginMenu(opts: RegisterMenuOptions): void {
@@ -38,8 +38,8 @@ export function registerPluginMenu(opts: RegisterMenuOptions): void {
       ],
     });
     if (key) {
-      // unregisterMenu braucht diesen Schlüssel; mit der rohen menuID findet Zotero
-      // nichts (pluginAPIBase.mjs:133-170, 312-320).
+      // unregisterMenu requires this key; Zotero cannot resolve the raw menuID
+      // (pluginAPIBase.mjs:133-170, 312-320).
       registeredMenus.set(opts.menuID, key);
     } else {
       ztoolkit.log(`menu ${opts.menuID} rejected by Zotero.MenuManager`);

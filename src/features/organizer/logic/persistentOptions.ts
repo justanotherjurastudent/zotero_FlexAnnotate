@@ -1,11 +1,11 @@
 /**
- * Fensteroptionen für das persistente Zitierfenster (rein, ohne Zotero-Globals).
+ * Window options for the persistent citation window (pure, without Zotero globals).
  *
- * "popup" und "alwaysRaised" nehmen dem Fenster die normale Fensterverwaltung
- * (Andocken/Snap unter Windows), deshalb werden sie entfernt.
+ * "popup" and "alwaysRaised" take away the window's normal window management
+ * (docking/snap on Windows), so they are removed.
  */
 
-/** Position und optional Größe in Geräte-Pixeln (Features von openWindow). */
+/** Position and optional size in device pixels (features of openWindow). */
 export interface WindowPosition {
   left: number;
   top: number;
@@ -25,7 +25,7 @@ export function normalizePersistentOptions(
   if (!parts.some((s) => s.startsWith("resizable")))
     parts.push("resizable=yes");
   if (position) {
-    // centerscreen würde die gemerkte Position überschreiben
+    // centerscreen would overwrite the remembered position
     const rest = parts.filter((s) => s !== "centerscreen");
     rest.push(
       `left=${Math.round(position.left)}`,

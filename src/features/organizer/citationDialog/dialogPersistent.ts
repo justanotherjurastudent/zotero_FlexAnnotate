@@ -1,20 +1,18 @@
 /**
- * Einstiegspunkt des persistenten Begleitfensters ("Blätterfenster").
+ * Entry point of the persistent companion window ("companion window").
  *
- * Die Logik ist in atomare Module aufgeteilt, damit einzelne Belange leicht
- * angepasst oder ausgetauscht werden können (z. B. wenn sich Zoteros
- * Integration-APIs ändern):
+ * The logic is split into atomic modules so individual concerns can be
+ * adjusted or replaced easily (e.g. when Zotero's integration APIs change):
  *
- * - `persistentState.ts`      – geteilter Zustand, Prefs, Agent-Filter, Protokoll
- * - `persistentPinning.ts`    – Lage/Größe festhalten und speichern
- * - `persistentWindow.ts`     – Fenster-Lebenszyklus (öffnen/schließen/einfügen)
- * - `persistentPatches.ts`    – execCommand-/Interface-/Progress-Patches
- * - `persistentFeature.ts`    – Feature-Hook (start/stop)
- * - `persistentTestHooks.ts`  – Test-Helfer
+ * - `persistentState.ts`      – shared state, prefs, agent filter, logging
+ * - `persistentPinning.ts`    – keep and save position/size
+ * - `persistentWindow.ts`     – window lifecycle (open/close/insert)
+ * - `persistentPatches.ts`    – execCommand-/Interface-/Progress patches
+ * - `persistentFeature.ts`    – feature hook (start/stop)
+ * - `persistentTestHooks.ts`  – test helpers
  *
- * Diese Datei re-exportiert die öffentliche API unverändert, damit bestehende
- * Importe (hooks.ts, dialogOutline.ts, dialogCited.ts, registry.ts) stabil
- * bleiben.
+ * This file re-exports the public API unchanged, so existing imports
+ * (hooks.ts, dialogOutline.ts, dialogCited.ts, registry.ts) stay stable.
  */
 
 export {

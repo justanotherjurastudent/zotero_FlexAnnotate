@@ -31,7 +31,7 @@ Versions: the source references are 10.0.5. Behaviour was measured on 10.0.6 and
 - `[verified-in-source]` `resizeWindow()` also sets `documentElement.style.minHeight` from the bubble, list, preview and bottom heights plus a constant (`:611`, `:624`, `:634`), and enlarges the window to that height (`:614-615`).
 - `[verified-in-source]` The stylesheet adds `min-width` 800 and 1000 px to `#citation-dialog` (`zotero-platform/win/zotero.css`, cited from the earlier reading; not re-read for this note).
 - `[measured-in-test]` The minimum height was about 583 px in the layout we measured. Height cannot be lowered without replacing `resizeWindow()`.
-- How the plugin relaxes width: for the persistent window only, `relaxDialogMinWidth()` in `src/features/organizer/dialog/dialogPersistent.ts` sets the library layout's `MIN_WIDTH` to 360 and adds a style with `min-width: 0` to `#citation-dialog`. The list layout's `MIN_WIDTH` is a maximum and is left alone (setting it to 360 would shrink wide list dialogs). The minimum height is not changed.
+- How the plugin relaxes width: for the persistent window only, `relaxDialogMinWidth()` in `src/features/organizer/citationDialog/dialogPersistent.ts` sets the library layout's `MIN_WIDTH` to 360 and adds a style with `min-width: 0` to `#citation-dialog`. The list layout's `MIN_WIDTH` is a maximum and is left alone (setting it to 360 would shrink wide list dialogs). The minimum height is not changed.
 - `[unproven]` That 360 px is a usable floor for every Zotero layout. Measured only for the layouts in `test/persistentLayout.test.ts`.
 
 ## 4. How the command waits for the dialog

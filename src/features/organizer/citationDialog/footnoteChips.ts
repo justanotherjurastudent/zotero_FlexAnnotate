@@ -1,11 +1,11 @@
 /**
- * Darstellung der Fußnoten-Anzeige im Zitierdialog: der Tooltip-Popover am
- * grünen Haken (alle Fundstellen) und die klickbaren Fußnoten-Badges in der
- * Vorschau. Ein Klick springt zur Fußnote (jumpToCitation); schlägt das
- * fehl, wird über den `refresh`-Callback neu gezeichnet.
+ * Footnote display in the citation dialog: the tooltip popover on the green
+ * check (all locations) and the clickable footnote chips in the preview. A
+ * click jumps to the footnote (jumpToCitation); if that fails the view is
+ * redrawn through the `refresh` callback.
  *
- * Kein Import aus `dialogOutlineRender.ts`, damit dieses Modul zyklenfrei
- * bleibt — das Neuzeichnen übernimmt der Aufrufer über den `refresh`-Callback.
+ * No import from `dialogOutlineRender.ts`, so this module stays cycle-free —
+ * redrawing is handled by the caller through the `refresh` callback.
  */
 
 import {
@@ -129,7 +129,7 @@ function attachFootnotePopover(
   check.addEventListener("mouseleave", scheduleClose);
 }
 
-/** Klickbarer Fußnoten-Badge für die Vorschau-Spalte. */
+/** Clickable footnote badge for the preview column. */
 function makeCitationChip(
   doc: Document,
   label: string,

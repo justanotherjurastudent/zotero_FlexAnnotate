@@ -1,8 +1,8 @@
 /**
- * Overlay für verwaiste Überschriften-Tags: Tags im Bereich des Baums, zu
- * denen keine Überschrift passt (z. B. nach einer Umbenennung auf einem
- * Rechner ohne Plugin). Zeigt nur Tags, keine Einträge; jedes Tag wird einer
- * Überschrift zugeordnet (Tag-Umbenennung im Bereich des Baums) oder entfernt.
+ * Overlay for orphaned heading tags: tags in the scope of the tree to
+ * which no heading matches (e.g. after a rename on a
+ * computer without the plugin). Shows only tags, no entries; every tag is assigned to a
+ * heading (tag rename in the scope of the tree) or removed.
  */
 
 import { flatten, headingTag, numbering, OutlineNode } from "../logic/outline";

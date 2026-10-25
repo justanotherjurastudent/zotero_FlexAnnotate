@@ -1,15 +1,15 @@
 /**
- * `§`-Tag-Vorschläge in Gliederungsreihenfolge (Reader-Tag-Popup, Item-Fenster).
+ * `§` tag suggestions in outline order (reader tag popup, item window).
  *
- * Zoteros Tag-Feld holt seine Vorschläge bei der XPCOM-Suche `zotero`
- * (`ZoteroAutoComplete.prototype.startSearch`) und sortiert sie dort fest per
- * SQL (`ORDER BY val COLLATE locale`, LIMIT 50) — verifiziert gegen Zotero
- * 10.0.5 (zotero-autocomplete.mjs:76-93); die Suche ist in 7.0.32 dieselbe
- * (zotero-autocomplete.js). Es gibt keinen Hook, deshalb wird `startSearch` auf
- * der registrierten Instanz überschrieben: nur für Tag-Suchen, die mit `§`
- * beginnen; alles andere läuft unverändert durch das Original.
+ * Zotero's tag field gets its suggestions from the XPCOM search `zotero`
+ * (`ZoteroAutoComplete.prototype.startSearch`) and sorts them there fixed via
+ * SQL (`ORDER BY val COLLATE locale`, LIMIT 50) — verified against Zotero
+ * 10.0.5 (zotero-autocomplete.mjs:76-93); the search is the same in 7.0.32
+ * (zotero-autocomplete.js). There is no hook, therefore `startSearch` is overwritten on
+ * the registered instance: only for tag searches that start with `§`;
+ * everything else runs unchanged through the original.
  *
- * Die Reihenfolge selbst steckt in logic/tagSuggest.ts.
+ * The ordering itself lives in logic/tagSuggest.ts.
  */
 
 import type { Feature } from "../../shared/feature";
@@ -37,10 +37,10 @@ let installed: {
   hadOwn: boolean;
 } | null = null;
 
-/** Zähler: eine überholte Suche (neuer Tastendruck) liefert nichts mehr ab. */
+/** Counter: a superseded search (new keystroke) must not deliver anything anymore. */
 let seq = 0;
 
-/** Die von Zotero registrierte Suchinstanz (der Factory-Singleton). */
+/** The search instance registered by Zotero (the factory singleton). */
 function service(): SearchService {
   const C = Components as any;
   const inst = C.classes[CONTRACT].createInstance(
@@ -49,7 +49,7 @@ function service(): SearchService {
   return inst.wrappedJSObject ?? inst;
 }
 
-/** `§`-Tags der Bibliothek, die passen und dem Item noch nicht anhängen. */
+/** `§` tags of the library that match and do not yet attach to the item. */
 async function candidates(
   libraryID: number,
   itemID: number | null,
@@ -73,9 +73,9 @@ async function candidates(
 }
 
 /**
- * Überschriften der Gliederung(en) der Hauptsammlung(en) des Items (Annotation
- * → Elternwerk), in Baumreihenfolge. Leer, wenn keine Hauptsammlung eine
- * eigene Gliederung hat.
+ * Headings of the outline(s) of the item's top-level collection(s) (annotation
+ * → parent work), in tree order. Empty if no top-level collection has an
+ * own outline.
  */
 async function treeHeadingsOf(
   libraryID: number,
@@ -100,8 +100,8 @@ async function treeHeadingsOf(
 }
 
 /**
- * Beantwortet eine `§`-Tag-Suche in Gliederungsreihenfolge. false = nicht
- * zuständig (anderes Feld, keine `§`-Eingabe, Option aus): dann sucht das Original.
+ * Answers a `§` tag search in outline order. false = not
+ * responsible (other field, no `§` input, option off): then the original searches.
  */
 async function answer(
   svc: SearchService,
@@ -123,7 +123,7 @@ async function answer(
     treeHeadingsOf(libraryID, itemID),
     OutlineModel.loadTreeOnly(libraryID),
   ]);
-  // Überholt (neue Eingabe) oder abgebrochen (stopSearch, Popup geschlossen)
+  // Superseded (new input) or cancelled (stopSearch, popup closed)
   if (token !== seq || svc._cancelled) return true;
   const rows = suggestRows({
     candidates: cand,
@@ -135,7 +135,7 @@ async function answer(
     headingLibrary: getString("tag-suggest-heading-library"),
   });
 
-  // Eigenes Ergebnis, ohne den Zustand der nativen Suche (_result usw.) zu berühren
+  // Own result, without touching the state of the native search (_result etc.)
   const C = Components as any;
   const result = C.classes[
     "@mozilla.org/autocomplete/simple-result;1"
@@ -162,7 +162,7 @@ function patch(): void {
     previousResult: unknown,
     listener: any,
   ) {
-    // Nach unpatch() läuft die Kette weiter, falls ein anderes Plugin darüber liegt
+    // After unpatch() the chain continues if another plugin lies above
     if (!installed)
       return native.call(
         this,
@@ -200,7 +200,7 @@ function unpatch(): void {
   if (!installed) return;
   const { svc, native, patched, hadOwn } = installed;
   installed = null;
-  // Hat ein anderes Plugin danach selbst gepatcht, dessen Patch stehen lassen
+  // If another plugin patched after us, leave their patch intact
   if (svc.startSearch !== patched) {
     ztoolkit.log("ZoteroAutoComplete startSearch patched by others, kept");
     return;

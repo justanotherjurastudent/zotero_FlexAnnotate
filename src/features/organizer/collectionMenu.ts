@@ -1,11 +1,11 @@
 /**
- * Eintrag "FlexAnnotate: Organizer" im Sammlungs-Kontextmenü: öffnet den
- * Organizer direkt mit dem Kategorienbaum dieser (Haupt-)Sammlung.
+ * Entry "FlexAnnotate: Organizer" in the collection context menu: opens the
+ * organizer directly with the category tree of this (top-level) collection.
  *
- * Per DOM statt Zotero.MenuManager, analog print/menus: die Sichtbarkeit des
- * Eintrags (nur bei markierter Sammlung) steuert das Feature selbst auf
- * popupshowing; eigene Einträge überleben Zoteros Neuaufbau des Menüs
- * (docs/architecture.md, Fallstrick 10).
+ * Via DOM instead of Zotero.MenuManager, analogous to print/menus: the visibility of the
+ * entry (only for a selected collection) is controlled by the feature itself on
+ * popupshowing; own entries survive Zotero's rebuild of the menu
+ * (docs/architecture.md, pitfall 10).
  */
 import { getLocaleID } from "../../utils/locale";
 import { selectedCollection as paneCollection } from "../../utils/window";
@@ -17,10 +17,10 @@ type MainWin = _ZoteroTypes.MainWindow;
 const MENU_ID = "zotero-collectionmenu";
 const ITEM_ID = "flexannotate-collectionmenu-organizer";
 
-/** Je Fenster die Listener, damit removeFromWindow sie entfernen kann. */
+/** Per-window listeners so removeFromWindow can remove them. */
 const listeners = new WeakMap<MainWin, { show: () => void; cmd: () => void }>();
 
-/** Aktuell markierte Sammlung, oder null (Bibliothek/Item markiert). */
+/** Currently selected collection, or null (library/item selected). */
 function selectedCollection(win: MainWin): Zotero.Collection | null {
   try {
     return paneCollection(win.ZoteroPane);

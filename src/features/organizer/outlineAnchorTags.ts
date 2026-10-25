@@ -1,22 +1,22 @@
 /**
- * §-Tag-Verankerung an der Gliederungsnotiz.
+ * §-tag anchoring on the outline note.
  *
- * Jede Überschrift im Gliederungsbaum trägt ein `§`-Tag auf der Gliederungsnotiz
- * selbst, damit der Tag in der Bibliothek existiert und beim Tippen von `§` in
- * der Tag-Zeile (PDF/Item) vorgeschlagen wird — auch ohne zugeordnete Items.
- * Umbenennen/Löschen einer Überschrift entfernt den zugehörigen Tag wieder.
+ * Every heading in the outline tree carries a `§`-tag on the outline note
+ * itself, so the tag exists in the library and is suggested when typing `§` in
+ * the tag row (PDF/item) — even without filed items. Renaming/deleting a
+ * heading removes its tag again.
  *
- * Dieses Modul ist vom Kernmodell (outlineModel.ts) getrennt, damit es einzeln
- * angepasst oder ersetzt werden kann, falls Zotero die Tag-Verankerung später
- * selbst übernimmt. Die Notiz zählt in gather/buildCountMap nie als zugeordnetes
- * Item (isOutlineNote schließt sie aus).
+ * This module is separate from the core model (outlineModel.ts) so it can be
+ * adjusted or replaced individually if Zotero later adopts the tag anchoring
+ * itself. The note never counts as a filed item in gather/buildCountMap
+ * (isOutlineNote excludes it).
  */
 
 import { anchorTagDiff, type OutlineNode } from "./logic/outline";
 
 /**
- * Wendet die Anker-`§`-Tags auf das übergebene Notiz-Item im Speicher an.
- * Gibt true zurück, wenn Tags hinzugefügt oder entfernt wurden.
+ * Applies the anchor `§` tags to the given note item in storage.
+ * Returns true if tags were added or removed.
  */
 export function applyAnchorTags(
   note: Zotero.Item,
@@ -33,11 +33,11 @@ export function applyAnchorTags(
 }
 
 /**
- * Synchronisiert die Überschriften-`§`-Tags auf der Gliederungsnotiz: Jede
- * Überschrift im Baum bekommt ein Tag auf der Notiz, damit der Tag in der
- * Bibliothek existiert und in der PDF-Ansicht beim Tippen von `§` in der
- * Tag-Zeile vorgeschlagen wird — auch ohne zugeordnete Items. Tags ohne
- * passende Überschrift (Umbenennen/Löschen) werden entfernt. Idempotent.
+ * Synchronizes the heading `§` tags on the outline note: every
+ * heading in the tree gets a tag on the note so the tag exists in the
+ * library and is suggested in the PDF view when typing `§` in the
+ * tag row — even without assigned items. Tags without a
+ * matching heading (rename/delete) are removed. Idempotent.
  */
 export async function syncAnchorTags(
   noteID: number,

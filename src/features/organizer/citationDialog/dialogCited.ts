@@ -1,18 +1,17 @@
 /**
- * Einstiegspunkt der Zitier-Tracking- und Fußnoten-Sprung-Funktionen.
+ * Entry point of the cited-tracking and footnote-jump functions.
  *
- * Die Logik ist in atomare Module aufgeteilt, damit einzelne Belange leicht
- * angepasst oder ausgetauscht werden können (z. B. wenn sich Zoteros
- * Integration-APIs ändern):
+ * The logic is split into atomic modules so individual concerns can be
+ * adjusted or replaced easily (e.g. when Zotero's integration APIs change):
  *
- * - `citedTracking.ts`   – Zitier-Tracking (grüner Haken), Fußnoten-Zuordnung, Live-Abgleich
- * - `citationJump.ts`    – Direktsprung zur Fußnote/Zitatstelle (Word/LibreOffice/Mac)
- * - `citationSession.ts` – geteilter Zugriff auf die Integration-Session
- * - `logic/cited.ts`     – reine Logik (Store, Doc-Daten, Zuordnung)
+ * - `citedTracking.ts`   – cited tracking (green check), footnote mapping, live reconcile
+ * - `citationJump.ts`    – direct jump to footnote/citation (Word/LibreOffice/Mac)
+ * - `citationSession.ts` – shared access to the integration session
+ * - `logic/cited.ts`     – pure logic (store, doc data, mapping)
  *
- * Diese Datei re-exportiert die öffentliche API unverändert, damit bestehende
- * Importe (addon.api, dialogOutline, dialogOutlineRender, integrationPatch)
- * stabil bleiben.
+ * This file re-exports the public API unchanged, so existing imports
+ * (addon.api, dialogOutline, dialogOutlineRender, integrationPatch) stay
+ * stable.
  */
 
 export {

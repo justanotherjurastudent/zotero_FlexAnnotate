@@ -68,14 +68,14 @@ import {
 } from "./shared/feature";
 import { dialogInjectors, globalFeatures } from "./features/registry";
 
-// Zitierdialog-Injektoren: zentrale Liste aus der Registry übernehmen. Die
-// Reihenfolge (Modus-Auswahl, Gliederung, Zeilen-Patch) steht in registry.ts.
+// Citation dialog injectors: consume central list from registry.
+// Order (mode selector, outline, row patch) is defined in registry.ts.
 for (const injector of dialogInjectors) {
   registerDialogInjector(injector);
 }
 
-// Globale Lebenszyklus-Features: zentrale Liste aus der Registry übernehmen.
-// Reihenfolge = Startreihenfolge; gestoppt wird in umgekehrter Reihenfolge.
+// Global lifecycle features: consume central list from registry.
+// Order = startup order; stopped in reverse order.
 const features = globalFeatures;
 
 async function onStartup() {

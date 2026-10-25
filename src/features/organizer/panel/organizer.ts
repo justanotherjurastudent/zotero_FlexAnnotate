@@ -46,13 +46,13 @@ export class OrganizerFactory {
   static lastState: State | null = null;
 
   /**
-   * Ctx of each open organizer window (je Fenster über WeakMap, nicht am
-   * Modulobjekt — docs/architecture.md, Fallstrick 11), damit "für Sammlung X
-   * öffnen" das laufende Fenster umschalten kann.
+   * Ctx of each open organizer window (per-window via WeakMap, not on the
+   * module object — docs/architecture.md, pitfall 11), so that "open for collection X"
+   * can switch the running window.
    */
   private static readonly windowCtx = new WeakMap<Window, Ctx>();
 
-  /** Sammlung, die das nächstgeöffnete Fenster beim Start laden soll. */
+  /** Collection that the next-opened window should load at start. */
   private static pendingCollectionID: number | null | undefined;
 
   /** Yes/no question to the user; replaceable so tests can answer it. */
@@ -138,8 +138,8 @@ export class OrganizerFactory {
       } catch (e) {
         ztoolkit.log("flexannotate organizer focus failed:", e);
       }
-      // Fenster läuft schon: auf die gewünschte Sammlung umschalten statt
-      // ein zweites Fenster zu öffnen.
+      // Window is already running: switch to the desired collection instead of
+      // opening a second window.
       if (opts.collectionID !== undefined) {
         const ctx = this.windowCtx.get(existing);
         if (ctx) {
@@ -238,7 +238,7 @@ export class OrganizerFactory {
     const ctx = makeCtx(doc, root, state, (w, t, x) =>
       OrganizerFactory.confirm(w, t, x),
     );
-    // Je Fenster verdrahten, damit openForCollection das Fenster umschalten kann.
+    // Wire per window so openForCollection can switch the window.
     const win = doc.defaultView;
     if (win) this.windowCtx.set(win, ctx);
     // Keyboard and focus tracking live on the document, so they survive the
@@ -268,8 +268,8 @@ export class OrganizerFactory {
       true,
     );
     renderAll(ctx);
-    // Start-Scope: Sammlung aus Kontextmenü/Toolbar, sonst die im Hauptfenster
-    // markierte. Gleiche Logik wie das Scope-Drop-down (Baum der Hauptsammlung).
+    // Start scope: collection from context menu/toolbar, otherwise the one marked
+    // in the main window. Same logic as the scope drop-down (tree of the top-level collection).
     const collectionID =
       this.pendingCollectionID !== undefined
         ? this.pendingCollectionID
@@ -280,14 +280,14 @@ export class OrganizerFactory {
     } else void refreshOrphans(ctx);
   }
 
-  /** Öffnet den Organizer für eine Sammlung (Kontextmenü im Zotero-Fenster). */
+  /** Opens the organizer for a collection (context menu in the Zotero window). */
   static openForCollection(collectionID: number): void {
     void this.open({ collectionID }).catch((e) =>
       ztoolkit.log("flexannotate organizer openForCollection failed:", e),
     );
   }
 
-  /** Confirm-Drahtung für loadScope je Fenster (tests ersetzen the composite). */
+  /** Confirm wiring for loadScope per window (tests replace the composite). */
   private static confirmOpts(win: Window | null): {
     confirm: (title: string, text: string) => boolean;
   } {

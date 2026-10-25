@@ -1,10 +1,10 @@
 /**
- * Zitier-Tracking im Zitierdialog: welche Annotationen sind schon im Dokument
- * zitiert (grüner Haken)? Speicher in Word-Dokument-Variablen
- * (`session.data.prefs.flexannotate_cited`) und Fallback in einer Zotero-Pref
- * (`citedAnnotations`). Übernahme beim Akzeptieren (io.accept), Live-Abgleich
- * gegen die real im Dokument existierenden Zitierfelder und die Fußnoten-
- * Zuordnung je Annotation (Fußnoten-Badges).
+ * Cited tracking in the citation dialog: which annotations are already cited
+ * in the document (green check)? Stored in Word document variables
+ * (`session.data.prefs.flexannotate_cited`) and a fallback in a Zotero pref
+ * (`citedAnnotations`). Adopted on accept (io.accept), live reconciliation
+ * against the citation fields that really exist in the document, and the
+ * footnote mapping per annotation (footnote chips).
  */
 
 import {
@@ -45,7 +45,7 @@ export function readCitedStore(): CitedStore {
   }
 }
 
-/** Wirft bei Fehlern; der Aufrufer entscheidet, ob er protokolliert. */
+/** Throws on errors; caller decides whether to log. */
 export function writeCitedStore(store: CitedStore): void {
   Zotero.Prefs.set(prefKey(CITED_PREF), JSON.stringify(store), true);
 }
@@ -134,11 +134,11 @@ export function getActiveCitedIDs(
 }
 
 /**
- * Remember which annotations the accepted citation contains. Bewusst ohne
- * `io.isAddingAnnotations`-Wache: Annotationen können auch im Zitiermodus
- * (addEditCitation, Blätterfenster nach „Zitat bearbeiten“) eingefügt werden
- * und müssen dann ebenfalls getrackt werden; Nicht-Annotationen werden unten
- * ausgefiltert, es entsteht also kein Eintrag für gewöhnliche Zitate.
+ * Remember which annotations the accepted citation contains. Deliberately
+ * without the `io.isAddingAnnotations` guard: annotations can also be added in
+ * citation mode (addEditCitation, browse window after "Edit Citation") and
+ * must therefore be tracked as well; non-annotations are filtered out below,
+ * so no entry is created for ordinary citations.
  */
 function recordCited(io: any) {
   const entries: { id: number; workID: number }[] = [];
@@ -248,9 +248,9 @@ export function getAllWorkCitationLocations(
 let isSyncingSession = false;
 
 /**
- * Liest die Zitierfelder im geöffneten Textdokument neu ein und aktualisiert
- * `session.citationsByIndex`, `session.citationsByItemID` und `session.documentCitationIDs`.
- * Gibt `true` zurück, wenn sich der Dokumentstand (Zitate oder Fußnotennummern) geändert hat.
+ * Re-reads the citation fields in the open text document and updates
+ * `session.citationsByIndex`, `session.citationsByItemID` and `session.documentCitationIDs`.
+ * Returns `true` if the document state (citations or footnote numbers) changed.
  */
 export async function syncSessionFromDocument(): Promise<boolean> {
   if (isSyncingSession || isJumpingActive()) return false;
@@ -322,7 +322,7 @@ export async function syncSessionFromDocument(): Promise<boolean> {
 
     await session.updateFromDocument(false);
 
-    // Wurden Fußnoten gelöscht, bereinigte flexannotate_cited-Daten auch im Dokument sichern
+    // If footnotes were deleted, also persist the cleaned flexannotate_cited data in the document
     const docData = readDocCitedData();
     if (docData !== null) {
       const { data: reconciled, pruned } = reconcileDocData(

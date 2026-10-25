@@ -1,7 +1,7 @@
 /**
- * Feature-Registry: jedes Feature hat optionale Lebenszyklus-Hooks. Die
- * Hilfsfunktionen rufen sie so auf, dass ein fehlerhaftes Feature weder die
- * anderen aufhält noch den Aufrufer wirft. Fehler werden protokolliert.
+ * Feature registry: each feature exposes optional lifecycle hooks.
+ * Helper functions invoke them safely so a failing feature neither blocks
+ * other features nor causes caller exceptions. Errors are logged.
  */
 
 export interface Feature {
@@ -15,25 +15,25 @@ export interface Feature {
 export type FeatureLogger = (feature: string, hook: string, e: unknown) => void;
 
 /**
- * Standard-Logger. Liest `ztoolkit` erst zur Laufzeit, damit das Modul auch
- * ohne Zotero-Globals (Node-Tests) importierbar bleibt. Wirft nie.
+ * Default logger. Resolves `ztoolkit` at runtime so the module remains
+ * importable without Zotero globals (Node unit tests). Never throws.
  */
 export const defaultLogger: FeatureLogger = (feature, hook, e) => {
   try {
     ztoolkit.log(`feature ${feature}.${hook} failed:`, e);
   } catch {
-    // Protokollieren darf den Aufrufer nicht stören.
+    // Logging must not disturb caller flow.
   }
   try {
     Zotero.logError(e as Error);
   } catch {
-    // ebenso
+    // likewise
   }
 };
 
 /**
- * Ruft einen Hook auf. Liefert ein Promise, wenn der Hook asynchron ist; das
- * Promise wirft nie. Sync-Fehler werden sofort protokolliert.
+ * Invokes a lifecycle hook. Returns a Promise if the hook is async;
+ * the Promise never rejects. Synchronous errors are logged immediately.
  */
 function invoke(
   feature: Feature,
@@ -55,7 +55,7 @@ function invoke(
   return undefined;
 }
 
-/** Startet alle Features in Reihenfolge; async Hooks werden abgewartet. */
+/** Starts all features in sequence; awaits async hooks. */
 export async function startAll(
   features: Feature[],
   log: FeatureLogger = defaultLogger,
@@ -68,7 +68,7 @@ export async function startAll(
   await Promise.all(pending);
 }
 
-/** Stoppt alle Features in umgekehrter Reihenfolge. */
+/** Stops all features in reverse order. */
 export function stopAll(
   features: Feature[],
   log: FeatureLogger = defaultLogger,
@@ -79,7 +79,7 @@ export function stopAll(
   }
 }
 
-/** Fügt alle Features einem Hauptfenster hinzu. */
+/** Adds all features to a main window. */
 export async function addToWindow(
   features: Feature[],
   win: _ZoteroTypes.MainWindow,
@@ -93,7 +93,7 @@ export async function addToWindow(
   await Promise.all(pending);
 }
 
-/** Entfernt alle Features aus einem Hauptfenster in umgekehrter Reihenfolge. */
+/** Removes all features from a main window in reverse order. */
 export function removeFromWindow(
   features: Feature[],
   win: _ZoteroTypes.MainWindow,

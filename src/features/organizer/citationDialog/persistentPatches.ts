@@ -1,8 +1,9 @@
 /**
- * Zotero-nahe Patches des persistenten Begleitfensters: Befehl merken
- * (execCommand), Interface-Methoden umleiten (addEditCitation/addAnnotation)
- * und unterdrückte Fortschrittsfenster (Progress.show). Der displayDialog-Patch
- * liegt bei der Fenster-Mechanik in `persistentWindow.ts`.
+ * Zotero-near patches of the persistent companion window: remembering the
+ * command (execCommand), redirecting Interface methods
+ * (addEditCitation/addAnnotation) and suppressed progress windows
+ * (Progress.show). The displayDialog patch lives with the window mechanics in
+ * `persistentWindow.ts`.
  */
 
 import { assignChecked } from "../../../shared/patch";
@@ -33,7 +34,7 @@ export function patchProgressBar(): boolean {
   if (!proto || typeof proto.show !== "function") return false;
   const native = proto.show;
   const patched = function (this: unknown, ...args: unknown[]) {
-    // Ohne laufende Integration-Transaktion (nach addEditCitation) kein Fortschrittsfenster mehr.
+    // No progress window without a running integration transaction (after addEditCitation).
     if (!(Zotero as any).Integration?.currentDoc) {
       ztoolkit.log("FlexAnnotate: Suppressed orphan progressBar.show()");
       return;
@@ -57,7 +58,7 @@ export function unpatchProgressBar(): void {
   restoreMethod(entry);
 }
 
-/** Merkt sich bei jedem Befehl, an welches Dokument Word ihn geschickt hat (integration.js:240). */
+/** Remembers on every command which document Word sent it to (integration.js:240). */
 export function patchExecCommand(): boolean {
   if (installedExec) return true;
   const integration = (Zotero as any).Integration;
@@ -71,9 +72,9 @@ export function patchExecCommand(): boolean {
     docId?: string,
     templateVersion = 0,
   ) {
-    // WinWord und LibreOffice: der Befehl wird im Blätterfenster erneut ausgeführt. Für
-    // http (Google Docs) würde das den Server hängen lassen (server.js:525-527), deshalb
-    // bleibt http außen vor.
+    // WinWord and LibreOffice: the command is re-run in the companion window. For
+    // http (Google Docs) that would hang the server (server.js:525-527), so
+    // http stays out.
     state.activeAgent = agent;
     state.lastCommand = nextLastCommand(
       state.lastCommand,
@@ -147,8 +148,8 @@ async function interceptCommand(
     );
   }
 
-  // Dokumentfelder in die Session laden (wie session.cite in integration.js:1546-1565),
-  // damit citationsByIndex, citationsByItemID und documentCitationIDs im Blätterfenster aktuell sind.
+  // Load the document fields into the session (like session.cite in integration.js:1546-1565),
+  // so that citationsByIndex, citationsByItemID and documentCitationIDs are current in the companion window.
   if (
     typeof iface._session?.updateFromDocument === "function" &&
     !(
@@ -198,10 +199,10 @@ async function interceptCommand(
 }
 
 /**
- * Fängt addEditCitation und addAnnotation am Interface-Prototyp ab: Ist der Begleitmodus aktiv,
- * erzeugt ein neuer Aufruf keinen Fußnoten-Platzhalter in Word, sondern schließt die Word-Transaktion
- * sofort ab und öffnet das Blätterfenster. Steht der Cursor in einem bestehenden Zitat, läuft der
- * native Pfad weiter.
+ * Intercepts addEditCitation and addAnnotation on the Interface prototype: when the
+ * companion mode is active, a new call creates no footnote placeholder in Word but
+ * closes the Word transaction immediately and opens the companion window. If the
+ * cursor is in an existing citation, the native path continues.
  */
 export function patchInterfaceMethods(): boolean {
   if (installedAddEditCitation && installedAddAnnotation) return true;

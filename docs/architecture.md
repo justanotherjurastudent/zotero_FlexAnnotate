@@ -131,7 +131,7 @@ Enforced by Zotero in `xpcom/data/item.js` (10.0.5 line numbers):
 ### Citation dialog: shared watcher and injectors
 
 1. `shared/citationDialog.ts` registers one `Services.wm` listener. For each window with `location.href` equal to `chrome://zotero/content/integration/citationDialog.xhtml` it waits until `DIALOG_STATE.loaded` (`integration/citationDialog.js:149`).
-2. It then calls every registered `DialogInjector.inject(win)` once, in registration order: first `modeSelector`, then `outlineView` (`organizer/dialogOutline.ts`).
+2. It then calls every registered `DialogInjector.inject(win)` once, in registration order: first `modeSelector`, then `outlineView` (`organizer/citationDialog/dialogOutline.ts`).
 3. `modeSelector` adds the "Einfügen als" select to the settings popup and the item popup and follows `dialog-type` changes with a `MutationObserver`.
 4. `outlineView` adds the "Nach Gliederung anordnen" checkbox to the annotations view. When on, it renders tree, list and preview in the dialog's three columns. Inserting clicks the "+" of a hidden native `annotation-row`, so Zotero's own insertion code runs.
    At 750 px and wider the plugin sets no width of its own on `#sidebar`, so the right column keeps Zotero's width with and without the view. Below 750 px `LAYOUT_CSS` stacks the columns, but only in the persistent window (see "Persistent citation window"). The CSS it adds only keeps long rows from widening the layout (`LAYOUT_CSS` in `dialogOutlineLayout.ts`).

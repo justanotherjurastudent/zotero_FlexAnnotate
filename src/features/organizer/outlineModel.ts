@@ -24,9 +24,9 @@ import { scopeName, syncNoteHeading } from "./outlineScope";
 export * from "./logic/outline";
 
 /**
- * Extra-Tag, mit dem eine Outline-Notiz einer Sammlung zugeordnet wird
- * (Bibliotheksbaum: Notiz ohne Extra-Tag). Basis ist der collection key,
- * nicht die id — der key überlebt Sync und Bibliotheks-Wechsel stabil.
+ * Extra tag with which an outline note is assigned to a collection
+ * (library tree: note without extra tag). Base is the collection key,
+ * not the id — the key survives sync and library changes stably.
  */
 const COLLECTION_TAG_PREFIX = "#flexannotate-outline-";
 
@@ -34,7 +34,7 @@ function outlineCollectionTag(collectionKey: string): string {
   return `${COLLECTION_TAG_PREFIX}${collectionKey}`;
 }
 
-/** Alle Zusatz-Tags der Notiz, die eine Sammlung zuordnen (fremde bleiben draußen). */
+/** All extra tags of the note that assign a collection (foreign ones stay out). */
 function outlineCollectionTags(note: Zotero.Item): string[] {
   return note
     .getTags()
@@ -43,8 +43,8 @@ function outlineCollectionTags(note: Zotero.Item): string[] {
 }
 
 /**
- * Arbeit (Werk) eines Items: Annotation → Eltern des Anhangs, Notiz/Anhang →
- * Elternitem, sonst das Item selbst. Gleiche Zuordnung wie `Row.workID`.
+ * Work of an item: annotation → parent of the attachment, note/attachment →
+ * parent item, otherwise the item itself. Same mapping as `Row.workID`.
  */
 function workOf(item: Zotero.Item): number {
   if (isAnnotation(item)) {
@@ -56,10 +56,10 @@ function workOf(item: Zotero.Item): number {
 }
 
 /**
- * Wirkungsbereich einer Überschrift: Werk-IDs der Hauptsammlung des Baums
- * (null = Bibliotheksbaum, keine Einschränkung). Die `§`-Tags sind
- * bibliotheksweit; ohne Eingrenzung würde Umbenennen oder Löschen in einem
- * Baum die gleichnamige Überschrift in einem anderen Baum mitändern.
+ * Scope of a heading: work IDs of the top-level collection of the tree
+ * (null = library tree, no restriction). The `§` tags are
+ * library-wide; without a restriction, renaming or deleting in one
+ * tree would also change the same-named heading in another tree.
  */
 export type TagScope = Set<number> | null;
 
@@ -92,11 +92,11 @@ function isAnnotation(item: Zotero.Item): boolean {
   );
 }
 
-/** Ob ein Item eine Gliederungsnotiz ist (trägt den ★outline-Markertag).
+/** Whether an item is an outline note (carries the ★outline marker tag).
  *
- * Diese Notiz trägt seit der §-Tag-Synchronisierung selbst `§`-Tags (als Anker,
- * damit die Überschriften-Tags in der Bibliothek existieren). Sie darf darum
- * nie als zugeordnetes Item zählen (gather, buildCountMap).
+ * Since the §-tag synchronization, this note itself carries `§` tags (as anchors,
+ * so the heading tags exist in the library). It must therefore
+ * never count as an assigned item (gather, buildCountMap).
  */
 function isOutlineNote(item: Zotero.Item): boolean {
   return (
@@ -108,7 +108,7 @@ function isOutlineNote(item: Zotero.Item): boolean {
 }
 
 export class OutlineModel {
-  /** Alle Outline-Notizen der Bibliothek (Tag-Suche statt alle Items laden). */
+  /** All outline notes of the library (tag search instead of loading all items). */
   private static async outlineNotes(libraryID: number): Promise<Zotero.Item[]> {
     const search = new Zotero.Search();
     (search as any).libraryID = libraryID;
@@ -126,7 +126,7 @@ export class OutlineModel {
   ): Promise<Zotero.Item | null> {
     const notes = (await this.outlineNotes(libraryID)).filter((i) =>
       collectionKey === null
-        ? // Bibliotheksbaum: die Notiz trägt kein Zuordnungs-Tag
+        ? // library tree: the note carries no assignment tag
           !outlineCollectionTags(i).length
         : i
             .getTags()
@@ -158,8 +158,8 @@ export class OutlineModel {
 
   /** Load the outline tree for a library (empty tree if none exists yet).
    *
-   * `collectionKey` wählt den Baum: `null` = Bibliotheksbaum (Notiz ohne
-   * Zuordnungs-Tag), sonst die Notiz mit dem passenden Zusatz-Tag.
+   * `collectionKey` selects the tree: `null` = library tree (note without
+   * assignment tag), otherwise the note with the matching extra tag.
    */
   static async load(
     libraryID: number,
@@ -168,19 +168,19 @@ export class OutlineModel {
     const note = await this.findNote(libraryID, collectionKey);
     if (!note) return { noteID: null, roots: [] };
     const roots = parseOutline(note.getNote());
-    // Anker-§-Tags auch beim Laden nachziehen: Damit bekommt auch eine Notiz,
-    // die vor der §-Tag-Synchronisierung angelegt wurde, ihre Überschrift-Tags
-    // nachträglich. Idempotent — ohne Unterschied wird nichts geschrieben.
+    // Also pull forward the anchor § tags on load: thus a note that was created
+    // before the §-tag synchronization gets its heading tags
+    // retroactively. Idempotent — without a difference nothing is written.
     await syncAnchorTags(note.id, roots);
-    // Überschrift (Name der Hauptsammlung/Bibliothek) bestehender Notizen
-    // nachziehen, damit mehrere Gliederungsnotizen unterscheidbar sind.
+    // Pull forward the heading (name of the top-level collection/library) of existing notes
+    // so that several outline notes are distinguishable.
     await syncNoteHeading(note.id, libraryID, collectionKey);
     return { noteID: note.id, roots };
   }
 
   /**
-   * Rein lesendes Laden des Gliederungsbaums (ohne Sync-Anker-Tags / Geltungsbereich),
-   * z. B. für Tag-Vorschläge (tagSuggest) in schreibgeschützten Bibliotheken.
+   * Purely reading load of the outline tree (without sync anchor tags / scope),
+   * e.g. for tag suggestions (tagSuggest) in read-only libraries.
    */
   static async loadTreeOnly(
     libraryID: number,
@@ -192,9 +192,9 @@ export class OutlineModel {
   }
 
   /**
-   * Wendet die Anker-`§`-Tags auf das übergebene Notiz-Item im Speicher an.
-   * Logik in `outlineAnchorTags.ts` (eigene Datei, damit sie einzeln
-   * angepasst/ausgetauscht werden kann).
+   * Applies the anchor `§` tags to the given note item in storage.
+   * Logic in `outlineAnchorTags.ts` (own file so it can be adjusted/replaced
+   * individually).
    */
   static async save(
     libraryID: number,
@@ -240,7 +240,7 @@ export class OutlineModel {
       (search as any).libraryID = libraryID;
       search.addCondition("tag", "is", tag);
       const ids = (await search.search()) as number[];
-      // Zotero 7 lässt Annotationen in Suchergebnissen aus: aus dem Index ergänzen
+      // Zotero 7 leaves annotations out of search results: add them from the index
       await AnnotationIndex.ensureBuilt(libraryID);
       for (const rec of AnnotationIndex.filter({ tags: [tag] }))
         if (rec.libraryID === libraryID && !ids.includes(rec.id))
@@ -412,7 +412,7 @@ export class OutlineModel {
     for (const item of items) {
       if (!item || seen.has(item.id)) continue;
       if (isAnnotation(item)) continue;
-      if (isOutlineNote(item)) continue; // Gliederungsnotiz ist kein Fil-Item
+      if (isOutlineNote(item)) continue; // Outline note is not a filed item
       if (scope && !scope.has(workOf(item))) continue;
       seen.add(item.id);
       if (item.isNote?.()) out.push(this.noteToFiled(item));

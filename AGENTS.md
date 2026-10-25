@@ -62,7 +62,7 @@ npm start             # zotero-plugin serve (Entwicklung, Zugangsdaten in .env, 
 
 ## Konventionen
 
-- Kommentare, Nutzertexte und diese Datei auf Deutsch; Bezeichner und Log-Ausgaben auf Englisch. `docs/architecture.md` ist englisch (technische Referenz).
+- Kommentare und Code-Dokumentation auf Englisch (technische Lesbarkeit, konsistent projektübergreifend); Nutzertexte (UI/Locales) und diese Datei auf Deutsch; Bezeichner und Log-Ausgaben auf Englisch. `docs/architecture.md` ist englisch (technische Referenz). Deutsch bleibt in Doku und Handbüchern (`docs/`, `README.md`) erlaubt.
 - Lokalisierung: Fluent in `addon/locale/de` und `addon/locale/en-US` gleichzeitig pflegen; der Organizer hat seine Texte in `src/features/organizer/strings.ts`.
 - Format: Prettier (`package.json`, 80 Zeichen, 2 Leerzeichen). Vor dem Abschluss `npm run lint:check`.
 - Preference-Schlüssel liegen unter `extensions.flexannotate.` und sind für Nutzerdaten stabil; nicht umbenennen. Gleiches gilt für die Tags `#flexannotate-*`, `§Titel` und `★outline`.

@@ -27,7 +27,7 @@ export type ExportResult =
   | { status: "cancelled" | "empty" }
   | { status: "error"; message: string };
 
-/** ZIP mit den Einträgen {Name: Text} schreiben; mimetype unkomprimiert zuerst. */
+/** Write a ZIP with the entries {Name: Text}; mimetype uncompressed first. */
 export function writeZip(path: string, entries: Record<string, string>): void {
   const zw = (Components.classes as any)[
     "@mozilla.org/zipwriter;1"

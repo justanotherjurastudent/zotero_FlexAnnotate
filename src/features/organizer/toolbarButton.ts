@@ -1,7 +1,7 @@
 /**
- * Toolbar-Button in der oberen Zotero-Leiste, der den Organizer öffnet. Sitzt
- * vor Zoteros Sync-Button (#zotero-tb-sync); Icon und Dark Mode wie bei Zoteros
- * eigenen Buttons (list-style-image + context-fill, siehe chrome/content/zotero-platform/win/zotero.css in 10.0.5).
+ * Toolbar button in the top Zotero bar that opens the organizer. Sits
+ * before Zotero's sync button (#zotero-tb-sync); icon and dark mode like Zotero's
+ * own buttons (list-style-image + context-fill, see chrome/content/zotero-platform/win/zotero.css in 10.0.5).
  */
 import { config } from "../../../package.json";
 import { getLocaleID } from "../../utils/locale";
@@ -14,7 +14,7 @@ export const BUTTON_ID = "flexannotate-tb-organizer";
 const TOOLBAR_ID = "zotero-tabs-toolbar";
 const SYNC_ID = "zotero-tb-sync";
 
-/** Je Fenster der Klick-Listener, damit removeFromWindow ihn entfernen kann. */
+/** Per-window click listener so removeFromWindow can remove it. */
 const listeners = new WeakMap<MainWin, () => void>();
 
 export const organizerToolbarButton: Feature = {
@@ -31,7 +31,7 @@ export const organizerToolbarButton: Feature = {
       <toolbarbutton id="${BUTTON_ID}" class="zotero-tb-button" tabindex="-1"
         data-l10n-id="${getLocaleID("outline-toolbar-button")}"/>
     `);
-    // Ohne Sync-Button (anderes Zotero-Layout) hängt sich das Icon ans Ende der Leiste.
+    // Without a sync button (other Zotero layout) the icon attaches to the end of the bar.
     toolbar.insertBefore(fragment, doc.getElementById(SYNC_ID));
 
     const button = doc.getElementById(BUTTON_ID) as HTMLElement;
@@ -39,7 +39,7 @@ export const organizerToolbarButton: Feature = {
       "image",
       `chrome://${config.addonRef}/content/icons/organizer.svg`,
     );
-    // Die SVGs füllen mit context-fill; erst die context-properties holen die Textfarbe.
+    // The SVGs fill with context-fill; only the context-properties first fetch the text color.
     button.style.setProperty("-moz-context-properties", "fill, fill-opacity");
     button.style.setProperty("fill", "currentColor");
 

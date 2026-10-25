@@ -1,8 +1,8 @@
 /**
- * Grün-Haken-Umschalten im Zitierdialog: die Annotation als "bereits zitiert"
- * markieren bzw. die Markierung entfernen (Legacy-Pref-Store und
- * Word-Dokument-Variablen). Das Neuzeichnen übernimmt der Aufrufer über den
- * `refresh`-Callback, damit dieses Modul zyklenfrei bleibt.
+ * Toggling the green check in the citation dialog: mark an annotation as
+ * "already cited" or remove the mark (legacy pref store and Word document
+ * variables). Redrawing is handled by the caller through the `refresh`
+ * callback, so this module stays cycle-free.
  */
 
 import type { View } from "./dialogOutlineRender";

@@ -93,8 +93,8 @@ export function tabBar(ctx: Ctx, t: Palette): HTMLElement {
       () => (o.style.background = "transparent"),
     );
     o.addEventListener("click", () => {
-      // Wechselt Kategorienbaum und Eintrags-Filter: Hauptsammlung → eigener
-      // Baum, Untersammlung → Baum der Hauptsammlung, nur deren Einträge.
+      // Switches category tree and entry filter: top-level collection → own
+      // tree, subcollection → tree of the top-level collection, only its entries.
       void loadScope(ctx, c.id || null, {
         confirm: (title, text) => ctx.confirm(ctx.doc.defaultView, title, text),
       });

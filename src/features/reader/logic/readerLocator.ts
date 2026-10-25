@@ -1,7 +1,7 @@
 /**
- * Locator-Regeln für die Anzeige im Reader: welcher Locator gilt, und welche Beschriftung
- * er bekommt. Reine Logik ohne Zotero-Globals, daher im Node-Test prüfbar.
- * Herkunft: pre-merge:src/readerMenu.js (getAnnotationLocator, getLocatorLabel).
+ * Locator rules for display in the reader: which locator applies, and which label
+ * it receives. Pure logic without Zotero globals, testable in Node.
+ * Origin: pre-merge:src/readerMenu.js (getAnnotationLocator, getLocatorLabel).
  */
 import { DEFAULT_LOCATOR, LOCATOR_PREFIX } from "../../../core/locator.ts";
 
@@ -12,8 +12,8 @@ export interface LocatorLabels {
 }
 
 /**
- * Locator aus dem eigenen Tag einer Annotation. Tags können als Text oder als Objekt
- * `{ name }` bzw. `{ tag }` vorliegen. Nur bekannte Labels zählen, dazu 'margin'.
+ * Extracts explicit locator from an annotation's tags. Tags can be plain strings
+ * or objects shaped as `{ name }` or `{ tag }`. Only known labels count, plus 'margin'.
  */
 export function explicitLocatorFromTags(
   tags: readonly unknown[],
@@ -34,9 +34,8 @@ export function explicitLocatorFromTags(
 }
 
 /**
- * Anzeigetext eines Locators. `cite` liefert Zoteros Bezeichnung (oder undefined);
- * ohne sie greifen die übersetzten Ersatztexte, zuletzt der Locator selbst mit
- * Großbuchstabe.
+ * Display text of a locator. `cite` returns Zotero's localized label (or undefined);
+ * without it localized fallback strings are used, lastly capitalizing the locator string.
  */
 export function locatorLabelText(
   locator: string | undefined,
@@ -54,7 +53,7 @@ export function locatorLabelText(
 }
 
 /**
- * Baut den Titel für eine AnnotationRow ("<Label> <PageLabel>").
+ * Constructs the title for an AnnotationRow ("<Label> <PageLabel>").
  */
 export function formatAnnotationTitle(
   label: string,

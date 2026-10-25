@@ -1,21 +1,21 @@
 /**
- * tagSuggest — reine Reihenfolge der `§`-Tag-Vorschläge im Tag-Feld. Keine
- * Zotero-Importe, in Node testbar.
+ * tagSuggest — pure ordering of the `§` tag suggestions in the tag field. No
+ * Zotero imports, node-testable.
  *
- * Zotero sortiert die Tag-Vorschläge alphabetisch. Für `§`-Eingaben ordnet
- * diese Logik sie in Baumreihenfolge: erst die Überschriften der Gliederung
- * der Hauptsammlung, dann (je nach Einstellung) alle übrigen `§`-Tags der
- * Bibliothek. Hat die Hauptsammlung keine eigene Gliederung, bleibt es bei der
- * Bibliotheksliste, nach Bibliotheksgliederung geordnet.
+ * Zotero sorts the tag suggestions alphabetically. For `§` input this
+ * logic orders them in tree order: first the headings of the outline
+ * of the top-level collection, then (depending on the setting) all remaining `§` tags of the
+ * library. If the top-level collection has no own outline, the
+ * library list remains, ordered by the library outline.
  */
 
 import type { FlatHeading } from "./flatHeadings.ts";
 import { HEADING_PREFIX } from "./outline.ts";
 
 /**
- * off = Zoteros Standardliste; tree = nur die Gliederung der Hauptsammlung;
- * typed = Bibliotheksteil erst, wenn nach dem `§` weitergetippt wurde;
- * all = Bibliotheksteil immer.
+ * off = Zotero's default list; tree = only the outline of the top-level collection;
+ * typed = library part only after typing further after the `§`;
+ * all = library part always.
  */
 export type TagSuggestMode = "off" | "tree" | "typed" | "all";
 
@@ -28,7 +28,7 @@ export const TAG_SUGGEST_MODES: TagSuggestMode[] = [
 
 export const DEFAULT_TAG_SUGGEST_MODE: TagSuggestMode = "all";
 
-/** Unbekannte Werte (Handeingriff in about:config) gelten als Standard. */
+/** Unknown values (manual edit in about:config) count as default. */
 export function normalizeTagSuggestMode(v: unknown): TagSuggestMode {
   return TAG_SUGGEST_MODES.includes(v as TagSuggestMode)
     ? (v as TagSuggestMode)
@@ -36,28 +36,28 @@ export function normalizeTagSuggestMode(v: unknown): TagSuggestMode {
 }
 
 /**
- * Überschriftzeilen sind nicht wählbar gedacht. Ihr Wert besteht nur aus
- * Leerraum (zwei verschiedene, weil Zeilen mit gleichem Wert zusammenfallen
- * können): Wird eine trotzdem übernommen, speichert das Tag-Feld nichts.
+ * Header rows are not meant to be selectable. Their value consists only of
+ * whitespace (two different ones, because rows with the same value could collapse):
+ * if one is adopted anyway, the tag field saves nothing.
  */
 export const HEADER_VALUE_TREE = " ";
 export const HEADER_VALUE_LIBRARY = "  ";
 
 export interface SuggestRow {
-  /** Text, den das Tag-Feld bei Auswahl übernimmt. */
+  /** Text that the tag field adopts on selection. */
   value: string;
-  /** Angezeigter Text. */
+  /** Displayed text. */
   label: string;
 }
 
 export interface SuggestInput {
-  /** Passende `§`-Tags der Bibliothek (Datenbankabfrage, beliebige Reihenfolge). */
+  /** Matching `§` tags of the library (DB query, arbitrary order). */
   candidates: string[];
-  /** Überschriften der Gliederung(en) der Hauptsammlung in Baumreihenfolge; leer = keine. */
+  /** Headings of the outline(s) of the top-level collection in tree order; empty = none. */
   treeHeads: Pick<FlatHeading, "tag" | "num">[];
-  /** Überschriften der Bibliotheksgliederung in Baumreihenfolge (Ordnung und Nummern). */
+  /** Headings of the library outline in tree order (order and numbers). */
   libraryHeads: Pick<FlatHeading, "tag" | "num">[];
-  /** Eingabe im Tag-Feld, beginnend mit `§`. */
+  /** Input in the tag field, starting with `§`. */
   typed: string;
   mode: TagSuggestMode;
   headingTree: string;
@@ -65,15 +65,15 @@ export interface SuggestInput {
 }
 
 /**
- * Zeichenbudget einer Zeile (Name + Nummer). Das Popup kürzt zu lange Zeilen
- * selbst am Ende und würde die Nummer abschneiden; deshalb kürzt labelWithNumber
- * den Namen vorher. shortcut: feste Zeichenzahl statt gemessener Breite — in
- * einem schmaleren Popup kann die Nummer trotzdem fallen, in einem breiteren
- * wird früher gekürzt als nötig; Zeilen ohne Nummer kürzt weiter das Popup.
+ * Character budget of a row (name + number). The popup truncates long rows
+ * itself at the end and would cut off the number; therefore labelWithNumber
+ * shortens the name beforehand. shortcut: fixed character count instead of measured width — in
+ * a narrower popup the number can still fall, in a wider one
+ * it is shortened earlier than necessary; rows without a number are further shortened by the popup.
  */
 export const LABEL_MAX_CHARS = 34;
 
-/** "Name (1.2)"; ist das zu lang, wird der Name mit "…" gekürzt, die Nummer bleibt. */
+/** "Name (1.2)"; if that is too long, the name is shortened with "…", the number stays. */
 export function labelWithNumber(tag: string, num: string): string {
   const suffix = ` (${num})`;
   if (tag.length + suffix.length <= LABEL_MAX_CHARS) return tag + suffix;
@@ -81,7 +81,7 @@ export function labelWithNumber(tag: string, num: string): string {
   return `${tag.slice(0, room).trimEnd()}…${suffix}`;
 }
 
-/** Ordnet nach `order`, danach alphabetisch. */
+/** Sorts by `order`, then alphabetically. */
 function orderBy(tags: string[], order: string[]): string[] {
   const pos = new Map(order.map((t, i) => [t, i] as const));
   return [...tags].sort((a, b) => {
@@ -94,11 +94,11 @@ function orderBy(tags: string[], order: string[]): string[] {
 export function suggestRows(input: SuggestInput): SuggestRow[] {
   const have = new Set(input.candidates);
   const treeSet = new Set(input.treeHeads.map((h) => h.tag));
-  // Bei gleichem Tag gilt die Nummer aus dem Baum der Hauptsammlung
+  // For the same tag, the number from the top-level collection tree applies
   const numbers = new Map<string, string>();
   for (const h of [...input.treeHeads, ...input.libraryHeads])
     if (h.num && !numbers.has(h.tag)) numbers.set(h.tag, h.num);
-  // Die Nummer steht nur im Label; der Wert (= der Tag-Name) bleibt unberührt.
+  // The number only stands in the label; the value (= the tag name) stays untouched.
   const plain = (t: string): SuggestRow => {
     const num = numbers.get(t);
     return { value: t, label: num ? labelWithNumber(t, num) : t };
@@ -109,7 +109,7 @@ export function suggestRows(input: SuggestInput): SuggestRow[] {
     input.libraryHeads.map((h) => h.tag),
   );
 
-  // Keine eigene Gliederung (oder kein Treffer darin): bibliotheksweite Liste.
+  // No own outline (or no match within it): library-wide list.
   if (!inTree.length && !(treeSet.size && input.mode === "tree")) {
     return rest.map(plain);
   }

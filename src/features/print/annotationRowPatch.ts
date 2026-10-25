@@ -1,9 +1,9 @@
 /**
- * Passt die Titelzeile von <annotation-row> an den tatsächlichen FlexAnnotate-Locator an
- * (z. B. „Randnummer 318“ statt „Seite 318“).
+ * Adapts the title line of <annotation-row> to reflect the actual FlexAnnotate locator
+ * (e.g. "Margin note 318" instead of "Page 318").
  *
- * Verifiziert gegen Zotero 10.0.5 (elements/annotationRow.js:93-94):
- * Zotero setzt dort starr `Zotero.getString('pdfReader.page') + ' ' + pageLabel`.
+ * Verified against Zotero 10.0.5 (elements/annotationRow.js:93-94):
+ * Zotero hard-codes `Zotero.getString('pdfReader.page') + ' ' + pageLabel` there.
  */
 import { assignChecked } from "../../shared/patch";
 import { DEFAULT_LOCATOR } from "../../core/locator";
@@ -100,7 +100,7 @@ export function patchAnnotationRow(win: Window): boolean {
 
     installed.set(win, { native, patched });
 
-    // Bereits gerenderte Zeilen im Dokument aktualisieren
+    // Update already rendered rows in the document
     for (const row of win.document.querySelectorAll("annotation-row")) {
       try {
         updateAnnotationRowTitle(row);
@@ -125,7 +125,7 @@ export function unpatchAnnotationRow(win: Window): void {
   try {
     const proto = win.customElements?.get("annotation-row")?.prototype;
     if (proto) {
-      // Hat ein anderes Plugin danach selbst gepatcht, dessen Patch stehen lassen
+      // Another plugin has patched it afterwards; leave its patch intact
       if (proto.render !== entry.patched) {
         ztoolkit.log("AnnotationRow.prototype.render patched by others, kept");
         return;

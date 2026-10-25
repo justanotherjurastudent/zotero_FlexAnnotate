@@ -41,7 +41,7 @@ export interface State {
   roots: OutlineNode[];
   /**
    * Key of the collection whose outline note holds the tree (null =
-   * Bibliotheksbaum). Der Key bleibt über Sync stabil; die id kann sich ändern.
+   * library tree). The key stays stable across sync; the id can change.
    */
   collectionKey: string | null;
   tab: Tab;
@@ -71,12 +71,12 @@ export interface State {
   lastTreeClick: { id: string; t: number } | null;
   /** Re-focus the search box after a re-render. */
   focusSearch: boolean;
-  /** `§`-Tags im Bereich des Baums ohne passende Überschrift (mit Anzahl). */
+  /** `§` tags in the scope of the tree without a matching heading (with count). */
   orphans: { tag: string; count: number }[];
   orphanOpen: boolean;
   /**
-   * Überschriften-Tags der übrigen Sammlungsbäume (key → Name, Tags); null =
-   * noch nicht geladen. Nur für den "auch in Baum"-Hinweis.
+   * Heading tags of the remaining collection trees (key → name, tags); null =
+   * not loaded yet. Only for the "also in tree" hint.
    */
   otherTrees: Map<string, { name: string; tags: Set<string> }> | null;
 }
@@ -103,14 +103,13 @@ export function applyScope(s: State) {
 }
 
 /**
- * Wechselt Scope und Kategorienbaum auf die gewählte Sammlung (Untersammlung →
- * Baum der Hauptsammlung, via topmostCollection). null = Bibliotheksbaum.
- * Läuft in der saveChain: offene Speicherungen landen noch im alten Baum, und
- * zwei schnelle Wechsel legen keine doppelte Notiz an (der letzte gewinnt).
+ * Switches scope and category tree to the selected collection (subcollection →
+ * tree of the top-level collection, via topmostCollection). null = library tree.
+ * Runs in the saveChain: open saves land in the old tree, and
+ * two quick switches do not create a duplicate note (the last one wins).
  *
- * `opts.confirm` wird beim ersten Öffnen einer Sammlung ohne eigenen Baum
- * gefragt: Bibliotheksbaum als Anfang übernehmen? Ohne `confirm` startet der
- * Baum leer.
+ * `opts.confirm` is asked when opening a collection without its own tree for the first time:
+ * adopt the library tree as a start? Without `confirm` the tree starts empty.
  */
 export function loadScope(
   ctx: Ctx,
@@ -129,9 +128,9 @@ export function loadScope(
     const loaded = await OutlineModel.load(s.libraryID, collectionKey);
     let roots = loaded.roots;
     s.noteID = loaded.noteID;
-    // Erstöffnung: keine eigene Notiz → einmal fragen, ob der Bibliotheksbaum
-    // als Anfang kopiert wird. Die Notiz sofort anlegen, damit die Frage nur
-    // einmal kommt.
+    // First opening: no own note → ask once whether the library tree
+    // is copied as a start. Create the note immediately so the question only
+    // comes once.
     if (collectionKey !== null && loaded.noteID === null) {
       if (opts.confirm) {
         const lib = await OutlineModel.load(s.libraryID, null);
@@ -167,7 +166,7 @@ export function loadScope(
   return s.saveChain;
 }
 
-/** Tiefe Kopie der Baumstruktur (separate Notiz, dieselben Knoten-Ids ok). */
+/** Deep copy of the tree structure (separate note, same node ids ok). */
 function clone(roots: OutlineNode[]): OutlineNode[] {
   return JSON.parse(JSON.stringify(roots)) as OutlineNode[];
 }
@@ -241,9 +240,9 @@ export async function reload(ctx: Ctx) {
 }
 
 /**
- * Verwaiste `§`-Tags des aktiven Baums und die Tags der anderen Bäume neu
- * bestimmen (eigene Suche, darum nicht bei jedem Render) und bei Änderung
- * neu zeichnen.
+ * Determines orphaned `§` tags of the active tree and the tags of the other trees
+ * anew (own search, therefore not on every render) and redraws
+ * on change.
  */
 export async function refreshOrphans(ctx: Ctx) {
   const { s } = ctx;
@@ -253,7 +252,7 @@ export async function refreshOrphans(ctx: Ctx) {
       s.libraryID,
       treeWorkIDs(s.libraryID, key),
     );
-    if (s.collectionKey !== key) return; // Baum wurde inzwischen gewechselt
+    if (s.collectionKey !== key) return; // Tree was switched in the meantime
     const orphans = orphanHeadingTags(counts.keys(), s.roots).map((tag) => ({
       tag,
       count: counts.get(tag) ?? 0,

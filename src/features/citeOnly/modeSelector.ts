@@ -1,36 +1,36 @@
 /**
- * Auswahl „Vollnachweis / Nur Nachweis" im Zitationsdialog von Word und LibreOffice.
+ * "Full citation / Citation only" selection in the Word and LibreOffice citation dialog.
  *
- * Der Dialog ist ein eigenes Fenster (citationDialog.xhtml). Die Auswahl erscheint an
- * zwei Stellen: im Einstellungs-Popup (Zahnrad, neben „Kommentare einbeziehen") und im
- * Popup eines Eintrags, vor der Knopfleiste. Beide zeigen dieselbe Einstellung.
+ * The dialog is its own window (citationDialog.xhtml). The selection appears at two
+ * places: in the settings popup (gear, next to "Include comments") and in the
+ * popup of an entry, before the button bar. Both show the same setting.
  *
- * Verifiziert gegen Zotero 10.0.1:
- *  - citationDialog.js blendet [data-dialog-type]-Elemente je nach Modus selbst ein und
- *    aus. Da wir danach einhängen, setzen wir den Anfangszustand selbst und folgen
- *    Wechseln über einen MutationObserver auf dialog-type.
- *  - citationDialog.js füllt includeComments genauso aus einem Pref.
+ * Verified against Zotero 10.0.1:
+ *  - citationDialog.js shows/hides [data-dialog-type] elements itself depending on mode.
+ *    Since we hook in afterwards, we set the initial state ourselves and follow
+ *    changes via a MutationObserver on dialog-type.
+ *  - citationDialog.js fills includeComments the same way from a pref.
  */
 import { getPref, setPref } from "../../utils/prefs";
 
 const ROW_CLASS = "flexannotate-citation-mode-row";
 const SELECT_CLASS = "flexannotate-citation-mode";
 const STYLE_ID = "flexannotate-citation-dialog-style";
-/** Name der Plugin-FTL; Zotero registriert sie für alle Plugins (plugins.js). */
+/** Name of the plugin FTL; Zotero registers it for all plugins (plugins.js). */
 const FTL_RESOURCE = "flexannotate-addon.ftl";
 
 const observers = new WeakMap<Window, MutationObserver>();
 
 /**
- * Baut die Auswahl an allen vorhandenen Einbauorten des Dialogs ein.
- * @param win - Zitationsdialog, geladen
+ * Builds the selection at all existing injection points of the dialog.
+ * @param win - Citation dialog, loaded
  */
 export function injectModeSelector(win: Window): void {
   const doc = win.document;
   if (doc.querySelector(`.${ROW_CLASS}`)) {
     return;
   }
-  // Zotero 8 kennt den Annotationsmodus im Zitierdialog nicht (ab 9.x)
+  // Zotero 8 does not know the annotation mode in the citation dialog (since 9.x)
   if (!doc.getElementById("annotations-sidebar")) {
     return;
   }
@@ -44,7 +44,7 @@ export function injectModeSelector(win: Window): void {
     rows.push(row);
   }
 
-  // Vor die Knopfleiste, damit „Entfernen / In Bibliothek anzeigen / Erledigt" unten bleiben
+  // Before the button bar, so that "Remove / Show in Library / Done" stay at the bottom
   const detailsPopup = doc.querySelector("#itemDetails .popup");
   const buttons = detailsPopup?.querySelector(".buttons");
   if (detailsPopup && buttons) {
@@ -69,8 +69,8 @@ export function injectModeSelector(win: Window): void {
 }
 
 /**
- * Entfernt Auswahl, Stil und Beobachter eines Dialogs.
- * @param win - Zitationsdialog
+ * Removes selection, style and observer of a dialog.
+ * @param win - Citation dialog
  */
 export function removeModeSelector(win: Window): void {
   try {
@@ -87,10 +87,10 @@ export function removeModeSelector(win: Window): void {
 }
 
 /**
- * Stil angelehnt an Zoteros eigene Bedienelemente im Dialog (.details-data: 5px Radius,
- * weicher Rand). Farben kommen aus Zoteros Design-Tokens, damit hell und dunkel passen.
- * appearance:none, weil das native Windows-Widget den Radius ignoriert. Den Pfeil
- * zeichnet Zotero weiter; das rechte Padding hält nur seinen Platz frei.
+ * Style modeled on Zotero's own controls in the dialog (.details-data: 5px radius,
+ * soft border). Colors come from Zotero's design tokens so light and dark fit.
+ * appearance:none because the native Windows widget ignores the radius. The arrow is
+ * drawn by Zotero further; the right padding only holds its place free.
  */
 function injectStyles(doc: Document): void {
   if (doc.getElementById(STYLE_ID)) {
@@ -142,7 +142,7 @@ function createRow(doc: Document, suffix: string): HTMLElement {
 
   const row = doc.createElement("div");
   row.className = `hbox ${ROW_CLASS}`;
-  // Zotero blendet Zeilen anhand dieses Attributs je nach Dialogmodus ein und aus
+  // Zotero shows and hides rows based on this attribute depending on the dialog mode
   row.setAttribute("data-dialog-type", "annotations");
 
   const label = doc.createElement("label");
@@ -174,7 +174,7 @@ function createRow(doc: Document, suffix: string): HTMLElement {
   return row;
 }
 
-/** Hält die Auswahlfelder beider Einbauorte auf demselben Stand. */
+/** Keeps the selects of both injection points on the same state. */
 function syncSelects(doc: Document, value: string): void {
   for (const select of doc.querySelectorAll<HTMLSelectElement>(
     `.${SELECT_CLASS}`,
@@ -186,8 +186,8 @@ function syncSelects(doc: Document, value: string): void {
 }
 
 /**
- * Hängt die Plugin-FTL an das Dialogdokument und übersetzt die Zeilen. Das Dokument
- * kennt die FTLs der Plugins nicht von selbst, der Ressourcenname muss nachgereicht werden.
+ * Attaches the plugin FTL to the dialog document and translates the rows. The document
+ * does not know the plugins' FTLs by itself, the resource name must be passed afterwards.
  */
 function localize(doc: Document, rows: HTMLElement[]): void {
   try {
@@ -198,7 +198,7 @@ function localize(doc: Document, rows: HTMLElement[]): void {
     }
   } catch (e) {
     ztoolkit.log("citation mode selector localization failed:", e);
-    // Notnagel, damit die Auswahl nicht unbeschriftet dasteht
+    // Fallback so the selection does not stand there without labels
     const german = (Zotero.locale || "").startsWith("de");
     for (const row of rows) {
       row.querySelector("label")!.textContent = german
@@ -212,9 +212,9 @@ function localize(doc: Document, rows: HTMLElement[]): void {
 }
 
 /**
- * Setzt die Sichtbarkeit passend zum Dialogmodus und folgt späteren Wechseln.
- * Nötig, weil citationDialog.js die [data-dialog-type]-Elemente nur beim Moduswechsel
- * durchgeht, unsere Zeilen aber erst danach eingehängt werden.
+ * Sets visibility according to the dialog mode and follows later switches.
+ * Needed because citationDialog.js only goes through the [data-dialog-type] elements on a
+ * mode switch, but our rows are only attached afterwards.
  */
 function trackDialogType(win: Window, rows: HTMLElement[]): void {
   const doc = win.document;

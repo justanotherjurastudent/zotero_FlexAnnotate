@@ -1,13 +1,13 @@
 /**
- * Seitenzahl-Popup (.label-popup) im Reader: Locator-Auswahl und Standard-Checkbox.
- * Herkunft: pre-merge:src/readerMenu.js enhanceLabelPopup (Zeilen 316-706), verkürzt. Die
- * reinen Entscheidungen stehen in core/labelPopup.ts.
+ * Page label popup (.label-popup) in the reader: locator selection and default checkbox.
+ * Origin: pre-merge:src/readerMenu.js enhanceLabelPopup (lines 316-706), shortened.
+ * Pure business rules live in core/labelPopup.ts.
  *
- * Zotero-Quelle (10.0.5, resource/reader/reader.js): Komponente LabelPopup ab Zeile
- * ~35630 (Markup: .modal-popup.label-popup > .row.label > .column.first input.toolbarField,
- * .column.second #renumber-auto-detect; fieldset.radio.row mit input[name=renumber];
- * .row.buttons > button.form-button.primary), Zustand _handleOpenPageLabelPopup ~Zeile 85620.
- * Die Selektoren des Legacy-Codes treffen 10.0.5 zu.
+ * Zotero source (10.0.5, resource/reader/reader.js): LabelPopup component starting around line
+ * ~35630 (markup: .modal-popup.label-popup > .row.label > .column.first input.toolbarField,
+ * .column.second #renumber-auto-detect; fieldset.radio.row with input[name=renumber];
+ * .row.buttons > button.form-button.primary), state in _handleOpenPageLabelPopup ~line 85620.
+ * The legacy selectors match 10.0.5 accurately.
  */
 import { defaultLogger } from "../../shared/feature";
 import { getString } from "../../utils/locale";
@@ -30,7 +30,7 @@ import * as printAnnotations from "../print/printAnnotations";
 
 type ReaderInstance = _ZoteroTypes.ReaderInstance;
 
-/** Ausschnitt der Reader-Interna, den das Popup braucht (nicht typisiert von Zotero). */
+/** Reader internal subset needed by the popup (untyped in Zotero). */
 interface PopupReader {
   itemID?: number;
   _state?: {
@@ -41,13 +41,13 @@ interface PopupReader {
   };
 }
 
-/** Annotation-Manager des Readers, wie ihn readerMenu nutzt. */
+/** Reader annotation manager, as used by readerMenu. */
 export interface PopupAnnotationManager {
   _getAnnotationByID(id: string): { id: string; tags?: unknown[] } | undefined;
   updateAnnotations(updates: unknown[]): void;
 }
 
-/** Callbacks aus readerMenu. Gesetzt statt importiert, da readerMenu dieses Modul importiert. */
+/** Callbacks provided by readerMenu. Injected via setter to avoid circular imports. */
 export interface LabelPopupHooks {
   updateLocators(reader: ReaderInstance, doc: Document): void;
   updateReaders(): void;
@@ -75,7 +75,7 @@ function findAnnotation(
   );
 }
 
-/** Seitenindex aus der JSON-Position; null, wenn sie nicht lesbar ist. */
+/** Page index from JSON position; null if unreadable. */
 function pageIndexOf(item: Zotero.Item): number | null | undefined {
   try {
     const pos = JSON.parse(item.annotationPosition);
@@ -89,7 +89,7 @@ function toRef(item: Zotero.Item): Ref<Zotero.Item> {
   return { key: item.key, pageIndex: pageIndexOf(item), item };
 }
 
-/** Schreibt die Radio-Auswahl eines Modus frei oder sperrt sie (mit Abdunkelung). */
+/** Enables or disables a radio choice (with visual dimming). */
 function setRadioEnabled(radio: HTMLInputElement | null, enabled: boolean) {
   if (!radio) return;
   radio.disabled = !enabled;
@@ -102,8 +102,8 @@ function setRadioEnabled(radio: HTMLInputElement | null, enabled: boolean) {
 }
 
 /**
- * Hängt den Locator-Abschnitt in das Popup ein und verdrahtet Auswahl, Checkbox,
- * Radio-Vorgabe und Anwenden (Klick und Enter). Mehrfacher Aufruf ist unschädlich.
+ * Injects the locator section into the popup and binds selection, checkbox,
+ * radio defaults, and application logic (click and Enter). Idempotent on repeated calls.
  */
 export function enhanceLabelPopup(
   reader: ReaderInstance,
@@ -128,7 +128,7 @@ export function enhanceLabelPopup(
 
   const doc = popup.ownerDocument as Document;
 
-  // Abschnitt: Zeile 1 Locator-Auswahl, Zeile 2 Standard-Checkbox
+  // Section: row 1 locator selection, row 2 default checkbox
   const container = doc.createElement("div");
   container.className = "row flexannotate-locator-section";
   container.style.cssText =
@@ -189,7 +189,7 @@ export function enhanceLabelPopup(
   container.appendChild(rowTop);
   container.appendChild(rowBottom);
 
-  // Vor den Radio-Buttons, sonst vor den Buttons
+  // Before radio buttons, otherwise before action buttons
   const fieldset = popup.querySelector("fieldset.radio");
   if (fieldset) {
     fieldset.before(container);
@@ -206,7 +206,7 @@ export function enhanceLabelPopup(
     }
   }
 
-  // Zoteros "diese Seite und folgende" ist die falsche Vorgabe, daher 'single' bzw. 'selected'
+  // Zotero's "this page and following" default is inappropriate here, so prefer 'single' or 'selected'
   const selectPreferredRadio = () => {
     const values = [
       ...popup.querySelectorAll<HTMLInputElement>('input[name="renumber"]'),
@@ -228,8 +228,8 @@ export function enhanceLabelPopup(
     popup.querySelector<HTMLElement>("#renumber-auto-detect")
       ?.parentElement) as HTMLElement | null | undefined;
 
-  // Bei Locator ungleich 'page' (z. B. Randnummer) sind lineare Seitenfolgen sinnlos
-  // und Zoteros "Automatisch erkennen" zerstört dort die Zählung.
+  // For non-page locators (e.g. margin note / paragraph) linear sequences are meaningless
+  // and Zotero's "Auto-detect" breaks numbering there.
   const updateRadioVisibility = () => {
     const linear = isPageLocator(select.value);
     const fromRadio = popup.querySelector<HTMLInputElement>(
@@ -270,7 +270,7 @@ export function enhanceLabelPopup(
   selectPreferredRadio();
   updateRadioVisibility();
 
-  // Zoteros Popup rendert nach; die Vorgabe deshalb nach einem Tick und nach 50 ms erneut setzen
+  // Zotero's popup re-renders asynchronously; reapply defaults after a tick and after 50ms
   setTimeout(() => {
     selectPreferredRadio();
     updateRadioVisibility();
@@ -280,8 +280,8 @@ export function enhanceLabelPopup(
     updateRadioVisibility();
   }, 50);
 
-  // Anwenden bei Klick auf "Aktualisieren" oder Enter. 'applied' verhindert Doppelausführung,
-  // weil der Enter-Handler und der Klick beide auslösen können.
+  // Apply on clicking "Update" or pressing Enter. 'applied' prevents duplicate runs
+  // when both Enter handler and button click fire in succession.
   let applied = false;
   const onApply = async () => {
     if (applied) {
@@ -302,7 +302,7 @@ export function enhanceLabelPopup(
         printAnnotations.getDefaultLocator(attachment),
         known,
       );
-      // Ohne Änderung greifen Zoteros native Handler ungestört (keine SQLite-Rennbedingung)
+      // When nothing changed, Zotero's native handlers run untouched (no SQLite race)
       if (!plan.apply) {
         return;
       }
@@ -345,8 +345,8 @@ export function enhanceLabelPopup(
 
       const am = hooks?.getAnnotationManager(reader) ?? null;
       if (am) {
-        // Primär: über den AnnotationManager des Readers, damit Zotero Tags und
-        // Seitenzahl atomar über onSaveAnnotations speichert.
+        // Primary: via reader AnnotationManager so Zotero persists tags and
+        // page label atomically through onSaveAnnotations.
         const amUpdates: unknown[] = [];
         for (const target of targets) {
           const existing = am._getAnnotationByID(target.key);
@@ -370,14 +370,14 @@ export function enhanceLabelPopup(
             }
             amUpdates.push(update);
           }
-          // Zusätzlich das Zotero.Item des Hauptprozesses taggen
+          // Also tag the main-process Zotero.Item
           printAnnotations.applyLocatorTag(target, chosen);
         }
         if (amUpdates.length) {
           am.updateAnnotations(amUpdates);
         }
       } else {
-        // Fallback: direkt auf dem Zotero.Item speichern
+        // Fallback: save directly to Zotero.Item
         for (const ann of targets) {
           printAnnotations.applyLocatorTag(ann, chosen);
           if (setLabel && newPageLabel) {
@@ -396,7 +396,7 @@ export function enhanceLabelPopup(
     }
   };
 
-  // Klick auf "Aktualisieren" (Delegation, damit sie nach Re-Renders wirkt)
+  // Click on "Update" (delegation to survive re-renders)
   popup.addEventListener(
     "click",
     (event: Event) => {
@@ -408,8 +408,8 @@ export function enhanceLabelPopup(
     true,
   );
 
-  // Enter: Im Textfeld übernimmt Zoteros React-Handler das Aktualisieren und Schließen,
-  // daher kein preventDefault. Sonst (Select, Checkbox) den Button auslösen.
+  // Enter: inside text input Zotero's React handler handles submit & close,
+  // so avoid preventDefault. Otherwise (select, checkbox) trigger the button.
   popup.addEventListener(
     "keydown",
     (event: Event) => {

@@ -1,18 +1,18 @@
 /**
- * Sichtbarkeit der Einträge im Item-Kontextmenü, ohne Zotero-Globals (in Node testbar).
- * Herkunft: pre-merge:src/flexannotate.js updateMenuState. Die Zuordnung zu Menüeinträgen steht
- * in features/print/menus.ts.
+ * Visibility of items in the item context menu, without Zotero globals (testable in Node).
+ * Origin: pre-merge:src/flexannotate.js updateMenuState. Menu entry mapping lives in
+ * features/print/menus.ts.
  */
 
 export type SelectionKind = "regular" | "annotation" | "other";
 
 export interface MenuStateInput {
   selectedCount: number;
-  /** Art jedes ausgewählten Items, in Auswahlreihenfolge */
+  /** Kind of each selected item, in selection order */
   kinds: SelectionKind[];
-  /** Nur für die einzelne Annotation relevant */
+  /** Relevant only for a single annotation */
   isEditable: boolean;
-  /** Nur für die einzelne Annotation relevant: hängt unter einem Platzhalter */
+  /** Relevant only for a single annotation: attached under a placeholder */
   isPrintAnnotation: boolean;
 }
 

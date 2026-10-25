@@ -237,8 +237,8 @@ export function listCollections(libraryID: number): ColNode[] {
 }
 
 /**
- * Stabiler collection key einer Sammlung (bleibt über Sync erhalten), oder
- * null für die ganze Bibliothek.
+ * Stable collection key of a collection (remains across sync), or
+ * null for the whole library.
  */
 export function collectionKeyOf(collectionID: number | null): string | null {
   if (collectionID === null) return null;
@@ -247,8 +247,8 @@ export function collectionKeyOf(collectionID: number | null): string | null {
 }
 
 /**
- * Werk-IDs, auf die sich die Überschriften eines Baums erstrecken: die
- * Hauptsammlung samt Untersammlungen. null = Bibliotheksbaum (alles).
+ * Work IDs to which the headings of a tree extend: the
+ * top-level collection incl. subcollections. null = library tree (everything).
  */
 export function treeWorkIDs(
   libraryID: number,
@@ -264,7 +264,7 @@ export function treeWorkIDs(
     : new Set();
 }
 
-/** Keys der Hauptsammlungen, in denen ein Werk (auch über Untersammlungen) liegt. */
+/** Keys of the top-level collections in which a work lies (also via subcollections). */
 export function workTreeKeys(libraryID: number, workID: number): Set<string> {
   const work = Zotero.Items.get(workID) as Zotero.Item | false;
   const out = new Set<string>();

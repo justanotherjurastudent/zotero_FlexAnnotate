@@ -1,8 +1,8 @@
 /**
- * Gemeinsame Helfer des Zitierdialogs, die von `citedTracking.ts` (Live-Sync)
- * und `citationJump.ts` (Direktsprung) genutzt werden. Eigene Datei, damit die
- * beiden Module unabhängig voneinander bleiben: ein Deaktivieren oder Ersetzen
- * des Direktsprungs darf das Zitier-Tracking nicht brechen.
+ * Shared helpers of the citation dialog, used by `citedTracking.ts`
+ * (live sync) and `citationJump.ts` (direct jump). Separate module so the two
+ * can stay independent: disabling or replacing the direct jump must not break
+ * the cited tracking.
  */
 
 export function logJump(msg: string, detail?: unknown): void {
@@ -29,9 +29,9 @@ export function logJump(msg: string, detail?: unknown): void {
 }
 
 /**
- * Nur der ausdrückliche Testschalter (`addon.data.env === "test"`, setzen die
- * Zotero-Tests), nie Profilpfad oder Duck-Typing: sonst würde ein echtes
- * Nutzerprofil still das Springen verlieren.
+ * Only the explicit test switch (`addon.data.env === "test"`, set by the
+ * Zotero tests), never a profile path or duck typing: otherwise a real user
+ * profile would silently lose the jump.
  */
 export function isTestProfile(): boolean {
   return (addon?.data as any)?.env === "test";
@@ -40,9 +40,9 @@ export function isTestProfile(): boolean {
 let isJumping = false;
 
 /**
- * Verhindert parallele Sprünge (und einen Live-Sync während eines Sprungs):
- * `jumpToCitation` markiert den Anfang/Ende über `setJumping`, der Live-Sync
- * prüft `isJumpingActive`.
+ * Prevents parallel jumps (and a live sync while a jump is running):
+ * `jumpToCitation` marks start/end via `setJumping`, the live sync checks
+ * `isJumpingActive`.
  */
 export function isJumpingActive(): boolean {
   return isJumping;

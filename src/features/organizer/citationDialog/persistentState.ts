@@ -1,12 +1,12 @@
 /**
- * Geteilter Zustand und Grundfunktionen des persistenten Begleitfensters
- * ("Blätterfenster") für Word und LibreOffice.
+ * Shared state and base functions of the persistent companion window
+ * ("companion window") for Word and LibreOffice.
  *
- * Dieses Modul ist die Basis der Aufteilung von `dialogPersistent.ts`: Es hält
- * den modulweiten Zustand (Befehl, Agent, vorgemerkte Einfügung), die Prefs,
- * den Fenster-Agent-Filter und das Protokoll. Die eigentliche Funktionalität
- * liegt in `persistentPinning.ts`, `persistentWindow.ts`,
- * `persistentPatches.ts` und `persistentTestHooks.ts`.
+ * This module is the base of the `dialogPersistent.ts` split: it holds the
+ * module-wide state (command, agent, pending insert), the prefs, the
+ * window-agent filter and the logging. The actual functionality lives in
+ * `persistentPinning.ts`, `persistentWindow.ts`, `persistentPatches.ts` and
+ * `persistentTestHooks.ts`.
  */
 
 import { assignChecked } from "../../../shared/patch";
@@ -35,7 +35,7 @@ export function writePersistentPref(v: boolean): void {
   }
 }
 
-/** Rect in CSS-Pixeln (screenX/outerWidth) plus devicePixelRatio. */
+/** Rect in CSS pixels (screenX/outerWidth) plus devicePixelRatio. */
 export interface Rect {
   x: number;
   y: number;
@@ -44,22 +44,23 @@ export interface Rect {
   dpr: number;
 }
 
-/** Auswahl aus dem Blätterfenster, die beim nächsten Befehl eingefügt wird. */
+/** Selection from the companion window that is inserted on the next command. */
 export interface PendingInsert {
   items: any[];
   rect: Rect;
 }
 
 /**
- * Agenten, für die das Blätterfenster nach dem Einfügen wieder geöffnet wird.
+ * Agents for which the companion window is reopened after an insert.
  *
- * WinWord: getestet. LibreOffice: das erneute Einfügen läuft durch den synchronen
- * sendCommand-Pfad (zoteroLibreOfficeIntegration.mjs:270-288), der einen verschachtelten
- * Event-Loop ohne Timeout blockiert; die normale Einfügung funktioniert in Writer über
- * denselben Pfad und wurde vom Nutzer bestätigt. MacWord: die macOS-Integration spricht
- * asynchron über ChromeWorker + Scripting Bridge (zotero-word-for-mac-integration), blockiert
- * den Haupt-Thread also nicht wie LibreOffice; freigegeben, realer Mac-Test steht aus.
- * http (Google Docs) bleibt außen vor: ein erneuter Befehl ließe den Server hängen
+ * WinWord: tested. LibreOffice: the re-insert runs through the synchronous
+ * sendCommand path (zoteroLibreOfficeIntegration.mjs:270-288), which blocks a nested
+ * event loop without a timeout; normal insertion works in Writer through the
+ * same path and was confirmed by the user. MacWord: the macOS integration speaks
+ * asynchronously via ChromeWorker + Scripting Bridge
+ * (zotero-word-for-mac-integration) and therefore does not block the main thread
+ * like LibreOffice; enabled, real Mac test outstanding.
+ * http (Google Docs) stays out: a re-run command would hang the server
  * (server.js:525-527).
  */
 export function isPersistentAgent(
@@ -68,16 +69,16 @@ export function isPersistentAgent(
   return agent === "WinWord" || agent === "LibreOffice" || agent === "MacWord";
 }
 
-/** Das Ziel des Accept-Wrappers: Lage + optional Höhe, Quelle für das nächste Fenster. */
+/** Target of the accept wrapper: position + optional height, source for the next window. */
 export interface AcceptState {
   live: Rect | null;
 }
 
-/** Modulweiter Zustand, den die persistenten Fenster/Patches gemeinsam teilen. */
+/** Module-wide state shared by the persistent windows/patches. */
 export interface PersistentRuntime {
-  /** Zwischen start() und stop(): nur dann darf ein Blätterfenster entstehen. */
+  /** Between start() and stop(): only then may a companion window appear. */
   alive: boolean;
-  /** Letzter vom Nutzer ausgeführter Word/LibreOffice-Befehl (integration.js:240). */
+  /** Last Word/LibreOffice command run by the user (integration.js:240). */
   lastCommand: CommandRef | null;
   activeAgent: string | null;
   pendingInsert: PendingInsert | null;
@@ -129,8 +130,8 @@ export function mainWin(): Window | null {
   }
 }
 
-/** Ablauf-Protokoll (ms seit Start des Fensters); ztoolkit.log und Zotero.debug. */
-// performance.now() gibt es im Plugin-Scope nicht; Date.now() reicht für das Protokoll.
+/** Flow log (ms since the window opened); ztoolkit.log and Zotero.debug. */
+// performance.now() is not available in the plugin scope; Date.now() is enough for the log.
 const TRACE_START = Date.now();
 export function trace(event: string, detail = "") {
   try {
@@ -139,7 +140,7 @@ export function trace(event: string, detail = "") {
     ztoolkit.log(msg);
     Zotero.debug(msg);
   } catch {
-    // Protokoll darf den Ablauf nie stoeren
+    // Logging must never stop the flow
   }
 }
 
@@ -157,6 +158,6 @@ export function logError(where: string, e: unknown) {
   try {
     Zotero.logError(e as Error);
   } catch {
-    // Zotero.logError fehlt ggf. in Testumgebungen
+    // Zotero.logError may be missing in test environments
   }
 }

@@ -1,15 +1,15 @@
 /**
- * Nur-Nachweis-Zitieren (citeOnly) (Herkunft: pre-merge:src/integrationPatch.js).
+ * Citation-only citing (citeOnly) (origin: pre-merge:src/integrationPatch.js).
  *
- * Angriffspunkt (verifiziert gegen Zotero 10.0.5, xpcom/integration.js:1678-1701):
- * `Zotero.Integration.Session.prototype._insertCitingResult` zweigt ab, sobald die
- * zitierten Items Annotationen sind, und schiebt sie als Mock-Note ins Dokument.
- * Im Modus „nur Nachweis“ wird stattdessen der reguläre Zitationspfad
- * `_insertItemsIntoDocument()` (integration.js:1778-1785) genommen, mit dem
- * Elterntitel als zitiertem Item und `annotationPageLabel` als Locator.
+ * Attack point (verified against Zotero 10.0.5, xpcom/integration.js:1678-1701):
+ * `Zotero.Integration.Session.prototype._insertCitingResult` branches as soon as the
+ * cited items are annotations, and pushes them into the document as a mock note.
+ * In "citation-only" mode the regular citation path is used instead
+ * `_insertItemsIntoDocument()` (integration.js:1778-1785), with the
+ * parent title as the cited item and `annotationPageLabel` as the locator.
  *
- * `insertAnnotations` ist kein Angriffspunkt: es gibt es nur auf
- * `Zotero.EditorInstance`, nicht auf `Integration.Session`.
+ * `insertAnnotations` is not an attack point: it only exists on
+ * `Zotero.EditorInstance`, not on `Integration.Session`.
  */
 import type { Feature } from "../../shared/feature";
 import { assignChecked } from "../../shared/patch";
@@ -58,7 +58,7 @@ interface Installed {
   patchedResetRequest?: (doc?: unknown) => void;
 }
 
-/** Gesetzt, solange der Patch aktiv ist; hält das Original für unpatch(). */
+/** Set as long as the patch is active; holds the original for unpatch(). */
 let installed: Installed | null = null;
 
 function sessionProto(): SessionProto | undefined {
@@ -81,19 +81,19 @@ function refOf(annotation: Zotero.Item): AnnotationRef {
   return {
     topLevelId,
     pageLabel,
-    // Bei Print-Quellen ist die Fundstelle oft keine Seite (Randnummer, Paragraf …);
-    // der Typ hängt an der Annotation bzw. am Dokument-Default.
+    // For print sources the location is often not a page (marginal number, paragraph …);
+    // the type hangs on the annotation or on the document default.
     locatorType: pageLabel ? getLocator(annotation) : "",
   };
 }
 
 /**
- * Baut aus einer Annotations-Citation eine gewöhnliche Zitation auf die Elterntitel.
- * Die Citation wird in place geändert und dasselbe Objekt zurückgegeben: ein Klon
- * verlöre den Prototyp von Zotero.Integration.Citation, den die Session später für
- * .serialize() braucht. Mutiert wird erst nach vollständiger Validierung.
+ * Builds an ordinary citation on the parent titles from an annotation citation.
+ * The citation is changed in place and the same object is returned: a clone would
+ * lose the prototype of Zotero.Integration.Citation, which the session later needs for
+ * .serialize(). It is only mutated after full validation.
  *
- * @return Dieselbe Citation, oder null wenn der Fall nicht zutrifft (nativ weiter).
+ * @return The same citation, or null if the case does not apply (native fallthrough).
  */
 async function rewriteToCitationOnly(
   citation: Citation,
@@ -107,7 +107,7 @@ async function rewriteToCitationOnly(
     (ci) => Zotero.Cite.getItem(ci.id) as Zotero.Item | undefined,
   );
   if (!annotations.every((item) => item && item.isAnnotation())) {
-    // Gemischte oder reguläre Auswahl: nicht unser Fall.
+    // Mixed or regular selection: not our case.
     return null;
   }
 
@@ -127,8 +127,8 @@ async function rewriteToCitationOnly(
 }
 
 /**
- * Wendet den Patch an. Gibt false zurück, wenn der Zielpfad fehlt oder die
- * Zuweisung nicht nachweislich greift; die Ursache wird geloggt.
+ * Applies the patch. Returns false if the target path is missing or the
+ * assignment does not provably take effect; the cause is logged.
  */
 export function patch(): boolean {
   if (installed) {
@@ -150,8 +150,8 @@ export function patch(): boolean {
     return false;
   }
 
-  // Das Original wird im Closure gehalten, nicht über den Modulzustand: ein unpatch()
-  // während eines laufenden Aufrufs darf nicht zu einem Zugriff auf null führen.
+  // The original is held in the closure, not via module state: an unpatch()
+  // during a running call must not lead to a null access.
   const native = proto._insertCitingResult;
   const patched: InsertFn = async function (fieldIndex, field, citation) {
     try {
@@ -187,7 +187,7 @@ export function patch(): boolean {
         }
       }
     } catch (e) {
-      // Nie den Einfügevorgang scheitern lassen: im Zweifel nativ weitermachen.
+      // Never let the insertion fail: in doubt continue natively.
       Zotero.logError(e as Error);
     }
     return native.call(this, fieldIndex, field, citation);
@@ -204,11 +204,11 @@ export function patch(): boolean {
   let nativeResetRequest: ((doc?: unknown) => void) | undefined;
   let patchedResetRequest: ((doc?: unknown) => void) | undefined;
   if (typeof proto.resetRequest === "function") {
-    // Zotero-Bugfix (xpcom/integration.js:574, 1161, 1192–1195, 1914):
-    // getSession() bzw. setData() setzen session.rebuildCiteprocState = true.
-    // Session.prototype.resetRequest setzt dies bedingungslos auf false zurueck,
-    // noch bevor updateFromDocument() den Citeproc-Zustand wiederherstellen kann.
-    // Das fuehrt im Zitierdialog bei vorhandenen Zitaten zum Absturz in processCitationCluster.
+    // Zotero bugfix (xpcom/integration.js:574, 1161, 1192–1195, 1914):
+    // getSession() resp. setData() set session.rebuildCiteprocState = true.
+    // Session.prototype.resetRequest resets this unconditionally to false,
+    // before updateFromDocument() can restore the Citeproc state.
+    // In the citation dialog this leads to a crash in processCitationCluster with existing citations.
     const origReset = proto.resetRequest;
     const patchedReset = function (this: SessionProto, doc?: unknown) {
       const wasRebuilding = this.rebuildCiteprocState;
@@ -238,7 +238,7 @@ export function patch(): boolean {
   return true;
 }
 
-/** Stellt das ursprüngliche _insertCitingResult wieder her. */
+/** Restores the original _insertCitingResult. */
 export function unpatch(): void {
   if (!installed) {
     return;
@@ -279,14 +279,14 @@ export function unpatch(): void {
   }
 }
 
-/** Ob der Patch gerade aktiv ist. */
+/** Whether the patch is currently active. */
 export function isPatched(): boolean {
   return installed !== null;
 }
 
 /**
- * Feature-Registry-Eintrag. Ein fehlgeschlagener Patch wird als Fehler gemeldet
- * (feature.ts protokolliert ihn), nicht still ignoriert.
+ * Feature registry entry. A failed patch is reported as an error
+ * (logged by feature.ts), not silently ignored.
  */
 export const citeOnlyPatch: Feature = {
   name: "citeOnlyPatch",

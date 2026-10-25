@@ -81,14 +81,14 @@ interface Attached {
   keyHandler: ((e: Event) => void) | null;
   searchHandler: ((e: Event) => void) | null;
   focusHandler: (() => void) | null;
-  /** Schmal: die Schalter stehen im Einstellungsmenue statt in der Zeile. */
+  /** Narrow: toggles reside in the settings menu instead of inline row. */
   narrow: boolean;
   mq: MediaQueryList | null;
   onMq: (() => void) | null;
   settings: Element | null;
   onPopup: (() => void) | null;
   lastDialogType?: string;
-  /** enable() läuft noch (await): ein Moduswechsel dazwischen darf es nicht ein zweites Mal starten. */
+  /** enable() is still running (await): a mode switch in between must not start it a second time. */
   enabling?: boolean;
 }
 
@@ -107,16 +107,16 @@ function readPref(): boolean {
 }
 
 /**
- * Zitierdialog: Sammlung, aus der die Gliederung kommt (0 = gesamte
- * Bibliothek). Letzte Wahl wird als Pref gemerkt, damit das nächste Zitieren
- * dort weitermacht.
+ * Citation dialog: collection from which the outline comes (0 = entire
+ * library). The last choice is remembered as a pref so the next citation
+ * continues there.
  */
 const PREF_COLLECTION = "dialogOutlineCollection";
 
 function readCollectionID(): number {
   try {
     const v = Zotero.Prefs.get(prefKey(PREF_COLLECTION), true);
-    // gelöschte Sammlung → zurück auf "Gesamte Bibliothek"
+    // deleted collection → fall back to "Entire library"
     return typeof v === "number" && v && collectionKeyOf(v) ? v : 0;
   } catch {
     return 0;
@@ -182,19 +182,19 @@ function inject(win: Window) {
   plabel.htmlFor = pcb.id;
   plabel.textContent = tr("dialogPersistent");
   plabel.title = tr("dialogPersistentHint");
-  // ohne Befehl addAnnotation (Zotero 7 und 8) oder auf nicht unterstützten Plattformen (z. B. Google Docs/http): Schalter aus
+  // no addAnnotation command (Zotero 7 and 8) or on unsupported platforms (e.g. Google Docs/http): switch off
   pcb.hidden = plabel.hidden = !supported;
   pcb.addEventListener("change", () => {
     writePersistentPref(pcb.checked);
-    // Wird die Checkbox nachträglich (auf einem bereits geöffneten, nativen Dialog)
-    // aktiviert, installiere den Wiederöffnen-Wrapper auf dem laufenden Fenster, damit
-    // es nach dem nächsten Einfügen direkt als Blätterfenster wieder aufgeht.
+    // If the checkbox is enabled later (on an already open, native dialog),
+    // install the reopen wrapper on the running window so that it reopens
+    // directly as a browse window after the next insertion.
     if (pcb.checked) activatePersistentOnOpenDialog();
   });
   sidebar.insertBefore(row, sidebar.firstChild);
 
-  // Schmal (matchMedia wie die Layout-Regel): die Schalter wandern in das Einstellungsmenue
-  // (Zahnrad unten rechts, #settings-popup). Dieselben Elemente und Listener, nur verschoben.
+  // Narrow (matchMedia matching layout rule): toggles move into settings menu
+  // (gear icon bottom right, #settings-popup). Same elements and listeners, only repositioned.
   const settings = doc.getElementById("settings-popup");
   const popupBox = settings?.querySelector(".popup") ?? null;
   const menu = doc.createElement("div");
@@ -208,7 +208,7 @@ function inject(win: Window) {
   menu.append(wrapA, wrapB);
 
   const root = doc.documentElement as Element;
-  // Eine Quelle der Wahrheit: Zeile bzw. Menue, Sichtbarkeit je Dialogtyp
+  // Single source of truth: row vs menu, visibility per dialog type
   const refresh = () => {
     const type =
       root.getAttribute("dialog-type") || (win as any).DIALOG_STATE?.type;
@@ -218,7 +218,7 @@ function inject(win: Window) {
     row.hidden = !isAnn || info.narrow;
     menu.hidden = false;
 
-    // Menue-Button (#settings-button) sichtbar halten, wenn unser Menue im Popup liegt
+    // Keep settings button (#settings-button) visible if our menu is inside the popup
     const settingsBtn = doc.getElementById(
       "settings-button",
     ) as HTMLElement | null;
@@ -279,7 +279,7 @@ function inject(win: Window) {
   mq.addEventListener("change", info.onMq);
   place(mq.matches);
 
-  // Beim Oeffnen den Stand der Schalter zeigen (ein Weg zum Umschalten: die Schalter selbst)
+  // Display toggle state when opening (one way to toggle: the switches themselves)
   info.settings = settings;
   info.onPopup = () => {
     cb.checked = readPref();
@@ -343,8 +343,8 @@ async function enable(win: Window, cb: HTMLInputElement) {
 }
 
 /**
- * Kategorienbaum der gewählten Sammlung (Untersammlung → Baum der
- * Hauptsammlung, via topmostCollection); 0/null = Bibliotheksbaum.
+ * Category tree of the selected collection (subcollection → tree of the
+ * top collection, via topmostCollection); 0/null = library tree.
  */
 async function loadRoots(
   libraryID: number,
@@ -359,10 +359,10 @@ async function loadRoots(
 }
 
 /**
- * Sammlungs-Auswahl über dem Kategorienbaum: macht klar, aus welcher
- * Sammlung die Kategorien kommen. Ein plain <select> öffnet in diesem
- * Dialogfenster kein Popup, deshalb das Custom-Drop-down wie im
- * Organizer-Fenster (organizerTabs).
+ * Collection picker above the category tree: makes clear which collection the
+ * categories come from. A plain <select> does not open a popup in this dialog
+ * window, hence the custom drop-down as in the organizer window
+ * (organizerTabs).
  */
 function addPicker(win: Window, info: Attached) {
   const doc = win.document;
@@ -392,12 +392,12 @@ function addPicker(win: Window, info: Attached) {
   sel.textContent = `${still.name}  ▾`;
   const menu = doc.createElement("div");
   menu.style.cssText =
-    // fixed statt absolute: der Container des Dialogs schneidet (overflow:hidden)
+    // fixed instead of absolute: the dialog container clips (overflow:hidden)
     "position:fixed;z-index:1000;display:none;min-width:220px;max-height:300px;overflow-y:auto;" +
     "background:var(--material-background,#fff);border:1px solid var(--fill-quinary, rgba(128,128,128,0.35));border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.25);";
   const options: HTMLElement[] = [];
-  // Aktive Auswahl im Dropdown sichtbar machen und den Button-Text nachziehen,
-  // wenn die Sammlung geändert wird.
+  // Make the active selection in the dropdown visible and update the button
+  // text when the collection changes.
   const select = (c: { id: number; name: string }) => {
     sel.textContent = `${c.name}  ▾`;
     for (const o of options) {
@@ -446,7 +446,7 @@ function addPicker(win: Window, info: Attached) {
   host.insertBefore(wrap, host.firstChild);
 }
 
-/** Ansicht nach Sammlungs-Wechsel neu bauen; Knoten-Auswahl geht auf "all". */
+/** Rebuild view after collection change; node selection resets to "all". */
 async function rebuildView(win: Window, info: Attached) {
   if (!info.enabled) return;
   try {
@@ -459,7 +459,7 @@ async function rebuildView(win: Window, info: Attached) {
   }
 }
 
-/** Hinweis unter der Auswahl, solange die gewählte Sammlung keinen Baum hat. */
+/** Hint below the picker while the selected collection has no tree. */
 function updateHint(win: Window, view: View) {
   const doc = win.document;
   doc.getElementById(HINT_ID)?.remove();
@@ -473,7 +473,7 @@ function updateHint(win: Window, view: View) {
   picker.after(hint);
 }
 
-/** Baum, Zeilen und Zähler für die gewählte Sammlung; Auswahl steht auf "all". */
+/** Tree, rows and counters for the selected collection; the picker is set to "all". */
 async function buildView(win: Window, info: Attached): Promise<View> {
   const doc = win.document;
   const isCitation =
@@ -630,9 +630,9 @@ function addSearchSync(win: Window, info: Attached) {
 }
 
 /**
- * Aktualisiert Zitatmarkierungen und Fußnotennummern im Hintergrund, sobald
- * das Begleitfenster nach Bearbeitung im Textdokument wieder fokussiert wird.
- * Gedrosselt (mind. 2 s Abstand), um wiederholte IPC-Scans bei schnellem Fensterwechsel zu vermeiden.
+ * Refreshes citation markers and footnote numbers in the background as soon as
+ * the companion window regains focus after editing in the text document.
+ * Throttled (at least 2 s apart) to avoid repeated IPC scans on fast window switches.
  */
 function addFocusSync(win: Window, info: Attached) {
   if (info.focusHandler) return;
@@ -650,8 +650,8 @@ function addFocusSync(win: Window, info: Attached) {
 }
 
 /** Hide Zotero's native columns and add the containers for ours. */
-// Der eigentliche Auf-/Abbau des Layouts liegt in dialogOutlineLayout.ts
-// (applyLayout/removeLayout); hier bleibt nur das Listener-Aufräumen.
+// The actual layout setup/teardown lives in dialogOutlineLayout.ts
+// (applyLayout/removeLayout); only the listener cleanup remains here.
 
 function restoreLayout(win: Window) {
   const doc = win.document;

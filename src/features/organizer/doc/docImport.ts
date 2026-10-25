@@ -72,9 +72,9 @@ async function readHeadings(file: any): Promise<DocHeading[]> {
       zr.open(file);
     } catch (e) {
       ztoolkit.log("flexannotate docImport: not a zip:", e);
-      // Öffnen scheitert auch, wenn die Datei exklusiv gesperrt ist (anderes
-      // Programm hat sie offen); das soll sich in der Meldung von "kein
-      // gültiges Dokument" unterscheiden.
+      // Opening also fails when the file is exclusively locked (another
+      // program has it open); that should differ in the message from "no
+      // valid document".
       if (!(await IOUtils.exists(file.path))) throw bad();
       let readable = true;
       try {

@@ -140,7 +140,7 @@ Footnote numbers change continuously in academic texts (by inserting or deleting
 
 In the persistent task bar (the companion / browse window), the Word transaction of the previous insert command is already finished (`execCommand` in `xpcom/integration.js:332` has called `await document.complete()` in the `finally` block). The internal C++ COM pointer of the document is therefore released (`_documentStatus.active = false` in `zoteroWinWordIntegration.mjs:415`), and a direct call of `citation.field.select()` would abort with `"complete() method already called on document"`.
 
-FlexAnnotate solves this reliably with a two-step procedure in `src/features/organizer/dialog/dialogCited.ts`:
+FlexAnnotate solves this reliably with a two-step procedure in `src/features/organizer/citationDialog/dialogCited.ts`:
 
 1. **Windows Word direct jump via WScript/COM (`runWordJumpScript`):**
    A disassembly of Zotero's C++ library `libzoteroWinWordIntegration.dll` (export `selectField` at RVA `0xbd40`) shows that on Windows Zotero internally implements no selection at all (the call only sets `Application.ScreenUpdating = 1` and returns success right away). For Windows Word FlexAnnotate therefore runs a minimal, asynchronous VBScript (`flexannotate-jump-word.vbs`) via `wscript.exe`:
@@ -201,9 +201,9 @@ FlexAnnotate therefore brings Word resp. LibreOffice reliably to the foreground 
 ## 6. Involved files
 
 - `src/features/organizer/logic/cited.ts`: pure logic for parsing, serialisation, reconciliation, footnote mapping (`buildCitationLocationsMap`, `findCitationLocations`) and $\mathcal{O}(1)$ set operations (Node-testable).
-- `src/features/organizer/dialog/dialogCited.ts`: interface to Zotero's integration session (`session.data.prefs`, `session.documentCitationIDs`, `session.citationsByIndex`), jump function (`jumpToCitation`).
+- `src/features/organizer/citationDialog/dialogCited.ts`: interface to Zotero's integration session (`session.data.prefs`, `session.documentCitationIDs`, `session.citationsByIndex`), jump function (`jumpToCitation`).
 - `src/features/citeOnly/integrationPatch.ts`: pre-generation of the `citationID` and logging when inserting citations.
-- `src/features/organizer/dialog/dialogOutline.ts` and `dialogOutlineRender.ts`: UI integration (footnote chips, direct jump, checkmark tooltip) and styling (`LAYOUT_CSS`).
+- `src/features/organizer/citationDialog/dialogOutline.ts` and `dialogOutlineRender.ts`: UI integration (footnote chips, direct jump, checkmark tooltip) and styling (`LAYOUT_CSS`).
 - `src/features/organizer/strings.ts`: localised UI texts (German and English for "Cited in:", "Fn. {n}", "Text" and jump hints).
 - `test-unit/cited.test.ts`: 22 unit tests incl. performance benchmark, footnote mapping and edge-case checks.
 - `test/citeOnly.test.ts`: Zotero integration tests for the full lifecycle and the jump navigation.

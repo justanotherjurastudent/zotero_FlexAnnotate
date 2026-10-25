@@ -1,8 +1,8 @@
 /**
- * Feature-Hook des persistenten Begleitfensters: start() patcht die
- * Integration (displayDialog, execCommand, Interface-Methoden, Progress),
- * stop() stellt alles zurück und schließt ein offenes Fenster. Das Feature
- * selbst ist hier sauber von der Fenster-Mechanik und den Patches getrennt.
+ * Feature hook of the persistent companion window: start() patches the
+ * integration (displayDialog, execCommand, Interface methods, Progress),
+ * stop() restores everything and closes an open window. The feature itself is
+ * cleanly separated here from the window mechanics and the patches.
  */
 
 import type { Feature } from "../../../shared/feature";
@@ -26,11 +26,11 @@ import {
 export const persistentDialogPatch: Feature = {
   name: "persistentDialogPatch",
   start() {
-    // Zotero ohne Annotationsmodus-Befehl (8.x, 7.x: integration.js ohne Interface.prototype.addAnnotation):
-    // nichts patchen, das Blätterfenster und der Schalter entfallen dort
+    // Zotero without the annotation-mode command (8.x, 7.x: integration.js without Interface.prototype.addAnnotation):
+    // do not patch anything, the companion window and the switch are omitted there
     if (!persistentSupported()) return;
     state.alive = true;
-    // ohne Befehlsmerker würde ein Blätterfenster den Dialog verschlucken: lieber gar nicht patchen
+    // without a command tracker a companion window would swallow the dialog: better not patch at all
     if (
       !patchDisplayDialog() ||
       !patchExecCommand() ||
@@ -43,11 +43,11 @@ export const persistentDialogPatch: Feature = {
       return;
     }
     patchProgressBar();
-    // Option aus: kein unmittelbares Schließen mehr. Ein offenes Blätterfenster bleibt
-    // so lange, bis die nächste Einfügung kommt — danach schließt es und öffnet sich nicht
-    // wieder (insertFromBrowse und der accept-Handler prüfen readPersistentPref()). Das ist
-    // das gewünschte Verhalten: ausschalten legt das Fenster nicht sofort zu, sondern nur
-    // nach dem nächsten Einfügen (wie Vanilla-Zotero).
+    // Option off: no immediate closing anymore. An open companion window stays
+    // until the next insert — afterwards it closes and does not reopen
+    // (insertFromBrowse and the accept handler check readPersistentPref()). That is
+    // the desired behaviour: turning off does not close the window at once, but only
+    // after the next insert (like vanilla Zotero).
   },
   stop() {
     state.alive = false;
@@ -64,7 +64,7 @@ export const persistentDialogPatch: Feature = {
       try {
         win.close();
       } catch {
-        // Fenster wurde möglicherweise bereits geschlossen
+        // The window may already have been closed
       }
     }
   },

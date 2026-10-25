@@ -48,9 +48,9 @@ export function descendantIds(cols: ColNode[], rootID: number): number[] {
 }
 
 /**
- * Der oberste Vorfahre einer Sammlung (die "Hauptsammlung"), oder die
- * Sammlung selbst, wenn sie schon auf oberster Ebene liegt. null, wenn die
- * id nicht existiert oder die Kette zirkulär wäre.
+ * The topmost ancestor of a collection (the "top-level collection"), or the
+ * collection itself if it already lies on the top level. null if the
+ * id does not exist or the chain would be circular.
  */
 export function topmostCollection(
   cols: ColNode[],

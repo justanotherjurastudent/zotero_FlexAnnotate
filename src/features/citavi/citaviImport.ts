@@ -1,24 +1,24 @@
 /**
- * Citavi-Import: Zitate ohne Dateianhang als Print-Annotationen übernehmen.
- * Herkunft: pre-merge:src/citaviImport.js. Reine Parser- und Textlogik liegt in core/citavi.ts.
+ * Citavi import: adopt quotes without an attachment as print annotations.
+ * Origin: pre-merge:src/citaviImport.js. Pure parser and text logic lives in core/citavi.ts.
  *
- * Zoteros Importer verwirft sie. Er läuft über `//Annotations/Annotation` — Knoten, die
- * PDF-Koordinaten (`Quads`) tragen — und steigt zusätzlich aus, wenn die Quelle keinen
- * Anhang hat (Zotero 10.0.5: import/citavi.js:76-80). Zitate an Printquellen haben
- * keinen `<Annotation>`-Knoten, sondern existieren nur als `<KnowledgeItem>`.
+ * Zotero's importer discards them. It processes `//Annotations/Annotation` — nodes that
+ * carry PDF coordinates (`Quads`) — and additionally bails if the source has no
+ * attachment (Zotero 10.0.5: import/citavi.js:76-80). Quotes on print sources have no
+ * `<Annotation>` node, but exist only as `<KnowledgeItem>`.
  *
- * ## Warum zwei Einhängepunkte
+ * ## Why two hooks
  *
- * 1. `Zotero.Translate.Import.prototype.translate` (translate.js:1246, geerbt von Base) —
- *    erkennt den Citavi-Export und hält das Translation-Objekt fest: `_itemSaver._IDMap`
- *    (Citavi-`ReferenceID` → Zotero-Item) und `_io` für das XML.
+ * 1. `Zotero.Translate.Import.prototype.translate` (translate.js:1246, inherited from Base) —
+ *    recognizes the Citavi export and keeps the translation object: `_itemSaver._IDMap`
+ *    (Citavi-`ReferenceID` → Zotero item) and `_io` for the XML.
  * 2. `Zotero_File_Interface.importFile` / `importFromClipboard` (fileInterface.js:416,
- *    :511) — bestimmt, *wann* der Durchlauf läuft: nach Zoteros eigenem Annotations-
- *    Durchlauf (fileInterface.js:685-686). Jedes Fenster hat sein eigenes Objekt,
- *    deshalb wird jedes geöffnete Fenster geprüft.
+ *    :511) — decides *when* the pass runs: after Zotero's own annotation
+ *    pass (fileInterface.js:685-686). Each window has its own object,
+ *    so every open window is checked.
  *
- * Die Reihenfolge ist nicht kosmetisch: Zoteros Durchlauf nimmt `getAttachments()[0]`
- * (import/citavi.js:82). Läge die Platzhalter-PDF davor, landeten PDF-Annotationen dort.
+ * The order is not cosmetic: Zotero's pass takes `getAttachments()[0]`
+ * (import/citavi.js:82). If the placeholder PDF were before it, PDF annotations would land there.
  */
 import { assignChecked } from "../../shared/patch";
 import type { Feature } from "../../shared/feature";
@@ -28,44 +28,44 @@ import { linkContributions, type CitaviTranslation } from "./citaviLinks";
 
 type AsyncFn = (...args: unknown[]) => unknown;
 
-/** { proto, original, patched } des globalen translate()-Patches */
+/** { proto, original, patched } of the global translate() patch */
 let translatePatch: {
   proto: { translate?: AsyncFn };
   original: AsyncFn;
   patched: AsyncFn;
 } | null = null;
-/** Pro Fenster die ersetzten Methoden von Zotero_File_Interface */
+/** Per-window replaced methods of Zotero_File_Interface */
 const windowPatches = new WeakMap<
   Window,
   { target: object; name: string; original: AsyncFn; patched: AsyncFn }[]
 >();
-/** Translation-Objekt eines Citavi-Imports, dessen Durchlauf noch aussteht */
+/** Translation object of a Citavi import whose pass is still pending */
 let pending: CitaviTranslation | null = null;
 /**
- * Fenster, die den Durchlauf richtig einreihen. Ein Set statt eines Flags: sonst bliebe
- * der Zustand nach dem Schließen des letzten solchen Fensters auf true stehen.
+ * Windows that correctly sequence the pass. A Set instead of a flag: otherwise the
+ * state would stay true after the last such window was closed.
  */
 const sequencedWindows = new Set<Window>();
-/** nsIObserver auf domwindowopened */
+/** nsIObserver on domwindowopened */
 let observer: { observe(subject: unknown, topic: string): void } | null = null;
 
 const TRANSLATOR_LABEL = /^Citavi (?:[56]) XML/i;
 
-/** Liefert den ersten Übersetzer-Eintrag als Objekt, sonst null. */
+/** Returns the first translator entry as an object, otherwise null. */
 function translatorOf(translation: CitaviTranslation | null | undefined) {
   const translator = translation?.translator?.[0];
   return translator && typeof translator !== "string" ? translator : null;
 }
 
-/** Eingeordnete Einhängepunkte; Zustand liegt im Modul, nicht am Aufrufer. */
+/** Ordered hooks; state lives in the module, not on the caller. */
 export const CitaviImport = {
   /**
-   * Hängt den translate()-Patch ein. Gibt false zurück, wenn der Zielpfad fehlt oder
-   * die Zuweisung nicht nachweislich greift; die Ursache wird geloggt.
+   * Hooks the translate() patch. Returns false if the target path is missing or
+   * the assignment does not provably take effect; the cause is logged.
    */
   patch(): boolean {
-    // Ein zweiter Aufruf würde die Kette doppelt wickeln; unpatch() stellte dann nur die
-    // Zwischenschicht wieder her (Abweichung von legacy, siehe Bericht).
+    // A second call would wrap the chain twice; unpatch() would then only restore the
+    // intermediate layer (deviation from legacy, see report).
     if (translatePatch) {
       return true;
     }
@@ -84,7 +84,7 @@ export const CitaviImport = {
 
     const original = proto.translate;
     const patched = function (this: CitaviTranslation, ...args: unknown[]) {
-      // translate() liefert immer ein Promise; ein Fehler darin wird weitergereicht.
+      // translate() always returns a promise; an error in it is passed through.
       return Promise.resolve(original.apply(this, args)).then(async (items) => {
         await CitaviImport._afterTranslate(this);
         return items;
@@ -106,8 +106,8 @@ export const CitaviImport = {
   },
 
   /**
-   * Nimmt den globalen translate()-Patch zurück. Die fensterweisen Patches hängen an
-   * removeFromWindow() und werden hier nicht berührt.
+   * Removes the global translate() patch. The per-window patches hang on
+   * removeFromWindow() and are not touched here.
    */
   unpatch(): void {
     CitaviImport._unwatchWindows();
@@ -139,8 +139,8 @@ export const CitaviImport = {
         return;
       }
       if (!CitaviImport._isCitavi(translation)) {
-        // Ohne diese Zeile wäre nicht zu unterscheiden, ob der Patch nicht greift oder
-        // der Übersetzer nur nicht als Citavi erkannt wurde.
+        // Without this line it would be impossible to tell whether the patch is not
+        // in effect or the translator just was not recognized as Citavi.
         ztoolkit.log(
           "Import finished, not Citavi: " +
             CitaviImport._describeTranslator(translation),
@@ -148,8 +148,8 @@ export const CitaviImport = {
         return;
       }
       if (pending) {
-        // Eine Vormerkung, die niemand eingelöst hat: der Aufrufweg dieses Imports geht
-        // an keinem gepatchten Zotero_File_Interface vorbei.
+        // A reservation that nobody redeemed: the call path of this import does not
+        // pass through any patched Zotero_File_Interface.
         ztoolkit.log(
           "FlexAnnotate: a queued Citavi pass was never triggered — " +
             "der Aufrufweg dieses Imports ist nicht eingereiht.",
@@ -179,7 +179,7 @@ export const CitaviImport = {
     return translatorOf(translation)?.label || null;
   },
 
-  /** Nur für die Logausgabe. */
+  /** For log output only. */
   _describeTranslator(translation: CitaviTranslation): string {
     const translator = translation?.translator?.[0];
     if (!translator) {
@@ -192,9 +192,9 @@ export const CitaviImport = {
   },
 
   /**
-   * Jedes Fenster, das `fileInterface.js` lädt, bekommt ein eigenes
-   * Zotero_File_Interface. Der Importassistent tut das ebenfalls; ein Patch am
-   * Hauptfenster erreicht ihn nicht.
+   * Every window that loads `fileInterface.js` gets its own
+   * Zotero_File_Interface. The import wizard does too; a patch on the
+   * main window would not reach it.
    */
   _watchWindows(): void {
     if (observer) {
@@ -234,8 +234,8 @@ export const CitaviImport = {
   },
 
   /**
-   * Reiht den Durchlauf hinter den Import dieses Fensters ein. Fenster ohne
-   * `Zotero_File_Interface` werden still übergangen.
+   * Queues the pass behind this window's import. Windows without
+   * `Zotero_File_Interface` are silently skipped.
    */
   addToWindow(window: Window): void {
     if (windowPatches.has(window)) {
@@ -263,7 +263,7 @@ export const CitaviImport = {
       }
 
       const patched = async function (this: unknown, ...args: unknown[]) {
-        // Ein früherer, nie eingelöster Durchlauf darf nicht nachwirken.
+        // An earlier pass that was never redeemed must not have an after-effect.
         pending = null;
         try {
           return await (original as AsyncFn).apply(this, args);
@@ -322,8 +322,8 @@ export const CitaviImport = {
   },
 
   /**
-   * Holt den vorgemerkten Durchlauf nach. Ein Fehler darin darf den Import nicht
-   * abbrechen — die regulär importierten Einträge stehen bereits.
+   * Runs the pending pass. An error in it must not abort the import —
+   * the regularly imported entries are already in place.
    */
   async _runPending(): Promise<void> {
     const translation = pending;

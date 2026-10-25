@@ -1,10 +1,9 @@
 /**
- * Direktsprung zu einer Fußnote/Zitatstelle im Textverarbeitungsprogramm:
- * Der Klick auf einen Fußnoten-Badge wählt das Zitationsfeld in Word,
- * LibreOffice oder Mac Word aus und holt das Programm in den Vordergrund.
- * Word wird über ein temporäres WScript/VBS-Skript bedient (Die native
- * `selectField`-Stub der Windows-Integration umgangen), andere Plattformen
- * über `Zotero.Integration.getApplication`.
+ * Direct jump to a footnote/citation location in the word processor: clicking
+ * a footnote chip selects the citation field in Word, LibreOffice or Mac Word
+ * and brings the program to the foreground. Word is driven via a temporary
+ * WScript/VBS script (bypassing the native `selectField` stub of the Windows
+ * integration), other platforms via `Zotero.Integration.getApplication`.
  */
 
 import { currentSession } from "./citationSession";
@@ -285,8 +284,8 @@ function getWscriptPath(): string {
   }
 }
 
-// Pro Sitzung einmal unter zufälligem Namen geschrieben: parallele Instanzen
-// überschreiben sich nicht, und der Pfad ist nicht vorhersagbar.
+// Written once per session under a random name: parallel instances do not
+// overwrite each other, and the path is not predictable.
 let cachedVbsPath: string | null = null;
 
 async function ensureVbsScript(): Promise<string | null> {
@@ -596,9 +595,9 @@ export async function jumpToCitation(citationOrLoc: any): Promise<boolean> {
         bringWordProcessorToFront(agent);
         return true;
       }
-      // Wurde nach einer konkreten citationID gesucht und das VBS-Skript hat sie
-      // im gesamten Word-Dokument nicht mehr gefunden (Exit-Code 2, Fußnote gelöscht),
-      // nicht mehr in ein fremdes Feld springen.
+      // If a concrete citationID was searched and the VBS script no longer found it
+      // anywhere in the Word document (exit code 2, footnote deleted),
+      // do not jump into an unrelated field.
       if (citationID && !isTestProfile()) {
         return false;
       }

@@ -1,11 +1,11 @@
 /**
- * Setzt eine Eigenschaft auf einem fremden Objekt und weist nach, dass sie steht.
- * Zwei Fehlerbilder sind möglich: ein nicht schreibbares Ziel (unter
- * "use strict" ein TypeError) und eine Zuweisung, die nur in einem
- * Xray-Expando landet und beim Zurücklesen nicht wieder auftaucht. Ohne diese
- * Prüfung ist ein wirkungsloser Patch von einem gelungenen nicht zu unterscheiden.
+ * Sets a property on an external object and verifies that the assignment held.
+ * Two failure modes are possible: a non-writable target (throws TypeError under
+ * "use strict") and an assignment that lands solely in an Xray expando and does
+ * not reappear when read back. Without this check an ineffective monkey patch
+ * cannot be distinguished from success.
  *
- * @return true, wenn die Eigenschaft nachweislich gesetzt ist
+ * @returns true if the property is verifiably set
  */
 export function assignChecked(
   target: object,

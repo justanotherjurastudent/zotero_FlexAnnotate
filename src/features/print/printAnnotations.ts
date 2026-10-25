@@ -1,11 +1,11 @@
 /**
- * Anlegen und Bearbeiten von Print-Annotationen. Herkunft: pre-merge:src/printAnnotations.js.
+ * Creation and editing of print annotations. Origin: pre-merge:src/printAnnotations.js.
  *
- * Feldregeln verifiziert gegen Zotero 10.0.1 (item.js:4487-4555):
- *  - `annotationType` muss vor allen anderen Annotation-Feldern gesetzt werden
- *  - `annotationText` ist nur bei 'highlight' und 'underline' erlaubt
- *  - `annotationColor` muss /#[a-f0-9]{6}/ erfüllen (Kleinbuchstaben)
- *  - `annotationSortIndex` muss bei PDF-Parent /^\d{5}\|\d{6}\|\d{5}$/ erfüllen
+ * Field rules verified against Zotero 10.0.1 (item.js:4487-4555):
+ *  - `annotationType` must be set before any other annotation fields
+ *  - `annotationText` is only allowed for 'highlight' and 'underline'
+ *  - `annotationColor` must match /#[a-f0-9]{6}/ (lowercase)
+ *  - `annotationSortIndex` must match /^\d{5}\|\d{6}\|\d{5}$/ for PDF parents
  */
 import {
   buildSortIndex,
@@ -22,25 +22,25 @@ import {
 import { ensure, cleanUpIfEmpty, isPlaceholder } from "./placeholder";
 
 export interface PrintAnnotationData {
-  /** Druckseitenzahl, wie sie zitiert werden soll */
+  /** Print page number as it should be cited */
   pageLabel?: string | number;
-  /** Zitat (nur bei type 'highlight'/'underline') */
+  /** Quotation text (only for type 'highlight'/'underline') */
   text?: string;
   comment?: string;
   color?: string;
-  /** Standard 'highlight' */
+  /** Default 'highlight' */
   type?: _ZoteroTypes.Annotations.AnnotationType;
-  /** CSL-Locator, z. B. 'page' oder 'paragraph' */
+  /** CSL locator, e.g. 'page' or 'paragraph' */
   locator?: string;
-  /** Schlagwörter, die an die Annotation gehängt werden */
+  /** Tags to attach to the annotation */
   tags?: string[];
 }
 
-/** Nur gesetzte Felder (!== undefined) werden übernommen. */
+/** Only set fields (!== undefined) are updated. */
 export type PrintAnnotationUpdate = Omit<PrintAnnotationData, "type" | "tags">;
 
 /**
- * Legt eine Print-Annotation unter dem Platzhalter-Attachment eines Titels an.
+ * Creates a print annotation under the placeholder attachment of a regular item.
  */
 export async function create(
   item: Zotero.Item,
@@ -53,14 +53,14 @@ export async function create(
   const annotation = new Zotero.Item("annotation");
   annotation.libraryID = attachment.libraryID;
   annotation.parentID = attachment.id;
-  // Muss zuerst gesetzt werden, sonst wirft item.js:4488
+  // Must be set first, otherwise item.js:4488 throws
   annotation.annotationType = type;
 
   if (supportsText(type)) {
     annotation.annotationText = data.text || "";
   } else if (data.text) {
-    // Bei 'note' kennt Zotero kein Zitatfeld (item.js:4507): der Text wandert in
-    // den Kommentar, statt stillschweigend verloren zu gehen.
+    // For 'note' Zotero has no quotation field (item.js:4507): the text is moved
+    // into the comment instead of being silently lost.
     comment = [data.text, comment].filter(Boolean).join("\n\n");
   }
 
@@ -80,8 +80,8 @@ export async function create(
   }
 
   await annotation.saveTx();
-  // annotationPageLabel liest sich nach dem Speichern als null zurück, wenn es leer
-  // war (item.js:2290 schreibt `pageLabel || null`) — sonst stünde "null" im Log.
+  // annotationPageLabel reads back as null after saving if it was empty
+  // (item.js:2290 writes pageLabel || null) — otherwise "null" would appear in log.
   ztoolkit.log(
     `Created print annotation ${annotation.key} on page "${annotation.annotationPageLabel || ""}"`,
   );
@@ -89,7 +89,7 @@ export async function create(
 }
 
 /**
- * Ändert eine bestehende Print-Annotation. Nur gesetzte Felder werden übernommen.
+ * Updates an existing print annotation. Only set fields are updated.
  */
 export async function update(
   annotation: Zotero.Item,
@@ -110,8 +110,8 @@ export async function update(
   }
   if (data.pageLabel !== undefined) {
     annotation.annotationPageLabel = String(data.pageLabel).trim();
-    // Der sortIndex nativer Annotationen kodiert die Position im Dokument und darf
-    // nicht aus der Seitenzahl überschrieben werden.
+    // Native annotations' sortIndex encodes the position within the document
+    // and must not be overwritten from the page label.
     if (isPlaceholder(annotation.parentItem)) {
       annotation.annotationSortIndex = buildSortIndex(data.pageLabel);
     }
@@ -126,7 +126,7 @@ export async function update(
 }
 
 /**
- * Löscht eine Print-Annotation und räumt ein leer gewordenes Platzhalter-Attachment auf.
+ * Deletes a print annotation and cleans up the placeholder attachment if empty.
  */
 export async function erase(annotation: Zotero.Item): Promise<void> {
   const attachment = annotation.parentItem;
@@ -137,9 +137,9 @@ export async function erase(annotation: Zotero.Item): Promise<void> {
 }
 
 /**
- * Liefert den Locator-Typ einer Annotation: erst der eigene Tag, dann der Standard
- * des Dokuments (Anhangs), zuletzt 'page'. Gilt für Print-Annotationen und für
- * Annotationen in PDF/EPUB/Snapshot gleichermaßen.
+ * Returns the locator type of an annotation: first its own tag, then the document
+ * (attachment) default, falling back to 'page'. Applies to print annotations and
+ * annotations in PDF/EPUB/Snapshot alike.
  */
 export function getLocator(annotation: Zotero.Item): string {
   return locatorOf(
@@ -149,8 +149,8 @@ export function getLocator(annotation: Zotero.Item): string {
 }
 
 /**
- * Standard-Locator eines Dokuments. Er hängt als automatischer Tag am Anhang und gilt
- * für alle Annotationen darunter, die keinen eigenen Locator-Tag tragen.
+ * Document default locator. Stored as an automatic tag on the attachment and applies
+ * to all annotations beneath it that lack their own locator tag.
  */
 export function getDefaultLocator(
   attachment: Zotero.Item | null | undefined,
@@ -162,7 +162,7 @@ export function getDefaultLocator(
 }
 
 /**
- * Prüft, ob eine Annotation einen ausdrücklichen FlexAnnotate-Locator-Tag besitzt.
+ * Checks whether an annotation has an explicit FlexAnnotate locator tag.
  */
 export function hasExplicitLocator(annotation: Zotero.Item | null): boolean {
   if (!annotation || typeof annotation.getTags !== "function") {
@@ -172,10 +172,9 @@ export function hasExplicitLocator(annotation: Zotero.Item | null): boolean {
 }
 
 /**
- * Setzt den Standard-Locator eines Dokuments und speichert den Anhang. 'page' ist der
- * Grundzustand und entfernt den Tag wieder. Bestehende Annotationen ohne expliziten
- * Tag werden auf den bisherigen Standard eingefroren, damit die künftige Vorgabe nicht
- * rückwirkend bestehende Annotationen ändert.
+ * Sets the default locator of a document and saves the attachment. 'page' is the
+ * baseline state and removes the tag. Existing annotations without an explicit tag
+ * are frozen to the prior default so the new default does not retroactively change them.
  */
 export async function setDefaultLocator(
   attachment: Zotero.Item | null,
@@ -219,15 +218,15 @@ export async function setDefaultLocator(
 }
 
 /**
- * Setzt den Locator-Tag; speichert nicht selbst. Ohne eigenen Tag folgt eine Annotation
- * dem Standard ihres Dokuments. Wählt jemand 'page', obwohl das Dokument einen anderen
- * Standard hat, muss das ein ausdrücklicher Tag sein; nur im Grundzustand entfällt er.
+ * Sets the locator tag without saving. Without its own tag an annotation follows its
+ * document default. If 'page' is chosen on a document with a non-page default,
+ * an explicit tag is required; it is only omitted when matching the global default.
  */
 export function applyLocatorTag(
   annotation: Zotero.Item,
   locator?: string,
 ): void {
-  // Unbekannte Werte entfernen nur die alten Tags, es wird kein neuer gesetzt.
+  // Unknown values only clear previous tags without setting a new one.
   const known = locator && isKnownLocator(locator) ? locator : "";
   const changes = locatorTagChanges(
     tagsOf(annotation),
@@ -242,19 +241,19 @@ export function applyLocatorTag(
   }
 }
 
-/** Tag-Texte eines Items; fehlendes Item ergibt keine Tags. */
+/** Tag strings of an item; missing item yields an empty array. */
 function tagsOf(item: Zotero.Item | false | null | undefined): string[] {
   return item ? item.getTags().map((t) => t.tag) : [];
 }
 
-/** Nur Tags mit dem Präfix, deren Wert ein bekannter Locator ist (Legacy ignoriert andere). */
+/** Only tags with prefix whose value is a known locator (legacy ignores other tags). */
 function knownLocatorTags(tags: string[], prefix: string): string[] {
   return tags.filter(
     (t) => t.startsWith(prefix) && isKnownLocator(t.slice(prefix.length)),
   );
 }
 
-/** Zoteros CSL-Labels plus 'margin' (Randnummer), wie in der Legacy-Version. */
+/** Zotero's CSL labels plus 'margin' (Randnummer), matching the legacy version. */
 function isKnownLocator(locator: string): boolean {
   return Zotero.Cite.labels.includes(locator) || locator === "margin";
 }

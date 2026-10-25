@@ -1,12 +1,12 @@
 /**
- * Einträge im Item-Kontextmenü: Print-Annotation anlegen, Annotation bearbeiten,
- * Print-Annotation löschen. Herkunft: pre-merge:src/flexannotate.js (addToWindow, addMenuItem,
+ * Entries in the item context menu: add print annotation, edit annotation,
+ * delete print annotation. Origin: pre-merge:src/flexannotate.js (addToWindow, addMenuItem,
  * setMenuIcon, updateMenuState).
  *
- * Per DOM statt Zotero.MenuManager: Zotero baut das Item-Menü bei Annotations-Auswahl
- * nicht neu auf (zoteroPane.js:4680), der MenuManager-Eintrag bliebe also stehen. Die
- * eigenen Einträge bleiben beim Neuaufbau erhalten (docs/architecture.md, Pitfall 9),
- * deshalb steuert das Feature ihre Sichtbarkeit selbst auf popupshowing.
+ * Implemented via DOM rather than Zotero.MenuManager: Zotero does not rebuild the item menu
+ * on annotation selection (zoteroPane.js:4680), which would leave MenuManager entries stale.
+ * Custom DOM items survive rebuilds (docs/architecture.md, Pitfall 9),
+ * so this feature controls their visibility dynamically on popupshowing.
  */
 import { config } from "../../../package.json";
 import { printMenuState, type SelectionKind } from "./logic/printMenuState";
@@ -24,7 +24,7 @@ const ADD_ID = "flexannotate-add-print-annotation";
 const EDIT_ID = "flexannotate-itemmenu-edit";
 const DELETE_ID = "flexannotate-itemmenu-delete";
 
-/** Je Fenster der popupshowing-Listener, damit removeFromWindow ihn entfernen kann. */
+/** Context menu popupshowing listener per window, allowing removeFromWindow to remove it. */
 const listeners = new WeakMap<MainWin, () => void>();
 
 function kindOf(item: Zotero.Item): SelectionKind {
@@ -38,8 +38,8 @@ function selectedItems(win: MainWin): Zotero.Item[] {
 }
 
 /**
- * Blendet die Einträge je nach Auswahl ein oder aus. Exportiert, damit Tests die
- * Auswahl direkt übergeben können.
+ * Shows or hides entries depending on current selection. Exported so tests
+ * can pass selections directly.
  */
 export function updateVisibility(doc: Document, items: Zotero.Item[]): void {
   const single = items.length === 1 ? items[0] : null;
@@ -70,7 +70,7 @@ function setHidden(doc: Document, id: string, hidden: boolean): void {
   }
 }
 
-/** Hängt ein Symbol an. Die SVGs füllen mit context-fill; erst die context-properties holen die Textfarbe. */
+/** Attaches an icon. SVGs use context-fill; context-properties are required to inherit text color. */
 function setMenuIcon(item: HTMLElement, name: string): void {
   item.setAttribute(
     "image",
@@ -94,8 +94,8 @@ export const printMenus: Feature = {
       return;
     }
 
-    // Eine Einzelauswahl genügt für alle drei Befehle; die Auswahl wird bei jedem
-    // Klick neu gelesen, nicht beim Aufbauen des Menüs.
+    // A single selection suffices for all three commands; selection is re-read
+    // on click rather than during menu construction.
     const onCommand = (run: (annotation: Zotero.Item) => Promise<unknown>) => {
       const items = selectedItems(win);
       if (items.length === 1) {
@@ -163,7 +163,7 @@ export const printMenus: Feature = {
         ?.removeEventListener("popupshowing", onShowing);
       listeners.delete(win);
     }
-    // Die Befehls-Listener hängen an den Elementen und gehen mit ihnen.
+    // Command listeners are attached to elements and get cleaned up when removed.
     for (const id of [SEPARATOR_ID, ADD_ID, EDIT_ID, DELETE_ID]) {
       doc.getElementById(id)?.remove();
     }

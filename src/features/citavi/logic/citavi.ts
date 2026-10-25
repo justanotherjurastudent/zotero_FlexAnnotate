@@ -1,37 +1,37 @@
 /**
- * Citavi-Import: reine Parser- und Textlogik, ohne Zotero-Globals und ohne DOM.
+ * Citavi import: pure parser and text logic, without Zotero globals and without DOM.
  *
- * Herkunft: pre-merge:src/citaviImport.js
- *   - QUOTATION_TYPES, LOCATOR_PREF_BY_NUMBER_TYPE, MAX_NOTE_TAIL: Konstanten
- *   - getLocatorFor()          -> createLocatorResolver() (Prefs und Log injiziert)
+ * Origin: pre-merge:src/citaviImport.js
+ *   - QUOTATION_TYPES, LOCATOR_PREF_BY_NUMBER_TYPE, MAX_NOTE_TAIL: constants
+ *   - getLocatorFor()          -> createLocatorResolver() (prefs and log injected)
  *   - isPageTail(), stripMarkup(), normalizeText()
- *   - removeQuoteNote()        -> isQuoteNote() (nur der Textvergleich; DB-Löschung bleibt bei Zotero)
- *   - buildAnnotationData()    -> buildAnnotationData() (erhält ein plains CitaviKnowledgeItem)
- *   - parsePageRange()         -> parsePageRange() (Rohtext statt DOM-Knoten)
- *   - getKeywords()            -> resolveKeywords() (OnetoN-Text und Namenssuche injiziert)
+ *   - removeQuoteNote()        -> isQuoteNote() (only the text comparison; DB deletion stays with Zotero)
+ *   - buildAnnotationData()    -> buildAnnotationData() (receives a plain CitaviKnowledgeItem)
+ *   - parsePageRange()         -> parsePageRange() (raw text instead of DOM node)
+ *   - getKeywords()            -> resolveKeywords() (OnetoN text and name lookup injected)
  *
- * Bleibt in legacy (Teil 2, Zotero-abhängig): Translator-Patch, Fensterhooks,
- * importPrintQuotes, linkContributions, hasAnnotatableAttachment, removeQuoteNote-DB-Teil,
- * sowie die XPath-Abfragen, die die Felder eines KnowledgeItem aus dem XML lesen.
+ * Stays in legacy (part 2, Zotero-dependent): translator patch, window hooks,
+ * importPrintQuotes, linkContributions, hasAnnotatableAttachment, removeQuoteNote DB part,
+ * and the XPath queries that read the fields of a KnowledgeItem from the XML.
  */
 
-/** Liest eine Einstellung; leer oder undefined heißt „Standard". */
+/** Reads a setting; empty or undefined means "default". */
 export type PrefGetter = (name: string) => string | null | undefined;
 
-/** Ein KnowledgeItem, bereits aus dem XML gelesen (Textinhalte der Knoten). */
+/** A KnowledgeItem, already read from the XML (text contents of the nodes). */
 export interface CitaviKnowledgeItem {
   coreStatement?: string | null;
   text?: string | null;
   quotationType?: string | null;
-  /** Rohtext von <PageRange>, mit eingebettetem <os>/<nt>-Markup */
+  /** Raw text of <PageRange>, with embedded <os>/<nt> markup */
   pageRange?: string | null;
-  /** Inhalt von <PageRangeNumber>; "-1" bedeutet „keine Seite erfasst" */
+  /** Content of <PageRangeNumber>; "-1" means "no page captured" */
   pageRangeNumber?: string | null;
-  /** Bereits aufgelöste Schlagwörter (siehe resolveKeywords) */
+  /** Already resolved keywords (see resolveKeywords) */
   keywords?: string[];
 }
 
-/** Felder einer Print-Annotation; passt zu PrintAnnotationData (features/print). */
+/** Fields of a print annotation; matches PrintAnnotationData (features/print). */
 export interface CitaviAnnotationData {
   type: "highlight";
   color: string;
@@ -43,8 +43,8 @@ export interface CitaviAnnotationData {
 }
 
 /**
- * Zitattyp aus dem Citavi-Export auf Farbe und Feldbelegung abbilden. Farben aus
- * import/citavi.js:112-140. Unbekannte Werte fallen auf Typ 1 zurück.
+ * Maps the quote type from the Citavi export to color and field assignment. Colors from
+ * import/citavi.js:112-140. Unknown values fall back to type 1.
  */
 export const QUOTATION_TYPES: Record<
   string,
@@ -58,7 +58,7 @@ export const QUOTATION_TYPES: Record<
   "6": { color: "#ff6666", dropComment: true },
 };
 
-/** Citavis <nt>-Wert auf die zuständige Einstellung. Fehlt <nt>, meint Citavi eine Seite. */
+/** Maps Citavi's <nt> value to the responsible setting. If <nt> is missing, Citavi means a page. */
 export const LOCATOR_PREF_BY_NUMBER_TYPE: Record<string, string> = {
   Column: "citaviLocatorColumn",
   Paragraph: "citaviLocatorParagraph",
@@ -66,17 +66,17 @@ export const LOCATOR_PREF_BY_NUMBER_TYPE: Record<string, string> = {
   Other: "citaviLocatorOther",
 };
 
-/** Höchstlänge des Rests hinter dem Zitat, damit er noch die Fundstelle sein kann */
+/** Max length of the tail after the quote so it can still be the location */
 export const MAX_NOTE_TAIL = 60;
 
-/** Auf einfache Leerzeichen normalisiert, ohne Ränder. */
+/** Normalized to plain spaces, without margins. */
 export function normalizeText(text: string | null | undefined): string {
   return String(text || "")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-/** Fließtext ohne Markup, Entities aufgelöst. &amp; zuletzt, damit &amp;lt; korrekt bleibt. */
+/** Flow text without markup, entities resolved. &amp; last so that &amp;lt; stays correct. */
 export function stripMarkup(html: string | null | undefined): string {
   return String(html || "")
     .replace(/<[^>]*>/g, " ")
@@ -89,20 +89,19 @@ export function stripMarkup(html: string | null | undefined): string {
 }
 
 /**
- * Darf hinter dem Zitat nur noch die Fundstelle stehen? Der Übersetzer streift aus der
- * Fundstelle alles außer Ziffern und Bindestrichen, ein Rest mit Buchstaben stammt also
- * nicht von ihm.
+ * May only the location follow the quote? The translator strips everything except
+ * digits and hyphens from the location, so a remainder with letters cannot come from it.
  */
 export function isPageTail(tail: string): boolean {
   return tail.length <= MAX_NOTE_TAIL && /^[\s\d–-]*$/.test(tail);
 }
 
 /**
- * Gehört die Notiz (HTML) zu diesem Zitat? Der Übersetzer schreibt
- * `<h1>Kernaussage</h1>\n<p>Text</p>\n<i>Fundstelle</i>`; verglichen wird der normalisierte
- * Fließtext. Die Notiz muss mit Kernaussage + Text beginnen, und danach darf nur eine
- * Fundstelle folgen (isPageTail). Der Aufrufer prüft zusätzlich, dass die Notiz an derselben
- * Quelle hängt.
+ * Does the note (HTML) belong to this quote? The translator writes
+ * `<h1>Kernaussage</h1>\n<p>Text</p>\n<i>Fundstelle</i>`; the normalized
+ * flow text is compared. The note must start with core statement + text, and afterwards only a
+ * location may follow (isPageTail). The caller additionally checks that the note hangs on the same
+ * source.
  */
 export function isQuoteNote(
   noteHtml: string | null | undefined,
@@ -119,9 +118,9 @@ export function isQuoteNote(
 }
 
 /**
- * Baut die Funktion, die einen Citavi-Seitentyp (`<nt>`, null = Seite) auf einen
- * CSL-Locator abbildet. Die Zuordnung hängt am Zitierstil und kommt aus den Prefs.
- * Unbekannte Typen fallen auf „Andere" und werden einmal je Resolver gemeldet.
+ * Builds the function that maps a Citavi page type (`<nt>`, null = page) onto a
+ * CSL locator. The mapping depends on the citation style and comes from the prefs.
+ * Unknown types fall back to "other" and are reported once per resolver.
  */
 export function createLocatorResolver(
   getPref: PrefGetter,
@@ -146,9 +145,9 @@ export function createLocatorResolver(
 }
 
 /**
- * Liest Seitenangabe und Locator aus dem Rohtext von <PageRange>. `<os>` ist die
- * Anzeigeform, `<nt>` die Nummerierungsart. Ohne `<os>` gilt PageRangeNumber, sofern
- * sie nicht "-1" ist.
+ * Reads page label and locator from the raw text of <PageRange>. `<os>` is the
+ * display form, `<nt>` the numbering type. Without `<os>`, PageRangeNumber applies, unless
+ * it is "-1".
  */
 export function parsePageRange(
   raw: string | null | undefined,
@@ -161,7 +160,7 @@ export function parsePageRange(
 
   let pageLabel = displayed ? displayed[1].trim() : "";
   if (!pageLabel) {
-    // Citavi schreibt -1, wenn keine Seite erfasst ist
+    // Citavi writes -1 when no page is captured
     pageLabel =
       pageRangeNumber && pageRangeNumber !== "-1" ? pageRangeNumber : "";
   }
@@ -171,10 +170,10 @@ export function parsePageRange(
 }
 
 /**
- * Zerlegt einen `//KnowledgeItemKeywords/OnetoN`-Text (`ID:…;KwID:…;…`, Glieder durch `;`,
- * je Glied der Teil vor `:`) in die ID des ersten Glieds (das KnowledgeItem) und die
- * Schlüsselwort-IDs danach. Der Teil nach `:` ist im Export nicht dokumentiert und bleibt
- * unberücksichtigt (wie import/citavi.js:58-65).
+ * Splits a `//KnowledgeItemKeywords/OnetoN` text (`ID:…;KwID:…;…`, members by `;`,
+ * per member the part before `:`) into the ID of the first member (the KnowledgeItem) and the
+ * keyword IDs after it. The part after `:` is not documented in the export and
+ * is ignored (like import/citavi.js:58-65).
  */
 export function splitOnetoN(oneToN: string | null | undefined): {
   ownerId: string;
@@ -188,8 +187,8 @@ export function splitOnetoN(oneToN: string | null | undefined): {
 }
 
 /**
- * Schlüsselwort-IDs aus einem OnetoN-Text und deren Namen. Das erste Glied ist das
- * KnowledgeItem selbst und wird übersprungen.
+ * Keyword IDs from an OnetoN text and their names. The first member is the
+ * KnowledgeItem itself and is skipped.
  */
 export function resolveKeywords(
   oneToN: string | null | undefined,
@@ -201,8 +200,8 @@ export function resolveKeywords(
 }
 
 /**
- * XPath-1.0-Stringliteral für einen beliebigen Wert, damit er nicht den Ausdruck bricht.
- * Ein Wert mit beiden Anführungszeichen wird per concat() zusammengesetzt.
+ * XPath-1.0 string literal for an arbitrary value so it does not break the expression.
+ * A value with both quote characters is composed via concat().
  */
 export function xpathLiteral(value: string): string {
   if (!value.includes("'")) {
@@ -214,7 +213,7 @@ export function xpathLiteral(value: string): string {
   return `concat('${value.split("'").join(`', "'", '`)}')`;
 }
 
-/** Identität einer Print-Annotation für die Dublettenprüfung. */
+/** Identity of a print annotation for the duplicate check. */
 export interface AnnotationKey {
   pageLabel: string | null;
   text: string | null;
@@ -222,10 +221,10 @@ export interface AnnotationKey {
 }
 
 /**
- * Ist der Kandidat schon als Annotation vorhanden? Gleich sind Seitenlabel und
- * normalisierter Zitattext (Markup entfernt). Ist der Zitattext leer, zählt stattdessen
- * der Kommentar. Bei vorhandenem Text bleibt der Kommentar außen vor, weil der Nutzer ihn
- * nach dem Import ändern darf.
+ * Is the candidate already present as an annotation? Equal are page label and
+ * normalized quote text (markup removed). If the quote text is empty, the comment counts instead.
+ * With existing text, the comment stays out because the user may change it
+ * after the import.
  */
 export function isDuplicateAnnotation(
   existing: AnnotationKey[],
@@ -245,8 +244,8 @@ export function isDuplicateAnnotation(
 }
 
 /**
- * Übersetzt ein KnowledgeItem in die Felder einer Print-Annotation. Ist Text leer, nimmt
- * es die Kernaussage (anders als import/citavi.js, siehe docs/architecture.md).
+ * Translates a KnowledgeItem into the fields of a print annotation. If the text is empty, it
+ * takes the core statement (unlike import/citavi.js, see docs/architecture.md).
  */
 export function buildAnnotationData(
   item: CitaviKnowledgeItem,
@@ -262,7 +261,7 @@ export function buildAnnotationData(
   let text: string;
   let comment: string;
   if (settings.swap) {
-    // Indirektes Zitat: Kernaussage ist der Text, das Original der Kommentar
+    // Indirect quotation: core statement becomes the quote text, original text becomes the comment
     text = core;
     comment = quote;
   } else {

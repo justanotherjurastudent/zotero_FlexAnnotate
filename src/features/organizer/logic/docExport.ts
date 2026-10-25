@@ -1,12 +1,12 @@
 /**
- * docExport — Gliederung als Word (DOCX) und LibreOffice (ODT) exportieren.
- * Reine Logik ohne DOM/Zotero: baut die XML-Teile der Dokumente. Die
- * Überschriften bekommen die Standard-Formatvorlagen ("Überschrift 1" bis 9)
- * und eine mehrstufige Nummerierung, die in Word automatisch mitläuft.
+ * docExport — export the outline as Word (DOCX) and LibreOffice (ODT).
+ * Pure logic without DOM/Zotero: builds the XML parts of the documents. The
+ * headings get the standard styles ("Überschrift 1" to 9)
+ * and a multi-level numbering that runs automatically in Word.
  */
 import { flatten, type OutlineNode } from "./outline.ts";
 
-/** Word und LibreOffice unterstützen 9 Überschriftsebenen. */
+/** Word and LibreOffice support 9 heading levels. */
 const MAX_LEVEL = 9;
 
 const esc = (s: string) =>
@@ -16,7 +16,7 @@ const esc = (s: string) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
-/** Ebene der Gliederungstiefe: Wurzel = 1, nie tiefer als 9. */
+/** Level of the outline depth: root = 1, never deeper than 9. */
 const levelOf = (depth: number) => Math.min(depth + 1, MAX_LEVEL);
 
 // ── DOCX ─────────────────────────────────────────────────────────────────────
@@ -37,7 +37,7 @@ export interface DocxParts {
   docRelsXml: string;
 }
 
-/** Überschriften des Baums als Absätze mit Formatvorlage (Dokumentreihenfolge). */
+/** Headings of the tree as paragraphs with style (document order). */
 export function docxBody(roots: OutlineNode[]): string {
   return flatten(roots)
     .map(({ node, depth }) => {
@@ -52,7 +52,7 @@ export function docxBody(roots: OutlineNode[]): string {
     .join("");
 }
 
-/** Mehrstufige Nummerierung "1", "1.1", …, jede Ebene an die Vorlage gebunden. */
+/** Multi-level numbering "1", "1.1", …, each level bound to a style. */
 export function docxNumbering(): string {
   const lvl = (ilvl: number) => {
     const fmt = Array.from({ length: ilvl + 1 }, (_, i) => `%${i + 1}`).join(
@@ -74,7 +74,7 @@ export function docxNumbering(): string {
   );
 }
 
-/** Standard-Formatvorlagen: Normal plus Überschrift 1-9 mit outlineLvl und Nummerierung. */
+/** Standard styles: Normal plus Heading 1-9 with outlineLvl and numbering. */
 export function docxStyles(): string {
   const heading = (level: number) =>
     `<w:style w:type="paragraph" w:styleId="Heading${level}">` +
@@ -142,7 +142,7 @@ export interface OdtParts {
   mimetype: string;
 }
 
-/** Überschriften als text:h mit outline-level (Dokumentreihenfolge). */
+/** Headings as text:h with outline-level (document order). */
 export function odtBody(roots: OutlineNode[]): string {
   return flatten(roots)
     .map(({ node, depth }) => {
@@ -157,7 +157,7 @@ export function odtBody(roots: OutlineNode[]): string {
     .join("");
 }
 
-/** Gliederungsnummerierung "1", "1.1", … für alle 9 Ebenen. */
+/** Outline numbering "1", "1.1", … for all 9 levels. */
 export function odtOutlineStyle(): string {
   const lvl = (level: number) =>
     `<text:list-level-style-number text:level="${level}" style:num-format="1"/>`;
@@ -167,7 +167,7 @@ export function odtOutlineStyle(): string {
   return `<text:outline-style style:name="Outline">${levels}</text:outline-style>`;
 }
 
-/** Standard-Überschriftenvorlagen (Heading 1-9) mit display-name. */
+/** Standard heading styles (Heading 1-9) with display-name. */
 export function odtHeadingStyles(): string {
   const heading = (level: number) =>
     `<style:style style:name="Heading_20_${level}" ` +

@@ -1,8 +1,8 @@
 /**
- * Test-Helfer für das persistente Begleitfenster (addon.api und Integrationstests).
- * Die eigentliche Logik liegt in persistentState / persistentPinning /
- * persistentWindow / persistentPatches; dieses Modul stellt nur die kleinen
- * Test-Zugriffe bereit.
+ * Test helpers for the persistent companion window (addon.api and integration tests).
+ * The actual logic lives in persistentState / persistentPinning /
+ * persistentWindow / persistentPatches; this module only provides the small
+ * test access points.
  */
 
 import type { CommandRef } from "../logic/lastCommand";
@@ -14,7 +14,7 @@ import {
 } from "./persistentWindow";
 
 /**
- * Test-Hilfe: ein Blätterfenster an `rect` (CSS-Pixel) öffnen, ohne Befehl.
+ * Test helper: open a companion window at `rect` (CSS pixels) without a command.
  */
 export function openBrowseForTest(rect?: {
   x: number;
@@ -28,7 +28,7 @@ export function openBrowseForTest(rect?: {
 }
 
 /**
- * Test-Hilfe: Befehl ohne Word vormerken (sonst merkt sich patchExecCommand ihn beim Befehl selbst).
+ * Test helper: pre-remember a command without Word (otherwise patchExecCommand remembers it on the command itself).
  */
 export function lastCommandForTest(): CommandRef | null {
   return state.lastCommand;

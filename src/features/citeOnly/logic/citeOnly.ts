@@ -1,9 +1,9 @@
 /**
- * citeOnly — reine Entscheidung für den Nur-Nachweis-Modus (Word/LibreOffice).
+ * citeOnly — pure decision for the citation-only mode (Word/LibreOffice).
  *
- * Welche Zitate zu reinen Nachweisen werden, entscheidet der Aufrufer
- * (features/citeOnly/integrationPatch.ts) mit Zotero-Daten; hier wird nur die
- * Zitatliste aufgebaut. Ohne Zotero-Imports, daher in Node testbar.
+ * Which citations become bare citations is decided by the caller
+ * (features/citeOnly/integrationPatch.ts) with Zotero data; here only the
+ * citation list is built. No Zotero imports, therefore node-testable.
  */
 
 export interface CitationItemLike {
@@ -15,22 +15,22 @@ export interface CitationItemLike {
   [key: string]: unknown;
 }
 
-/** Was der Aufrufer von einer Annotation weiß. */
+/** What the caller knows about an annotation. */
 export interface AnnotationRef {
-  /** id des zitierbaren Elternitems; null, wenn es keines gibt. */
+  /** id of the citable parent item; null if there is none. */
   topLevelId: number | null;
-  /** annotationPageLabel der Annotation; leer, wenn keiner gesetzt ist. */
+  /** annotationPageLabel of the annotation; empty if none is set. */
   pageLabel: string;
-  /** Locator-Typ (z. B. "page", "section"); nur relevant, wenn pageLabel gesetzt ist. */
+  /** Locator type (e.g. "page", "section"); only relevant if pageLabel is set. */
   locatorType: string;
 }
 
 /**
- * Baut die Zitatliste für den Nur-Nachweis-Modus. `refs[i]` gehört zu `items[i]`;
- * `null` bedeutet „keine Annotation“.
+ * Builds the citation list for the citation-only mode. `refs[i]` belongs to `items[i]`;
+ * `null` means "no annotation".
  *
- * @return Neue Liste, oder null, wenn nicht alle Einträge Annotationen mit
- *   zitierbarem Elternitem sind (dann nativ weiter). Die Eingabe bleibt unverändert.
+ * @return New list, or null if not all entries are annotations with a
+ *   citable parent item (then continue natively). The input remains unchanged.
  */
 export function citationOnlyItems(
   items: CitationItemLike[],

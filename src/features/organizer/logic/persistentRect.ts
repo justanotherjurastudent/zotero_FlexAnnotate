@@ -1,15 +1,15 @@
 /**
- * Gemerktes Blätterfenster über Neustarts (rein, ohne Zotero-Globals).
+ * Remembered browse window across restarts (pure, without Zotero globals).
  *
- * Gespeichert wird die Innengröße (w, h) und die äußere Position (x, y) in CSS-Pixeln, wie
- * der Rest des persistenten Fensters (dialogPersistent.ts, rectOf).
+ * Stored are the inner size (w, h) and the outer position (x, y) in CSS pixels, like
+ * the rest of the persistent window (dialogPersistent.ts, rectOf).
  */
 
-/** Kleinste Größe, die beim Öffnen übernommen wird (sonst Standardfenster). */
+/** Smallest size adopted when opening (otherwise standard window). */
 export const MIN_WIDTH = 320;
 export const MIN_HEIGHT = 300;
 
-/** Die nutzbare Fläche des Bildschirms (CSS-Pixel, wie screen.avail*). */
+/** The usable area of the screen (CSS pixels, like screen.avail*). */
 export interface ScreenArea {
   left: number;
   top: number;
@@ -17,7 +17,7 @@ export interface ScreenArea {
   height: number;
 }
 
-/** Position optional: fehlt sie oder liegt sie auf keinem Bildschirm, platziert das Betriebssystem das Fenster. */
+/** Position optional: if it is missing or on no screen, the OS places the window. */
 export interface StoredRect {
   x?: number;
   y?: number;
@@ -29,7 +29,7 @@ function isNum(v: unknown): v is number {
   return typeof v === "number" && Number.isFinite(v);
 }
 
-/** Überlappt das Fenster die Bildschirmfläche? */
+/** Does the window overlap the screen area? */
 export function overlaps(
   r: { x: number; y: number; w: number; h: number },
   a: ScreenArea,
@@ -43,12 +43,12 @@ export function overlaps(
 }
 
 /**
- * Liest den gespeicherten Wert. Ungültiges (kein JSON, fehlende oder unsinnige Zahlen, zu klein)
- * ergibt null: dann öffnet das normale Standardfenster.
+ * Reads the stored value. Invalid (no JSON, missing or nonsensical numbers, too small)
+ * yields null: then the normal standard window opens.
  *
- * Eine gespeicherte Größe, die den nutzbaren Bildschirmbereich überschreitet (z. B. nach einem
- * Wechsel von einem größeren Monitor), wird auf den nutzbaren Bereich geklemmt statt verworfen:
- * das Fenster öffnet dann maximal so groß wie der Bildschirm und lässt sich danach verkleinern.
+ * A stored size that exceeds the usable screen area (e.g. after a
+ * switch from a larger monitor) is clamped to the usable area instead of discarded:
+ * the window then opens at most as large as the screen and can be shrunk afterwards.
  */
 export function parseStoredRect(
   raw: string,
@@ -67,10 +67,10 @@ export function parseStoredRect(
   let cw = w;
   let ch = h;
   if (area) {
-    // Größe an den nutzbaren Bereich anpassen (Monitorwechsel auf kleineren Bildschirm)
+    // Adapt the size to the usable area (monitor switch to a smaller screen)
     cw = Math.min(w, area.width);
     ch = Math.min(h, area.height);
-    // Bildschirm kleiner als die Mindestgröße: passt nicht, Standardfenster
+    // Screen smaller than the minimum size: does not fit, standard window
     if (cw < MIN_WIDTH || ch < MIN_HEIGHT) return null;
   }
   const hasPos = isNum(x) && isNum(y);
@@ -80,7 +80,7 @@ export function parseStoredRect(
   return { w: cw, h: ch };
 }
 
-/** Der Wert für die Pref (Position und Größe in CSS-Pixeln). */
+/** The value for the pref (position and size in CSS pixels). */
 export function serializeRect(r: {
   x: number;
   y: number;

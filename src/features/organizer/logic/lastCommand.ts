@@ -1,9 +1,9 @@
 /**
- * lastCommand — welcher Befehl aus Word im Blätterfenster erneut ausgeführt wird.
- * Reine Logik (kein Zotero), damit sie in Node testbar ist.
+ * lastCommand — which command from Word is re-executed in the browse window.
+ * Pure logic (no Zotero) so it is node-testable.
  */
 
-/** Befehle, die den Zitierdialog öffnen; nur diese darf das Blätterfenster wiederholen. */
+/** Commands that open the citation dialog; only these may the browse window repeat. */
 const DIALOG_COMMANDS = ["addAnnotation", "addEditCitation"];
 
 export interface CommandRef {
@@ -14,9 +14,9 @@ export interface CommandRef {
 }
 
 /**
- * Die Quellen für den wiederholten Befehl: steht der Cursor in einem bestehenden Zitat
- * (addEditCitation), bringt Zotero dessen Quellen mit (integration.js:1513-1517); die Auswahl
- * aus dem Blätterfenster kommt dazu, statt sie zu ersetzen. Gleiche `id` wird nicht doppelt.
+ * The sources for the repeated command: if the cursor is in an existing citation
+ * (addEditCitation), Zotero brings its sources along (integration.js:1513-1517); the selection
+ * from the browse window is added instead of replacing it. The same `id` is not duplicated.
  */
 export function mergeCitationItems<T extends { id?: unknown }>(
   existing: T[] | undefined,
@@ -31,9 +31,9 @@ export function mergeCitationItems<T extends { id?: unknown }>(
 }
 
 /**
- * Der Merker nach einem Befehl von Word. Andere Befehle (refresh, addEditBibliography ...)
- * übernehmen nur Dokument und Vorlage und behalten den Dialogbefehl; ohne einen solchen
- * gibt es nichts zu wiederholen. `persistent`: der Agent kann ein Blätterfenster (nicht http).
+ * The marker after a command from Word. Other commands (refresh, addEditBibliography ...)
+ * only adopt document and template and keep the dialog command; without such a one
+ * there is nothing to repeat. `persistent`: the agent can have a browse window (not http).
  */
 export function nextLastCommand(
   prev: CommandRef | null,

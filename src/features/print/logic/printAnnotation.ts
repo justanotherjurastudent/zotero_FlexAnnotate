@@ -1,16 +1,16 @@
 /**
- * Reine Regeln für Print-Annotationen, ohne Zotero-Globals (in Node testbar).
- * Herkunft: pre-merge:src/printAnnotations.js und pre-merge:src/placeholder.js.
+ * Pure rules for print annotations, without Zotero globals (testable in Node).
+ * Origin: pre-merge:src/printAnnotations.js and pre-merge:src/placeholder.js.
  */
 
 export const DEFAULT_COLOR = "#ffd400";
 
 /**
- * Zoteros acht Standardfarben als [l10n-Schlüssel, Hex], Reihenfolge wie im Reader.
- * Quelle: .zotero-reference/10.0.5/.../xpcom/annotations.js:40-52 (COLORS). Zotero 8/9
- * nennt dieselben Schlüssel general-* (en-US/zotero/zotero.ftl), 7.x general.* in
- * zotero.properties; die Hex-Werte von 7.x bis 9.x belegt xpcom/reader.js:113-117 nur
- * teilweise (Mendeley-Mapping). Der Reader-Quellcode liegt nicht in den Referenzen.
+ * Zotero's eight standard colors as [l10n key, hex], in reader order.
+ * Source: .zotero-reference/10.0.5/.../xpcom/annotations.js:40-52 (COLORS). Zotero 8/9
+ * uses the same general-* keys (en-US/zotero/zotero.ftl), 7.x uses general.* in
+ * zotero.properties; hex values from 7.x to 9.x are only partially covered in xpcom/reader.js:113-117
+ * (Mendeley mapping). Reader source code is not present in references.
  */
 export const STANDARD_COLORS: [string, string][] = [
   ["general-yellow", "#ffd400"],
@@ -24,8 +24,8 @@ export const STANDARD_COLORS: [string, string][] = [
 ];
 
 /**
- * Nimmt Zotero.Annotations.COLORS, sofern Zotero es führt (10.x) und die Form stimmt,
- * sonst die Standardliste. Prüft die Form, weil der Wert von außen kommt.
+ * Uses Zotero.Annotations.COLORS if available (10.x) and correctly shaped,
+ * falling back to the standard list. Validates shape because the value originates externally.
  */
 export function annotationColors(zoteroColors?: unknown): [string, string][] {
   const valid =
@@ -41,15 +41,15 @@ export function annotationColors(zoteroColors?: unknown): [string, string][] {
   return valid ? (zoteroColors as [string, string][]) : STANDARD_COLORS;
 }
 
-/** Zotero erlaubt annotationText nur bei highlight/underline (item.js:4507). */
+/** Zotero only allows annotationText for highlight/underline (item.js:4507). */
 export function supportsText(type: string): boolean {
   return type === "highlight" || type === "underline";
 }
 
 /**
- * Sortierschlüssel nach Druckseite, Format \d{5}|\d{6}|\d{5}. Maßgeblich ist die erste
- * Ziffernfolge im Label: "Rn. 12" sortiert wie 12. Labels ohne Ziffern (z. B. "XIV")
- * bekommen 99999 und landen damit hinten.
+ * Sort index by print page, formatted as \d{5}|\d{6}|\d{5}. Determined by the first
+ * digit sequence in label: "para. 12" sorts as 12. Labels without digits (e.g. "XIV")
+ * receive 99999 and sort to the end.
  */
 export function buildSortIndex(
   pageLabel: string | number | null | undefined,
@@ -59,7 +59,7 @@ export function buildSortIndex(
   return [String(page).padStart(5, "0"), "000000", "00000"].join("|");
 }
 
-/** 6-stelliger Kleinbuchstaben-Hexwert, sonst DEFAULT_COLOR. */
+/** 6-character lowercase hex string, otherwise DEFAULT_COLOR. */
 export function normalizeColor(color?: string | null): string {
   const value = String(color || "")
     .trim()
@@ -68,8 +68,8 @@ export function normalizeColor(color?: string | null): string {
 }
 
 /**
- * Minimales, gültiges 1-Seiten-PDF (A4, leer). Die xref-Offsets werden berechnet,
- * damit pdf.js die Datei ohne Reparaturlauf öffnet.
+ * Minimal valid 1-page PDF (A4, blank). The xref offsets are computed
+ * so pdf.js opens the file without needing a repair pass.
  */
 export function buildPlaceholderPDF(): Uint8Array {
   const objects = [
@@ -94,6 +94,6 @@ export function buildPlaceholderPDF(): Uint8Array {
   pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\n`;
   pdf += `startxref\n${xrefOffset}\n%%EOF\n`;
 
-  // Reines ASCII, daher stimmen String-Länge und Bytelänge überein.
+  // Pure ASCII, so string length and byte length match.
   return new TextEncoder().encode(pdf);
 }

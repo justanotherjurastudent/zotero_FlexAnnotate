@@ -1,20 +1,18 @@
 /**
- * Geltungsbereich der Gliederungsnotiz: Der Name der Hauptsammlung (bzw. der
- * Bibliothek) steht in der `<h1>`-Überschrift der Notiz, damit mehrere
- * Gliederungsnotizen in der Item-Liste unterscheidbar sind. Bestehende Notizen
- * werden beim Laden umgeschrieben (idempotent), die Inhalts-Liste bleibt
- * unberührt.
+ * Scope of the outline note: the name of the main collection (or the library)
+ * is in the `<h1>` heading of the note, so several outline notes are
+ * distinguishable in the item list. Existing notes are rewritten on load
+ * (idempotent), the content list stays untouched.
  *
- * Dieses Modul ist vom Kernmodell (outlineModel.ts) getrennt, damit es einzeln
- * angepasst werden kann, falls Zotero die Überschrift künftig selbst pflegt.
- * Die reine Helfer-Logik (outlineHeading/outlineHeadingOf) liegt in
- * `logic/outline.ts`.
+ * This module is separate from the core model (outlineModel.ts) so it can be
+ * adjusted individually if Zotero later maintains the heading itself. The pure
+ * helper logic (outlineHeading/outlineHeadingOf) lives in `logic/outline.ts`.
  */
 
 import { outlineHeading, outlineHeadingOf } from "./logic/outline";
 import { tr } from "./strings";
 
-/** Anzeigename des Geltungsbereichs (Hauptsammlung oder Bibliothek). */
+/** Display name of the scope (top-level collection or library). */
 export function scopeName(
   libraryID: number,
   collectionKey: string | null,
@@ -28,10 +26,10 @@ export function scopeName(
 }
 
 /**
- * Schreibt die `<h1>`-Überschrift der Notiz auf den Geltungsbereich um,
- * falls sie abweicht (z. B. bestehende Notizen aus einer Version vor der
- * Überschriften-Erweiterung). Nur der Titel wird neu geschrieben, der
- * Gliederungsinhalt (JSON + Liste) bleibt unverändert und idempotent.
+ * Rewrites the note's `<h1>` heading to the scope
+ * if it differs (e.g. existing notes from a version before the
+ * heading extension). Only the title is rewritten, the
+ * outline content (JSON + list) stays unchanged and idempotent.
  */
 export async function syncNoteHeading(
   noteID: number,
@@ -47,7 +45,7 @@ export async function syncNoteHeading(
     tr("outlineTitle"),
   );
   if (outlineHeadingOf(current) === wanted) return;
-  // Nur die erste <h1>…</h1>-Zeile ersetzen, den Rest unangetastet lassen.
+  // Replace only the first <h1>…</h1> line, leave the rest untouched.
   const replaced = current.replace(/<h1>[\s\S]*?<\/h1>/, `<h1>${wanted}</h1>`);
   if (replaced === current) return;
   note.setNote(replaced);

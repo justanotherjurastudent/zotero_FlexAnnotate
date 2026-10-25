@@ -1,19 +1,17 @@
 /**
- * Zentrale Feature-Schalter (pure, ohne Zotero-Importe — node-testbar).
+ * Central feature switches (pure, no Zotero imports — node-testable).
  *
- * Jedes größere Feature ist hier als `FeatureGate` gelistet, damit man es
- * einzeln abschalten kann — z. B. wenn Zotero eine Funktion später selbst
- * mitbringt, sich eine interne API ändert oder ein Feature vorübergehend
- * deaktiviert werden soll.
+ * Every major feature is listed here as a `FeatureGate` so it can be turned
+ * off individually — for example when Zotero later ships the feature itself,
+ * an internal API changes, or a feature should be disabled temporarily.
  *
- * Diese Datei enthält nur Daten und die reine Abfragelogik. `registry.ts`
- * leitet daraus die aktiven `globalFeatures`/`dialogInjectors` ab; die
- * eigentliche Registrierung und Zotero-Kopplung bleibt dort.
+ * This file holds only data and the pure lookup logic. `registry.ts` derives
+ * the active `globalFeatures`/`dialogInjectors` from it; the actual
+ * registration and Zotero coupling lives there.
  *
- * Hinweis zur Semantik: `isFeatureEnabled` liefert für unbekannte Namen `true`
- * (fail-open). Ein Tippfehler im Gate-Namen macht den Schalter damit still
- * wirkungslos — der Konsistenz-Test `test-unit/featureGates.test.ts` deckt
- * genau das ab.
+ * Note on semantics: `isFeatureEnabled` returns `true` for unknown names
+ * (fail-open). A typo in a gate name therefore silently disables the switch —
+ * the consistency test `test-unit/featureGates.test.ts` guards exactly that.
  */
 
 export interface FeatureGate {
@@ -23,117 +21,116 @@ export interface FeatureGate {
 }
 
 /**
- * Ein Feature auf `enabled: false` setzen blendet es aus der Registrierung.
- * `description` nennt, was das Feature tut und wann man es abschalten würde.
+ * Set a feature's `enabled` to `false` to remove it from the registrations.
+ * `description` names what the feature does and when one would disable it.
  */
 export const gates: FeatureGate[] = [
   {
     name: "organizer",
-    description:
-      "Organizer: Hauptfenster, Menü-Eintrag, Gliederung und Notiz-Export.",
+    description: "Organizer: main window, menu entry, outline and note export.",
     enabled: true,
   },
   {
     name: "organizerToolbarButton",
-    description: "Organizer-Knopf in der Zotero-Toolbar.",
+    description: "Organizer button in the Zotero toolbar.",
     enabled: true,
   },
   {
     name: "toolsMenuFallback",
-    description: "Organizer-Eintrag im Tools-Menü (Fallback für Zotero 7).",
+    description: "Organizer entry in the Tools menu (Zotero 7 fallback).",
     enabled: true,
   },
   {
     name: "collectionMenu",
-    description: "Rechtsklick auf Sammlung: 'Organizer für diese Sammlung'.",
+    description:
+      "Right-click on a collection: 'Organizer for this collection'.",
     enabled: true,
   },
   {
     name: "citationDialog",
     description:
-      "Window-Watcher für den Zitierdialog; Basis für Modus-Auswahl, Gliederungsansicht und Zeilen-Patch im Dialog.",
+      "Citation dialog window watcher; base for the mode selector, outline view and row patch in the dialog.",
     enabled: true,
   },
   {
     name: "persistentDialogPatch",
     description:
-      "Zitierfenster offen halten (Blätterfenster) inkl. Ort/Größe merken.",
+      "Keep the citation window open (companion window), including remembering position/size.",
     enabled: true,
   },
   {
     name: "citeOnlyPatch",
     description:
-      "Nur-Nachweis-Zitieren: Integration-Patch für den Zitierdialog.",
+      "Citation-only insertion: integration patch for the citation dialog.",
     enabled: true,
   },
   {
     name: "readerMenu",
-    description: "Reader-Kontextmenü des Zotero-Readers.",
+    description: "Reader context menu of the Zotero reader.",
     enabled: true,
   },
   {
     name: "citaviImport",
-    description: "Citavi-Import (Dateien, Verknüpfungen, Druck-Zitate).",
+    description: "Citavi import (files, links, print quotes).",
     enabled: true,
   },
   {
     name: "annotationIndex",
     description:
-      "Bibliotheksweiter Annotation-Index (Notifier-Observer) als Grundlage des Organizers.",
+      "Library-wide annotation index (notifier observer) as the basis of the organizer.",
     enabled: true,
   },
   {
     name: "externalApi",
     description:
-      "Plugin-zu-Plugin-Schnittstelle Zotero.FlexAnnotate für KI-Anbindungen.",
+      "Plugin-to-plugin interface Zotero.FlexAnnotate for AI integrations.",
     enabled: true,
   },
   {
     name: "tagSuggest",
-    description:
-      "§-Tag-Vorschläge in Gliederungsreihenfolge in der Tag-Zeile (PDF/Item).",
+    description: "Heading-ordered §-tag suggestions in the tag row (PDF/item).",
     enabled: true,
   },
   {
     name: "printMenus",
-    description: "Menüs für Print-Annotationen (Druckrang, Locator).",
+    description: "Menus for print annotations (print rank, locator).",
     enabled: true,
   },
   {
     name: "annotationRowMenu",
-    description: "Kontextmenü auf Annotation-Zeilen im Item-Baum.",
+    description: "Context menu on annotation rows in the item tree.",
     enabled: true,
   },
   {
     name: "annotationRowPatch",
     description:
-      "Annotation-Zeilen-Patch: stabilisiert das Listen-Rendering (Formatierung). Gilt als Feature und als Zitierdialog-Injektor.",
+      "Annotation-row patch: stabilises the list rendering (formatting). Counts as a feature and as a citation dialog injector.",
     enabled: true,
   },
   {
     name: "modeSelector",
-    description: "Modus-Auswahl (Annotationen/Werke) im Zitierdialog.",
+    description: "Mode selector (annotations/works) in the citation dialog.",
     enabled: true,
   },
   {
     name: "outlineView",
     description:
-      "Gliederungsansicht im Zitierdialog (Annotationen- und Werke-Tab).",
+      "Outline view in the citation dialog (annotations and works tab).",
     enabled: true,
   },
 ];
 
 const gateByName = new Map(gates.map((g) => [g.name, g.enabled]));
 
-/** Gibt es ein Gate mit diesem Namen? (Konsistenzprüfung für Tests/Code.) */
+/** Is there a gate with this name? (Consistency check for tests/code.) */
 export function isKnownGate(name: string): boolean {
   return gateByName.has(name);
 }
 
 /**
- * Schalter-Abfrage für die Registrierung. Unbekannte Namen gelten als aktiv
- * (fail-open), damit ein neu hinzugefügtes Feature ohne Gate-Schlüssel nicht
- * still wegfällt — siehe Header-Hinweis.
+ * Switch lookup for the registrations. Unknown names count as active
+ * (fail-open), so a newly added feature without a gate key does not silently
+ * disappear — see the header note.
  */
 export function isFeatureEnabled(name: string): boolean {
   return gateByName.get(name) ?? true;

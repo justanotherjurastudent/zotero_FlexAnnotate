@@ -1,15 +1,15 @@
 /**
- * Skript des gemeinsamen Einstellungsfensters. Zotero lädt es über den scripts-Eintrag
- * der Pane in einen Sandbox-Scope des Fensters (preferences.js:313-320) — daher nur
- * Zotero.*, window und document, keine Plugin-Globals wie ztoolkit oder addon.
- * Herkunft: pre-merge:src/preferences.js.
+ * Script for the shared preferences pane. Zotero loads it via the pane's scripts
+ * entry into a sandboxed scope of the window (preferences.js:313-320) — therefore only
+ * Zotero.*, window, and document are available, without plugin globals like ztoolkit or addon.
+ * Origin: pre-merge:src/preferences.js.
  */
 import { buildLocatorOptions } from "../core/labelPopup.ts";
 
-// Die Sandbox-Typings kennen kein document; zur Laufzeit ist es das Fenster-Dokument.
+// Sandbox typings lack `document`; at runtime it resolves to window.document.
 declare const document: Document;
 
-// Ein Auswahlfeld je Citavi-Seitentyp; das <menupopup> darin wird hier gefüllt
+// One select field per Citavi page type; the inner <menupopup> is populated here
 const LOCATOR_MENULISTS = [
   "flexannotate-pref-citavi-locator-page",
   "flexannotate-pref-citavi-locator-column",
@@ -19,12 +19,12 @@ const LOCATOR_MENULISTS = [
 ];
 
 /**
- * Füllt alle noch leeren Auswahlfelder. getLocatorString() liest
- * Zotero.Styles.locales, das erst nach Styles.init() existiert; init() liefert eine
- * laufende Initialisierung als Promise zurück und ist beliebig oft aufrufbar.
- * Die Auswahl setzen wir selbst: Zoteros MutationObserver greift nur, wenn die
- * Bindung beim Einfügen schon steht, und ein gesetzter value löst kein command aus,
- * schreibt also nichts zurück.
+ * Populates any empty select menus. getLocatorString() reads
+ * Zotero.Styles.locales, which only exists after Styles.init(); init() returns an
+ * in-progress initialization as a Promise and can be called repeatedly.
+ * We set the selection manually: Zotero's MutationObserver only attaches if the
+ * binding is established upon insertion, and setting `.value` does not fire a command event,
+ * avoiding accidental preference rewrites.
  */
 async function fillLocatorMenus(): Promise<void> {
   const open = LOCATOR_MENULISTS.map((id) =>
@@ -38,7 +38,7 @@ async function fillLocatorMenus(): Promise<void> {
   );
 
   for (const popup of open) {
-    // Ein zweiter Durchgang könnte während des Wartens zugeschlagen haben
+    // A concurrent run may have completed while awaiting Styles.init()
     if (!popup || popup.childElementCount) continue;
     for (const { value, label } of options) {
       const item = document.createXULElement("menuitem");
@@ -49,16 +49,16 @@ async function fillLocatorMenus(): Promise<void> {
     const menulist = popup.closest("menulist") as XULMenuListElement | null;
     const pref = menulist?.getAttribute("preference");
     if (menulist && pref) {
-      // Ein ungesetzter Pref liefert undefined statt zu werfen
+      // An unset preference returns undefined instead of throwing
       menulist.value = (Zotero.Prefs.get(pref, true) as string) || "page";
     }
   }
 }
 
 /**
- * Ohne den Befehl addAnnotation (Zotero 7 und 8, integration.js ohne Interface.prototype.addAnnotation)
- * gibt es kein Blätterfenster: die Option ausblenden. Ist Zotero.Integration nicht sichtbar, bleibt
- * sie stehen.
+ * Without the addAnnotation command (Zotero 7 and 8, integration.js lacking Interface.prototype.addAnnotation)
+ * the persistent dialog is unavailable: hide the preference option. If Zotero.Integration is not accessible,
+ * keep it visible.
  */
 function hidePersistentWhenUnsupported(): void {
   const integration = (Zotero as any).Integration;
@@ -68,14 +68,14 @@ function hidePersistentWhenUnsupported(): void {
   );
   if (!box) return;
   (box as HTMLElement).hidden = true;
-  // die Beschreibung darunter (description) mit ausblenden
+  // Also hide the explanatory description directly underneath
   const note = box.nextElementSibling as HTMLElement | null;
   if (note) note.hidden = true;
 }
 
-// Jedes Panel meldet sein `load`-Ereignis, auch fremde; unsere Felder stehen erst beim
-// eigenen Panel im Dokument. Das Ereignis blubbert nicht, daher Capture-Phase am
-// Dokument. Die Durchgänge laufen nacheinander, damit sie sich nicht überholen.
+// Every pane dispatches its `load` event, including third-party ones; our fields are only
+// present in the document when our pane loads. The event does not bubble, so we listen in the
+// capturing phase on document. Runs are sequenced through a queue to avoid races.
 let queue: Promise<void> = Promise.resolve();
 document.addEventListener(
   "load",

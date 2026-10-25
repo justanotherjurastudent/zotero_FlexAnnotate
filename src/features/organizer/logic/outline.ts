@@ -237,11 +237,10 @@ export function htmlToText(html: string): string {
 
 /**
  * Render the outline note's HTML: a human-readable list + the JSON payload.
- * `scopeName` (Name der Hauptsammlung bzw. der Bibliothek) wird, falls
- * angegeben, in die Überschrift aufgenommen, damit mehrere Gliederungsnotizen
- * in der Item-Liste unterscheidbar sind. `label` ist der lokalisierte Titel
- * für "Gliederung" (Default "Outline"). `parseOutline` liest nur das JSON im
- * <pre>-Block, die Überschrift ist reine Darstellung.
+ * `scopeName` (name of the top-level collection resp. the library) is, if
+ * given, included in the heading so that several outline notes are distinguishable
+ * in the item list. `label` is the localized title for "Outline" (default "Outline").
+ * `parseOutline` only reads the JSON in the <pre> block, the heading is pure display.
  */
 export function serializeOutline(
   roots: OutlineNode[],
@@ -260,8 +259,8 @@ export function serializeOutline(
 }
 
 /**
- * Die `<h1>`-Überschrift der Gliederungsnotiz (bereits HTML-escaped).
- * `label` ist der lokalisierte Titel für "Gliederung".
+ * The `<h1>` heading of the outline note (already HTML-escaped).
+ * `label` is the localized title for "Outline".
  */
 export function outlineHeading(
   scopeName: string | null,
@@ -272,7 +271,7 @@ export function outlineHeading(
     : `📚 FlexAnnotate — ${label}`;
 }
 
-/** Vorhandene `<h1>`-Überschrift aus Notiz-HTML, oder "" wenn keine. */
+/** Existing `<h1>` heading from note HTML, or "" if none. */
 export function outlineHeadingOf(html: string): string {
   return html.match(/<h1>([\s\S]*?)<\/h1>/)?.[1] || "";
 }
@@ -354,8 +353,8 @@ export function subtreeTags(node: OutlineNode): string[] {
 
 /** The heading tags among a list of tags (anything starting with the prefix). */
 /**
- * `§`-Tags ohne passende Überschrift im Baum (z. B. nach einer Umbenennung auf
- * einem Rechner ohne Plugin). Sortiert, ohne Doppelte.
+ * `§` tags without a matching heading in the tree (e.g. after a rename on
+ * a computer without the plugin). Sorted, without duplicates.
  */
 export function orphanHeadingTags(
   tags: Iterable<string>,
@@ -372,11 +371,11 @@ export function headingTagsOf(tags: string[]): string[] {
 }
 
 /**
- * §-Tags, die die Anker-Notiz ergänzen (add, noch im Baum, noch nicht getaggt)
- * bzw. entfernen (remove, getaggt, aber keine Überschrift mehr im Baum — z. B.
- * nach Umbenennen/Löschen). Damit existiert der Tag zu jeder Überschrift in der
- * Bibliothek und wird in der Tag-Zeile der PDF-Ansicht vorgeschlagen, auch wenn
- * noch kein Item zugeordnet ist.
+ * § tags that the anchor note adds (add, still in tree, not yet tagged)
+ * or removes (remove, tagged, but no heading in the tree anymore — e.g.
+ * after rename/delete). Thus a tag exists for every heading in the
+ * library and is suggested in the tag row of the PDF view, even if
+ * no item is assigned yet.
  */
 export function anchorTagDiff(
   roots: OutlineNode[],

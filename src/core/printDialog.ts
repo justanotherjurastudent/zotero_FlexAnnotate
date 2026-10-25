@@ -1,25 +1,25 @@
 /**
- * Reine Regeln der Eingabemaske für Annotationen, ohne Zotero-Globals (in Node testbar).
- * Herkunft: pre-merge:src/dialog.js. Die Maske selbst (DOM, Fenster, Speichern) steht in
+ * Pure rules of the annotation input form, without Zotero globals (node-testable).
+ * Origin: pre-merge:src/dialog.js. The form itself (DOM, window, saving) lives in
  * features/print/dialog.ts.
  */
 import { DEFAULT_LOCATOR } from "./locator.ts";
 
-/** 'full' alle Felder, 'comment' nur der Kommentar, 'locator' Locator und Seite. */
+/** 'full' all fields, 'comment' comment only, 'locator' locator and page. */
 export type DialogView = "full" | "comment" | "locator";
 
-/** Typen, die beim Anlegen wählbar sind; weitere erscheinen nur beim Bearbeiten. */
+/** Types selectable when creating; further ones only appear when editing. */
 export const CREATABLE_TYPES = ["highlight", "underline", "note"];
 
 /**
- * Ansicht beim Bearbeiten: mehrere Annotationen nur im Locator-Modus, sonst die
- * gewünschte (Standard 'full').
+ * View when editing: multiple annotations only in locator mode, otherwise the
+ * requested one (default 'full').
  */
 export function editView(count: number, requested?: DialogView): DialogView {
   return count > 1 ? "locator" : requested || "full";
 }
 
-/** Feld, das beim Öffnen den Fokus bekommt. */
+/** Field that gets focus when opening. */
 export function initialFocus(
   view: DialogView,
   isPrint: boolean,
@@ -45,7 +45,7 @@ export interface ViewLayout {
   comment: boolean;
 }
 
-/** Breite und sichtbare Gruppen einer Ansicht. */
+/** Width and visible groups of a view. */
 export function viewLayout(view: DialogView): ViewLayout {
   const [width, minWidth, maxWidth] = SIZES[view];
   return {
@@ -59,7 +59,7 @@ export function viewLayout(view: DialogView): ViewLayout {
   };
 }
 
-/** Zeigt außer den wählbaren Typen nur den Typ der bearbeiteten Annotation. */
+/** Besides the selectable types, only shows the type of the edited annotation. */
 export function isTypeHidden(value: string, currentType: string): boolean {
   return !CREATABLE_TYPES.includes(value) && value !== currentType;
 }
@@ -70,8 +70,8 @@ export interface CheckboxState {
 }
 
 /**
- * Der Standard-Haken ist gesetzt und gesperrt, wenn der gewählte Locator bereits der
- * Standard des Dokuments ist. 'page' zählt nicht als Standard.
+ * The default checkmark is set and locked when the chosen locator is already the
+ * document default. 'page' does not count as a default.
  */
 export function defaultCheckboxState(
   docDefault: string,
@@ -81,7 +81,7 @@ export function defaultCheckboxState(
   return { checked: isDefault, disabled: isDefault };
 }
 
-/** Ob das Speichern den Dokument-Standard setzen soll (nie in der Kommentar-Ansicht). */
+/** Whether saving should set the document default (never in the comment view). */
 export function wantsDefault(
   view: DialogView,
   checked: boolean,
@@ -96,7 +96,7 @@ export interface LocatorEntry {
 }
 
 /**
- * Locator-Typen alphabetisch nach Beschriftung. Fehlt die Beschriftung, gilt der Typ selbst.
+ * Locator types alphabetically by label. If the label is missing, the type itself counts.
  */
 export function buildLocatorEntries(
   locators: string[],
@@ -108,7 +108,7 @@ export function buildLocatorEntries(
 }
 
 /**
- * Nächstes Element beim Tab-Durchlauf. `current` -1 heißt: kein Element hat den Fokus.
+ * Next element on tab traversal. `current` -1 means: no element has focus.
  */
 export function nextFocusIndex(
   count: number,
@@ -130,7 +130,7 @@ export interface DialogInput {
   comment: string;
 }
 
-/** Felder für printAnnotations.create/update; nur die der Ansicht entsprechenden. */
+/** Fields for printAnnotations.create/update; only those matching the view. */
 export interface DialogSaveData {
   locator?: string;
   pageLabel?: string;
@@ -141,8 +141,8 @@ export interface DialogSaveData {
 }
 
 /**
- * Baut die Speicherdaten aus den Feldwerten. Liefert null, wenn die Seitenzahl Pflicht
- * ist (Print-Quelle) und fehlt; dann bleibt die Maske offen.
+ * Builds the save data from the field values. Returns null if the page number is
+ * required (print source) and missing; the form then stays open.
  */
 export function buildSaveData(
   input: DialogInput,

@@ -1,7 +1,7 @@
 /**
- * Darstellung der Gliederungsansicht im Zitierdialog: Baum (links), Liste mit
- * Filter (Mitte) und Vorschau (rechts). Die Aktionen aus der Liste (Markieren,
- * Einfügen) liegen hier, weil sie die Ansicht neu zeichnen.
+ * Rendering of the outline view in the citation dialog: tree (left), list with
+ * filter (middle) and preview (right). The list actions (mark, insert) live here
+ * because they redraw the view.
  */
 
 import {
@@ -37,7 +37,7 @@ export const NATIVE_ID = "flexannotate-native";
 const SELECTED = "rgba(60,120,220,0.16)";
 const LINE = "var(--fill-quinary, rgba(128,128,128,0.25))";
 const MUTED = "var(--fill-secondary, #777)";
-/** Aktionsbuttons der Vorschau: eine Zeile, bei Platzmangel umbrechen. */
+/** Preview action buttons: single row, wrap when space is constrained. */
 const BUTTON_CSS = "flex:1 1 auto;padding:4px 8px;white-space:nowrap;";
 
 export interface View {
@@ -159,7 +159,7 @@ export function visibleSections(v: View): Section<AnnLike>[] {
     .filter((s) => s.items.length);
 }
 
-/** keepScroll: Auswahl und Häkchen bauen die Liste neu auf, die Scrollposition soll bleiben. */
+/** keepScroll: selection and checkmarks rebuild the list, the scroll position should remain. */
 export function renderList(
   win: Window,
   v: View,
@@ -179,7 +179,7 @@ export function renderList(
   filter.type = "text";
   filter.placeholder = tr("dialogFilter");
   filter.value = v.query;
-  // Höhe 24 + Rand 2×5 = 34 px, genau wie die Sammlungs-Zeile links
+  // Height 24 + margin 2×5 = 34 px, exactly like the collection row on the left
   filter.style.cssText =
     "margin:5px 6px;flex:none;box-sizing:border-box;height:24px;padding:0 8px;font-size:12px;";
   filter.addEventListener("input", () => {
