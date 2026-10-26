@@ -1,21 +1,29 @@
-## Tab "Funktionen" der Einstellungen: jede Funktion von FlexAnnotate einzeln ein- und ausschaltbar.
+## Tab "Funktionen an/aus" der Einstellungen: Funktionen von FlexAnnotate einzeln ein- und ausschaltbar.
 ## Pro Funktion: Titel (.label) und eine Beschreibung. Die IDs folgen dem Gate-Namen in src/features/gates.ts
 ## (organizerToolbarButton -> prefs-feature-organizer-toolbar-button); test-unit/featureTexts.test.ts prüft das.
+## Nicht aufgeführt (src/prefs/featureGroups.ts, HIDDEN_GATES): Import/Export im Organizer, Korrektur gegen
+## einen Zotero-Fehler, Platzhalter-Aufräumen.
 
-prefs-tab-options = Optionen
-prefs-tab-features = Funktionen
+prefs-tab-options = Einstellungen
+prefs-tab-features = Funktionen an/aus
 prefs-features-intro =
-    Hier schalten Sie einzelne Funktionen von FlexAnnotate ein oder aus, zum Beispiel wenn eine
-    Funktion Probleme macht oder Zotero sie später selbst anbietet. Schalten Sie eine Grundfunktion
-    aus, sind die davon abhängigen Funktionen ebenfalls aus.
+    Hier schalten Sie Funktionen von FlexAnnotate ein oder aus, zum Beispiel wenn eine Funktion
+    Probleme macht oder Zotero sie später selbst anbietet. Jede Gruppe hat oben einen Hauptschalter
+    (fett): Schalten Sie ihn aus, sind alle Funktionen der Gruppe aus. Darunter lässt sich jede
+    Funktion einzeln ein- und ausschalten. Aufgeführt sind nur Funktionen, die beim Laden oder bei
+    jeder Benutzung anspringen; was erst bei einem Klick startet (etwa Import und Export im
+    Organizer), hängt am Hauptschalter der Gruppe.
 prefs-features-restart = Wirkt nach einem Neustart von Zotero.
 prefs-features-needs = Nicht verfügbar, weil „{ $names }“ ausgeschaltet ist.
 
+prefs-features-group-index = Grundlage
 prefs-features-group-organizer = Organizer
 prefs-features-group-dialog = Zitierdialog
 prefs-features-group-citeonly = Nur-Nachweis-Zitieren
 prefs-features-group-print = Print-Annotationen
-prefs-features-group-reader = Reader und Tags
+prefs-features-group-rows = Annotationszeilen
+prefs-features-group-reader = Reader
+prefs-features-group-tags = Tags
 prefs-features-group-citavi = Citavi-Import
 prefs-features-group-api = Schnittstelle für andere Plugins
 
@@ -24,11 +32,13 @@ prefs-feature-annotation-index =
 prefs-feature-annotation-index-description =
     Hält ein Verzeichnis aller Annotationen der Bibliothek aktuell. Der Organizer und die
     Gliederungsansicht im Zitierdialog brauchen es; ohne den Index stehen beide nicht zur Verfügung.
+
 prefs-feature-organizer =
     .label = Organizer
 prefs-feature-organizer-description =
-    Der Organizer ist ein eigenes Fenster, in dem Sie Annotationen nach einer Gliederung ordnen.
-    Ohne ihn entfallen das Fenster, sein Menüeintrag und alle Organizer-Funktionen.
+    Hauptschalter: Der Organizer ist ein eigenes Fenster, in dem Sie Annotationen nach einer
+    Gliederung ordnen. Ausgeschaltet entfallen das Fenster, sein Menüeintrag und alle Funktionen
+    darunter, auch Import und Export.
 prefs-feature-organizer-toolbar-button =
     .label = Organizer-Schaltfläche
 prefs-feature-organizer-toolbar-button-description =
@@ -42,19 +52,6 @@ prefs-feature-collection-menu =
     .label = Organizer für eine Sammlung
 prefs-feature-collection-menu-description =
     Fügt dem Rechtsklick-Menü einer Sammlung den Eintrag „Organizer für diese Sammlung“ hinzu.
-prefs-feature-doc-import =
-    .label = Import aus Word und LibreOffice
-prefs-feature-doc-import-description =
-    Übernimmt die Überschriften einer Word- oder LibreOffice-Datei (.docx, .odt) als Gliederung
-    in den Organizer.
-prefs-feature-doc-export =
-    .label = Export nach Word und LibreOffice
-prefs-feature-doc-export-description =
-    Schreibt die Gliederung als Überschriften in eine Word- oder LibreOffice-Datei (.docx, .odt).
-prefs-feature-note-export =
-    .label = Export als Notiz
-prefs-feature-note-export-description =
-    Exportiert die Gliederung mit den zugeordneten Zitaten als eigene Zotero-Notiz.
 prefs-feature-orphan-tags =
     .label = Verwaiste Tags erkennen
 prefs-feature-orphan-tags-description =
@@ -72,10 +69,11 @@ prefs-feature-outline-scope-heading-description =
     Hauptsammlung), damit mehrere Gliederungen unterscheidbar sind.
 
 prefs-feature-citation-dialog =
-    .label = Zitierdialog erweitern
+    .label = Zitierdialog von FlexAnnotate
 prefs-feature-citation-dialog-description =
-    Grundlage für das, was FlexAnnotate im Zitierdialog von Word und LibreOffice ergänzt: die Auswahl
-    „Einfügen als“ und die Gliederungsansicht. Ohne diese Funktion bleibt der Dialog, wie Zotero ihn liefert.
+    Hauptschalter für alles, was FlexAnnotate im Zitierdialog von Word und LibreOffice ändert.
+    Ausgeschaltet bleibt der Dialog, wie Zotero ihn liefert, und alle Funktionen darunter sind
+    ebenfalls aus.
 prefs-feature-outline-view =
     .label = Gliederungsansicht im Zitierdialog
 prefs-feature-outline-view-description =
@@ -84,8 +82,9 @@ prefs-feature-outline-view-description =
 prefs-feature-cited-tracking =
     .label = Bereits zitiert markieren
 prefs-feature-cited-tracking-description =
-    Markiert im Zitierdialog Annotationen, die schon im Dokument zitiert sind, mit einem grünen Haken
-    und gleicht das mit den Zitaten im Dokument ab. Der Haken lässt sich auch von Hand setzen und entfernen.
+    Erkennt zitierte Annotationen und Titel im Dokument, merkt sie sich in einer JSON-Datenstruktur
+    in den Dokumentvariablen und entfernt sie wieder, wenn sie nicht mehr im Dokument stehen.
+    Zitierte Annotationen erhalten im Zitierdialog einen grünen Haken.
 prefs-feature-footnote-jump =
     .label = Fußnotennummern und Sprung
 prefs-feature-footnote-jump-description =
@@ -111,35 +110,25 @@ prefs-feature-narrow-dialog-layout-description =
 prefs-feature-cite-only-patch =
     .label = Nur-Nachweis-Zitieren
 prefs-feature-cite-only-patch-description =
-    Ermöglicht, statt der vollständigen Annotation nur den Nachweis mit Seitenangabe in Word oder
-    LibreOffice einzufügen.
+    Hauptschalter: Ermöglicht, statt der vollständigen Annotation nur den Nachweis mit Seitenangabe
+    in Word oder LibreOffice einzufügen. Ausgeschaltet entfällt auch die Auswahl im Zitierdialog.
 prefs-feature-mode-selector =
-    .label = Auswahl „Einfügen als“
+    .label = Nachweis-Optionen: nur Nachweis oder mit Zitat
 prefs-feature-mode-selector-description =
     Fügt im Zitierdialog die Auswahl „Vollnachweis“ oder „Nur Nachweis“ hinzu, im Einstellungsmenü und
-    im Popup eines Eintrags. Braucht das Nur-Nachweis-Zitieren.
-prefs-feature-citeproc-reset-fix =
-    .label = Korrektur gegen einen Zotero-Fehler
-prefs-feature-citeproc-reset-fix-description =
-    Verhindert einen Absturz des Zitierdialogs bei bereits vorhandenen Zitaten: Zotero setzt einen
-    internen Zustand zu früh zurück. Nur ausschalten, wenn dadurch ein Problem entsteht.
+    im Popup eines Eintrags. Braucht den Zitierdialog und das Nur-Nachweis-Zitieren.
 
 prefs-feature-print-menus =
     .label = Menüeinträge für Print-Annotationen
 prefs-feature-print-menus-description =
-    Fügt dem Rechtsklick-Menü der Literaturliste die Einträge „Annotation hinzufügen“, „Annotation
-    bearbeiten“ und „Annotation löschen“ hinzu, auch für Quellen ohne PDF wie gedruckte Bücher.
-prefs-feature-placeholder-cleanup =
-    .label = Leere Platzhalter aufräumen
-prefs-feature-placeholder-cleanup-description =
-    Entfernt die leere Hilfsdatei, an der Print-Annotationen hängen, sobald ihre letzte Annotation
-    gelöscht ist, auch wenn Sie diese in Zotero selbst löschen. Gilt nicht, wenn im Tab „Optionen“ „Leere
-    Platzhalter-Anhänge behalten“ eingeschaltet ist.
+    Hauptschalter: Fügt dem Rechtsklick-Menü der Literaturliste die Einträge „Annotation hinzufügen“,
+    „Annotation bearbeiten“ und „Annotation löschen“ hinzu, auch für Quellen ohne PDF wie gedruckte Bücher.
 prefs-feature-annotation-row-menu =
     .label = Menü auf Annotationszeilen
 prefs-feature-annotation-row-menu-description =
     Fügt dem Rechtsklick-Menü einer Annotation im rechten Bereich die Einträge „Annotation bearbeiten“ und
-    „Annotation löschen“ hinzu. Braucht die Menüeinträge für Print-Annotationen.
+    „Annotation löschen“ hinzu.
+
 prefs-feature-annotation-row-patch =
     .label = Annotationszeilen verbessern
 prefs-feature-annotation-row-patch-description =
@@ -149,32 +138,31 @@ prefs-feature-annotation-row-patch-description =
 prefs-feature-reader-menu =
     .label = Reader-Menü
 prefs-feature-reader-menu-description =
-    Fügt dem Rechtsklick-Menü einer Annotation im Zotero-Reader den Eintrag „Annotation bearbeiten…“ hinzu.
+    Hauptschalter: Fügt dem Rechtsklick-Menü einer Annotation im Zotero-Reader den Eintrag „Annotation
+    bearbeiten…“ hinzu.
 prefs-feature-reader-label-popup =
     .label = Locator-Auswahl im Seitenzahl-Popup
 prefs-feature-reader-label-popup-description =
     Fügt im Popup zum Ändern der Seitenzahl im Reader die Auswahl des Locator-Typs (Seite, Randnummer …) hinzu.
-    Braucht das Reader-Menü.
+
 prefs-feature-tag-suggest =
     .label = §-Tag-Vorschläge
 prefs-feature-tag-suggest-description =
     Zeigt beim Tippen von „§“ im Tag-Feld die Überschriften der Gliederung in Gliederungsreihenfolge statt
-    alphabetisch. Wie, stellen Sie im Tab „Optionen“ ein.
+    alphabetisch. Wie, stellen Sie im Tab „Einstellungen“ ein.
 
 prefs-feature-citavi-import =
     .label = Citavi-Import
 prefs-feature-citavi-import-description =
-    Ermöglicht den Import aus Citavi (Dateien, Verknüpfungen und Zitate ohne PDF).
+    Hauptschalter: Ermöglicht den Import aus Citavi (Dateien, Verknüpfungen und Zitate ohne PDF).
 prefs-feature-citavi-print-quotes =
     .label = Citavi: Zitate ohne PDF
 prefs-feature-citavi-print-quotes-description =
     Übernimmt beim Citavi-Import auch Zitate, zu denen es kein PDF gibt, als Print-Annotationen.
-    Braucht den Citavi-Import.
 prefs-feature-citavi-links =
     .label = Citavi: Beiträge verknüpfen
 prefs-feature-citavi-links-description =
     Verknüpft beim Citavi-Import Beiträge in Sammelwerken mit ihrem übergeordneten Band.
-    Braucht den Citavi-Import.
 
 prefs-feature-external-api =
     .label = Schnittstelle für andere Plugins

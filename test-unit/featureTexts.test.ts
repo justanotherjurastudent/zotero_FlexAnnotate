@@ -2,8 +2,17 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { RESTART_GATES, gates } from "../src/features/gates.ts";
-import { FEATURE_GROUPS, gateMessageId } from "../src/prefs/featureGroups.ts";
+import {
+  RESTART_GATES,
+  gates,
+  resolveFeatureEnabled,
+  type FeatureGate,
+} from "../src/features/gates.ts";
+import {
+  FEATURE_GROUPS,
+  HIDDEN_GATES,
+  gateMessageId,
+} from "../src/prefs/featureGroups.ts";
 
 /** Message ids of a Fluent file and whether each has a `.label` attribute. */
 function parse(locale: string): Map<string, { label: boolean }> {
@@ -27,25 +36,52 @@ function parse(locale: string): Map<string, { label: boolean }> {
 }
 
 const locales = ["de", "en-US"];
+const shown = gates.filter((g) => !HIDDEN_GATES.includes(g.name));
 
-describe("feature texts (Features tab)", () => {
-  it("every gate belongs to exactly one group", () => {
+describe("feature texts (Features on/off tab)", () => {
+  it("every gate is in exactly one group or hidden, never both", () => {
     const seen = new Map<string, number>();
     for (const group of FEATURE_GROUPS) {
       for (const name of group.gates) seen.set(name, (seen.get(name) ?? 0) + 1);
     }
     for (const gate of gates) {
-      assert.equal(seen.get(gate.name), 1, `group count of ${gate.name}`);
+      const inGroup = seen.get(gate.name) ?? 0;
+      const hidden = HIDDEN_GATES.includes(gate.name);
+      assert.equal(
+        inGroup + (hidden ? 1 : 0),
+        1,
+        `${gate.name}: ${inGroup} group(s), hidden=${hidden}`,
+      );
     }
-    assert.equal(seen.size, gates.length, "group lists contain unknown gates");
+    assert.equal(
+      seen.size + HIDDEN_GATES.length,
+      gates.length,
+      "group or hidden lists contain unknown gates",
+    );
+  });
+
+  it("the main switch of a group switches everything below it off", () => {
+    for (const group of FEATURE_GROUPS) {
+      const [main, ...rest] = group.gates;
+      const map = new Map<string, FeatureGate>(
+        gates.map((g) => [g.name, { ...g, enabled: g.name !== main }]),
+      );
+      for (const name of rest) {
+        assert.equal(
+          resolveFeatureEnabled(name, map),
+          false,
+          `${name} stays on when its group's main switch ${main} is off`,
+        );
+      }
+    }
   });
 
   for (const locale of locales) {
     describe(locale, () => {
       const messages = parse(locale);
 
-      it("has a label and a description for every gate", () => {
-        for (const gate of gates) {
+      it("has a label and a description for every shown gate", () => {
+        for (const gate of shown) {
           const id = gateMessageId(gate.name);
           assert.ok(messages.get(id)?.label, `${locale}: label ${id}`);
           assert.ok(
@@ -73,16 +109,16 @@ describe("feature texts (Features tab)", () => {
         }
       });
 
-      it("has no feature text without a gate", () => {
+      it("has no feature text for hidden or unknown gates", () => {
         const known = new Set(
-          gates.flatMap((g) => [
+          shown.flatMap((g) => [
             gateMessageId(g.name),
             `${gateMessageId(g.name)}-description`,
           ]),
         );
         for (const id of messages.keys()) {
           if (/^prefs-feature-(?!s-)/.test(id)) {
-            assert.ok(known.has(id), `${locale}: ${id} has no gate`);
+            assert.ok(known.has(id), `${locale}: ${id} has no shown gate`);
           }
         }
       });

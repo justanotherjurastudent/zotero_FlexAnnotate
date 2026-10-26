@@ -61,46 +61,107 @@ describe("preferences: features tab", function () {
     assert.isFalse(el("flexannotate-panel-options").hidden);
   });
 
-  it("shows one checkbox per gate with a translated label", async function () {
+  // Gates that exist but are not offered in the settings (see HIDDEN_GATES in featureGroups.ts)
+  const HIDDEN = [
+    "docImport",
+    "docExport",
+    "noteExport",
+    "citeprocResetFix",
+    "placeholderCleanup",
+  ];
+
+  it("shows one checkbox per gate with a translated label, except the hidden ones", async function () {
     for (const gate of api().gates.gates) {
       const box = el(`flexannotate-feature-${gate.name}`);
+      if (HIDDEN.includes(gate.name)) {
+        assert.notExists(box, `no checkbox for hidden gate ${gate.name}`);
+        continue;
+      }
       assert.exists(box, `checkbox for ${gate.name}`);
       await waitFor(() => box.label, 10000);
       assert.notMatch(box.label, /^prefs-feature|^flexannotate-/, gate.name);
     }
   });
 
+  it("sets the main switch of each group in bold and indents the rest", function () {
+    assert.equal(
+      el("flexannotate-feature-organizer").style.fontWeight,
+      "600",
+      "main switch is bold",
+    );
+    assert.notEqual(
+      el("flexannotate-feature-organizerToolbarButton").style.fontWeight,
+      "600",
+    );
+    assert.notEqual(
+      el("flexannotate-feature-organizerToolbarButton").parentElement.style
+        .marginInlineStart,
+      "",
+      "dependent row is indented",
+    );
+  });
+
   it("switches a gate off and on through its checkbox", async function () {
-    const box = el("flexannotate-feature-docImport");
+    const box = el("flexannotate-feature-outlineScopeHeading");
     assert.isTrue(box.checked);
 
     box.click();
     assert.isFalse(box.checked);
-    assert.strictEqual(Zotero.Prefs.get(PREF + "docImport", true), false);
-    assert.isFalse(api().gates.isFeatureEnabled("docImport"));
+    assert.strictEqual(
+      Zotero.Prefs.get(PREF + "outlineScopeHeading", true),
+      false,
+    );
+    assert.isFalse(api().gates.isFeatureEnabled("outlineScopeHeading"));
 
     box.click();
     assert.isTrue(box.checked);
-    assert.isUndefined(Zotero.Prefs.get(PREF + "docImport", true));
-    assert.isTrue(api().gates.isFeatureEnabled("docImport"));
+    assert.isUndefined(Zotero.Prefs.get(PREF + "outlineScopeHeading", true));
+    assert.isTrue(api().gates.isFeatureEnabled("outlineScopeHeading"));
   });
 
   it("greys out dependents of a switched-off gate and explains why", async function () {
     el("flexannotate-feature-organizer").click();
     try {
-      await waitFor(() => el("flexannotate-feature-docImport").disabled);
-      const note = el("flexannotate-feature-note-docImport");
+      await waitFor(
+        () => el("flexannotate-feature-organizerToolbarButton").disabled,
+      );
+      const note = el("flexannotate-feature-note-organizerToolbarButton");
       await waitFor(() => !note.hidden && note.textContent.trim());
       assert.isFalse(el("flexannotate-feature-annotationIndex").disabled);
     } finally {
       el("flexannotate-feature-organizer").click();
     }
-    await waitFor(() => !el("flexannotate-feature-docImport").disabled);
+    await waitFor(
+      () => !el("flexannotate-feature-organizerToolbarButton").disabled,
+    );
+  });
+
+  it("the citation dialog main switch greys out the whole dialog group", async function () {
+    el("flexannotate-feature-citationDialog").click();
+    try {
+      for (const name of [
+        "outlineView",
+        "citedTracking",
+        "footnoteJump",
+        "dialogShowPlace",
+        "persistentDialogPatch",
+        "narrowDialogLayout",
+        "modeSelector",
+      ]) {
+        await waitFor(() => el(`flexannotate-feature-${name}`).disabled);
+      }
+      assert.isFalse(api().gates.isFeatureEnabled("persistentDialogPatch"));
+    } finally {
+      el("flexannotate-feature-citationDialog").click();
+    }
+    await waitFor(
+      () => !el("flexannotate-feature-persistentDialogPatch").disabled,
+    );
   });
 
   it("marks startup gates as needing a restart", async function () {
     const note = el("flexannotate-feature-note-readerMenu");
     await waitFor(() => !note.hidden && note.textContent.trim());
-    assert.isTrue(el("flexannotate-feature-note-docImport").hidden);
+    assert.isTrue(el("flexannotate-feature-note-outlineScopeHeading").hidden);
   });
 });

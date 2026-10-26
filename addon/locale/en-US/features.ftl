@@ -1,21 +1,28 @@
-## "Features" tab of the preferences: every FlexAnnotate feature can be switched on and off individually.
+## "Features on/off" tab of the preferences: FlexAnnotate features can be switched on and off individually.
 ## Per feature: a title (.label) and a description. The ids follow the gate name in src/features/gates.ts
 ## (organizerToolbarButton -> prefs-feature-organizer-toolbar-button); test-unit/featureTexts.test.ts checks this.
+## Not listed (src/prefs/featureGroups.ts, HIDDEN_GATES): import/export in the organizer, fix for a Zotero
+## bug, placeholder cleanup.
 
-prefs-tab-options = Options
-prefs-tab-features = Features
+prefs-tab-options = Settings
+prefs-tab-features = Features on/off
 prefs-features-intro =
-    Here you switch individual FlexAnnotate features on or off, for example when a feature causes
-    problems or Zotero offers it itself later. If you switch off a base feature, the features that
-    depend on it are switched off as well.
+    Here you switch FlexAnnotate features on or off, for example when a feature causes problems or
+    Zotero offers it itself later. Each group has a main switch at the top (bold): if you switch it
+    off, all features of the group are off. Below it you can still switch each feature on or off
+    individually. Only features that start when the plugin loads or on every use are listed; what only
+    starts on a click (such as import and export in the organizer) depends on the group's main switch.
 prefs-features-restart = Takes effect after restarting Zotero.
 prefs-features-needs = Not available because “{ $names }” is switched off.
 
+prefs-features-group-index = Foundation
 prefs-features-group-organizer = Organizer
 prefs-features-group-dialog = Citation dialog
 prefs-features-group-citeonly = Citation-only citing
 prefs-features-group-print = Print annotations
-prefs-features-group-reader = Reader and tags
+prefs-features-group-rows = Annotation rows
+prefs-features-group-reader = Reader
+prefs-features-group-tags = Tags
 prefs-features-group-citavi = Citavi import
 prefs-features-group-api = Interface for other plugins
 
@@ -24,11 +31,12 @@ prefs-feature-annotation-index =
 prefs-feature-annotation-index-description =
     Keeps a directory of all annotations in the library up to date. The organizer and the outline
     view in the citation dialog need it; without the index neither is available.
+
 prefs-feature-organizer =
     .label = Organizer
 prefs-feature-organizer-description =
-    The organizer is a separate window in which you sort annotations into an outline. Without it the
-    window, its menu entry and all organizer functions are gone.
+    Main switch: The organizer is a separate window in which you sort annotations into an outline.
+    Switched off, the window, its menu entry and all features below it are gone, including import and export.
 prefs-feature-organizer-toolbar-button =
     .label = Organizer button
 prefs-feature-organizer-toolbar-button-description =
@@ -42,18 +50,6 @@ prefs-feature-collection-menu =
     .label = Organizer for a collection
 prefs-feature-collection-menu-description =
     Adds “Organizer for this collection” to the right-click menu of a collection.
-prefs-feature-doc-import =
-    .label = Import from Word and LibreOffice
-prefs-feature-doc-import-description =
-    Takes the headings of a Word or LibreOffice file (.docx, .odt) as an outline into the organizer.
-prefs-feature-doc-export =
-    .label = Export to Word and LibreOffice
-prefs-feature-doc-export-description =
-    Writes the outline as headings into a Word or LibreOffice file (.docx, .odt).
-prefs-feature-note-export =
-    .label = Export as note
-prefs-feature-note-export-description =
-    Exports the outline with its filed quotes as a standalone Zotero note.
 prefs-feature-orphan-tags =
     .label = Detect orphaned tags
 prefs-feature-orphan-tags-description =
@@ -70,10 +66,10 @@ prefs-feature-outline-scope-heading-description =
     several outlines can be told apart.
 
 prefs-feature-citation-dialog =
-    .label = Extend the citation dialog
+    .label = FlexAnnotate citation dialog
 prefs-feature-citation-dialog-description =
-    Basis for what FlexAnnotate adds to the Word and LibreOffice citation dialog: the “Insert as”
-    selection and the outline view. Without it the dialog stays as Zotero ships it.
+    Main switch for everything FlexAnnotate changes in the Word and LibreOffice citation dialog.
+    Switched off, the dialog stays as Zotero ships it and all features below are off as well.
 prefs-feature-outline-view =
     .label = Outline view in the citation dialog
 prefs-feature-outline-view-description =
@@ -82,8 +78,9 @@ prefs-feature-outline-view-description =
 prefs-feature-cited-tracking =
     .label = Mark already cited
 prefs-feature-cited-tracking-description =
-    Marks annotations that are already cited in the document with a green check in the citation
-    dialog and compares this with the citations in the document. You can also set and remove the check by hand.
+    Detects cited annotations and titles in the document, remembers them in a JSON data structure in
+    the document variables and removes them again when they are no longer in the document. Cited
+    annotations get a green check in the citation dialog.
 prefs-feature-footnote-jump =
     .label = Footnote numbers and jump
 prefs-feature-footnote-jump-description =
@@ -108,35 +105,25 @@ prefs-feature-narrow-dialog-layout-description =
 prefs-feature-cite-only-patch =
     .label = Citation-only citing
 prefs-feature-cite-only-patch-description =
-    Lets you insert only the reference with its page instead of the full annotation into Word or
-    LibreOffice.
+    Main switch: Lets you insert only the reference with its page instead of the full annotation into
+    Word or LibreOffice. Switched off, the selection in the citation dialog is gone as well.
 prefs-feature-mode-selector =
-    .label = “Insert as” selection
+    .label = Citation options: citation only or with quote
 prefs-feature-mode-selector-description =
     Adds the choice “Full annotation” or “Citation only” to the citation dialog, in the settings menu
-    and in the popup of an entry. Needs citation-only citing.
-prefs-feature-citeproc-reset-fix =
-    .label = Fix for a Zotero bug
-prefs-feature-citeproc-reset-fix-description =
-    Prevents the citation dialog from crashing when citations already exist: Zotero resets an
-    internal state too early. Only switch off if it causes a problem.
+    and in the popup of an entry. Needs the citation dialog and citation-only citing.
 
 prefs-feature-print-menus =
     .label = Menu entries for print annotations
 prefs-feature-print-menus-description =
-    Adds the entries “Add Annotation”, “Edit Annotation” and “Delete Annotation” to the right-click
-    menu of the item list, also for sources without a PDF such as printed books.
-prefs-feature-placeholder-cleanup =
-    .label = Clean up empty placeholders
-prefs-feature-placeholder-cleanup-description =
-    Removes the empty helper file that print annotations hang on once its last annotation is deleted,
-    also when you delete it in Zotero itself. Does not apply if “Keep empty placeholder attachments” is
-    on in the “Options” tab.
+    Main switch: Adds the entries “Add Annotation”, “Edit Annotation” and “Delete Annotation” to the
+    right-click menu of the item list, also for sources without a PDF such as printed books.
 prefs-feature-annotation-row-menu =
     .label = Menu on annotation rows
 prefs-feature-annotation-row-menu-description =
     Adds the entries “Edit Annotation” and “Delete Annotation” to the right-click menu of an
-    annotation in the right pane. Needs the menu entries for print annotations.
+    annotation in the right pane.
+
 prefs-feature-annotation-row-patch =
     .label = Better annotation rows
 prefs-feature-annotation-row-patch-description =
@@ -146,32 +133,32 @@ prefs-feature-annotation-row-patch-description =
 prefs-feature-reader-menu =
     .label = Reader menu
 prefs-feature-reader-menu-description =
-    Adds the entry “Edit Annotation…” to the right-click menu of an annotation in the Zotero reader.
+    Main switch: Adds the entry “Edit Annotation…” to the right-click menu of an annotation in the
+    Zotero reader.
 prefs-feature-reader-label-popup =
     .label = Locator selection in the page number popup
 prefs-feature-reader-label-popup-description =
     Adds the choice of the locator type (page, margin no. …) to the popup for changing the page
-    number in the reader. Needs the reader menu.
+    number in the reader.
+
 prefs-feature-tag-suggest =
     .label = § tag suggestions
 prefs-feature-tag-suggest-description =
     When you type “§” in the tag field, shows the outline headings in outline order instead of
-    alphabetically. You choose how in the “Options” tab.
+    alphabetically. You choose how in the “Settings” tab.
 
 prefs-feature-citavi-import =
     .label = Citavi import
 prefs-feature-citavi-import-description =
-    Allows importing from Citavi (files, links and quotes without a PDF).
+    Main switch: Allows importing from Citavi (files, links and quotes without a PDF).
 prefs-feature-citavi-print-quotes =
     .label = Citavi: quotes without a PDF
 prefs-feature-citavi-print-quotes-description =
     Also takes quotes that have no PDF into Zotero as print annotations during the Citavi import.
-    Needs the Citavi import.
 prefs-feature-citavi-links =
     .label = Citavi: link contributions
 prefs-feature-citavi-links-description =
     Links contributions in anthologies to their parent volume during the Citavi import.
-    Needs the Citavi import.
 
 prefs-feature-external-api =
     .label = Interface for other plugins

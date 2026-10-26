@@ -117,6 +117,7 @@ export const gates: readonly FeatureGate[] = [
     description:
       "Keep the citation window open (companion window), including remembering position/size.",
     enabled: true,
+    requires: ["citationDialog"],
   },
   {
     name: "citeOnlyPatch",

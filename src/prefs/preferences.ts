@@ -253,8 +253,12 @@ function buildFeatureRows(): void {
     );
     box.appendChild(heading);
 
-    for (const name of group.gates) {
+    group.gates.forEach((name, index) => {
+      // The first gate is the group's main switch (bold); the others sit indented below it.
+      const row = document.createXULElement("vbox") as HTMLElement;
+      if (index > 0) row.style.marginInlineStart = "24px";
       const checkbox = document.createXULElement("checkbox");
+      if (index === 0) (checkbox as HTMLElement).style.fontWeight = "600";
       checkbox.id = featureBoxId(name);
       checkbox.setAttribute("data-l10n-id", l10nId(gateMessageId(name)));
       checkbox.addEventListener("command", () => {
@@ -267,7 +271,7 @@ function buildFeatureRows(): void {
         }
         void refreshFeatureRows();
       });
-      box.appendChild(checkbox);
+      row.appendChild(checkbox);
 
       const description = document.createXULElement("description");
       description.className = "indented-pref";
@@ -275,15 +279,16 @@ function buildFeatureRows(): void {
         "data-l10n-id",
         l10nId(`${gateMessageId(name)}-description`),
       );
-      box.appendChild(description);
+      row.appendChild(description);
 
       const note = document.createXULElement("description") as HTMLElement;
       note.id = featureNoteId(name);
       note.className = "indented-pref";
       note.style.cssText = "color: GrayText; font-size: 0.9em;";
       note.hidden = true;
-      box.appendChild(note);
-    }
+      row.appendChild(note);
+      box.appendChild(row);
+    });
     host.appendChild(box);
   }
   (document as any).l10n?.translateFragment(host);

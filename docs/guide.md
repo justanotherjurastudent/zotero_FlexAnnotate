@@ -71,11 +71,13 @@ Internal, without a UI: `dialogOutlineView` (state of the outline option in the 
 
 ### Switching features on and off
 
-The settings pane has two tabs: "Options" (the table above) and "Features". In the "Features" tab you switch each FlexAnnotate feature on or off with a checkbox, for example when a feature causes problems or Zotero offers it itself later. The features are grouped by area (organizer, citation dialog, citation-only citing, print annotations, reader and tags, Citavi import, interface for other plugins); each has a short title and a description.
+The settings pane has two tabs: "Settings" (the table above) and "Features on/off". In the "Features on/off" tab you switch FlexAnnotate features on or off with a checkbox, for example when a feature causes problems or Zotero offers it itself later. The features are grouped by area (foundation, organizer, citation dialog, citation-only citing, print annotations, annotation rows, reader, tags, Citavi import, interface for other plugins); each has a short title and a description.
 
+- Each group has a main switch at the top (bold). If you switch it off, all features of the group are off; they sit indented below it and are greyed out. While the main switch is on, you can switch each feature below it on or off individually.
 - If you switch off a base feature, such as the "Annotation index", the features that depend on it are greyed out. A note under the row says which feature is missing.
 - Features that are loaded at startup carry the note "Takes effect after restarting Zotero." All others take effect immediately.
-- The "Options" tab hides the settings of switched-off features.
+- The "Settings" tab hides the settings of switched-off features.
+- Not listed: features that only start on a click (import and export in the organizer, they depend on the "Organizer" main switch), a fix for a Zotero bug, and the cleanup of empty placeholders (the "Settings" tab has the option "Keep empty placeholder attachments" for that).
 
 Technically the checkbox stores the hidden preference `extensions.flexannotate.gate.<name>`: `false` means off, unset means on. You can also set it in `about:config`. A preference can only switch a feature off, never on.
 

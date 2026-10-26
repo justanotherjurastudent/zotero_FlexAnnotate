@@ -71,11 +71,13 @@ Intern, ohne Oberfläche: `dialogOutlineView` (Zustand der Gliederungsoption im 
 
 ### Funktionen ein- und ausschalten
 
-Die Einstellungsseite hat zwei Tabs: „Optionen“ (die Tabelle oben) und „Funktionen“. Im Tab „Funktionen“ lässt sich jede Funktion von FlexAnnotate einzeln mit einer Checkbox ein- und ausschalten, zum Beispiel wenn eine Funktion Probleme macht oder Zotero sie später selbst anbietet. Die Funktionen sind nach Bereich gruppiert (Organizer, Zitierdialog, Nur-Nachweis-Zitieren, Print-Annotationen, Reader und Tags, Citavi-Import, Schnittstelle für andere Plugins); jede hat einen kurzen Titel und eine Beschreibung.
+Die Einstellungsseite hat zwei Tabs: „Einstellungen“ (die Tabelle oben) und „Funktionen an/aus“. Im Tab „Funktionen an/aus“ lassen sich Funktionen von FlexAnnotate mit einer Checkbox ein- und ausschalten, zum Beispiel wenn eine Funktion Probleme macht oder Zotero sie später selbst anbietet. Die Funktionen sind nach Bereich gruppiert (Grundlage, Organizer, Zitierdialog, Nur-Nachweis-Zitieren, Print-Annotationen, Annotationszeilen, Reader, Tags, Citavi-Import, Schnittstelle für andere Plugins); jede hat einen kurzen Titel und eine Beschreibung.
 
+- Jede Gruppe hat oben einen Hauptschalter (fett). Schaltet man ihn aus, sind alle Funktionen der Gruppe aus; sie sind eingerückt darunter und ausgegraut. Ohne Hauptschalter lässt sich jede Funktion darunter einzeln ein- und ausschalten.
 - Schaltet man eine Grundfunktion aus, etwa den „Annotationsindex“, werden die davon abhängigen Funktionen ausgegraut. Unter der Zeile steht, welche Funktion fehlt.
 - Funktionen, die beim Start geladen werden, tragen den Hinweis „Wirkt nach einem Neustart von Zotero.“ Alle anderen wirken sofort.
-- Der Tab „Optionen“ blendet die Einstellungen ausgeschalteter Funktionen aus.
+- Der Tab „Einstellungen“ blendet die Einstellungen ausgeschalteter Funktionen aus.
+- Nicht aufgeführt sind Funktionen, die erst bei einem Klick starten (Import und Export im Organizer, sie hängen am Hauptschalter „Organizer“), eine Korrektur für einen Zotero-Fehler und das Aufräumen leerer Platzhalter (dafür gibt es im Tab „Einstellungen“ die Option „Leere Platzhalter-Anhänge behalten“).
 
 Technisch speichert die Checkbox die versteckte Einstellung `extensions.flexannotate.gate.<Name>`: `false` heißt aus, nicht gesetzt heißt an. Dieselbe Einstellung lässt sich auch in `about:config` setzen. Eine Einstellung kann eine Funktion nur ausschalten, nie einschalten.
 
