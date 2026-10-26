@@ -63,9 +63,9 @@ export interface SuggestInput {
   mode: TagSuggestMode;
   headingTree: string;
   headingLibrary: string;
-  /** Überschrift, wenn die Hauptsammlung keine eigene Gliederung hat und die Bibliotheksliste einspringt. */
+  /** Header used when the top-level collection has no own outline and the library list steps in. */
   headingNoOutline: string;
-  /** Zeichenbudget einer Zeile; Standard LABEL_MAX_CHARS (das breitere Popup der Print-Maske setzt mehr). */
+  /** Character budget of a row; default LABEL_MAX_CHARS (the wider popup of the print dialog sets more). */
   labelMax?: number;
 }
 
@@ -124,7 +124,7 @@ export function suggestRows(input: SuggestInput): SuggestRow[] {
   // No own outline (or no match within it): library-wide list.
   if (!inTree.length && !(treeSet.size && input.mode === "tree")) {
     const list = rest.map(plain);
-    // Ohne eigene Gliederung sagt eine Überschrift, woher die Liste kommt
+    // Without an own outline a header says where the list comes from
     return !treeSet.size && list.length
       ? [
           { value: HEADER_VALUE_LIBRARY, label: input.headingNoOutline },

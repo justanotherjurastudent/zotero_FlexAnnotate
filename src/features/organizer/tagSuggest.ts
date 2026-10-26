@@ -99,7 +99,7 @@ async function treeHeadingsOf(
   return [...keys].flatMap((k) => flatHeadings(trees.get(k) ?? []));
 }
 
-/** Das Zeichenbudget kommt vom Aufrufer (Suchparameter); nur plausible Zahlen gelten. */
+/** The character budget comes from the caller (search parameter); only plausible numbers count. */
 function validLabelMax(v: unknown): number | undefined {
   return typeof v === "number" && v >= 20 && v <= 200 ? v : undefined;
 }

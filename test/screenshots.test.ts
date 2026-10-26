@@ -57,7 +57,7 @@ describe("screenshots", function () {
     }
   };
 
-  /** Zitierdialog wie in features.test.ts, optional mit Gliederungsansicht. */
+  /** Citation dialog as in features.test.ts, optionally with the outline view. */
   const openCitationDialog = async (outline: boolean): Promise<Window> => {
     await closeDialogs();
     (Zotero as any).Integration.currentSession = {
