@@ -8,11 +8,11 @@ FlexAnnotate ist ein Zotero-Plugin (TypeScript, zotero-plugin-scaffold, Version 
 
 ```
 src/core/           reine Logik, die mehrere Features teilen (Locator, Eingabemaske, Seitenzahl-Popup)
-src/shared/         Feature-Registry, assignChecked, Zitierdialog-Watcher
-src/features/       print, citeOnly, citavi, reader, organizer; je Feature `logic/` = reine Logik ohne Zotero-Importe (Node-testbar)
+src/shared/         Feature-Typen (`Feature`, `startAll`), assignChecked, Zitierdialog-Watcher
+src/features/       print, citeOnly, citavi, reader, organizer; je Feature `logic/` = reine Logik ohne Zotero-Importe (Node-testbar); `registry.ts` = Feature-Liste, `gates.ts` = Schalter (Gates)
 src/prefs/          Skript des Einstellungsfensters (eigenes Bundle)
 src/utils/          Locale, Prefs, Menü-Registrierung, ztoolkit
-src/hooks.ts        Feature-Liste und Lebenszyklus
+src/hooks.ts        Lebenszyklus (ruft die Registry in onStartup auf) und `addon.api` für Tests
 addon/              manifest.json, prefs.js, content/ (XHTML, Icons), locale/{de,en-US}
 test-unit/          Node-Tests der reinen Logik
 test/               Mocha-Tests im echten Zotero
@@ -54,7 +54,7 @@ npm start             # zotero-plugin serve (Entwicklung, Zugangsdaten in .env, 
 - **Prototyp-Patches** nur mit `assignChecked` (`src/shared/patch.ts`): Ziel vorher prüfen, Ergebnis zurücklesen, Fehlschlag protokollieren, in `stop`/`removeFromWindow` zurücknehmen. Ein Patch braucht einen Nachweis (Test oder Quellstelle).
 - **Reine Logik** nach `src/features/<feature>/logic/` (nur wenn mehrere Features sie brauchen: `src/core`); keine Zotero-Globals, Importe mit `.ts`-Endung, und mit einem Node-Test in `test-unit/` absichern.
 - **Zotero-Tests nur über `addon.api`** (siehe `src/hooks.ts`); Module nicht direkt importieren, sie brauchen das Global `ztoolkit`.
-- **Neue Features** als `Feature` (`src/shared/feature.ts`) bzw. `DialogInjector` (`src/shared/citationDialog.ts`) in `src/features/registry.ts` eintragen (nicht direkt in `hooks.ts`); jedes Feature sowie jede runtime-gegatete Unterfunktion muss als `FeatureGate` in `src/features/gates.ts` definiert sein (ggf. mit `requires: [...]` für abhängige Einstiegspunkte) und im Node-Test `test-unit/featureGates.test.ts` abgedeckt werden. Globales in `start`/`stop`, DOM in `addToWindow`/`removeFromWindow`, beides idempotent.
+- **Neue Features** als `Feature` (`src/shared/feature.ts`) bzw. `DialogInjector` (`src/shared/citationDialog.ts`) in `src/features/registry.ts` eintragen (nicht direkt in `hooks.ts`); jedes Feature sowie jede runtime-gegatete Unterfunktion muss als `FeatureGate` in `src/features/gates.ts` definiert sein (ggf. mit `requires: [...]` für abhängige Einstiegspunkte) und im Node-Test `test-unit/featureGates.test.ts` abgedeckt werden. Jedes Gate lässt sich zusätzlich über die Pref `extensions.flexannotate.gate.<Name>` = `false` abschalten (nur aus, nie an); `test/gates.test.ts` schaltet jedes Gate einzeln ab und prüft Start, Stop und Organizer. Globales in `start`/`stop`, DOM in `addToWindow`/`removeFromWindow`, beides idempotent.
 - **Fensterzustand** gehört ans Element oder in eine `WeakMap` je Fenster, nicht ans Modulobjekt (`docs/architecture.md`, Fallstrick 11).
 - **Menüs:** `Zotero.MenuManager` über `src/utils/menu.ts`; für Annotationen im Item-Baum DOM, weil Zotero dort keine Plugin-Menüs anwendet (`docs/architecture.md`, Fallstrick 10).
 - **Urheberschaft:** Der Organizer basiert auf Lattice (birugit, AGPL-3.0-or-later). Lizenz- und Urheberhinweise erhalten, Herkunft in `NOTICE.md` pflegen. Keine Rechtsaussagen erfinden.
