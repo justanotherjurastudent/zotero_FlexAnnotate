@@ -96,6 +96,33 @@ describe("print annotations", function () {
     );
   });
 
+  it("does not sweep a new placeholder that still waits for its first annotation", async function () {
+    const { placeholder } = api().print;
+    const fresh = await makeWork("Frisches Werk");
+    await placeholder.create(fresh);
+    // any item delete triggers a sweep; the new placeholder is empty at that moment
+    await placeholder.sweepEmpty();
+    const left = (
+      Zotero.Items.get(fresh.getAttachments()) as Zotero.Item[]
+    ).filter((a) => placeholder.isPlaceholder(a));
+    assert.lengthOf(left, 1);
+  });
+
+  it("does not sweep an old empty placeholder that ensure() just handed out", async function () {
+    const { placeholder } = api().print;
+    const reused = await makeWork("Wiederverwendetes Werk");
+    await placeholder.create(reused);
+    // let the creation grace period pass: the placeholder is empty and old
+    await Zotero.Promise.delay(3200);
+    const handedOut = await placeholder.ensure(reused);
+    await placeholder.sweepEmpty();
+    const left = (
+      Zotero.Items.get(reused.getAttachments()) as Zotero.Item[]
+    ).filter((a) => placeholder.isPlaceholder(a));
+    assert.lengthOf(left, 1);
+    assert.equal(left[0].id, handedOut.id);
+  });
+
   it("keeps an empty placeholder when keepEmptyPlaceholders is set", async function () {
     const { printAnnotations } = api().print;
     Zotero.Prefs.set(keepPref, true, true);

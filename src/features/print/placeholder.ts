@@ -62,10 +62,25 @@ export function annotationTarget(
 
 /**
  * Returns the placeholder attachment, creating it if it does not exist yet.
+ * The placeholder counts as in use for a moment (see `recentlyUsed`), because
+ * the caller is about to attach an annotation to it.
  */
 export async function ensure(item: Zotero.Item): Promise<Zotero.Item> {
-  return find(item) ?? create(item);
+  const attachment = find(item) ?? (await create(item));
+  recentlyUsed.set(attachment.id, Date.now());
+  return attachment;
 }
+
+/**
+ * Placeholders created or handed out by `ensure` in this session (item id → time
+ * in ms). Such a placeholder is empty until the caller has saved its annotation;
+ * the sweep below must not take it away in that window, or saving the annotation
+ * fails with "Parent item not found". Any item delete can trigger a sweep, for
+ * example the notes the Citavi import removes, or Zotero's own annotation delete
+ * right before the next annotation is added.
+ */
+const recentlyUsed = new Map<number, number>();
+const GRACE_MS = 3000;
 
 /**
  * Creates the placeholder attachment under a regular item.
@@ -92,6 +107,7 @@ export async function create(item: Zotero.Item): Promise<Zotero.Item> {
     });
     attachment.addTag(TAG, 1);
     await attachment.saveTx();
+    recentlyUsed.set(attachment.id, Date.now());
     ztoolkit.log(
       `Created placeholder attachment ${attachment.key} for item ${item.key}`,
     );
@@ -136,13 +152,33 @@ export async function sweepEmpty(): Promise<void> {
     "SELECT itemID FROM itemTags WHERE tagID=?",
     [tagID],
   );
+  let skippedNew = false;
   for (const item of await Zotero.Items.getAsync(ids)) {
+    const created = recentlyUsed.get(item.id);
+    if (created !== undefined) {
+      if (Date.now() - created < GRACE_MS) {
+        skippedNew = true;
+        continue;
+      }
+      recentlyUsed.delete(item.id);
+    }
     await cleanUpIfEmpty(item);
   }
+  // A skipped placeholder that never gets its annotation is swept after the grace period.
+  if (skippedNew) scheduleSweep(GRACE_MS);
 }
 
 let observerID: string | null = null;
 let sweepTimer: ReturnType<typeof setTimeout> | null = null;
+
+function scheduleSweep(delay: number): void {
+  if (!observerID) return; // feature stopped
+  if (sweepTimer) clearTimeout(sweepTimer);
+  sweepTimer = setTimeout(() => {
+    sweepTimer = null;
+    sweepEmpty().catch((e) => defaultLogger("placeholderCleanup", "sweep", e));
+  }, delay);
+}
 
 /** Watches item deletions and then removes empty placeholders (debounced). */
 export const placeholderCleanup: Feature = {
@@ -152,13 +188,7 @@ export const placeholderCleanup: Feature = {
       {
         notify: (event: string, type: string) => {
           if (event !== "delete" || type !== "item") return;
-          if (sweepTimer) clearTimeout(sweepTimer);
-          sweepTimer = setTimeout(() => {
-            sweepTimer = null;
-            sweepEmpty().catch((e) =>
-              defaultLogger("placeholderCleanup", "sweep", e),
-            );
-          }, 500);
+          scheduleSweep(500);
         },
       },
       ["item"],
@@ -170,5 +200,6 @@ export const placeholderCleanup: Feature = {
     observerID = null;
     if (sweepTimer) clearTimeout(sweepTimer);
     sweepTimer = null;
+    recentlyUsed.clear();
   },
 };
