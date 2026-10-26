@@ -69,6 +69,16 @@ Schlüssel liegen unter `extensions.flexannotate.`.
 
 Intern, ohne Oberfläche: `dialogOutlineView` (Zustand der Gliederungsoption im Zitierdialog), `citedAnnotations` (zitierte Annotationen je Dokument).
 
+### Funktionen ein- und ausschalten
+
+Die Einstellungsseite hat zwei Tabs: „Optionen“ (die Tabelle oben) und „Funktionen“. Im Tab „Funktionen“ lässt sich jede Funktion von FlexAnnotate einzeln mit einer Checkbox ein- und ausschalten, zum Beispiel wenn eine Funktion Probleme macht oder Zotero sie später selbst anbietet. Die Funktionen sind nach Bereich gruppiert (Organizer, Zitierdialog, Nur-Nachweis-Zitieren, Print-Annotationen, Reader und Tags, Citavi-Import, Schnittstelle für andere Plugins); jede hat einen kurzen Titel und eine Beschreibung.
+
+- Schaltet man eine Grundfunktion aus, etwa den „Annotationsindex“, werden die davon abhängigen Funktionen ausgegraut. Unter der Zeile steht, welche Funktion fehlt.
+- Funktionen, die beim Start geladen werden, tragen den Hinweis „Wirkt nach einem Neustart von Zotero.“ Alle anderen wirken sofort.
+- Der Tab „Optionen“ blendet die Einstellungen ausgeschalteter Funktionen aus.
+
+Technisch speichert die Checkbox die versteckte Einstellung `extensions.flexannotate.gate.<Name>`: `false` heißt aus, nicht gesetzt heißt an. Dieselbe Einstellung lässt sich auch in `about:config` setzen. Eine Einstellung kann eine Funktion nur ausschalten, nie einschalten.
+
 ## Einschränkungen auf Zotero-Versionen vor 10
 
 Das Manifest verlangt Zotero 7.0 bis 10.\*. Geprüft ist das nur durch die automatische Zotero-Testsuite (`npm run test:versions`, siehe [testing.md](testing.md)) gegen Zotero **7.0.32, 8.0.4, 9.0.6** und **10.0.5/10.0.6**. Andere Patchversionen derselben Reihen sind nicht geprüft; Abweichungen dort sind nicht ausgeschlossen.

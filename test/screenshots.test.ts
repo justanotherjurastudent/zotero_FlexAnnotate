@@ -314,6 +314,14 @@ describe("screenshots", function () {
       await Zotero.Promise.delay(1500);
       return screenshot(prefs, "preferences");
     });
+    // Same window, "Features" tab
+    await step("preferences-features", async () => {
+      const w = prefs as Window | null;
+      if (!w) throw new Error("preferences window missing");
+      (w.document.getElementById("flexannotate-tab-features") as any)?.click();
+      await Zotero.Promise.delay(1500);
+      return screenshot(w, "preferences-features");
+    });
     prefs?.close();
     prefs = null;
 

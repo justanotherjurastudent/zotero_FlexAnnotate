@@ -69,6 +69,16 @@ Preference keys are under `extensions.flexannotate.`.
 
 Internal, without a UI: `dialogOutlineView` (state of the outline option in the citation dialog), `citedAnnotations` (cited annotations per document).
 
+### Switching features on and off
+
+The settings pane has two tabs: "Options" (the table above) and "Features". In the "Features" tab you switch each FlexAnnotate feature on or off with a checkbox, for example when a feature causes problems or Zotero offers it itself later. The features are grouped by area (organizer, citation dialog, citation-only citing, print annotations, reader and tags, Citavi import, interface for other plugins); each has a short title and a description.
+
+- If you switch off a base feature, such as the "Annotation index", the features that depend on it are greyed out. A note under the row says which feature is missing.
+- Features that are loaded at startup carry the note "Takes effect after restarting Zotero." All others take effect immediately.
+- The "Options" tab hides the settings of switched-off features.
+
+Technically the checkbox stores the hidden preference `extensions.flexannotate.gate.<name>`: `false` means off, unset means on. You can also set it in `about:config`. A preference can only switch a feature off, never on.
+
 ## Zotero versions before 10
 
 The manifest allows Zotero 7.0 to 10.\*. Only the automated Zotero test suite (`npm run test:versions`, see [testing.md](testing.md)) vouches for this, run against Zotero **7.0.32, 8.0.4, 9.0.6** and **10.0.5/10.0.6**. Other patch releases of the same series are untested; differences there are possible.

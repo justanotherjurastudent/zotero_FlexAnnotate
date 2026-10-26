@@ -292,6 +292,32 @@ export const gates: readonly FeatureGate[] = [
 
 const gateByName = new Map<string, FeatureGate>(gates.map((g) => [g.name, g]));
 
+/**
+ * Gates that are evaluated once at startup (lifecycle features and dialog
+ * injectors in `registry.ts`). Changing one needs a Zotero restart; all other
+ * gates take effect on the next render/action. Shown in the preferences pane.
+ */
+export const RESTART_GATES: readonly GateName[] = [
+  "organizer",
+  "organizerToolbarButton",
+  "toolsMenuFallback",
+  "collectionMenu",
+  "citationDialog",
+  "persistentDialogPatch",
+  "citeOnlyPatch",
+  "readerMenu",
+  "citaviImport",
+  "annotationIndex",
+  "externalApi",
+  "tagSuggest",
+  "printMenus",
+  "placeholderCleanup",
+  "annotationRowMenu",
+  "annotationRowPatch",
+  "modeSelector",
+  "outlineView",
+];
+
 /** Is there a gate with this name? (Consistency check for tests/code.) */
 export function isKnownGate(name: string): name is GateName {
   return gateByName.has(name);
