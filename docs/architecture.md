@@ -42,12 +42,14 @@ Global work (patches, observers, `MenuManager` menus) belongs in `start`/`stop`;
 
 `src/hooks.ts` no longer lists the features itself. The switches live in `src/features/gates.ts` (pure `gates` array with an `enabled` flag and optional `requires` dependencies per feature). Every feature and sub-feature is listed as a `FeatureGate`:
 
-1. **Lifecycle features & dialog injectors:** Derived by `src/features/registry.ts` into `globalFeatures` and `dialogInjectors`, each filtered by `isFeatureEnabled(name)`. `hooks.ts` only consumes those arrays.
+1. **Lifecycle features & dialog injectors:** Derived by `src/features/registry.ts` through `activeGlobalFeatures()` and `activeDialogInjectors()`, each filtered by `isFeatureEnabled(name)`. `hooks.ts` calls them once in `onStartup` (not at import, so the pref overrides below are already readable).
 2. **Runtime sub-features:** Checked at call and render sites via `isFeatureEnabled(name)` (e.g. `citedTracking`, `footnoteJump`, `narrowDialogLayout`, `dialogShowPlace`, `outlineAnchorTags`, `outlineScopeHeading`, `docImport`, `docExport`, `noteExport`, `orphanTags`, `readerLabelPopup`, `citaviPrintQuotes`, `citaviLinks`, `citeprocResetFix`).
 
 Coupled features declare their base feature via `requires`. Disabling a base feature (e.g. `organizer` or `citeOnlyPatch` or `citationDialog`) cascades cleanly and automatically disables all dependent entry points, sub-features, and associated preference controls in `preferences.ts`.
 
-A consistency unit test (`test-unit/featureGates.test.ts`) enforces that every registered feature, injector and runtime sub-feature has a gate, all `requires` targets exist, and disabling a base feature cascades cleanly to dependent entry points.
+**Hotfix switch without a release:** every gate can be switched off at runtime with the hidden boolean pref `extensions.flexannotate.gate.<name>` (about:config → create a boolean, set `false`). Only an explicit `false` counts, so an override can switch a feature off but never on, and a source-level `enabled: false` always wins. Runtime sub-feature gates take effect on the next render/action; lifecycle features and dialog injectors are evaluated at startup and need a Zotero restart. Dependents follow through `requires`. The default reader sits in `gates.ts` (`setGateOverrideReader` replaces it in tests); it resolves `Zotero` at call time and fails open on any error. The pref keys are not registered in `prefs.js`, so they do not show up in the generated typings and are not part of the settings UI.
+
+A consistency unit test (`test-unit/featureGates.test.ts`) enforces that every registered feature, injector and runtime sub-feature has a gate, all `requires` targets exist, and disabling a base feature cascades cleanly to dependent entry points. `test-unit/gateOverrides.test.ts` covers the pref override, and the Zotero smoke test `test/gates.test.ts` switches every gate off in turn, runs the stop/start/addToWindow/removeFromWindow cycle and opens the organizer, failing on any logged feature error. The smoke test covers the lifecycle and the organizer window only; render paths in the citation dialog are not exercised with a gate off.
 
 Self-contained feature logic lives in dedicated files so it can be replaced or adapted to new Zotero APIs without touching the surrounding dialog:
 

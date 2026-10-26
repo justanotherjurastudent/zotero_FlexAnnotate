@@ -5,7 +5,7 @@
  * (see `gates.ts`) — for example when Zotero later ships the feature itself,
  * an internal API changes, or a feature should be disabled temporarily.
  *
- * - `globalFeatures` and `dialogInjectors` are the lists that `src/hooks.ts`
+ * - `activeGlobalFeatures()` and `activeDialogInjectors()` return the lists that `src/hooks.ts`
  *   starts or injects into the citation dialog. Disabled entries are filtered
  *   out and neither started nor injected.
  * - The switches live in `gates.ts` (pure, node-tested).
@@ -103,10 +103,13 @@ export const globalFeatureEntries: Feature[] = [
   annotationRowPatchFeature,
 ];
 
-/** Active global features; disabled entries are filtered out. */
-export const globalFeatures: Feature[] = globalFeatureEntries.filter((f) =>
-  isFeatureEnabled(f.name),
-);
+/**
+ * Active global features; disabled entries are filtered out. Evaluated on
+ * call (not at import) so the gate pref overrides are read at startup.
+ */
+export function activeGlobalFeatures(): Feature[] {
+  return globalFeatureEntries.filter((f) => isFeatureEnabled(f.name));
+}
 
 // --- Citation dialog injectors ---------------------------------------------
 
@@ -126,6 +129,6 @@ export const dialogInjectorEntries: DialogInjector[] = [
 ];
 
 /** Active citation dialog injectors; disabled entries are filtered out. */
-export const dialogInjectors: DialogInjector[] = dialogInjectorEntries.filter(
-  (i) => isFeatureEnabled(i.name),
-);
+export function activeDialogInjectors(): DialogInjector[] {
+  return dialogInjectorEntries.filter((i) => isFeatureEnabled(i.name));
+}

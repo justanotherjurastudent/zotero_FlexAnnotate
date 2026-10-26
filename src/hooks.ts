@@ -65,18 +65,15 @@ import {
   removeFromWindow,
   startAll,
   stopAll,
+  type Feature,
 } from "./shared/feature";
-import { dialogInjectors, globalFeatures } from "./features/registry";
+import * as registry from "./features/registry";
+import * as gates from "./features/gates";
 
-// Citation dialog injectors: consume central list from registry.
-// Order (mode selector, outline, row patch) is defined in registry.ts.
-for (const injector of dialogInjectors) {
-  registerDialogInjector(injector);
-}
-
-// Global lifecycle features: consume central list from registry.
-// Order = startup order; stopped in reverse order.
-const features = globalFeatures;
+// Global lifecycle features, filled in onStartup from the registry (gates and
+// their pref overrides are evaluated there). Order = startup order; stopped in
+// reverse order.
+let features: Feature[] = [];
 
 async function onStartup() {
   await Promise.all([
@@ -128,6 +125,9 @@ async function onStartup() {
       unpatchInterface: unpatchInterfaceMethods,
     },
     modeSelector,
+    registry,
+    gates,
+    featureLifecycle: { startAll, stopAll, addToWindow, removeFromWindow },
     citeOnly: { patch: citeOnlyPatch, isPatched: citeOnlyIsPatched },
     reader: { readerMenu: readerMenuModule },
     citavi: {
@@ -157,6 +157,13 @@ async function onStartup() {
     label: addon.data.config.addonName,
     image: `chrome://${addon.data.config.addonRef}/content/icons/icon.svg`,
   });
+
+  // Citation dialog injectors: order (mode selector, outline, row patch) is
+  // defined in registry.ts.
+  for (const injector of registry.activeDialogInjectors()) {
+    registerDialogInjector(injector);
+  }
+  features = registry.activeGlobalFeatures();
 
   await startAll(features);
 

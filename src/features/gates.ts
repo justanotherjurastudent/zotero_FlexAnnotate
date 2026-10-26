@@ -8,7 +8,7 @@
  *
  * Two kinds of gates live in `gates`:
  * 1. **Lifecycle & dialog-injector gates** — consumed by `registry.ts` to
- *    filter `globalFeatures` and `dialogInjectors` at startup.
+ *    filter `activeGlobalFeatures()` and `activeDialogInjectors()` at startup.
  * 2. **Runtime sub-feature gates** — queried via `isFeatureEnabled(name)` in
  *    render/action paths (e.g. `citedTracking`, `footnoteJump`, `docImport`,
  *    `outlineAnchorTags`, `citeprocResetFix`).
@@ -16,6 +16,12 @@
  * Coupled features declare their parent gate(s) via `requires`, so turning off
  * a base feature automatically disables its dependent entry points and sub-features
  * without leaving dead UI controls behind.
+ *
+ * Hotfix switch without a release: set the hidden boolean pref
+ * `extensions.flexannotate.gate.<name>` to `false` in about:config. Runtime
+ * gates take effect on the next render/action; lifecycle and dialog-injector
+ * gates are evaluated at startup (`registry.ts`) and need a Zotero restart.
+ * An override can only switch off, never on.
  *
  * Note on semantics: `isFeatureEnabled` returns `true` for unknown names
  * (fail-open). A typo in a gate name therefore silently disables the switch —
@@ -284,6 +290,41 @@ export function isKnownGate(name: string): name is GateName {
   return gateByName.has(name);
 }
 
+/** Prefix of the per-gate override prefs (`<prefix><gateName>`, boolean). */
+export const GATE_PREF_PREFIX = "extensions.flexannotate.gate.";
+
+/**
+ * Reads the user/hotfix override of a gate. Only an explicit `false` switches
+ * a feature off; unset or any other value leaves the `enabled` flag in charge,
+ * so an override can never enable something the source disabled.
+ */
+export type GateOverrideReader = (name: string) => boolean | undefined;
+
+/**
+ * Default reader: the hidden pref `extensions.flexannotate.gate.<name>`
+ * (settable in about:config, no pref default is registered). Resolves the
+ * `Zotero` global at call time so this module stays importable under Node.
+ * Never throws; on any error the gate is left on (fail-open).
+ */
+const prefOverride: GateOverrideReader = (name) => {
+  try {
+    const v = (globalThis as any).Zotero?.Prefs?.get(
+      GATE_PREF_PREFIX + name,
+      true,
+    );
+    return typeof v === "boolean" ? v : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+let readOverride: GateOverrideReader = prefOverride;
+
+/** Replaces the override reader (tests); call without argument to restore. */
+export function setGateOverrideReader(reader?: GateOverrideReader): void {
+  readOverride = reader ?? prefOverride;
+}
+
 /**
  * Evaluates whether a named feature is enabled within a given gate map,
  * recursively checking any `requires` dependencies. Unknown names fail open
@@ -297,7 +338,7 @@ export function resolveFeatureEnabled(
   if (visited.has(name)) return true;
   const gate = lookup.get(name);
   if (!gate) return true;
-  if (!gate.enabled) return false;
+  if (!gate.enabled || readOverride(name) === false) return false;
   if (gate.requires) {
     visited.add(name);
     for (const req of gate.requires) {
