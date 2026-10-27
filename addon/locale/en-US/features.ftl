@@ -82,9 +82,9 @@ prefs-feature-cited-tracking-description =
     the document variables and removes them again when they are no longer in the document. Cited
     annotations get a green check in the citation dialog.
 prefs-feature-footnote-jump =
-    .label = Footnote numbers and jump
+    .label = Jump to citation
 prefs-feature-footnote-jump-description =
-    Shows the footnote number of cited annotations and jumps to the place in Word or LibreOffice on click.
+    Shows where a cited annotation is cited in the document (footnote, endnote or in-text citation) and jumps there on click in Word or LibreOffice.
 prefs-feature-dialog-show-place =
     .label = “Show citation place” button
 prefs-feature-dialog-show-place-description =
@@ -127,8 +127,8 @@ prefs-feature-annotation-row-menu-description =
 prefs-feature-annotation-row-patch =
     .label = Better annotation rows
 prefs-feature-annotation-row-patch-description =
-    Shows the correct locator type in annotation rows (for example “Margin no. 318” instead of
-    “Page 318”) and an arrow that opens the attachment at the passage.
+    Shows the locator type you chose in annotation rows (for example “Paragraph 12” or “Column 3” instead of
+    “Page 12”) and an arrow that opens the attachment at the passage.
 
 prefs-feature-reader-menu =
     .label = Reader menu
@@ -138,7 +138,7 @@ prefs-feature-reader-menu-description =
 prefs-feature-reader-label-popup =
     .label = Locator selection in the page number popup
 prefs-feature-reader-label-popup-description =
-    Adds the choice of the locator type (page, margin no. …) to the popup for changing the page
+    Adds the choice of the locator type (page, paragraph, column …) to the popup for changing the page
     number in the reader.
 
 prefs-feature-tag-suggest =

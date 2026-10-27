@@ -86,10 +86,10 @@ prefs-feature-cited-tracking-description =
     in den Dokumentvariablen und entfernt sie wieder, wenn sie nicht mehr im Dokument stehen.
     Zitierte Annotationen erhalten im Zitierdialog einen grünen Haken.
 prefs-feature-footnote-jump =
-    .label = Fußnotennummern und Sprung
+    .label = Sprung zum Nachweis
 prefs-feature-footnote-jump-description =
-    Zeigt bei zitierten Annotationen die Fußnotennummer und springt per Klick an die Stelle in Word
-    oder LibreOffice.
+    Zeigt bei zitierten Annotationen, wo sie zitiert sind (Fußnote, Endnote oder Nachweis im Text), und springt
+    per Klick an diese Stelle in Word oder LibreOffice.
 prefs-feature-dialog-show-place =
     .label = Schaltfläche „Zitatstelle anzeigen“
 prefs-feature-dialog-show-place-description =
@@ -132,7 +132,7 @@ prefs-feature-annotation-row-menu-description =
 prefs-feature-annotation-row-patch =
     .label = Annotationszeilen verbessern
 prefs-feature-annotation-row-patch-description =
-    Zeigt in Annotationszeilen den richtigen Locator-Typ (zum Beispiel „Randnummer 318“ statt „Seite 318“)
+    Zeigt in Annotationszeilen den eingestellten Locator-Typ (zum Beispiel „Absatz 12“ oder „Spalte 3“ statt „Seite 12“)
     und einen Pfeil, der den Anhang an der Textstelle öffnet.
 
 prefs-feature-reader-menu =
@@ -143,7 +143,7 @@ prefs-feature-reader-menu-description =
 prefs-feature-reader-label-popup =
     .label = Locator-Auswahl im Seitenzahl-Popup
 prefs-feature-reader-label-popup-description =
-    Fügt im Popup zum Ändern der Seitenzahl im Reader die Auswahl des Locator-Typs (Seite, Randnummer …) hinzu.
+    Fügt im Popup zum Ändern der Seitenzahl im Reader die Auswahl des Locator-Typs (Seite, Absatz, Spalte …) hinzu.
 
 prefs-feature-tag-suggest =
     .label = §-Tag-Vorschläge
