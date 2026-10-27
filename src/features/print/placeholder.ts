@@ -81,6 +81,13 @@ export async function ensure(item: Zotero.Item): Promise<Zotero.Item> {
  */
 const recentlyUsed = new Map<number, number>();
 const GRACE_MS = 3000;
+/**
+ * Number of `create()` calls in flight. A new placeholder is saved with its tag
+ * before it can be entered in `recentlyUsed`; in that gap a sweep would see an
+ * empty, unprotected placeholder and erase it. The sweep therefore waits while
+ * a create is running.
+ */
+let creating = 0;
 
 /**
  * Creates the placeholder attachment under a regular item.
@@ -98,6 +105,7 @@ export async function create(item: Zotero.Item): Promise<Zotero.Item> {
   // The title is set upon creation.
   const title = getString("placeholder-title");
 
+  creating++;
   try {
     const attachment = await Zotero.Attachments.importFromFile({
       file: tmpPath,
@@ -113,6 +121,7 @@ export async function create(item: Zotero.Item): Promise<Zotero.Item> {
     );
     return attachment;
   } finally {
+    creating--;
     await IOUtils.remove(tmpPath, { ignoreAbsent: true });
   }
 }
@@ -148,10 +157,13 @@ export async function cleanUpIfEmpty(
 export async function sweepEmpty(): Promise<void> {
   const tagID = Zotero.Tags.getID(TAG);
   if (!tagID) return;
+  if (creating > 0) return scheduleSweep(500);
   const ids: number[] = await Zotero.DB.columnQueryAsync(
     "SELECT itemID FROM itemTags WHERE tagID=?",
     [tagID],
   );
+  // a create may have started while the query ran; its placeholder is not protected yet
+  if (creating > 0) return scheduleSweep(500);
   let skippedNew = false;
   for (const item of await Zotero.Items.getAsync(ids)) {
     const created = recentlyUsed.get(item.id);
