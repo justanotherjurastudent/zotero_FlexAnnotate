@@ -110,9 +110,11 @@ describe("citation-only patch", function () {
     fakeSession.rebuildCiteprocState = undefined;
     fakeSession.newIndices = {};
     proto().resetRequest.call(fakeSession, {});
-    assert.isFalse(
+    // Zotero 10 sets the flag to false here; Zotero 7.0.32 never touches it (integration.js:1749).
+    // Only "not kept as true" is the behavior the patch guarantees on both.
+    assert.isNotTrue(
       fakeSession.rebuildCiteprocState,
-      "becomes false when previously undefined",
+      "not kept as true when previously undefined",
     );
   });
 

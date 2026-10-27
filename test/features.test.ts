@@ -1883,6 +1883,24 @@ describe("FlexAnnotate features", function () {
         ) as HTMLInputElement;
         assert.isTrue(row.contains(outlineCb), "inline when wide");
 
+        // Zotero's first resizeWindow animates the window towards its minimum width (the
+        // relaxed one is set only after init), and a resize during that animation is lost.
+        // Wait until the size has been still for a moment.
+        let lastSize = "";
+        let stillSince = Date.now();
+        await waitFor(
+          () => {
+            const size = `${w.innerWidth}x${w.innerHeight}`;
+            if (size !== lastSize) {
+              lastSize = size;
+              stillSince = Date.now();
+            }
+            return Date.now() - stillSince >= 800 ? true : null;
+          },
+          8000,
+          "window size settled",
+        );
+
         w.resizeTo(520, 700);
         await waitFor(() => (row.hidden ? true : null), 8000, "row hidden");
         assert.equal(
