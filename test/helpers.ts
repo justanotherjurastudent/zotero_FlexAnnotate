@@ -167,7 +167,7 @@ if (grepPattern) mocha.grep(grepPattern);
 export async function waitFor<T>(
   fn: () => T | null | false | undefined,
   ms = 8000,
-  message = "waitFor timed out",
+  message = `waitFor timed out after ${ms} ms: ${fn.toString().slice(0, 160)}`,
 ): Promise<T> {
   const end = Date.now() + ms;
   while (Date.now() < end) {

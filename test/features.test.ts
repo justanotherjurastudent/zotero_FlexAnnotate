@@ -634,6 +634,14 @@ describe("FlexAnnotate features", function () {
       api().persistentDialog.rememberCommand(null);
     });
 
+    // Many tests below open browse/request windows, which store their size in these prefs.
+    // Later suites (the idle-state layout test resizes a window and expects the new size to
+    // stick) must not inherit it, so the whole block restores them.
+    const SIZE_PREF = "integration.citationDialog.windowParams";
+    const RECT_PREF = `${prefs}.persistentWindowRect`;
+    let sizeBefore: unknown;
+    let rectBefore: unknown;
+
     /** Close dialogs from earlier steps so we never pick up a stale one. */
     const closeDialogs = async () => {
       let w: Window | null;
@@ -690,6 +698,8 @@ describe("FlexAnnotate features", function () {
     };
 
     before(async function () {
+      sizeBefore = Zotero.Prefs.get(SIZE_PREF);
+      rectBefore = Zotero.Prefs.get(RECT_PREF, true);
       if (!hasAnnotationDialog()) this.skip(); // needs Zotero >= 9 (annotation mode in citation dialog)
       await Zotero.Styles.init(); // locator labels need the CSL locales
       const work = await makeWork("Dialog Werk");
@@ -725,6 +735,10 @@ describe("FlexAnnotate features", function () {
       (Zotero as any).Integration.currentSession = undefined;
       (Zotero.Items.get(noteID) as Zotero.Item)?.eraseTx?.();
       await cleanup();
+      if (sizeBefore === undefined) Zotero.Prefs.clear(SIZE_PREF);
+      else Zotero.Prefs.set(SIZE_PREF, sizeBefore as string);
+      if (rectBefore === undefined) Zotero.Prefs.clear(RECT_PREF, true);
+      else Zotero.Prefs.set(RECT_PREF, rectBefore as string, true);
     });
 
     it("shows headings with counts, the list and a preview, and inserts", async function () {
@@ -2718,6 +2732,12 @@ describe("FlexAnnotate features", function () {
       };
       const integration = Zotero.Integration as any;
       const origPref = api().persistentDialog.readPref();
+      // The windows below leave their size in these prefs; later tests (the idle-state layout
+      // test resizes a window and expects the new size to stick) must not inherit it.
+      const sizePref = "integration.citationDialog.windowParams";
+      const origSize = Zotero.Prefs.get(sizePref);
+      const rectPref = `${prefs}.persistentWindowRect`;
+      const origRect = Zotero.Prefs.get(rectPref, true);
       await closeDialogs();
       api().persistentDialog.writePref(true);
       /** Moves `w` to (x, y) after the load phase and samples its position for 1 s. */
@@ -2779,6 +2799,10 @@ describe("FlexAnnotate features", function () {
       } finally {
         api().persistentDialog.writePref(origPref);
         await closeDialogs();
+        if (origSize === undefined) Zotero.Prefs.clear(sizePref);
+        else Zotero.Prefs.set(sizePref, origSize as string);
+        if (origRect === undefined) Zotero.Prefs.clear(rectPref, true);
+        else Zotero.Prefs.set(rectPref, origRect as string, true);
       }
     });
 

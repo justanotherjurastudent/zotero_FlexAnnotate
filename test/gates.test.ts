@@ -60,6 +60,9 @@ describe("feature gates", function () {
   });
 
   it("survives every single gate switched off (lifecycle and organizer)", async function () {
+    // readerMenu.stop() reads the locator labels, which need initialized styles (other
+    // suites initialize them in their before hook; this test must not depend on that).
+    await Zotero.Styles.init();
     const win = Zotero.getMainWindow();
     const { registry, featureLifecycle: fl } = api();
     const all = registry.globalFeatureEntries;
@@ -89,7 +92,7 @@ describe("feature gates", function () {
         fl.removeFromWindow(active, win, log);
         fl.stopAll(active, log);
         setGate(g.name, null);
-        assert.deepEqual(errors, [], `gate ${g.name} off`);
+        assert.isEmpty(errors, `gate ${g.name} off: ${errors.join(" | ")}`);
       }
     } finally {
       for (const g of api().gates.gates) setGate(g.name, null);
