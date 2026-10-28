@@ -10,6 +10,7 @@ import {
   isPatched as citeOnlyIsPatched,
 } from "./features/citeOnly/integrationPatch";
 import { docImport } from "./features/organizer/doc/docImport";
+import * as organizerView from "./features/organizer/panel/organizerView";
 import { docExport } from "./features/organizer/doc/docExport";
 import {
   persistentDialogPatch,
@@ -97,6 +98,7 @@ async function onStartup() {
       uninstall: uninstallExternalApi,
     },
     OrganizerFactory,
+    organizerView,
     docImport,
     docExport,
     docOutline: docOutlineCore,

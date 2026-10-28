@@ -270,4 +270,45 @@ describe("docImport", function () {
       win.close();
     }
   });
+
+  it("keeps the preview open when the organizer redraws meanwhile", async function () {
+    this.timeout(60000);
+    findOrganizerWindow()?.close();
+    await waitFor(() => !findOrganizerWindow(), 8000).catch(() => {});
+    await api().OrganizerFactory.open();
+    const win = await waitFor(findOrganizerWindow, 25000);
+    try {
+      await waitFor(
+        () => win.document?.getElementById("flexannotate-scope"),
+        25000,
+      );
+      const doc = win.document;
+      const state = api().OrganizerFactory.lastState;
+      state.roots = [];
+      state.noteID = null;
+      states.push(state);
+      const { makeCtx, renderAll } = api().organizerView;
+      const ctx = makeCtx(
+        doc,
+        doc.getElementById("flexannotate-root"),
+        state,
+        async () => true,
+      );
+      const done = api().docImport.importFromFile(
+        ctx,
+        makeDocx("redraw.docx", DE_BODY, DE_STYLES),
+        {},
+      );
+      const overlay = await waitFor(
+        () => doc.querySelector("[data-import-preview]"),
+        25000,
+      );
+      renderAll(ctx); // e.g. a Zotero notifier event refreshes the window
+      assert.strictEqual(doc.querySelector("[data-import-preview]"), overlay);
+      Array.from(overlay.querySelectorAll("button"))[1].click();
+      assert.equal((await done).status, "imported");
+    } finally {
+      win.close();
+    }
+  });
 });

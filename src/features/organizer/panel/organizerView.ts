@@ -23,6 +23,9 @@ export function renderAll(ctx: Ctx) {
     .forEach((e: Element) =>
       scroll.set(e.getAttribute("data-scroll")!, (e as HTMLElement).scrollTop),
     );
+  // The import preview is an overlay on the root; a redraw while it is open must not drop
+  // it, or its promise would never settle and the import would hang.
+  const importPreview = root.querySelector("[data-import-preview]");
   root.textContent = "";
 
   root.appendChild(tabBar(ctx, t));
@@ -58,6 +61,7 @@ export function renderAll(ctx: Ctx) {
   renderDetails(ctx, c3, t, visible);
 
   if (s.orphanOpen) root.appendChild(orphanOverlay(ctx, t));
+  if (importPreview) root.appendChild(importPreview);
 
   root.querySelectorAll("[data-scroll]").forEach((e: Element) => {
     const y = scroll.get(e.getAttribute("data-scroll")!);
