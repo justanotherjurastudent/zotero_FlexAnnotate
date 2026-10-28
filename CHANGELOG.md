@@ -4,6 +4,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 
 ## Unreleased
 
+## 3.0.0 (2026-10-28)
+
+**Großes Upgrade für den Zitier-Workflow.** Dokumentweites Zitier-Tracking („grüne Häkchen wie in Citavi“), Fußnoten-Badges mit Direktsprung nach Word/LibreOffice, Doppelklick-Einfügen, Gliederungsansicht für Werke, persistentes Aufgabenleisten-Zitierfenster (Word für Windows, LibreOffice Writer, Word für Mac), granulare Funktionsschalter im Einstellungs-Tab „Funktionen an/aus“, Reader-Sprungpfeil (`↗`) und Gliederungs-Tag-Vorschläge.
+
 ### Added
 
 - Zitierdialog: Doppelklick auf eine Annotation oder ein Werk fügt den Eintrag zur Zitation hinzu (analog zum Klick auf „+“, sowohl in der Gliederungsansicht als auch in Zoteros nativer Annotationsliste; `dialogOutlineRender.ts`, `dialogOutline.ts`). Beim Klick auf eine hinzugefügte Annotation in der oberen Zitierleiste (`#bubble-input`) stehen im Detail-Popup (`#itemDetails`) wie bei normalen Titeln die Felder für Präfix (`#prefix`) und Suffix (`#suffix`) bereit (`modeSelector.ts`, `integrationPatch.ts`). Grüne Haken für bereits zitierte Einträge lassen sich nicht mehr händisch umschalten oder entfernen, sondern folgen ausschließlich dynamisch den Zitationen im Dokument (`dialogOutlineRender.ts`).
