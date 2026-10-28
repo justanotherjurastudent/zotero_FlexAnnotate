@@ -24,7 +24,7 @@
 | `npm run build`              | `zotero-plugin build` and `tsc --noEmit`                                                                                 |
 | `npm run verify`             | `lint:check`, `build`, `test:unit`, `test:zotero` in sequence                                                            |
 
-As of 2026-10-13 (`npm run test:versions`): 223 unit tests, all passed. Zotero tests without errors: 10.0.6 (installed) 102 passed, 7 skipped; 9.0.6 102 passed, 7 skipped; 8.0.4 74 passed, 35 skipped; 7.0.32 76 passed, 33 skipped. Tests are skipped when they need a feature of that version (for example the annotations mode of the citation dialog, from Zotero 9 on) or produce screenshots only with `npm run screenshots`; see [Multiple Zotero versions](#multiple-zotero-versions).
+As of 2026-10-28: 334 unit tests across 86 test suites (`npm run test:unit`), all passed. Zotero tests without errors (`npm run test:versions`): 10.0.6 (installed) 102 passed, 7 skipped; 9.0.6 102 passed, 7 skipped; 8.0.4 74 passed, 35 skipped; 7.0.32 76 passed, 33 skipped. Tests are skipped when they need a feature of that version (for example the annotations mode of the citation dialog, from Zotero 9 on) or produce screenshots only with `npm run screenshots`; see [Multiple Zotero versions](#multiple-zotero-versions).
 
 ## Running a subset
 
@@ -76,7 +76,7 @@ Invoke-WebRequest "https://download.zotero.org/client/release/$v/Zotero-${v}_x64
 
 Each version gets a fresh test profile: the scaffold only empties the data folder, otherwise the profile would keep the startup cache and extension registry of the previous version when switching, and the runs would depend on order (8.0.4 failed only right after 7.0.32). The script deletes `.scaffold/test/profile` before each run, never a productive profile.
 
-At the end comes a table with `version`, `passed`, `failed`, `pending`, `exit`; the exit code is 1 when a version has errors or yields no result. The script counts skipped tests (pending) from the `ℹ … pending` lines, because Zotero does not name them in the result line. What is skipped is what the version lacks: the tests with annotations mode in the citation dialog (`hasAnnotationDialog()` in `test/helpers.ts`, only from Zotero 9 on; `features.test.ts`, `modeSelector.test.ts`) and the command test of the tools menu fallback, once `Zotero.MenuManager` exists (`toolsMenu.test.ts`).
+At the end comes a table with `version`, `passed`, `failed`, `pending`, `exit`; the exit code is 1 when a version has errors or yields no result. The script counts skipped tests (pending) from the `ℹ … pending` lines, because Zotero does not name them in the result line. What is skipped is what the version lacks: the tests with annotations mode in the citation dialog (`hasAnnotationDialog()` in `test/helpers.ts`, only from Zotero 9 on; `citeOnly.test.ts`, `features.test.ts`, `modeSelector.test.ts`) and the command test of the tools menu fallback, once `Zotero.MenuManager` exists (`toolsMenu.test.ts`).
 
 ## Screenshots
 

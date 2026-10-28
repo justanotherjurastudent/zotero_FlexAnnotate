@@ -6,19 +6,20 @@ Detailed usage and reference. The overview is in the [README](../README.md).
 
 ## Where to find things
 
-| Where                                           | What                                                                                                                                                  |
-| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Right-click an item or its attachment           | _Add print annotation…_ (_Add annotation…_ if the title has a real attachment)                                                                        |
-| Right-click an annotation (item tree)           | _Edit annotation…_, _Delete annotation_ (always asks first; "do not ask again" can be undone in the settings, deleted annotations cannot be restored) |
-| Right-click an annotation (right-hand pane)     | the same entries                                                                                                                                      |
-| Reader: right-click an annotation               | _Edit annotation…_                                                                                                                                    |
-| Reader: edit the page number                    | locator choice and "Use this locator for this document from now on"                                                                                   |
-| Toolbar button, next to the Sync button         | opens the Organizer (or focuses an open window)                                                                                                       |
-| _Tools → FlexAnnotate: Organizer_               | opens the Organizer (or focuses an open window)                                                                                                       |
-| Organizer, document icon in the outline toolbar | import an outline from Word/LibreOffice                                                                                                               |
-| Organizer, export icon in the outline toolbar   | export the outline as Word/ODT                                                                                                                        |
-| Citation dialog from Word/LibreOffice           | "Insert as" (full citation / citation only); in the annotations view, the outline                                                                     |
-| _Edit → Settings → FlexAnnotate_                | settings                                                                                                                                              |
+| Where                                           | What                                                                                                                                                                                                     |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Right-click an item or its attachment           | _Add print annotation…_ (_Add annotation…_ if the title has a real attachment)                                                                                                                           |
+| Right-click an annotation (item tree)           | _Edit annotation…_, _Delete annotation_ (always asks first; "do not ask again" can be undone in the settings, deleted annotations cannot be restored)                                                    |
+| Right-click an annotation (right-hand pane)     | the same entries                                                                                                                                                                                         |
+| Annotation row in item pane, arrow "↗"          | opens the Zotero reader directly at the annotation                                                                                                                                                       |
+| Reader: right-click an annotation               | _Edit annotation…_                                                                                                                                                                                       |
+| Reader: edit the page number                    | locator choice and "Use this locator for this document from now on"                                                                                                                                      |
+| Toolbar button, next to the Sync button         | opens the Organizer (or focuses an open window)                                                                                                                                                          |
+| _Tools → FlexAnnotate: Organizer_               | opens the Organizer (or focuses an open window)                                                                                                                                                          |
+| Organizer, document icon in the outline toolbar | import an outline from Word/LibreOffice                                                                                                                                                                  |
+| Organizer, export icon in the outline toolbar   | export the outline as Word/ODT                                                                                                                                                                           |
+| Citation dialog from Word/LibreOffice           | "Insert as" (full citation / citation only); outline view ("arrange by outline") for annotations and works; double-click inserts entry; clicking footnote badge in preview jumps to citation in document |
+| _Edit → Settings → FlexAnnotate_                | settings                                                                                                                                                                                                 |
 
 ### Import an outline from Word/LibreOffice
 
@@ -59,15 +60,18 @@ Preference keys are under `extensions.flexannotate.`.
 | Option                                                                               | Effect                                                                                      | Default                                                                                 |
 | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | Insert only the citation by default (`citationOnly`)                                 | annotations are inserted as a citation with a pinpoint only                                 | off                                                                                     |
+| Keep citation window open as a persistent task pane (`persistentCitationDialog`)     | dialog reopens at the same position in browse mode after inserting                          | off                                                                                     |
 | Keep empty placeholder attachments (`keepEmptyPlaceholders`)                         | the placeholder stays even when no annotation hangs under it any more                       | off                                                                                     |
+| Ask before deleting an annotation (`confirmDeleteAnnotation`)                        | show confirmation dialog before permanently deleting an annotation                          | on                                                                                      |
 | Also show works behind the annotations (`showWorksInAnnotationView`)                 | Organizer: the annotation view lists the works as well                                      | off                                                                                     |
 | Show comments instead of quote text in organizer rows (`showCommentInOrganizerRows`) | Organizer: for annotations with a comment, the row shows the comment instead of the excerpt | off                                                                                     |
+| Tag suggestions in outline order (`outlineTagSuggest`)                               | tree order: all (with library list), typed, tree (outline only), off                        | all                                                                                     |
 | Import quotes without a file as print annotations (`citaviImport`)                   | the Citavi import creates print annotations for quotes Zotero drops                         | on                                                                                      |
 | Keep the note on the quote (`citaviKeepNotes`)                                       | off: the note Zotero's translator creates for the quote is removed                          | off                                                                                     |
 | Link contributions to their parent work (`citaviLinkContributions`)                  | the Citavi import creates "Related" links                                                   | on                                                                                      |
 | Cite pinpoints as (`citaviLocatorPage/Column/Paragraph/Margin/Other`)                | CSL locator per Citavi page type                                                            | page: page, column: column, paragraph: paragraph, margin number: paragraph, other: page |
 
-Internal, without a UI: `dialogOutlineView` (state of the outline option in the citation dialog), `citedAnnotations` (cited annotations per document).
+Internal, without a UI: `dialogOutlineView` (state of the outline option in the citation dialog), `dialogOutlineCollection` (chosen collection in citation dialog), `persistentWindowRect` (stored window geometry), `citedAnnotations` (legacy session store).
 
 ### Switching features on and off
 
@@ -85,17 +89,19 @@ Technically the checkbox stores the hidden preference `extensions.flexannotate.g
 
 The manifest allows Zotero 7.0 to 10.\*. Only the automated Zotero test suite (`npm run test:versions`, see [testing.md](testing.md)) vouches for this, run against Zotero **7.0.32, 8.0.4, 9.0.6** and **10.0.5/10.0.6**. Other patch releases of the same series are untested; differences there are possible.
 
-| Feature                                                                                  | 7.0.x                         | 8.0.x                         | 9.0.x                         | 10.x                   |
-| ---------------------------------------------------------------------------------------- | ----------------------------- | ----------------------------- | ----------------------------- | ---------------------- |
-| Organizer (window, outline, export), toolbar button                                      | tested                        | tested                        | tested                        | tested                 |
-| Outline import from Word/LibreOffice                                                     | tested                        | tested                        | tested                        | tested                 |
-| Outline export as Word/ODT (incl. locked-file tests)                                     | tested                        | tested                        | tested                        | tested                 |
-| Print annotations incl. input panel                                                      | tested, colour menu: fallback | tested, colour menu: fallback | tested, colour menu: fallback | tested                 |
-| Citavi import                                                                            | tested                        | tested                        | tested                        | tested                 |
-| Citation-only insertion (patch of `_insertCitingResult`, tested synthetically only)      | tested                        | tested                        | tested                        | tested                 |
-| Menu _Tools → FlexAnnotate: Organizer_                                                   | fallback (DOM)                | tested (`MenuManager`)        | tested (`MenuManager`)        | tested (`MenuManager`) |
-| Citation dialog with annotations mode: mode selector, outline view, search, "show place" | not available                 | not available                 | tested                        | tested                 |
-| Settings pane                                                                            | tested                        | tested                        | tested                        | tested                 |
+| Feature                                                                                                              | 7.0.x                         | 8.0.x                         | 9.0.x                         | 10.x                   |
+| -------------------------------------------------------------------------------------------------------------------- | ----------------------------- | ----------------------------- | ----------------------------- | ---------------------- |
+| Organizer (window, outline, export), toolbar button                                                                  | tested                        | tested                        | tested                        | tested                 |
+| Outline import from Word/LibreOffice                                                                                 | tested                        | tested                        | tested                        | tested                 |
+| Outline export as Word/ODT (incl. locked-file tests)                                                                 | tested                        | tested                        | tested                        | tested                 |
+| Print annotations incl. input panel & tag chips                                                                      | tested, colour menu: fallback | tested, colour menu: fallback | tested, colour menu: fallback | tested                 |
+| Citavi import                                                                                                        | tested                        | tested                        | tested                        | tested                 |
+| Citation-only insertion (patch of `_insertCitingResult`)                                                             | tested                        | tested                        | tested                        | tested                 |
+| Menu _Tools → FlexAnnotate: Organizer_                                                                               | fallback (DOM)                | tested (`MenuManager`)        | tested (`MenuManager`)        | tested (`MenuManager`) |
+| Annotation rows in item tree (locator title, jump button `↗`)                                                        | tested                        | tested                        | tested                        | tested                 |
+| Outline tag suggestions on `§` (`tagSuggest`)                                                                        | tested                        | tested                        | tested                        | tested                 |
+| Citation dialog with annotations mode: outline view, mode selector, double-click, prefix/suffix, footnote navigation | not available                 | not available                 | tested                        | tested                 |
+| Keep citation window open (`persistentCitationDialog`)                                                               | not available                 | not available                 | tested                        | tested                 |
 
 - **Keep citation window open (option `persistentCitationDialog`, default off):** after inserting, the dialog reopens at the same position in its normal view (collections, all annotations, search), so you can insert the next annotation. Switching on applies at once, even to an already-open dialog: the next insert there makes it live again. Switching off no longer closes the open window immediately; it stays until the next insert (then it behaves like stock Zotero). Tested: the test suite is green on 10.0.6 and 9.0.6; 7.0.32 and 8.0.4 have no annotations mode, so the option is absent there.
 - **Colour menu (7.x to 9.x):** `Zotero.Annotations.COLORS` exists only from 10.x. Before that, the input panel uses Zotero's eight standard colours.
@@ -118,7 +124,7 @@ Version 1.2.0 is available at the Git tag `pre-merge`.
 ## Known issues
 
 - Do not open the `★outline` note in Zotero's note editor and edit it there. The editor can overwrite it later with its own state (background: [architecture.md](architecture.md), pitfall 14). FlexAnnotate creates it in a way that keeps Zotero from opening it by itself.
-- Keep citation window open: the minimum height is about 590 px because Zotero enforces it. After inserting, the dialog reopens at the same position in its normal view, so you can insert the next annotation; a new request from Word replaces it. Inserting from the open window is not yet checked in real Word. Window position was measured only on Windows at 125 % scaling. macOS, Linux and dark mode are not checked.
+- Keep citation window open: the minimum height is about 590 px because Zotero enforces it. After inserting, the dialog reopens at the same position in its normal view, so you can insert the next annotation. Confirmed in real Word for Windows and LibreOffice Writer; Word for Mac is enabled, but unverified on real hardware. macOS, Linux and dark mode are not checked.
 - The `PageRange` format (`<os>`/`<nt>`) is only tested against synthetic fixtures.
 - The reader popup, the reader menu and the toolbar and menu icons in dark mode were reviewed in code only, not visually and not automatically.
 - The toolbar icon is 16 px; Zotero's own icons are 20 px.
