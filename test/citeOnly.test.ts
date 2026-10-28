@@ -2,6 +2,7 @@ import { assert } from "chai";
 import { config } from "../package.json";
 import {
   cleanup,
+  hasAnnotationDialog,
   makeAnnotation,
   makePdfAttachment,
   makeWork,
@@ -155,6 +156,7 @@ describe("citation-only patch", function () {
   });
 
   it("preserves prefix and suffix for multiple annotations in full-citation mode", async function () {
+    if (!hasAnnotationDialog()) this.skip(); // needs Zotero >= 9 (native annotation citing in citation dialog)
     const work = await makeWork("Vollnachweis Prefix Testwerk");
     const att = await makePdfAttachment(work);
     const ann1 = await makeAnnotation(att, "Erstes Zitat", "10", 0);
