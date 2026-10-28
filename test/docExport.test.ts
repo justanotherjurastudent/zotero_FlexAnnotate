@@ -60,6 +60,7 @@ describe("docExport", function () {
       }
     }
     for (const f of files) await IOUtils.remove(f, { ignoreAbsent: true });
+    files.length = 0;
   });
 
   const core = () => api().outline;

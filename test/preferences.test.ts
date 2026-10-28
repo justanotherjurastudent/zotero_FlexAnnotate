@@ -56,6 +56,10 @@ describe("preferences pane", function () {
       assert.lengthOf(new Set(lefts.map((l) => Math.round(l))), 1, `${lefts}`);
     } finally {
       win.close();
+      await waitFor(() => {
+        const en = Services.wm.getEnumerator("zotero:pref");
+        return !en.hasMoreElements();
+      });
     }
   });
 });

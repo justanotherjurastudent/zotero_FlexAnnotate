@@ -55,13 +55,17 @@ describe("suggestRows", () => {
       ],
     });
     const h = rows.find((r) => r.value === "§Hauptteil");
-    assert.equal(h?.label, "§Hauptteil (2)");
-    assert.equal(
-      rows.find((r) => r.value === "§Einleitung")?.label,
-      "§Einleitung (1.1)",
-    );
-    assert.equal(rows.find((r) => r.value === "§Anhang")?.label, "§Anhang");
-    assert.equal(rows.find((r) => r.value === "§Zebra")?.label, "§Zebra (3)");
+    assert.ok(h, "§Hauptteil should be present in rows");
+    assert.equal(h.label, "§Hauptteil (2)");
+    const e = rows.find((r) => r.value === "§Einleitung");
+    assert.ok(e, "§Einleitung should be present in rows");
+    assert.equal(e.label, "§Einleitung (1.1)");
+    const a = rows.find((r) => r.value === "§Anhang");
+    assert.ok(a, "§Anhang should be present in rows");
+    assert.equal(a.label, "§Anhang");
+    const z = rows.find((r) => r.value === "§Zebra");
+    assert.ok(z, "§Zebra should be present in rows");
+    assert.equal(z.label, "§Zebra (3)");
   });
 
   it("header rows carry whitespace-only, distinct values", () => {

@@ -13,6 +13,8 @@ describe("locator", () => {
   it("defaults to page", () => {
     assert.equal(locatorOf([]), "page");
     assert.equal(locatorOf(["unrelated"], []), "page");
+    assert.equal(locatorOf(["#flexannotate-locator-"], []), "page");
+    assert.equal(locatorOf([], ["#flexannotate-default-locator-"]), "page");
   });
 
   it("reads the annotation tag", () => {
@@ -39,6 +41,12 @@ describe("locator", () => {
       remove: [para],
       add: [{ tag: "#flexannotate-locator-chapter", type: 1 }],
     });
+    // removes multiple legacy or conflicting locator tags
+    const col = "#flexannotate-locator-column";
+    assert.deepEqual(locatorTagChanges([para, col], [], "chapter"), {
+      remove: [para, col],
+      add: [{ tag: "#flexannotate-locator-chapter", type: 1 }],
+    });
   });
 
   it("sets a page tag when the document default is not page", () => {
@@ -51,5 +59,7 @@ describe("locator", () => {
   it("formats the place", () => {
     assert.equal(formatLocator("S.", "22"), "S. 22");
     assert.equal(formatLocator("S.", ""), "");
+    assert.equal(formatLocator("", "22"), "22");
+    assert.equal(formatLocator("", ""), "");
   });
 });

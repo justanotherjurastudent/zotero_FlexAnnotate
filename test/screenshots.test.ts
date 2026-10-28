@@ -318,7 +318,10 @@ describe("screenshots", function () {
     await step("preferences-features", async () => {
       const w = prefs as Window | null;
       if (!w) throw new Error("preferences window missing");
-      (w.document.getElementById("flexannotate-tab-features") as any)?.click();
+      const tab = w.document.getElementById("flexannotate-tab-features");
+      if (!tab)
+        throw new Error("preferences tab flexannotate-tab-features missing");
+      (tab as any).click();
       await Zotero.Promise.delay(1500);
       return screenshot(w, "preferences-features");
     });

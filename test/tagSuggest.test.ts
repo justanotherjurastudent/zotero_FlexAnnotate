@@ -19,26 +19,38 @@ async function suggest(
 ): Promise<{ value: string; label: string }[]> {
   const svc = api().tagSuggest.service();
   return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`suggest timed out after 10000ms for "${typed}"`));
+    }, 10000);
     const listener = {
       onSearchResult(_search: unknown, result: any) {
-        if (
-          result.searchResult ===
-          Ci.nsIAutoCompleteResult.RESULT_SUCCESS_ONGOING
-        )
-          return;
-        const rows = [];
-        for (let i = 0; i < result.matchCount; i++) {
-          rows.push({
-            value: result.getValueAt(i),
-            label: result.getLabelAt(i),
-          });
+        try {
+          if (
+            result.searchResult ===
+            Ci.nsIAutoCompleteResult.RESULT_SUCCESS_ONGOING
+          )
+            return;
+          clearTimeout(timer);
+          const rows = [];
+          for (let i = 0; i < result.matchCount; i++) {
+            rows.push({
+              value: result.getValueAt(i),
+              label: result.getLabelAt(i),
+            });
+          }
+          resolve(rows);
+        } catch (e) {
+          clearTimeout(timer);
+          reject(e);
         }
-        resolve(rows);
       },
     };
     const params = JSON.stringify({ fieldName: "tag", libraryID, itemID });
     Promise.resolve(svc.startSearch(typed, params, null, listener)).catch(
-      reject,
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      },
     );
   });
 }

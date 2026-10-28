@@ -77,7 +77,10 @@ describe("planApply", () => {
   });
 
   it("rejects an unknown locator value", () => {
-    assert.equal(planApply("bogus", null, true, "page").apply, false);
+    assert.deepEqual(planApply("bogus", null, true, "page"), {
+      apply: false,
+      setDefault: false,
+    });
     assert.equal(isKnownLocator("bogus"), false);
     assert.equal(isKnownLocator("section"), true);
   });

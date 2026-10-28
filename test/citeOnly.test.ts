@@ -128,7 +128,9 @@ describe("citation-only patch", function () {
     try {
       const citation = new (Zotero as any).Integration.Citation(
         null,
-        { citationItems: [{ id: ann.id }] },
+        {
+          citationItems: [{ id: ann.id, prefix: "vgl. ", suffix: ", Fn. 3" }],
+        },
         0,
       );
       // A populated field skips addField(); the session path remains identical.
@@ -148,6 +150,48 @@ describe("citation-only patch", function () {
     assert.notEqual(item.id, ann.id);
     assert.equal(item.locator, "22");
     assert.equal(item.label, "page");
+    assert.equal(item.prefix, "vgl. ");
+    assert.equal(item.suffix, ", Fn. 3");
+  });
+
+  it("preserves prefix and suffix for multiple annotations in full-citation mode", async function () {
+    const work = await makeWork("Vollnachweis Prefix Testwerk");
+    const att = await makePdfAttachment(work);
+    const ann1 = await makeAnnotation(att, "Erstes Zitat", "10", 0);
+    const ann2 = await makeAnnotation(att, "Zweites Zitat", "20", 1);
+
+    Zotero.Prefs.set(PREF, false, true);
+    const citation = new (Zotero as any).Integration.Citation(
+      null,
+      {
+        citationItems: [
+          { id: ann1.id, prefix: "vgl. ", suffix: ", S. 1" },
+          { id: ann2.id, prefix: "siehe ", suffix: " a.E." },
+        ],
+      },
+      0,
+    );
+    const fakeSession = Object.create(proto());
+    fakeSession.data = { prefs: {} };
+    fakeSession._doc = {
+      insertText: async () => {},
+      convertPlaceholdersToFields: async (ids: string[]) =>
+        ids.map((id) => ({ id })),
+    };
+    const result = await proto()._insertCitingResult.call(
+      fakeSession,
+      0,
+      { delete: async () => {} },
+      citation,
+    );
+    assert.lengthOf(result, 2);
+    const byLocator = new Map<string, any>(
+      result.map((c: any) => [c.citationItems[0].locator, c.citationItems[0]]),
+    );
+    assert.equal(byLocator.get("10")?.prefix, "vgl. ");
+    assert.equal(byLocator.get("10")?.suffix, ", S. 1");
+    assert.equal(byLocator.get("20")?.prefix, "siehe ");
+    assert.equal(byLocator.get("20")?.suffix, " a.E.");
   });
 
   it("with citationOnly pre-assigns citationID and records annotation key in session doc prefs", async function () {

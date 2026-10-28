@@ -76,8 +76,12 @@ describe("tree operations", () => {
 describe("titles", () => {
   it("rejects empty and duplicate titles (a heading is a tag)", () => {
     const r = tree();
-    assert.notEqual(titleError(r, "  "), "");
-    assert.notEqual(titleError(r, "einleitung"), "");
+    assert.equal(titleError(r, "  "), "Heading can't be empty");
+    assert.equal(titleError(r, "a\nb"), "Heading can't contain a line break");
+    assert.equal(
+      titleError(r, "einleitung"),
+      "A heading with that title exists",
+    );
     assert.equal(titleError(r, "Neu"), "");
     assert.equal(titleError(r, "Einleitung", r[0].id), "");
   });
@@ -164,7 +168,19 @@ describe("grouping like the plugin", () => {
   });
 
   it("can keep empty headings", () => {
-    assert.equal(groupByOutline(r, items, true).length, 5);
+    assert.deepEqual(
+      groupByOutline(r, items, true).map((x) => [
+        x.number,
+        x.items.map((i) => i.id),
+      ]),
+      [
+        ["1", [1, 2]],
+        ["2", []],
+        ["2.1", []],
+        ["2.2", [2]],
+        ["", [3, 4]],
+      ],
+    );
   });
 
   it("selects items under a node with or without subheadings", () => {

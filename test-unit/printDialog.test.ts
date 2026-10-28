@@ -43,9 +43,15 @@ describe("buildSaveData", () => {
       null,
     );
     assert.deepEqual(
-      buildSaveData(blank, { view: "full", multi: false, requirePage: false })
-        ?.pageLabel,
-      "",
+      buildSaveData(blank, { view: "full", multi: false, requirePage: false }),
+      {
+        locator: "chapter",
+        pageLabel: "",
+        type: "highlight",
+        color: "#ff0000",
+        text: "Zitat",
+        comment: "Kommentar",
+      },
     );
   });
 
@@ -55,7 +61,7 @@ describe("buildSaveData", () => {
       multi: true,
       requirePage: true,
     });
-    assert.equal(multi && "pageLabel" in multi, false);
+    assert.deepEqual(multi, { locator: "chapter" });
 
     const comment = buildSaveData(input, {
       view: "comment",
@@ -97,13 +103,34 @@ describe("defaultCheckboxState and wantsDefault", () => {
 });
 
 describe("viewLayout and isTypeHidden", () => {
-  it("shows only the comment in the comment view", () => {
-    const layout = viewLayout("comment");
-    assert.equal(layout.width, 380);
-    assert.equal(layout.locator, false);
-    assert.equal(layout.text, false);
-    assert.equal(layout.typeColor, false);
-    assert.equal(layout.comment, true);
+  it("determines layout dimensions and field visibility for each view", () => {
+    assert.deepEqual(viewLayout("comment"), {
+      width: 380,
+      minWidth: 340,
+      maxWidth: 420,
+      locator: false,
+      typeColor: false,
+      text: false,
+      comment: true,
+    });
+    assert.deepEqual(viewLayout("locator"), {
+      width: 320,
+      minWidth: 280,
+      maxWidth: 360,
+      locator: true,
+      typeColor: false,
+      text: false,
+      comment: false,
+    });
+    assert.deepEqual(viewLayout("full"), {
+      width: 440,
+      minWidth: 380,
+      maxWidth: 480,
+      locator: true,
+      typeColor: true,
+      text: true,
+      comment: true,
+    });
   });
 
   it("offers only creatable types plus the current one", () => {

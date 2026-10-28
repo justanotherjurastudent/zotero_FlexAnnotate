@@ -13,8 +13,20 @@ describe("organizerToolbarButton", function () {
   const feature = () => api().organizerToolbar;
   const buttons = () => doc().querySelectorAll(`#${BUTTON_ID}`);
 
+  const closeOrganizer = async () => {
+    const org = findOrganizerWindow();
+    if (org) {
+      org.close();
+      await waitFor(() => !findOrganizerWindow());
+    }
+  };
+
+  afterEach(async function () {
+    await closeOrganizer();
+  });
+
   after(async function () {
-    findOrganizerWindow()?.close();
+    await closeOrganizer();
     feature().addToWindow(win());
   });
 

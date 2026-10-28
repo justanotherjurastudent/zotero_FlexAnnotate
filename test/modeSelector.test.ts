@@ -61,7 +61,11 @@ describe("citation mode selector", function () {
   });
 
   after(async function () {
-    win?.close();
+    if (win) {
+      win.close();
+      await waitFor(() => !findWindowByUrl(DIALOG_URL));
+      win = null;
+    }
     Zotero.Prefs.set(PREF, false, true);
   });
 

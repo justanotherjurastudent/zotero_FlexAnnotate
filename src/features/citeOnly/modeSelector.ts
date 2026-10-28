@@ -11,6 +11,7 @@
  *    changes via a MutationObserver on dialog-type.
  *  - citationDialog.js fills includeComments the same way from a pref.
  */
+import { assignChecked } from "../../shared/patch";
 import { getPref, setPref } from "../../utils/prefs";
 
 const ROW_CLASS = "flexannotate-citation-mode-row";
@@ -19,7 +20,15 @@ const STYLE_ID = "flexannotate-citation-dialog-style";
 /** Name of the plugin FTL; Zotero registers it for all plugins (plugins.js). */
 const FTL_RESOURCE = "flexannotate-addon.ftl";
 
-const observers = new WeakMap<Window, MutationObserver>();
+interface ModeSelectorState {
+  observer: MutationObserver;
+  onShowDetails: () => void;
+  onPopupShown: () => void;
+  origBuildBubbleString?: (...args: any[]) => string;
+  patchedBuildBubbleString?: (...args: any[]) => string;
+}
+
+const states = new WeakMap<Window, ModeSelectorState>();
 
 /**
  * Builds the selection at all existing injection points of the dialog.
@@ -74,9 +83,30 @@ export function injectModeSelector(win: Window): void {
  */
 export function removeModeSelector(win: Window): void {
   try {
-    observers.get(win)?.disconnect();
-    observers.delete(win);
+    const st = states.get(win);
+    st?.observer.disconnect();
     const doc = win.document;
+    if (st) {
+      doc.removeEventListener("show-details-popup", st.onShowDetails);
+      const itemDetails = doc.getElementById("itemDetails");
+      itemDetails?.removeEventListener("popupshowing", st.onShowDetails);
+      itemDetails?.removeEventListener("popupshown", st.onPopupShown);
+      const helpers = (win as any).Helpers;
+      if (
+        helpers &&
+        st.origBuildBubbleString &&
+        helpers.buildBubbleString === st.patchedBuildBubbleString
+      ) {
+        assignChecked(helpers, "buildBubbleString", st.origBuildBubbleString);
+      }
+    }
+    states.delete(win);
+    const details = doc.querySelector<HTMLElement>("#itemDetails .details");
+    if (details) {
+      details.setAttribute("data-dialog-type", "citation");
+      details.hidden =
+        doc.documentElement?.getAttribute("dialog-type") !== "citation";
+    }
     for (const row of doc.querySelectorAll<HTMLElement>(`.${ROW_CLASS}`)) {
       row.remove();
     }
@@ -132,6 +162,10 @@ function injectStyles(doc: Document): void {
       outline: var(--color-focus-outer-border) solid var(--width-focus-outer-border);
       outline-offset: var(--width-focus-border);
       box-shadow: 0 0 0 var(--width-focus-border) var(--color-focus-border);
+    }
+
+    #citation-dialog[dialog-type="annotations"] #itemDetails .details > :not([for="prefix"], #prefix, [for="suffix"], #suffix) {
+      display: none !important;
     }
   `;
   doc.head!.appendChild(style);
@@ -218,11 +252,16 @@ function localize(doc: Document, rows: HTMLElement[]): void {
  */
 function trackDialogType(win: Window, rows: HTMLElement[]): void {
   const doc = win.document;
+  const details = doc.querySelector<HTMLElement>("#itemDetails .details");
+  details?.setAttribute("data-dialog-type", "citation,annotations");
   const apply = () => {
-    const isAnnotations =
-      doc.documentElement!.getAttribute("dialog-type") === "annotations";
+    const type = doc.documentElement!.getAttribute("dialog-type");
+    const isAnnotations = type === "annotations";
     for (const row of rows) {
       row.hidden = !isAnnotations;
+    }
+    if (details) {
+      details.hidden = type !== "citation" && !isAnnotations;
     }
   };
   apply();
@@ -232,5 +271,88 @@ function trackDialogType(win: Window, rows: HTMLElement[]): void {
     attributes: true,
     attributeFilter: ["dialog-type"],
   });
-  observers.set(win, observer);
+
+  // PopupsHandler.openItemDetails returns early in annotations mode before
+  // initializing #prefix/#suffix and itemDetailsWhenOpened (popupHandler.mjs:118-122).
+  const onShowDetails = () => {
+    if (doc.documentElement?.getAttribute("dialog-type") !== "annotations") {
+      return;
+    }
+    const ph = (win as any).PopupsHandler;
+    const bi = ph?.bubbleItem;
+    if (!bi) return;
+    ph.itemDetailsWhenOpened = {
+      label: bi.label,
+      locator: bi.locator,
+      prefix: bi.prefix,
+      suffix: bi.suffix,
+      suppressAuthor: bi.suppressAuthor,
+    };
+    const locator = doc.getElementById("locator") as HTMLInputElement | null;
+    const prefix = doc.getElementById("prefix") as HTMLInputElement | null;
+    const suffix = doc.getElementById("suffix") as HTMLInputElement | null;
+    const suppress = doc.getElementById(
+      "suppress-author",
+    ) as HTMLInputElement | null;
+    if (locator) locator.value = bi.locator || "";
+    if (prefix) prefix.value = bi.prefix || "";
+    if (suffix) suffix.value = bi.suffix || "";
+    if (suppress) suppress.checked = !!bi.suppressAuthor;
+  };
+  const onPopupShown = () => {
+    if (doc.documentElement?.getAttribute("dialog-type") === "annotations") {
+      (doc.getElementById("prefix") as HTMLInputElement | null)?.focus();
+    }
+  };
+  doc.addEventListener("show-details-popup", onShowDetails);
+  const itemDetails = doc.getElementById("itemDetails");
+  itemDetails?.addEventListener("popupshowing", onShowDetails);
+  itemDetails?.addEventListener("popupshown", onPopupShown);
+
+  let origBuildBubbleString: ((...args: any[]) => string) | undefined;
+  let patchedBuildBubbleString: ((...args: any[]) => string) | undefined;
+  const helpers = (win as any).Helpers;
+  if (helpers && typeof helpers.buildBubbleString === "function") {
+    const orig = helpers.buildBubbleString as (
+      this: unknown,
+      bubbleItem: any,
+    ) => string;
+    const patched = function (this: unknown, bubbleItem: any): string {
+      let str = orig.call(this, bubbleItem);
+      if (bubbleItem?.item?.isAnnotation?.()) {
+        const csl = (Zotero as any).CiteProc?.CSL;
+        if (bubbleItem.prefix) {
+          const prefix =
+            bubbleItem.prefix.slice(0, 10) +
+            (bubbleItem.prefix.length > 10 ? "…" : "");
+          const trailingSpace = csl?.ENDSWITH_ROMANESQUE_REGEXP
+            ? csl.ENDSWITH_ROMANESQUE_REGEXP.test(bubbleItem.prefix)
+            : !bubbleItem.prefix.endsWith(" ");
+          str = prefix + (trailingSpace ? " " : "") + str;
+        }
+        if (bubbleItem.suffix) {
+          const suffix =
+            bubbleItem.suffix.slice(0, 10) +
+            (bubbleItem.suffix.length > 10 ? "…" : "");
+          const leadingSpace = csl?.STARTSWITH_ROMANESQUE_REGEXP
+            ? csl.STARTSWITH_ROMANESQUE_REGEXP.test(bubbleItem.suffix)
+            : !bubbleItem.suffix.startsWith(" ");
+          str += (leadingSpace ? " " : "") + suffix;
+        }
+      }
+      return str;
+    };
+    if (assignChecked(helpers, "buildBubbleString", patched)) {
+      origBuildBubbleString = orig;
+      patchedBuildBubbleString = patched;
+    }
+  }
+
+  states.set(win, {
+    observer,
+    onShowDetails,
+    onPopupShown,
+    origBuildBubbleString,
+    patchedBuildBubbleString,
+  });
 }

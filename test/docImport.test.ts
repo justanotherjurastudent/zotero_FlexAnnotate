@@ -79,6 +79,7 @@ describe("docImport", function () {
       }
     }
     for (const f of files) await IOUtils.remove(f, { ignoreAbsent: true });
+    files.length = 0;
   });
 
   it("imports German heading styles with levels, without numbering", async function () {
@@ -222,8 +223,15 @@ describe("docImport", function () {
 
   it("shows the preview in the organizer window and imports on click", async function () {
     this.timeout(60000);
-    findOrganizerWindow()?.close();
-    await waitFor(() => !findOrganizerWindow(), 8000).catch(() => {});
+    const existing = findOrganizerWindow();
+    if (existing) {
+      existing.close();
+      await waitFor(
+        () => !findOrganizerWindow(),
+        8000,
+        "Existing organizer window failed to close",
+      );
+    }
     await api().OrganizerFactory.open();
     const win = await waitFor(findOrganizerWindow, 25000);
     try {
@@ -273,8 +281,15 @@ describe("docImport", function () {
 
   it("keeps the preview open when the organizer redraws meanwhile", async function () {
     this.timeout(60000);
-    findOrganizerWindow()?.close();
-    await waitFor(() => !findOrganizerWindow(), 8000).catch(() => {});
+    const existing = findOrganizerWindow();
+    if (existing) {
+      existing.close();
+      await waitFor(
+        () => !findOrganizerWindow(),
+        8000,
+        "Existing organizer window failed to close",
+      );
+    }
     await api().OrganizerFactory.open();
     const win = await waitFor(findOrganizerWindow, 25000);
     try {

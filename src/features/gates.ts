@@ -194,7 +194,7 @@ export const gates: readonly FeatureGate[] = [
   {
     name: "citedTracking",
     description:
-      "Track already-cited annotations in the citation dialog (green check, document variable sync, manual mark/unmark).",
+      "Track already-cited annotations in the citation dialog (green check, document variable sync).",
     enabled: true,
     requires: ["outlineView"],
   },

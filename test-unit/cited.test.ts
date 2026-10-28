@@ -129,12 +129,8 @@ describe("citedDocData: reconciliation and pruning", () => {
     });
     assert.deepEqual(data.manual, ["MAN1"]);
 
-    // Active keys contains ANN1, ANN4, and MAN1 (O(1) Set)
-    assert.ok(activeKeys.has("ANN1"));
-    assert.ok(activeKeys.has("ANN4"));
-    assert.ok(activeKeys.has("MAN1"));
-    assert.ok(!activeKeys.has("ANN2"));
-    assert.ok(!activeKeys.has("ANN3"));
+    // Active keys contains exactly ANN1, ANN4, and MAN1
+    assert.deepEqual([...activeKeys].sort(), ["ANN1", "ANN4", "MAN1"].sort());
   });
 
   it("works with Record<string, unknown> (e.g. session.documentCitationIDs)", () => {
@@ -182,10 +178,11 @@ describe("citedDocData: reconciliation and pruning", () => {
     assert.deepEqual(step1.data.citations, {
       fn2: ["ANN_SHARED", "ANN_ONLY_2"],
     });
-    // ANN_SHARED is still cited because fn2 remains!
-    assert.ok(step1.activeKeys.has("ANN_SHARED"));
-    assert.ok(step1.activeKeys.has("ANN_ONLY_2"));
-    assert.ok(!step1.activeKeys.has("ANN_ONLY_1"));
+    // ANN_SHARED is still cited because fn2 remains; ANN_ONLY_1 is gone
+    assert.deepEqual(
+      [...step1.activeKeys].sort(),
+      ["ANN_ONLY_2", "ANN_SHARED"].sort(),
+    );
 
     // User also deletes footnote 2 in Word
     // Empty active ID set without authoritativeEmpty = session not loaded: delete nothing

@@ -16,8 +16,20 @@ describe("toolsMenuFallback", function () {
   const win = () => Zotero.getMainWindow() as any;
   const items = () => win().document.querySelectorAll(`#${ITEM_ID}`);
 
-  after(function () {
-    findOrganizerWindow()?.close();
+  const closeOrganizer = async () => {
+    const org = findOrganizerWindow();
+    if (org) {
+      org.close();
+      await waitFor(() => !findOrganizerWindow());
+    }
+  };
+
+  afterEach(async function () {
+    await closeOrganizer();
+  });
+
+  after(async function () {
+    await closeOrganizer();
   });
 
   it("adds its entry to the Tools menu only without Zotero.MenuManager", function () {

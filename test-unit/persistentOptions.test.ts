@@ -8,10 +8,9 @@ describe("normalizePersistentOptions", () => {
       "chrome,centerscreen,resizable=true,popup",
     );
     assert.equal(out, "chrome,centerscreen,resizable=true,dialog=no");
-    assert.ok(
-      !normalizePersistentOptions("chrome,alwaysRaised").includes(
-        "alwaysRaised",
-      ),
+    assert.equal(
+      normalizePersistentOptions("chrome,alwaysRaised,popup"),
+      "chrome,dialog=no,resizable=yes",
     );
   });
 

@@ -815,6 +815,66 @@ describe("FlexAnnotate features", function () {
         () => doc.querySelectorAll("#bubble-input .bubble").length === 2,
       );
 
+      // double-clicking a row adds it to the citation without detaching the row on the first click
+      const row2 = doc.querySelector<HTMLElement>(
+        `[data-ann-id="${anns[2].id}"]`,
+      )!;
+      click(row2);
+      assert.isTrue(doc.contains(row2), "row stays in DOM after first click");
+      click(row2);
+      row2.dispatchEvent(
+        new (w as any).MouseEvent("dblclick", { bubbles: true }),
+      );
+      await waitFor(
+        () => doc.querySelectorAll("#bubble-input .bubble").length === 3,
+      );
+
+      // clicking an annotation bubble opens #itemDetails with #prefix and #suffix available
+      const bubbles = doc.querySelectorAll<HTMLElement>(
+        "#bubble-input .bubble",
+      );
+      click(bubbles[2]);
+      await waitFor(
+        () => (doc.getElementById("itemDetails") as any)?.state === "open",
+      );
+      const details = doc.querySelector<HTMLElement>("#itemDetails .details")!;
+      const prefix = doc.getElementById("prefix") as HTMLInputElement;
+      const suffix = doc.getElementById("suffix") as HTMLInputElement;
+      const locator = doc.getElementById("locator") as HTMLInputElement;
+      assert.isFalse(details.hidden, "details container visible");
+      assert.notEqual(w.getComputedStyle(prefix)?.display, "none");
+      assert.notEqual(w.getComputedStyle(suffix)?.display, "none");
+      assert.equal(w.getComputedStyle(locator)?.display, "none");
+      for (const [el, text] of [
+        [prefix, "vgl. "],
+        [suffix, ", Fn. 3"],
+      ] as const) {
+        el.value = text;
+        el.dispatchEvent(new (w as any).Event("input", { bubbles: true }));
+      }
+      assert.equal((w as any).PopupsHandler.bubbleItem.prefix, "vgl. ");
+      assert.equal((w as any).PopupsHandler.bubbleItem.suffix, ", Fn. 3");
+      assert.include(bubbles[2].textContent || "", "vgl. ");
+      assert.include(bubbles[2].textContent || "", ", Fn. 3");
+      // Escape discards edits back to itemDetailsWhenOpened
+      (w as any).PopupsHandler.itemDetailsTimeOpened = 0;
+      key(doc, "Escape");
+      (doc.getElementById("itemDetails") as any).hidePopup();
+      await waitFor(
+        () => (doc.getElementById("itemDetails") as any)?.state === "closed",
+      );
+      assert.isUndefined((w as any).PopupsHandler.bubbleItem.prefix);
+      assert.isUndefined((w as any).PopupsHandler.bubbleItem.suffix);
+      click(bubbles[2]);
+      await waitFor(
+        () => (doc.getElementById("itemDetails") as any)?.state === "open",
+      );
+      (w as any).PopupsHandler.itemDetailsTimeOpened = 0;
+      click(doc.querySelector<HTMLElement>("#itemDetails .remove")!);
+      await waitFor(
+        () => doc.querySelectorAll("#bubble-input .bubble").length === 2,
+      );
+
       // accepting records the annotation as cited for this document
       await (w as any).accept();
       await waitFor(() => {
@@ -929,7 +989,7 @@ describe("FlexAnnotate features", function () {
       }
       await screenshot(w, "dialog-cited");
 
-      // the mark can be removed by hand and set again
+      // the mark cannot be removed by hand and no manual toggle button is offered
       const readStore = () =>
         Zotero.Prefs.get(`${prefs}.citedAnnotations`, true) as string;
       click(
@@ -937,20 +997,13 @@ describe("FlexAnnotate features", function () {
           `[data-ann-id="${anns[0].id}"] .flexannotate-cited`,
         )!,
       );
-      await waitFor(
-        () => w.document.querySelectorAll(".flexannotate-cited").length === 1,
-      );
-      assert.notInclude(readStore(), `"${anns[0].id}"`);
-      // select it: the preview offers the opposite action
-      click(w.document.querySelector(`[data-ann-id="${anns[0].id}"]`)!);
-      const mark = await waitFor(() =>
-        w.document.getElementById("flexannotate-toggle-cited"),
-      );
-      click(mark);
-      await waitFor(
-        () => w.document.querySelectorAll(".flexannotate-cited").length === 2,
+      assert.equal(
+        w.document.querySelectorAll(".flexannotate-cited").length,
+        2,
       );
       assert.include(readStore(), `"${anns[0].id}"`);
+      click(w.document.querySelector(`[data-ann-id="${anns[0].id}"]`)!);
+      assert.isNull(w.document.getElementById("flexannotate-toggle-cited"));
 
       // the work is no longer cited: the check is gone (cheap validity test)
       w.close();
@@ -1131,7 +1184,6 @@ describe("FlexAnnotate features", function () {
       assert.deepEqual(buttons(), [
         "flexannotate-insert",
         "flexannotate-show-place",
-        "flexannotate-toggle-cited",
       ]);
 
       // only for exactly one selected annotation
@@ -2418,11 +2470,6 @@ describe("FlexAnnotate features", function () {
         click(rows()[25]);
         await waitFor(() => doc.getElementById("flexannotate-show-place"));
         assert.approximately(list().scrollTop, top, 1, "select keeps scroll");
-
-        // the cited mark keeps it too
-        click(rows()[26].querySelector(".flexannotate-check") as HTMLElement);
-        await waitFor(() => rows()[26]?.querySelector(".flexannotate-cited"));
-        assert.approximately(list().scrollTop, top, 1, "cited keeps scroll");
 
         // arrow keys keep the scroll and bring the new row into view
         const key = (k: string) =>

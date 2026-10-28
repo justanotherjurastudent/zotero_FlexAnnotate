@@ -29,8 +29,7 @@ FlexAnnotate stores the citation data under the key `flexannotate_cited` as a co
   "citations": {
     "c_K8X29PLA": ["ANN_KEY_1"],
     "c_M4B11ZZR": ["ANN_KEY_2", "ANN_KEY_3"]
-  },
-  "manual": ["ANN_KEY_4"]
+  }
 }
 ```
 
@@ -193,9 +192,9 @@ FlexAnnotate therefore brings Word resp. LibreOffice reliably to the foreground 
 - **List (middle):** the tooltip of the green checkmark (`✓`) shows the concrete footnotes without duplicates, e.g. `Already cited (Fn. 3, Fn. 12)`.
 - **Data source for works:** for regular works (`r.kind === "work"`), the locations are obtained in $\mathcal{O}(1)$ via `getAllWorkCitationLocations()` from `session.citationsByItemID[workID]` and sorted by footnote number with `buildWorkCitationLocationsMap`.
 
-## 5. Manual markings and prototype safety
+## 5. Dynamic checkmarks and prototype safety
 
-- **Manual correction:** clicking directly on the green checkmark in the citation dialog adds the annotation to `docData.manual` (or removes it). Manual markings are deliberately active document-wide and survive Zotero restarts.
+- **Strictly dynamic checkmarks:** green checkmarks in the citation dialog cannot be toggled or removed by hand; they appear and disappear automatically from the document's active citations.
 - **Prototype-pollution safety:** when parsing and reconciling (`parseDocData`, `reconcileDocData`), dangerous object keys (`__proto__`, `constructor`, `prototype`) are strictly ignored.
 
 ## 6. Involved files

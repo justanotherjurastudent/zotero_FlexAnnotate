@@ -21,96 +21,153 @@ describe("printMenuState", () => {
   });
 
   it("offers only Add for one regular item", () => {
-    const s = printMenuState({
-      selectedCount: 1,
-      kinds: ["regular"],
-      isEditable: true,
-    });
-    assert.equal(s.add, true);
-    assert.equal(s.edit, false);
-    assert.equal(s.delete, false);
-    assert.equal(s.separator, true);
+    assert.deepEqual(
+      printMenuState({
+        selectedCount: 1,
+        kinds: ["regular"],
+        isEditable: true,
+      }),
+      {
+        add: true,
+        edit: false,
+        editDisabled: false,
+        delete: false,
+        separator: true,
+      },
+    );
   });
 
   it("offers Add for the attachment of a title, as for the title itself", () => {
-    const s = printMenuState({
-      selectedCount: 1,
-      kinds: ["attachment"],
-      isEditable: true,
-    });
-    assert.equal(s.add, true);
-    assert.equal(s.edit, false);
-    assert.equal(s.delete, false);
-    assert.equal(s.separator, true);
+    assert.deepEqual(
+      printMenuState({
+        selectedCount: 1,
+        kinds: ["attachment"],
+        isEditable: true,
+      }),
+      {
+        add: true,
+        edit: false,
+        editDisabled: false,
+        delete: false,
+        separator: true,
+      },
+    );
   });
 
   it("offers nothing for several regular items", () => {
-    const s = printMenuState({
-      selectedCount: 2,
-      kinds: ["regular", "regular"],
-      isEditable: true,
-    });
-    assert.equal(s.add, false);
-    assert.equal(s.separator, false);
+    assert.deepEqual(
+      printMenuState({
+        selectedCount: 2,
+        kinds: ["regular", "regular"],
+        isEditable: true,
+      }),
+      {
+        add: false,
+        edit: false,
+        editDisabled: false,
+        delete: false,
+        separator: false,
+      },
+    );
   });
 
   it("offers Edit and Delete for a native annotation", () => {
-    const s = printMenuState({
-      selectedCount: 1,
-      kinds: ["annotation"],
-      isEditable: true,
-    });
-    assert.equal(s.edit, true);
-    assert.equal(s.editDisabled, false);
-    assert.equal(s.delete, true);
+    assert.deepEqual(
+      printMenuState({
+        selectedCount: 1,
+        kinds: ["annotation"],
+        isEditable: true,
+      }),
+      {
+        add: false,
+        edit: true,
+        editDisabled: false,
+        delete: true,
+        separator: true,
+      },
+    );
   });
 
   it("disables Edit for a non-editable annotation", () => {
-    const s = printMenuState({
-      selectedCount: 1,
-      kinds: ["annotation"],
-      isEditable: false,
-    });
-    assert.equal(s.edit, true);
-    assert.equal(s.editDisabled, true);
-    assert.equal(s.delete, false);
+    assert.deepEqual(
+      printMenuState({
+        selectedCount: 1,
+        kinds: ["annotation"],
+        isEditable: false,
+      }),
+      {
+        add: false,
+        edit: true,
+        editDisabled: true,
+        delete: false,
+        separator: true,
+      },
+    );
   });
 
   it("offers Edit and Delete for a print annotation", () => {
-    const s = printMenuState({
-      selectedCount: 1,
-      kinds: ["annotation"],
-      isEditable: true,
-    });
-    assert.equal(s.edit, true);
-    assert.equal(s.delete, true);
-    assert.equal(s.add, false);
+    assert.deepEqual(
+      printMenuState({
+        selectedCount: 1,
+        kinds: ["annotation"],
+        isEditable: true,
+      }),
+      {
+        add: false,
+        edit: true,
+        editDisabled: false,
+        delete: true,
+        separator: true,
+      },
+    );
   });
 
   it("offers nothing for several annotations or a mixed selection", () => {
-    const several = printMenuState({
-      selectedCount: 2,
-      kinds: ["annotation", "annotation"],
-      isEditable: true,
-    });
-    assert.equal(several.edit, false);
-    assert.equal(several.delete, false);
+    assert.deepEqual(
+      printMenuState({
+        selectedCount: 2,
+        kinds: ["annotation", "annotation"],
+        isEditable: true,
+      }),
+      {
+        add: false,
+        edit: false,
+        editDisabled: false,
+        delete: false,
+        separator: false,
+      },
+    );
 
-    const mixed = printMenuState({
-      selectedCount: 2,
-      kinds: ["regular", "annotation"],
-      isEditable: true,
-    });
-    assert.equal(mixed.add, false);
-    assert.equal(mixed.edit, false);
+    assert.deepEqual(
+      printMenuState({
+        selectedCount: 2,
+        kinds: ["regular", "annotation"],
+        isEditable: true,
+      }),
+      {
+        add: false,
+        edit: false,
+        editDisabled: false,
+        delete: false,
+        separator: false,
+      },
+    );
   });
 
   it("offers nothing for a single non-annotation, non-regular item", () => {
-    const s = printMenuState({
-      selectedCount: 1,
-      kinds: ["other"],
-      isEditable: true,
-    });
-    assert.equal(s.separator, false);
+    assert.deepEqual(
+      printMenuState({
+        selectedCount: 1,
+        kinds: ["other"],
+        isEditable: true,
+      }),
+      {
+        add: false,
+        edit: false,
+        editDisabled: false,
+        delete: false,
+        separator: false,
+      },
+    );
   });
 });

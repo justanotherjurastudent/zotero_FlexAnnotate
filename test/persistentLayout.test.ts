@@ -285,7 +285,15 @@ describe("persistent citation window layout (screenshots)", function () {
         return w && w !== bw && !w.closed ? w : null;
       })) as Window;
       await waitFor(() => (next as any).DIALOG_STATE?.loaded || null);
-      await Zotero.Promise.delay(3000);
+      await waitFor(
+        () =>
+          Math.abs(next.innerWidth - 1100) <= 2 &&
+          Math.abs(next.innerHeight - 700) <= 2
+            ? true
+            : null,
+        6000,
+        `reopened dimensions did not settle to 1100x700 within 6s (actual: ${next.innerWidth}x${next.innerHeight})`,
+      );
       assert.approximately(next.innerWidth, 1100, 2, "reopened width");
       assert.approximately(next.innerHeight, 700, 2, "reopened height");
       await screenshot(next, "persistent/wide-three-columns-after-reopen");

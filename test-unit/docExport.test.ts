@@ -52,7 +52,10 @@ describe("docxBody", () => {
 
   it("escapet XML-Sonderzeichen im Titel", () => {
     const body = docxBody([node('A & B <C> "D"')]);
-    assert.ok(body.includes("A &amp; B &lt;C&gt; &quot;D&quot;"));
+    assert.match(
+      body,
+      /<w:t xml:space="preserve">A &amp; B &lt;C&gt; &quot;D&quot;<\/w:t>/,
+    );
   });
 
   it("laesst leere Titel weg", () => {

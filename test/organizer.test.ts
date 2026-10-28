@@ -89,11 +89,14 @@ describe("FlexAnnotate", function () {
       const roots = [core.makeNode("Einleitung"), core.makeNode("Hauptteil")];
       roots[1].children.push(core.makeNode("Begriff"));
       const noteID = await model.OutlineModel.save(libraryID, null, roots);
-      const loaded = await model.OutlineModel.load(libraryID);
-      assert.equal(loaded.noteID, noteID);
-      assert.equal(loaded.roots[1].children[0].title, "Begriff");
-      const note = Zotero.Items.get(noteID) as Zotero.Item;
-      await note.eraseTx();
+      try {
+        const loaded = await model.OutlineModel.load(libraryID);
+        assert.equal(loaded.noteID, noteID);
+        assert.equal(loaded.roots[1].children[0].title, "Begriff");
+      } finally {
+        const note = Zotero.Items.get(noteID) as Zotero.Item | undefined;
+        if (note) await note.eraseTx();
+      }
     });
 
     it("loadTreeOnly reads the tree without syncing tags or notes", async function () {
@@ -204,8 +207,8 @@ describe("FlexAnnotate", function () {
     });
 
     after(async function () {
-      win?.close();
-      await (Zotero.Items.get(noteID) as Zotero.Item).eraseTx();
+      (win || findOrganizerWindow())?.close();
+      await (Zotero.Items.get(noteID) as Zotero.Item | undefined)?.eraseTx();
       for (const item of created.reverse()) {
         try {
           await item.eraseTx();

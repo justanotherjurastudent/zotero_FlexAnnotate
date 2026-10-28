@@ -28,7 +28,7 @@ import {
   syncSessionFromDocument,
   type CitationLocation,
 } from "./dialogCited";
-import { GREEN, setCited } from "./citedToggle";
+import { GREEN } from "./citedToggle";
 import { attachFootnotePopover, makeCitationChip } from "./footnoteChips";
 
 export const TREE_ID = "flexannotate-tree";
@@ -312,7 +312,7 @@ function rowEl(
   const cited = citedOn && v.cited.has(r.id);
   const locs =
     cited && jumpOn ? getLocationsForRow(r, locMap, workLocMap) : undefined;
-  let checkTitle = cited ? tr("dialogCited") : tr("dialogCheckHint");
+  let checkTitle = cited ? tr("dialogCited") : "";
   if (locs && locs.length) {
     const items = formatCitationLocationList(locs, getLocationOptions());
     const uniqueLabels = [...new Set(items.map((x) => x.label))];
@@ -323,11 +323,10 @@ function rowEl(
         : uniqueLabels.join(", ");
     checkTitle = `${tr("dialogCited")} (${summary})`;
   }
-  const canMark = citedOn && r.kind !== "work";
   const check = el(
     doc,
     "span",
-    `flex:none;width:16px;text-align:center;cursor:${canMark ? "pointer" : "default"};color:${GREEN};font-weight:700;`,
+    `flex:none;width:16px;text-align:center;cursor:default;color:${GREEN};font-weight:700;`,
     cited ? "✓" : "",
   );
   check.className = cited
@@ -343,17 +342,6 @@ function rowEl(
       () => void refreshCitedInView(win, v),
     );
   }
-  check.addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (!canMark) return;
-    const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
-    setCited(win, v, ids, !cited, () => {
-      const lm = jumpOn ? getAllCitationLocations() : undefined;
-      const wlm = jumpOn ? getAllWorkCitationLocations() : undefined;
-      renderList(win, v, true, lm, wlm);
-      renderPreview(win, v, lm, wlm);
-    });
-  });
   const dot = el(
     doc,
     "span",
@@ -394,17 +382,30 @@ function rowEl(
     const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
     void insert(win, ids);
   });
+  plus.addEventListener("dblclick", (e) => e.stopPropagation());
   d.append(check, dot, text, place, plus);
   d.addEventListener("click", (e: Event) => {
     const m = e as MouseEvent;
+    if (m.detail > 1) return;
     v.sel = applyClick(v.sel, order, r.id, {
       ctrl: m.ctrlKey || m.metaKey,
       shift: m.shiftKey,
     });
-    renderList(win, v, true, locMap, workLocMap);
+    // Update row selection backgrounds in-place so the clicked node stays in the DOM for dblclick.
+    for (const row of doc.querySelectorAll<HTMLElement>(
+      `#${LIST_ID} [data-ann-id]`,
+    )) {
+      row.style.background = v.sel.selected.has(Number(row.dataset.annId))
+        ? SELECTED
+        : "transparent";
+    }
     renderPreview(win, v, locMap, workLocMap);
   });
-  d.addEventListener("dblclick", () => void insert(win, [r.id]));
+  d.addEventListener("dblclick", (e) => {
+    e.stopPropagation();
+    const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
+    void insert(win, ids);
+  });
   return d;
 }
 
@@ -536,29 +537,6 @@ export function renderPreview(
     show.style.cssText = BUTTON_CSS;
     show.addEventListener("click", () => void openRow(picked[0]));
     bar.appendChild(show);
-  }
-
-  // manual marking/unmarking of the green check (only for annotations, works are strictly dynamic)
-  const canToggle =
-    isFeatureEnabled("citedTracking") &&
-    picked.length > 0 &&
-    picked.every((r) => r.kind !== "work");
-  if (canToggle) {
-    const allCited = picked.every((r) => v.cited.has(r.id));
-    const mark = doc.createElement("button");
-    mark.id = "flexannotate-toggle-cited";
-    mark.textContent = allCited ? tr("dialogUncite") : tr("dialogMark");
-    mark.style.cssText = BUTTON_CSS;
-    mark.addEventListener("click", () =>
-      setCited(win, v, [...v.sel.selected], !allCited, () => {
-        const jumpOn = isFeatureEnabled("footnoteJump");
-        const lm = jumpOn ? getAllCitationLocations() : undefined;
-        const wlm = jumpOn ? getAllWorkCitationLocations() : undefined;
-        renderList(win, v, true, lm, wlm);
-        renderPreview(win, v, lm, wlm);
-      }),
-    );
-    bar.appendChild(mark);
   }
 }
 

@@ -39,39 +39,68 @@ describe("parsePageRange", () => {
 
   it("keeps a page range as displayed", () => {
     const raw = "<sp> <n>12</n> <os>12-14</os> </sp>";
-    assert.equal(parsePageRange(raw, "12", locatorFor).pageLabel, "12-14");
+    assert.deepEqual(parsePageRange(raw, "12", locatorFor), {
+      pageLabel: "12-14",
+      locator: "page",
+    });
   });
 
   it("keeps 'S. 12 f.' and roman numerals as displayed", () => {
-    assert.equal(
-      parsePageRange("<sp><os>S. 12 f.</os></sp>", null, locatorFor).pageLabel,
-      "S. 12 f.",
+    assert.deepEqual(
+      parsePageRange("<sp><os>S. 12 f.</os></sp>", null, locatorFor),
+      { pageLabel: "S. 12 f.", locator: "page" },
     );
-    assert.equal(
-      parsePageRange("<sp><os>XIV</os></sp>", null, locatorFor).pageLabel,
-      "XIV",
+    assert.deepEqual(
+      parsePageRange("<sp><os>XIV</os></sp>", null, locatorFor),
+      { pageLabel: "XIV", locator: "page" },
     );
   });
 
   it("falls back to PageRangeNumber when <os> is missing", () => {
-    assert.equal(parsePageRange("", "45", locatorFor).pageLabel, "45");
+    assert.deepEqual(parsePageRange("", "45", locatorFor), {
+      pageLabel: "45",
+      locator: "page",
+    });
   });
 
   it("returns an empty label when the page is missing (-1 or nothing)", () => {
-    assert.equal(parsePageRange("", "-1", locatorFor).pageLabel, "");
-    assert.equal(parsePageRange(null, null, locatorFor).pageLabel, "");
+    assert.deepEqual(parsePageRange("", "-1", locatorFor), {
+      pageLabel: "",
+      locator: "page",
+    });
+    assert.deepEqual(parsePageRange(null, null, locatorFor), {
+      pageLabel: "",
+      locator: "page",
+    });
+  });
+
+  it("falls back to PageRangeNumber when <os> is malformed or unclosed", () => {
+    assert.deepEqual(parsePageRange("<sp><os>unclosed tag", "45", locatorFor), {
+      pageLabel: "45",
+      locator: "page",
+    });
+    assert.deepEqual(
+      parsePageRange("<sp><os>   </os></sp>", "45", locatorFor),
+      { pageLabel: "45", locator: "page" },
+    );
   });
 
   it("maps Margin, Paragraph and Column to their locators", () => {
     const margin = "<sp><n>128</n><nt>Margin</nt><os>128</os></sp>";
     const paragraph = "<sp><nt>Paragraph</nt><os>7</os></sp>";
     const column = "<sp><nt>Column</nt><os>3</os></sp>";
-    assert.equal(parsePageRange(margin, null, locatorFor).locator, "paragraph");
-    assert.equal(
-      parsePageRange(paragraph, null, locatorFor).locator,
-      "paragraph",
-    );
-    assert.equal(parsePageRange(column, null, locatorFor).locator, "column");
+    assert.deepEqual(parsePageRange(margin, null, locatorFor), {
+      pageLabel: "128",
+      locator: "paragraph",
+    });
+    assert.deepEqual(parsePageRange(paragraph, null, locatorFor), {
+      pageLabel: "7",
+      locator: "paragraph",
+    });
+    assert.deepEqual(parsePageRange(column, null, locatorFor), {
+      pageLabel: "3",
+      locator: "column",
+    });
   });
 
   it("uses the preference override for a number type", () => {
@@ -79,7 +108,10 @@ describe("parsePageRange", () => {
       prefsWith({ citaviLocatorMargin: "opus" }),
     );
     const margin = "<sp><nt>Margin</nt><os>128</os></sp>";
-    assert.equal(parsePageRange(margin, null, resolve).locator, "opus");
+    assert.deepEqual(parsePageRange(margin, null, resolve), {
+      pageLabel: "128",
+      locator: "opus",
+    });
   });
 
   it("treats an empty preference as the 'page' fallback", () => {
@@ -87,7 +119,10 @@ describe("parsePageRange", () => {
       prefsWith({ citaviLocatorColumn: "" }),
     );
     const column = "<sp><nt>Column</nt><os>3</os></sp>";
-    assert.equal(parsePageRange(column, null, resolve).locator, "page");
+    assert.deepEqual(parsePageRange(column, null, resolve), {
+      pageLabel: "3",
+      locator: "page",
+    });
   });
 
   it("maps an unknown number type to 'Other' and reports it only once", () => {
@@ -97,8 +132,14 @@ describe("parsePageRange", () => {
       (nt) => reported.push(nt),
     );
     const unknown = "<sp><nt>Zeile</nt><os>9</os></sp>";
-    assert.equal(parsePageRange(unknown, null, resolve).locator, "section");
-    assert.equal(parsePageRange(unknown, null, resolve).locator, "section");
+    assert.deepEqual(parsePageRange(unknown, null, resolve), {
+      pageLabel: "9",
+      locator: "section",
+    });
+    assert.deepEqual(parsePageRange(unknown, null, resolve), {
+      pageLabel: "9",
+      locator: "section",
+    });
     assert.deepEqual(reported, ["Zeile"]);
   });
 });

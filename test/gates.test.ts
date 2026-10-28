@@ -84,9 +84,13 @@ describe("feature gates", function () {
 
         if (api().gates.isFeatureEnabled("organizer")) {
           await api().OrganizerFactory.open();
-          await waitFor(findOrganizerWindow, 25000);
-          findOrganizerWindow()?.close();
-          await waitFor(() => !findOrganizerWindow(), 8000);
+          const orgWin = await waitFor(findOrganizerWindow, 25000);
+          orgWin.close();
+          await waitFor(
+            () => !findOrganizerWindow(),
+            8000,
+            "Organizer window failed to close",
+          );
         }
 
         fl.removeFromWindow(active, win, log);
@@ -95,6 +99,7 @@ describe("feature gates", function () {
         assert.isEmpty(errors, `gate ${g.name} off: ${errors.join(" | ")}`);
       }
     } finally {
+      findOrganizerWindow()?.close();
       for (const g of api().gates.gates) setGate(g.name, null);
       await fl.startAll(all, log);
       await fl.addToWindow(all, win, log);

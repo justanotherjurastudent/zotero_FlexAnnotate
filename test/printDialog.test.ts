@@ -19,9 +19,19 @@ function committed(
   kind: "add" | "modify",
   matches: (item: Zotero.Item) => boolean,
   save: () => void,
+  timeoutMs = 15000,
 ): Promise<void> {
-  return new Promise((resolve) => {
-    const observerID = Zotero.Notifier.registerObserver(
+  return new Promise((resolve, reject) => {
+    let observerID: string | null = null;
+    const timer = setTimeout(() => {
+      if (observerID !== null) Zotero.Notifier.unregisterObserver(observerID);
+      reject(
+        new Error(
+          `committed timed out after ${timeoutMs}ms waiting for ${kind} event`,
+        ),
+      );
+    }, timeoutMs);
+    observerID = Zotero.Notifier.registerObserver(
       {
         notify(event: string, type: string, ids: (number | string)[]) {
           if (
@@ -29,14 +39,27 @@ function committed(
             type === "item" &&
             Zotero.Items.get(ids as number[]).some(matches)
           ) {
-            Zotero.Notifier.unregisterObserver(observerID);
+            clearTimeout(timer);
+            if (observerID !== null) {
+              Zotero.Notifier.unregisterObserver(observerID);
+              observerID = null;
+            }
             resolve();
           }
         },
       },
       ["item"],
     );
-    save();
+    try {
+      save();
+    } catch (e) {
+      clearTimeout(timer);
+      if (observerID !== null) {
+        Zotero.Notifier.unregisterObserver(observerID);
+        observerID = null;
+      }
+      reject(e);
+    }
   });
 }
 
@@ -57,6 +80,10 @@ describe("print annotation dialog", function () {
   before(async function () {
     work = await makeWork("Dialog Werk");
     win = Zotero.getMainWindow();
+  });
+
+  afterEach(function () {
+    panel()?.hidePopup();
   });
 
   after(async function () {

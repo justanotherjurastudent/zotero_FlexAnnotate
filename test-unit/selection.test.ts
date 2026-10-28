@@ -40,7 +40,7 @@ describe("selection", () => {
 
   it("select all and prune after filtering", () => {
     const all = selectAll(order);
-    assert.equal(all.selected.size, 5);
+    assert.deepEqual([...all.selected], order);
     const p = prune(all, [11, 12]);
     assert.deepEqual([...p.selected], [11, 12]);
     assert.equal(p.anchor, null);

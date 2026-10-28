@@ -49,6 +49,11 @@ describe("last command for the browse window", () => {
     );
     assert.deepEqual(mergeCitationItems(undefined, [{ id: 3 }]), [{ id: 3 }]);
     assert.deepEqual(mergeCitationItems([], []), []);
+    // Items without id (e.g. raw text items) are preserved without filtering
+    assert.deepEqual(
+      mergeCitationItems([{ id: 1 }], [{ id: undefined, text: "foo" }]),
+      [{ id: 1 }, { id: undefined, text: "foo" }],
+    );
   });
 
   it("forgets everything for agents without a browse window", () => {

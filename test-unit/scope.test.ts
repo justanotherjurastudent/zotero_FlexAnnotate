@@ -66,7 +66,11 @@ describe("collections", () => {
       { id: 1, parentID: 2, name: "a" },
       { id: 2, parentID: 1, name: "b" },
     ];
-    assert.ok(topmostCollection(loop, 1));
+    assert.deepEqual(topmostCollection(loop, 1), {
+      id: 2,
+      parentID: 1,
+      name: "b",
+    });
   });
 });
 

@@ -336,8 +336,10 @@ describe("normalizeHeadings", () => {
       { stripNumbering: true },
     );
     assert.equal(r.numberingDetected, true);
-    assert.ok(r.items.every((h) => h.text.trim().length > 0));
-    assert.equal(r.items[4].text, "5.");
+    assert.deepEqual(
+      r.items.map((h) => h.text),
+      ["A", "B", "C", "D", "5."],
+    );
   });
 });
 

@@ -89,6 +89,8 @@ interface Attached {
   onMq: (() => void) | null;
   settings: Element | null;
   onPopup: (() => void) | null;
+  annList: Element | null;
+  onNativeDblClick: ((e: Event) => void) | null;
   lastDialogType?: string;
   /** enable() is still running (await): a mode switch in between must not start it a second time. */
   enabling?: boolean;
@@ -157,6 +159,8 @@ function inject(win: Window) {
     onMq: null,
     settings: null,
     onPopup: null,
+    annList: null,
+    onNativeDblClick: null,
   };
   attached.set(win, info);
 
@@ -301,6 +305,19 @@ function inject(win: Window) {
   };
   settings?.addEventListener("popupshowing", info.onPopup);
 
+  // Native annotations sidebar: double-clicking an annotation-row adds it to the citation like clicking "+"
+  const annList = doc.getElementById("annotations-list");
+  info.annList = annList;
+  info.onNativeDblClick = (e: Event) => {
+    const target = e.target as Element | null;
+    if (target?.classList?.contains("zotero-clicky-plus")) return;
+    target
+      ?.closest?.("annotation-row")
+      ?.querySelector<HTMLElement>(".zotero-clicky-plus")
+      ?.click();
+  };
+  annList?.addEventListener("dblclick", info.onNativeDblClick);
+
   cb.addEventListener("change", () => {
     writePref(cb.checked);
     if (cb.checked) void enable(win, cb);
@@ -315,6 +332,8 @@ function detach(win: Window) {
     if (info?.mq && info.onMq) info.mq.removeEventListener("change", info.onMq);
     if (info?.settings && info.onPopup)
       info.settings.removeEventListener("popupshowing", info.onPopup);
+    if (info?.annList && info.onNativeDblClick)
+      info.annList.removeEventListener("dblclick", info.onNativeDblClick);
     const doc = win.document;
     if (info?.enabled) restoreLayout(win);
     doc.getElementById(MENU_ID)?.remove();

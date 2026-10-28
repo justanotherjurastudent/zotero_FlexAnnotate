@@ -195,7 +195,22 @@ export function patch(): boolean {
       // Never let the insertion fail: in doubt continue natively.
       Zotero.logError(e as Error);
     }
-    return native.call(this, fieldIndex, field, citation);
+    const res = await native.call(this, fieldIndex, field, citation);
+    if (
+      Array.isArray(res) &&
+      res.length === (citation?.citationItems?.length ?? 0)
+    ) {
+      // _insertNoteIntoDocument reverses citations before mapping (xpcom/integration.js:1765-1775)
+      for (let i = 0; i < res.length; i++) {
+        const src = citation.citationItems[i] as any;
+        const dst = (res[res.length - 1 - i] as any)?.citationItems?.[0];
+        if (src && dst) {
+          if (src.prefix) dst.prefix = src.prefix;
+          if (src.suffix) dst.suffix = src.suffix;
+        }
+      }
+    }
+    return res;
   };
 
   if (!assignChecked(proto, "_insertCitingResult", patched)) {

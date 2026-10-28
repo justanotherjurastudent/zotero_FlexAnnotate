@@ -37,8 +37,12 @@ describe("preferences: features tab", function () {
     for (const g of api().gates.gates) Zotero.Prefs.clear(PREF + g.name, true);
   });
 
-  after(function () {
+  after(async function () {
     win?.close();
+    await waitFor(() => {
+      const en = Services.wm.getEnumerator("zotero:pref");
+      return !en.hasMoreElements();
+    });
   });
 
   it("switches between the Options and the Features tab", function () {
