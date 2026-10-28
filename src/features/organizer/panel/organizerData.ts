@@ -279,7 +279,9 @@ export function workTreeKeys(libraryID: number, workID: number): Set<string> {
 }
 
 export function collectionChoices(libraryID: number) {
-  return collectionOptions(listCollections(libraryID));
+  return collectionOptions(listCollections(libraryID), (a, b) =>
+    Zotero.localeCompare(a, b),
+  );
 }
 
 /**

@@ -27,6 +27,16 @@ const cols = [
 ];
 
 describe("collections", () => {
+  it("sorts numbered subcollections naturally, not as text", () => {
+    const num = ["1 A", "10 B", "11 C", "12 D", "2 E", "3 F"].map(
+      (name, i) => ({ id: i + 1, parentID: false as const, name }),
+    );
+    assert.deepEqual(
+      collectionOptions(num).map((o) => o.name),
+      ["1 A", "2 E", "3 F", "10 B", "11 C", "12 D"],
+    );
+  });
+
   it("lists a depth-first name-sorted tree", () => {
     assert.deepEqual(
       collectionOptions(cols).map((o) => [o.name, o.depth]),

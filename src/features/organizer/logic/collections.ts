@@ -15,17 +15,36 @@ export interface ColOption {
   depth: number;
 }
 
-function childrenOf(cols: ColNode[], parent: number | null): ColNode[] {
+export type NameCompare = (a: string, b: string) => number;
+
+/** Natural order ("2" before "10"), like Zotero's collection tree by default. */
+const naturalCompare: NameCompare = new Intl.Collator(undefined, {
+  numeric: true,
+  sensitivity: "base",
+}).compare;
+
+function childrenOf(
+  cols: ColNode[],
+  parent: number | null,
+  compare: NameCompare = naturalCompare,
+): ColNode[] {
   return cols
     .filter((c) => (parent === null ? !c.parentID : c.parentID === parent))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => compare(a.name, b.name));
 }
 
-/** All collections as a depth-first, name-sorted list for a dropdown. */
-export function collectionOptions(cols: ColNode[]): ColOption[] {
+/**
+ * All collections as a depth-first list for a dropdown, in the order of the
+ * collection tree. Pass `Zotero.localeCompare` to follow the user's
+ * naturalSorting setting exactly.
+ */
+export function collectionOptions(
+  cols: ColNode[],
+  compare: NameCompare = naturalCompare,
+): ColOption[] {
   const out: ColOption[] = [];
   const walk = (parent: number | null, depth: number) => {
-    for (const c of childrenOf(cols, parent)) {
+    for (const c of childrenOf(cols, parent, compare)) {
       out.push({ id: c.id, name: c.name, depth });
       walk(c.id, depth + 1);
     }
