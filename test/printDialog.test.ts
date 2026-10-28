@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { config } from "../package.json";
-import { cleanup, makePdfAttachment, makeWork } from "./helpers";
+import { cleanup, makePdfAttachment, makeWork, waitFor } from "./helpers";
 
 /**
  * The print annotation form, driven like a user: the fields are filled and the save
@@ -83,6 +83,18 @@ describe("print annotation dialog", function () {
     assert.equal(ann.annotationComment, "Notiz");
     assert.equal(ann.annotationColor, "#ff0000");
     assert.equal(api().print.printAnnotations.getLocator(ann), "chapter");
+  });
+
+  it("gives the locator type and the page field the same width", async function () {
+    await api().print.dialog.open(win, work);
+    const w = (id: string) => field(id).getBoundingClientRect().width;
+    await waitFor(() => w("flexannotate-dialog-page") > 0);
+    assert.closeTo(
+      w("flexannotate-dialog-locator"),
+      w("flexannotate-dialog-page"),
+      4,
+    );
+    panel()?.hidePopup();
   });
 
   it("takes several tags as chips and offers Zotero's tag suggestions for them", async function () {

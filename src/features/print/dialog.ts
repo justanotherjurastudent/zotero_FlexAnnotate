@@ -422,11 +422,12 @@ function build(win: MainWin): Panel {
 
         <vbox id="flexannotate-dialog-group-locator" style="gap: 6px;">
           <hbox align="center" style="gap: 8px;">
-            <menulist id="flexannotate-dialog-locator" native="true" style="flex: 1;">
+            <menulist id="flexannotate-dialog-locator" native="true"
+              style="flex: 0 0 calc(50% - 4px); width: calc(50% - 4px); min-width: 0; box-sizing: border-box; margin: 0;">
               <menupopup id="flexannotate-dialog-locator-popup"/>
             </menulist>
             <html:input id="flexannotate-dialog-page" type="text"
-              style="width: 6em;"/>
+              style="flex: 0 0 calc(50% - 4px); width: calc(50% - 4px); min-width: 0; box-sizing: border-box; margin: 0;"/>
           </hbox>
           <checkbox id="flexannotate-dialog-default" native="true"
             data-l10n-id="flexannotate-field-default-locator"/>
