@@ -16,6 +16,7 @@ const CURATED = [
   "citation-dialog-place.png",
   "citation-dialog-search.png",
   "preferences.png",
+  "preferences-features.png",
   "main-window.png",
   "toolbar.png",
   "import-preview.png",

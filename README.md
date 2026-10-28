@@ -70,6 +70,12 @@ Rechtsklick auf einen Titel, _Print-Annotation hinzufügen…_, Text, Kommentar 
 
 Zitate ohne Dateianhang, die Zoteros Citavi-Import verwirft, bleiben erhalten und werden zu Print-Annotationen. Außerdem lässt sich einstellen, welchem Zotero-Locator die Seitentypen aus Citavi (Seite, Spalte, Absatz, Randnummer, Andere) entsprechen. Standardmäßig wird eine Citavi-Randnummer zum Locator „Absatz“. Das Plugin selbst führt keinen eigenen Locator „Randnummer“ ein: Es nutzt die Locator-Typen von Zotero.
 
+**Funktionen einzeln ein- und ausschalten**
+
+In den Einstellungen gibt es neben „Einstellungen“ den Tab „Funktionen an/aus“. Dort lässt sich jede Funktion von FlexAnnotate mit einer Checkbox abschalten, etwa wenn sie Probleme macht oder Zotero sie später selbst anbietet. Jede Gruppe hat einen Hauptschalter. Einzelheiten stehen im [Handbuch](docs/handbuch.md).
+
+![Einstellungen, Tab „Funktionen an/aus“](docs/img/preferences-features.png)
+
 ### Installation
 
 **Über die Release-Seite**
@@ -186,6 +192,12 @@ Right-click an item, _Add print annotation…_, then enter text, comment and pag
 **Also: Citavi import**
 
 Quotes without a file attachment, which Zotero's Citavi import discards, are kept and become print annotations. You can also set which Zotero locator each Citavi page type (page, column, paragraph, margin number, other) maps to. By default a Citavi margin number becomes the locator "paragraph". The plugin does not add a locator "margin number" of its own: it uses Zotero's locator types.
+
+**Switching features on and off**
+
+Next to "Einstellungen" (settings) the preferences have a tab "Funktionen an/aus" (features on/off). There every FlexAnnotate feature can be switched off with a checkbox, for example when it causes trouble or Zotero later offers it itself. Each group has a main switch. Details are in the [user guide](docs/guide.md).
+
+![Preferences, tab "Funktionen an/aus"](docs/img/preferences-features.png)
 
 The plugin's labels are in German and English, following Zotero's language.
 
