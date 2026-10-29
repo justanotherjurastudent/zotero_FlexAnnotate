@@ -1,11 +1,11 @@
 ---
 type: operations
-title: Build, Packaging & Release
-description: Build pipeline using zotero-plugin-scaffold and esbuild, TypeScript dual-config verification, XPI packaging, release workflows, and manifest compatibility bounds.
-tags: [operations, build, release, packaging, zotero-plugin-scaffold, esbuild, updates, ci, typescript]
+title: Build System & Release Operations
+description: Build pipeline using zotero-plugin-scaffold and esbuild, dual-bundle preferences architecture, dual-tab settings panel, Fluent localization, and XPI release packaging.
+tags: [operations, build, release, packaging, zotero-plugin-scaffold, esbuild, preferences, localization, typescript, ci]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-16T19:49:13.348Z
+    at: 2026-10-28T23:29:27.424Z
 sources:
   - id: openwiki-source-5f5b95b3d6a215fa02ceb945
     resource: repo://.env.example
@@ -29,6 +29,10 @@ sources:
     resource: repo://addon/content/zoteroPane.css
   - id: openwiki-source-842fdbe2a14fcef1b1c961b1
     resource: repo://addon/locale/de/addon.ftl
+  - id: openwiki-source-ab859f6300d36ee9b3382c6f
+    resource: repo://addon/locale/de/features.ftl
+  - id: openwiki-source-6c26a058fa6295ffd3aeefd9
+    resource: repo://addon/locale/en-US/features.ftl
   - id: openwiki-source-5e7600950cd909e82c8afe85
     resource: repo://addon/locale/en-US/preferences.ftl
   - id: openwiki-source-38547aa50e37ec80b0d08602
@@ -53,6 +57,8 @@ sources:
     resource: repo://src/hooks.ts
   - id: openwiki-source-d1fbef09192ffbab6eff0bc2
     resource: repo://src/index.ts
+  - id: openwiki-source-e95ae39385efb32804f4f60d
+    resource: repo://src/prefs/featureGroups.ts
   - id: openwiki-source-8c4f9cd772f4676743505d96
     resource: repo://src/prefs/preferences.ts
   - id: openwiki-source-c379b8f49ae922dbbb71e2c2
@@ -67,7 +73,7 @@ sources:
     resource: repo://updates.json
   - id: openwiki-source-64ea321d3689c35b39d43e01
     resource: repo://zotero-plugin.config.ts
-generated: { by: "openwiki/0.7.2", at: "2026-10-16T19:49:13.348Z" }
+generated: { by: "openwiki/0.7.2", at: "2026-10-28T23:29:27.424Z" }
 ---
 
 Everything about how FlexAnnotate is built, packaged, and shipped is configured in [zotero-plugin.config.ts](../../zotero-plugin.config.ts): it declares source roots, the output staging directory, the plugin identity, update feed templates, build-time constant substitutions, and two distinct esbuild bundles. The `zotero-plugin build` command assembles the static `addon/` assets along with both compiled bundles into `.scaffold/build` and archives the directory as `flex-annotate.xpi`. Development runs execute through `zotero-plugin serve` using environment variables defined in `.env`. Neither build outputs nor environment files are treated as sources of truth: `.scaffold/`, `build/`, `*.xpi`, and `.env` are gitignored and excluded by [.openwikiignore](../../.openwikiignore), so build behavior is documented strictly from the configuration and scripts that produce them.
@@ -111,7 +117,7 @@ The package metadata and configuration in [package.json](../../package.json) sup
 
 [zotero-plugin.config.ts](../../zotero-plugin.config.ts) defines the complete build configuration via `defineConfig`:
 
-- **`source: ["src", "addon"]` and `dist: ".scaffold/build"`**: The source roots and staging target. Running `npm run build` produces `.scaffold/build/flex-annotate.xpi` ([AGENTS.md](../../AGENTS.md), commands). The directory also hosts ephemeral test profiles (`.scaffold/test/`) and UI screenshots (`.scaffold/screenshots/`); the entire `.scaffold/` directory is disposable.
+- **`source: ["src", "addon"]` and `dist: ".scaffold/build"`**: The source roots and staging target. Running `npm run build` produces `.scaffold/build/flex-annotate.xpi` ([AGENTS.md](../../AGENTS.md)). The directory also hosts ephemeral test profiles (`.scaffold/test/`) and UI screenshots (`.scaffold/screenshots/`); the entire `.scaffold/` directory is disposable.
 - **Identity declarations**: Sourced directly from `pkg.config` in [package.json](../../package.json):
   - `name`: `FlexAnnotate`
   - `id`: `flexannotate@justanotherjurastudent.github.io`
@@ -126,13 +132,13 @@ The package metadata and configuration in [package.json](../../package.json) sup
 - **`build.define`**: Merges `pkg.config` with `author`, `description`, `homepage`, `buildVersion` (`pkg.version`), and `buildTime` (using scaffold placeholder `{{buildTime}}`). These tokens appear in source files as `__token__` placeholders:
   - `addon/manifest.json` consumes `__addonName__`, `__buildVersion__`, `__description__`, `__homepage__`, `__author__`, `__addonID__`, and `__updateURL__`.
   - [addon/bootstrap.js](../../addon/bootstrap.js) consumes `__addonRef__` and `__addonInstance__`.
-  - [addon/content/preferences.xhtml](../../addon/content/preferences.xhtml) links its localization via `__addonRef__-preferences.ftl`.
+  - [addon/content/preferences.xhtml](../../addon/content/preferences.xhtml) links its localization via `__addonRef__-preferences.ftl` and `__addonRef__-features.ftl`.
 - **`test.waitForPlugin`**: Declared as `() => Zotero.FlexAnnotate.data.initialized`. This flag is set in [src/hooks.ts](../../src/hooks.ts) at the conclusion of `onStartup`, after initialization promises resolve, locales initialize, `addon.api` is attached, preference panes register, and `startAll(features)` completes. The automated test runner polls this predicate before executing assertions.
 - **`logLevel: "trace"`**: Available (commented out) in `zotero-plugin.config.ts` for debugging placeholder replacement and XPI zip packaging.
 
 ## The two esbuild bundles
 
-The `build.esbuildOptions` array in [zotero-plugin.config.ts](../../zotero-plugin.config.ts) defines two distinct bundles. Both configure `bundle: true` and specify **`target: "firefox140"`**, targeting the modern Gecko engine underlying Zotero. The same bundles run across all supported Zotero releases (7.0.32, 8.0.4, 9.0.6, and 10.0.5/10.0.6) without per-version compilation variations.
+The `build.esbuildOptions` array in [zotero-plugin.config.ts](../../zotero-plugin.config.ts) defines two distinct bundles. Both configure `bundle: true`, enable `minify: true`, and specify **`target: "firefox140"`**, targeting the modern Gecko engine underlying Zotero. The same bundles run across all supported Zotero releases (7.0.32, 8.0.4, 9.0.6, and 10.0.5/10.0.6) without per-version compilation variations.
 
 | Bundle | Entry point | Output path | Environment & globals |
 | ------ | ----------- | ----------- | --------------------- |
@@ -141,19 +147,137 @@ The `build.esbuildOptions` array in [zotero-plugin.config.ts](../../zotero-plugi
 
 ### Why preferences require an isolated bundle
 
-Zotero loads preference pane scripts into an isolated sandbox window scope where only standard Zotero globals (`Zotero.*`), `window`, and `document` exist. Plugin globals instantiated by the main bundle (such as `addon` or `ztoolkit`) are **not** in scope (reflected in `zotero-plugin.config.ts`: `"Pane-Scripts laufen ohne Plugin-Globals"`).
+Zotero loads preference pane scripts into an isolated sandbox window scope where only standard Zotero globals (`Zotero.*`), `window`, and `document` exist. Plugin globals instantiated by the main bundle (such as `addon` or `ztoolkit`) are **not** in scope (annotated in `zotero-plugin.config.ts`: `"Pane-Scripts laufen ohne Plugin-Globals"`).
 
-The script is registered via the `scripts` property of `Zotero.PreferencePanes.register` in [src/hooks.ts](../../src/hooks.ts). Because it cannot access the main runtime's memory, any shared pure logic—such as [buildLocatorOptions](../../src/core/labelPopup.ts)—must be imported and bundled directly. Within the pane, [src/prefs/preferences.ts](../../src/prefs/preferences.ts):
-1. Waits for `Zotero.Styles.init()`.
-2. Populates five Citavi locator `<menupopup>` elements with localized style names.
-3. Hides the persistent citation dialog checkbox if `Zotero.Integration` lacks `addAnnotation`.
-4. Queues operations on the document-level capture-phase `load` event.
+The script is registered via the `scripts` property of `Zotero.PreferencePanes.register` in [src/hooks.ts](../../src/hooks.ts). Because it cannot access the main runtime's memory, any shared pure logic—such as [buildLocatorOptions](../../src/core/labelPopup.ts) and the feature gate hierarchy—must be imported and bundled directly into `preferences.js`.
+
+Within the pane, [src/prefs/preferences.ts](../../src/prefs/preferences.ts):
+1. Sets up the dual-tab switching logic (`setupTabs()`).
+2. Populates Citavi locator `<menupopup>` elements with localized style names via `fillLocatorMenus()`, awaiting `Zotero.Styles.init()`.
+3. Evaluates feature flags and engine capabilities via `applyFeatureVisibility()`, hiding unsupported controls (e.g., hiding persistent citation dialog options when `Zotero.Integration` lacks `addAnnotation`).
+4. Generates the feature switches dynamically and synchronizes checkbox states on document load.
+5. Captures window lifecycle through the document-level capture-phase `load` event.
 
 ### Startup cache invalidation
 
 The main bundle is loaded in [addon/bootstrap.js](../../addon/bootstrap.js) using `Services.scriptloader.loadSubScriptWithOptions` with `{ target: ctx, ignoreCache: true }`, ensuring code changes take effect immediately on reload.
 
 In contrast, Zotero loads preference pane scripts through Gecko's startup cache without the `ignoreCache` flag. When editing `preferences.ts` during local development, developers must start Zotero once with the **`-purgecaches`** command-line flag; otherwise, the runtime continues executing the stale cached bytecode (documented as pitfall 4 in [docs/architecture.md](../../docs/architecture.md)).
+
+## Preferences panel architecture
+
+The extension's configuration UI is registered in [src/hooks.ts](../../src/hooks.ts) via `Zotero.PreferencePanes.register`:
+
+```typescript
+Zotero.PreferencePanes.register({
+  pluginID: addon.data.config.addonID,
+  src: `chrome://${addon.data.config.addonRef}/content/preferences.xhtml`,
+  scripts: [
+    `chrome://${addon.data.config.addonRef}/content/scripts/preferences.js`,
+  ],
+  label: addon.data.config.addonName,
+  image: `chrome://${addon.data.config.addonRef}/content/icons/icon.svg`,
+});
+```
+
+The pane markup in [addon/content/preferences.xhtml](../../addon/content/preferences.xhtml) declares an isolated `<linkset>` linking both `__addonRef__-preferences.ftl` and `__addonRef__-features.ftl`.
+
+### Dual-tab layout
+
+The preference panel is divided into two tabs defined in `preferences.xhtml`:
+- `#flexannotate-tabs`: An ARIA `tablist` container containing two tab buttons:
+  - `#flexannotate-tab-options`: Labeled via `prefs-tab-options` ("Settings" / "Einstellungen"), controlling `#flexannotate-panel-options`.
+  - `#flexannotate-tab-features`: Labeled via `prefs-tab-features` ("Features on/off" / "Funktionen an/aus"), controlling `#flexannotate-panel-features`.
+- Tab navigation is handled in [src/prefs/preferences.ts](../../src/prefs/preferences.ts): `setupTabs()` binds click handlers and left/right arrow key navigation, updating `aria-selected`, `tabindex`, inline border styling, and toggling the `hidden` attribute of each panel.
+
+### Tab 1: Settings (`#flexannotate-panel-options`)
+
+The "Settings" / "Einstellungen" tab provides static declarative XUL controls organized into groupboxes:
+1. **Citing** (`prefs-citing-heading`):
+   - `citationOnly`: Toggles whether inserting an annotation emits only the citation locator rather than the complete text.
+   - `persistentCitationDialog`: Keeps the citation dialog open across citations.
+2. **Printing & Deletion** (`prefs-print-heading`):
+   - `keepEmptyPlaceholders`: Prevents placeholder attachment deletion when its last annotation is removed.
+   - `confirmDeleteAnnotation`: Prompts for confirmation before deleting annotations from the context menu.
+3. **Annotation View & Outline** (`pref-section`):
+   - `showWorksInAnnotationView` and `showCommentInOrganizerRows`: Display works or comments within item rows.
+   - `outlineTagSuggest`: Menulist controlling heading tag auto-suggestions (`all`, `typed`, `tree`, `off`).
+4. **Citavi Import & Locator Mappings** (`prefs-citavi-heading`):
+   - `citaviImport`, `citaviKeepNotes`, and `citaviLinkContributions`.
+   - Five Citavi locator menulists (`citaviLocatorPage`, `citaviLocatorColumn`, `citaviLocatorParagraph`, `citaviLocatorMargin`, and `citaviLocatorOther`), each containing an empty `<menupopup>` populated dynamically by `fillLocatorMenus()`.
+
+**Dynamic visibility (`applyFeatureVisibility()`)**:
+Controls in the options tab are automatically shown or hidden depending on whether their backing feature gate is enabled in [src/features/gates.ts](../../src/features/gates.ts) and supported by the current Zotero runtime. For example, `flexannotate-pref-persistent-citation-dialog` is hidden if `isFeatureEnabled("persistentDialogPatch")` is false or if `Zotero.Integration.Interface.prototype.addAnnotation` is missing (as in Zotero 7/8). When all controls in a `<groupbox>` are inactive, the entire groupbox is hidden.
+
+### Tab 2: Features on/off (`#flexannotate-panel-features`) and hierarchy
+
+The "Features on/off" / "Funktionen an/aus" tab allows users to toggle individual features or entire feature subsystems. Its container `<html:div id="flexannotate-features">` is populated programmatically by `buildFeatureRows()` from the `FEATURE_GROUPS` configuration in [src/prefs/featureGroups.ts](../../src/prefs/featureGroups.ts).
+
+```
+Feature Group Hierarchy (FEATURE_GROUPS)
+├── index ("Foundation" / "Grundlage")
+│   ├── [Main] annotationIndex
+│   ├── outlineAnchorTags (requires annotationIndex)
+│   └── outlineScopeHeading (requires annotationIndex)
+├── organizer ("Organizer")
+│   ├── [Main] organizer
+│   ├── organizerToolbarButton (requires organizer)
+│   ├── toolsMenuFallback (requires organizer)
+│   ├── collectionMenu (requires organizer)
+│   └── orphanTags (requires organizer)
+├── dialog ("Citation dialog" / "Zitierdialog")
+│   ├── [Main] citationDialog
+│   ├── outlineView (requires citationDialog)
+│   ├── citedTracking (requires citationDialog)
+│   ├── footnoteJump (requires citationDialog)
+│   ├── dialogShowPlace (requires citationDialog)
+│   ├── persistentDialogPatch (requires citationDialog)
+│   └── narrowDialogLayout (requires citationDialog)
+├── citeonly ("Citation-only citing" / "Nur-Nachweis-Zitieren")
+│   ├── [Main] citeOnlyPatch
+│   └── modeSelector (requires citeOnlyPatch)
+├── print ("Print annotations" / "Print-Annotationen")
+│   ├── [Main] printMenus
+│   └── annotationRowMenu (requires printMenus)
+├── rows ("Annotation rows" / "Annotationszeilen")
+│   └── [Main] annotationRowPatch
+├── reader ("Reader")
+│   ├── [Main] readerMenu
+│   └── readerLabelPopup (requires readerMenu)
+├── tags ("Tags")
+│   └── [Main] tagSuggest
+├── citavi ("Citavi import" / "Citavi-Import")
+│   ├── [Main] citaviImport
+│   ├── citaviPrintQuotes (requires citaviImport)
+│   └── citaviLinks (requires citaviImport)
+└── api ("Interface for other plugins" / "Schnittstelle für andere Plugins")
+    └── [Main] externalApi
+```
+
+Key structural invariants and behaviors of the features tab:
+- **Main switches and indentation**: The first gate in each `FeatureGroup` serves as the group's main switch, rendered in **bold** (`fontWeight: "600"`). Subsequent gates within the group are indented by 24px (`marginInlineStart = "24px"`).
+- **Preference storage**: Feature switches map to `extensions.flexannotate.gate.<gateName>`. When checked (enabled), the preference is deleted via `Zotero.Prefs.clear(key, true)` to restore the default enabled state, ensuring only explicit switch-offs remain saved in user preferences. When unchecked, it writes `false` via `Zotero.Prefs.set(key, false, true)`.
+- **Cascading dependencies**: If a prerequisite gate in a gate's `requires` array is disabled, the child checkbox is automatically disabled (`disabled = true`). An explanatory label is displayed below the row (`prefs-features-needs`, formatted with `{ names }`).
+- **Restart requirement**: Gates requiring a Zotero restart to re-hook or detach (listed in `RESTART_GATES`, such as prototype patches) display a restart notice (`prefs-features-restart`).
+- **Hidden gates**: Gates listed in `HIDDEN_GATES` (`docImport`, `docExport`, `noteExport`, `citeprocResetFix`, `placeholderCleanup`) are omitted from the features tab because they are either button-triggered actions covered by the organizer main switch, code-level version workarounds, or already controlled by an explicit setting on the options tab.
+- **Unit test validation**: `test-unit/featureTexts.test.ts` validates that every gate in `gates.ts` belongs to exactly one group in `FEATURE_GROUPS` or `HIDDEN_GATES`, that group headings exist, and that all shown gates have complete Fluent labels and descriptions in both English and German.
+
+## Localization architecture
+
+<!-- openwiki: broken internal link [../../addon/locale/en-US] file "../../addon/locale/en-US" does not exist. Fix the href or restore the target, then delete this comment. -->
+<!-- openwiki: broken internal link [../../addon/locale/de] file "../../addon/locale/de" does not exist. Fix the href or restore the target, then delete this comment. -->
+FlexAnnotate maintains localized user-facing strings concurrently in two language directories: [addon/locale/en-US](../../addon/locale/en-US) and [addon/locale/de](../../addon/locale/de).
+
+| Locale file | Purpose | Loading mechanism |
+| ----------- | ------- | ----------------- |
+| `addon.ftl` | Shared notifications, progress window texts, general add-on strings. | Inserted into every Zotero window during `onMainWindowLoad` via `win.MozXULElement.insertFTLIfNeeded()`. |
+| `mainWindow.ftl` | Main window menu items, reader menu actions, annotation context menu labels. | Inserted into every Zotero window during `onMainWindowLoad` via `win.MozXULElement.insertFTLIfNeeded()`. |
+| `preferences.ftl` | Labels, descriptions, and headings for the static settings on Tab 1 of the preferences pane. | Loaded directly by the preferences XHTML fragment through its `<linkset>`. |
+| `features.ftl` | Titles (`.label`), descriptions, tab names (`prefs-tab-options`, `prefs-tab-features`), and dependency/restart messages for Tab 2 of the preferences pane. | Loaded directly by the preferences XHTML fragment through its `<linkset>`. |
+
+### The Organizer localization exception
+
+The organizer window does not use Fluent `.ftl` files because it builds its entire DOM dynamically in JavaScript. Instead, its UI strings are maintained in [src/features/organizer/strings.ts](../../src/features/organizer/strings.ts), which defines parallel German (`de`) and English (`en`) dictionaries inspected at window render time.
 
 ## What ships: the `addon/` directory
 
@@ -195,22 +319,22 @@ The project rule ([AGENTS.md](../../AGENTS.md), conventions) dictates that when 
 
 ### `prefs.js` default preferences
 
-[addon/prefs.js](../../addon/prefs.js) registers default preference keys under the `extensions.flexannotate.*` branch. These include:
+[addon/prefs.js](../../addon/prefs.js) registers default preference keys under the `extensions.flexannotate.*` branch:
 - `showWorksInAnnotationView`, `showCommentInOrganizerRows`
 - `dialogOutlineView`, `dialogOutlineCollection`
 - `citedAnnotations`, `citationOnly`
-- `persistentCitationDialog`, `persistentWindowRect`, `keepEmptyPlaceholders`
+- `persistentCitationDialog`, `persistentWindowRect`, `keepEmptyPlaceholders`, `confirmDeleteAnnotation`
+- `outlineTagSuggest` (default `"all"`)
 - `citaviImport`, `citaviKeepNotes`, `citaviLinkContributions`
 - Five Citavi locator mapping defaults (`citaviLocatorPage`, `citaviLocatorColumn`, `citaviLocatorParagraph`, `citaviLocatorMargin`, `citaviLocatorOther`), with `citaviLocatorMargin` defaulting to `"paragraph"`.
 
 These preference names hold user configuration and are **never renamed** ([Conventions & constraints](../conventions.md)). [src/utils/prefs.ts](../../src/utils/prefs.ts) interfaces with them via `config.prefsPrefix`.
 
-### `content/` and `locale/` assets
+### `content/` assets
 
-- [addon/content/preferences.xhtml](../../addon/content/preferences.xhtml) provides the preference pane UI fragment registered at `chrome://flexannotate/content/preferences.xhtml`. It declares an isolated `<linkset>` referencing `__addonRef__-preferences.ftl`, declarative `data-l10n-id` and `preference` attributes, and five empty `<menupopup>` targets filled dynamically by the preferences script.
-- `addon/content/icons/` contains `icon.svg` (used for 48px/96px manifest entries, preference pane branding, and `ProgressWindow` icons), `organizer.svg`, and context-menu SVG icons.
+- [addon/content/preferences.xhtml](../../addon/content/preferences.xhtml) provides the preference pane UI fragment registered at `chrome://flexannotate/content/preferences.xhtml`. It declares an isolated `<linkset>` referencing `__addonRef__-preferences.ftl` and `__addonRef__-features.ftl`, declarative `data-l10n-id` and `preference` attributes, and five empty `<menupopup>` targets filled dynamically by the preferences script.
+- `addon/content/icons/` contains `icon.svg` (used for 48px/96px manifest entries, preference pane branding, and `ProgressWindow` icons via `ztoolkit.ProgressWindow.setIconURI`), `organizer.svg`, and context-menu SVG icons.
 - `addon/content/zoteroPane.css` contains an unused styling template class (`.makeItRed`) leftover from the scaffold initialization.
-- Locales are maintained concurrently in `addon/locale/de` and `addon/locale/en-US`. Main windows load `addon.ftl` and `mainWindow.ftl` on startup, while `preferences.ftl` is pulled into the preference pane through its linkset.
 
 ## TypeScript verification setup
 
@@ -254,9 +378,23 @@ Furthermore, `npm run build` chains compilation with type verification (`zotero-
 
 When Zotero checks for updates, it requests the URL resolved from the manifest's `update_url`. Because `updateURL` in `zotero-plugin.config.ts` points to the `release` tag on GitHub (`.../releases/download/release/update.json`), the update manifest is delivered statically via GitHub Releases without custom server infrastructure.
 
-## Development environment: `.env`
+## Packaging and development commands
 
-Local development with live reloading is executed via `npm start` (`zotero-plugin serve`). This command relies on path configuration in `.env` (gitignored), which developers initialize from [.env.example](../../.env.example):
+The project scripts in [package.json](../../package.json) govern building, packaging, testing, and running the add-on:
+
+| Command | Action | Output / Description |
+| ------- | ------ | -------------------- |
+| `npm run build` | `zotero-plugin build && npm run typecheck` | Assembles `.scaffold/build/`, compiles both esbuild bundles, copies assets with placeholder substitution, packages `.scaffold/build/flex-annotate.xpi`, and validates both TypeScript targets. |
+| `npm run release` | `zotero-plugin release` | Creates a release artifact and publishes to GitHub Releases (invoked in release workflow). |
+| `npm start` | `zotero-plugin serve` | Launches Zotero with the development profile configured in `.env`, watching for source changes. |
+| `npm run verify` | `npm run lint:check && npm run build && npm run test:unit && npm run test:zotero` | Pre-commit gate running linting, compilation, Node unit tests, and Zotero integration tests. |
+| `npm run test:unit` | `node --test "test-unit/*.test.ts"` | Fast pure-logic unit test runner (no Zotero instance required). |
+| `npm run test:zotero` | `node scripts/run-zotero-tests.mjs` | Automated Mocha integration test runner executed inside a headless Zotero window. |
+| `npm run test:versions` | `node scripts/run-versions.mjs` | Multi-version integration test runner across all supported Zotero releases. |
+
+### Development environment: `.env`
+
+Local development with live reloading via `npm start` (`zotero-plugin serve`) relies on path configuration in `.env` (gitignored), which developers initialize from [.env.example](../../.env.example):
 
 | Variable | Purpose |
 | -------- | ------- |

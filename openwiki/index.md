@@ -4,7 +4,7 @@ okf_version: "0.2"
 
 # Files
 
-- [Conventions & Constraints](conventions.md) - Repo-wide rules a coding agent must follow — pure logic placement with .ts import suffixes and Node tests, the German/English language split, window state on elements or WeakMaps, the two menu mechanisms (MenuManager keys vs DOM entries with popupshowing visibility), dual Fluent locales, stable pref/tag names, formatting and commit rules, doc-in-same-changeset requirements, and Lattice provenance.
+- [Development Conventions & Invariants](conventions.md) - Repo-wide rules and invariants for FlexAnnotate — pure logic isolation and import styles, assignChecked patching discipline and unpatching, runtime state containment via elements and WeakMaps, dual menu mechanisms, feature gate registration, anchor logging against Zotero sources, bilingual language conventions, and testing boundaries.
 - [Quickstart & Task-Routing Guide](quickstart.md) - Central entrypoint and task navigation guide for FlexAnnotate coding agents, detailing safety rules, core architecture, and workflow routing.
 
 # Directories

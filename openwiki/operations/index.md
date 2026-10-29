@@ -1,3 +1,3 @@
 # Files
 
-- [Build, Packaging & Release](build-and-release.md) - Build pipeline using zotero-plugin-scaffold and esbuild, TypeScript dual-config verification, XPI packaging, release workflows, and manifest compatibility bounds.
+- [Build System & Release Operations](build-and-release.md) - Build pipeline using zotero-plugin-scaffold and esbuild, dual-bundle preferences architecture, dual-tab settings panel, Fluent localization, and XPI release packaging.

@@ -1,11 +1,11 @@
 ---
 type: practice
-title: Test Commands & Automation Scripts
-description: Test execution commands, runner scripts in scripts/, profile isolation, multi-version test harness across Zotero 7–10, and verification gates.
+title: Test Commands, Runners & Screenshots
+description: Executable test commands, test runners, screenshot automation, profile isolation, and multi-version test execution recipes across Zotero 7–10.
 tags: [testing, npm-scripts, mocha, node-test, zotero-plugin-scaffold, version-matrix, screenshots, ci, powershell]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-17T22:13:14.642Z
+    at: 2026-10-28T23:29:27.424Z
 sources:
   - id: openwiki-source-164e2da859b5277df81c7d94
     resource: repo://.github/workflows/ci.yml
@@ -45,7 +45,7 @@ sources:
     resource: repo://test/toolsMenu.test.ts
   - id: openwiki-source-64ea321d3689c35b39d43e01
     resource: repo://zotero-plugin.config.ts
-generated: { by: "openwiki/0.7.2", at: "2026-10-16T19:49:13.348Z" }
+generated: { by: "openwiki/0.7.2", at: "2026-10-28T23:29:27.424Z" }
 ---
 
 FlexAnnotate has two test tiers and a layer of custom runners around
@@ -103,8 +103,8 @@ screenshot generation, code style, and build verification:
 | `npm run test:zotero` | `node scripts/run-zotero-tests.mjs` | Runs the Mocha integration suite in `test/` within an isolated Zotero instance (~15 s) |
 | `npm run test:versions` | `node scripts/run-versions.mjs` | Runs the Zotero integration suite sequentially across installed and unpacked Zotero versions (7–10) |
 | `npm run screenshots` | `node scripts/run-zotero-tests.mjs --screenshots` | Runs integration tests with screenshot capture enabled, saving PNGs to `.scaffold/screenshots/` |
-| `npm run screenshots:docs` | `node scripts/docs-screenshots.mjs` | Executes `screenshots` and copies the curated PNG files into `docs/img/` |
-| `npm run lint:check` | `prettier --check . && eslint .` | Validates formatting rules (80-character line width, 2 spaces) and linting constraints |
+| `npm run screenshots:docs` | `node scripts/docs-screenshots.mjs` | Executes `screenshots` and copies the 10 curated PNG files into `docs/img/` |
+| `npm run lint:check` | `prettier --check . && eslint .` | Validates formatting rules (80-character line width, 2 spaces) and ESLint constraints |
 | `npm run lint:fix` | `prettier --write . && eslint . --fix` | Automatically formats files and fixes fixable lint errors |
 | `npm run typecheck` | `tsc --noEmit && tsc -p test/tsconfig.json --noEmit` | Typechecks sandbox typings (`src`, `typings`, `test-unit`) and test typings (`test/`) |
 | `npm run build` | `zotero-plugin build && npm run typecheck` | Bundles the add-on via `esbuild` to `.scaffold/build/` and runs full typechecking |
@@ -113,6 +113,79 @@ screenshot generation, code style, and build verification:
 
 Build configuration, packaging artifacts, and release workflows are documented
 in [Build, Packaging & Release](../operations/build-and-release.md).
+
+## Executable test recipes
+
+Day-to-day development requires distinct commands depending on whether changes
+touch pure algorithms, Zotero-dependent UI hooks, multi-version compatibility,
+or code style.
+
+### Recipe 1: Node unit tests (`npm run test:unit`)
+
+Pure algorithms (such as locator parsing, outline tree transformations, and
+comment filtering) run directly in Node without opening Zotero:
+
+```bash
+# Run all pure-logic unit test suites
+npm run test:unit
+
+# Run unit tests with code coverage analysis
+npm run test:unit:coverage
+
+# Run unit tests 10 times consecutively to detect non-deterministic flakes
+npm run test:unit:repeat
+
+# Filter unit tests by title pattern (must precede the glob pattern)
+node --test --test-name-pattern=persistent "test-unit/*.test.ts"
+
+# Run a single unit test file directly
+node --test test-unit/persistentRect.test.ts
+```
+
+### Recipe 2: Zotero integration tests (`npm run test:zotero`)
+
+Integration tests run inside a real Zotero instance launched with an isolated
+test profile:
+
+```bash
+# Run the complete Mocha integration suite in Zotero (~15 seconds)
+npm run test:zotero
+
+# Run a filtered subset of Zotero integration tests matching a title pattern
+npm run test:zotero -- --grep "persistent"
+```
+
+The runner automatically terminates the test instance upon completion and
+returns exit code `0` on success, `1` on failure, or `2` on timeout.
+
+### Recipe 3: Multi-version matrix checks (`npm run test:versions`)
+
+Compatibility across Zotero 7, 8, 9, and 10 is tested sequentially against
+unpacked installer binaries:
+
+```bash
+# Run all available Zotero versions sequentially with profile isolation
+npm run test:versions
+
+# Target specific versions only
+npm run test:versions -- --versions 10.0.6,9.0.6
+
+# Run a title-filtered subset across specific versions
+npm run test:versions -- --versions 10.0.6,9.0.6 --grep "browse"
+```
+
+### Recipe 4: Code style and linting (`npm run lint:check` / `npm run lint:fix`)
+
+Static analysis enforces Prettier style rules (80-character print width, 2 spaces,
+LF line endings) and ESLint rules:
+
+```bash
+# Check code style and lint rules across all files (fails if formatting or rules deviate)
+npm run lint:check
+
+# Automatically fix formatting and auto-fixable ESLint rules
+npm run lint:fix
+```
 
 ## Process management and runner wrapping
 
@@ -166,20 +239,24 @@ environment:
   the scaffold defines:
   ```typescript
   test: {
-    waitForPlugin: `() => Zotero.FlexAnnotate.data.initialized`,
+    waitForPlugin: `() => Zotero.${pkg.config.addonInstance}.data.initialized`,
   }
   ```
-  This flag is set to `true` in [src/hooks.ts](../../src/hooks.ts) at the very
-  end of `onStartup`, guaranteeing that test suites only begin running once all
-  plugin features, preference panes, and window hooks are initialized.
-- **Profile isolation:** The test instance runs on a dedicated profile under
-  `.scaffold/test/` (scaffold HTTP port 23124) with its own isolated database.
-  All test items, linked PDF attachments, and annotations are created
-  synthetically via [test/helpers.ts](../../test/helpers.ts) and removed via
-  `cleanup()` in test `after` hooks. Integration tests access the add-on
-  strictly through `addon.api` (exposed on `Zotero.FlexAnnotate.api`), never
-  importing internal modules directly, as internal modules depend on the
-  `ztoolkit` global initialized only by the running add-on.
+  This resolves to `() => Zotero.FlexAnnotate.data.initialized`, which is set to
+  `true` in [src/hooks.ts](../../src/hooks.ts) at the very end of `onStartup`,
+  guaranteeing that test suites only begin running once all plugin features,
+  preference panes, and window hooks are initialized.
+- **Profile and database isolation:** The test instance runs on a dedicated
+  profile under `.scaffold/test/profile` with an isolated SQLite database under
+  `.scaffold/test/` (scaffold HTTP port 23124). Productive user libraries,
+  local settings, and database tables are never touched. All test items, linked
+  PDF attachments, and annotations are created synthetically via
+  [test/helpers.ts](../../test/helpers.ts) (`makeWork`, `makePdfAttachment`,
+  `makeAnnotation`) and removed via `cleanup()` in test `after` hooks.
+  Integration tests access the add-on strictly through `addon.api` (exposed on
+  `Zotero.FlexAnnotate.api`), never importing internal modules directly, as
+  internal modules depend on the `ztoolkit` global initialized only by the
+  running add-on.
 
 ### Process isolation: scripts/kill-test-zotero.ps1
 
@@ -304,9 +381,9 @@ version checks:
 
 ### Verified version baseline
 
-As recorded in [docs/testing.md](../../docs/testing.md) (2026-10-13), all 223
-pure-logic unit tests pass under Node. The Zotero integration suite results
-across tested versions are:
+As recorded in [docs/testing.md](../../docs/testing.md) (2026-10-28), 334
+pure-logic unit tests across 86 test suites pass under Node (`npm run test:unit`).
+The Zotero integration suite results across tested versions are:
 
 | Version | Passed | Pending | Failed | Notes |
 | --- | --- | --- | --- | --- |
@@ -382,7 +459,7 @@ executed cleanly without arguments.
 Visual verification and README documentation assets are managed by an automated
 screenshot pipeline.
 
-### Screenshot capture mechanics
+### Screenshot capture mechanics: test/screenshot.ts
 
 Executing `npm run screenshots` sets `FLEXANNOTATE_SCREENSHOTS=1` and points
 `FLEXANNOTATE_SCREENSHOT_DIR` to `.scaffold/screenshots/`. In
@@ -415,7 +492,7 @@ README:
 
 1. It executes `npm run screenshots` via `spawnSync`. If the run fails, it
    aborts immediately.
-2. It verifies the existence of the nine curated PNG images in
+2. It verifies the existence of the ten curated PNG images in
    `.scaffold/screenshots/`:
    - `organizer.png`
    - `citation-dialog.png`
@@ -423,12 +500,13 @@ README:
    - `citation-dialog-place.png`
    - `citation-dialog-search.png`
    - `preferences.png`
+   - `preferences-features.png`
    - `main-window.png`
    - `toolbar.png`
    - `import-preview.png`
 3. It copies the curated images into `docs/img/`.
-4. It issues a console warning for any image file exceeding 250 KB to prevent
-   repository bloat.
+4. It issues a console warning for any image file exceeding 250 KB (`WARN_BYTES = 250 * 1024`)
+   to prevent repository bloat.
 5. If any curated file is missing or the test run exited non-zero, it exits with
    status `1`.
 
@@ -499,3 +577,4 @@ multi-version execution, and actionable exit codes.
 - [Testing Strategy](strategy.md) — Architectural separation between Node logic tests and Zotero integration tests
 - [Zotero Internals & Versioning](../integrations/zotero-internals.md) — Compatibility shims, anchor logging, and runtime feature detection
 - [Build, Packaging & Release](../operations/build-and-release.md) — Build lifecycle, TypeScript configuration, XPI bundling, and CI workflows
+- [Quickstart](../quickstart.md) — Setup and rapid development commands

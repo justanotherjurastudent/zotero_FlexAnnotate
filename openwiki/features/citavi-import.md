@@ -1,11 +1,11 @@
 ---
 type: feature
-title: Citavi Import
-description: Second import pass for Citavi XML exports, bridging knowledge items (quotations, summaries, thoughts) to print annotations, resolving categories and keywords, linking host-contribution hierarchies, and managing duplicate detection and note cleanup.
+title: Citavi Import Pipeline
+description: Citavi project import pipeline, entity conversion to Zotero items and annotations, quotation handling with placeholder attachments, and relation linking.
 tags: [citavi, import, print-annotations, patching, zotero-internals, keywords, duplicate-detection]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-16T19:49:13.348Z
+    at: 2026-10-28T23:29:27.424Z
 sources:
   - id: openwiki-source-929d66ee695e065932e4d312
     resource: repo://addon/prefs.js
@@ -17,6 +17,10 @@ sources:
     resource: repo://src/features/citavi/citaviPrintQuotes.ts
   - id: openwiki-source-012ff9bbf75edf8119bc6eb4
     resource: repo://src/features/citavi/logic/citavi.ts
+  - id: openwiki-source-a2e0a3ad1d08d60deac0b75a
+    resource: repo://src/features/print/placeholder.ts
+  - id: openwiki-source-ecfe002007c7fceaaf2e66ec
+    resource: repo://src/features/print/printAnnotations.ts
   - id: openwiki-source-203c7dd08ccb7d6de0448e34
     resource: repo://src/hooks.ts
   - id: openwiki-source-ffff6188bcf257e1b54d144a
@@ -25,7 +29,7 @@ sources:
     resource: repo://test-unit/citavi.test.ts
   - id: openwiki-source-dd828676f0f6365b2013c250
     resource: repo://test/citavi.test.ts
-generated: { by: "openwiki/0.7.2", at: "2026-10-16T19:49:13.348Z" }
+generated: { by: "openwiki/0.7.2", at: "2026-10-28T23:29:27.424Z" }
 ---
 
 Zotero includes a built-in Citavi XML translator (`Citavi 5 XML.js` and `Citavi 6 XML.js`), but it silently drops a substantial class of quotations: the native importer traverses `//Annotations/Annotation`—nodes carrying PDF coordinates (`Quads`)—and halts processing when a bibliographic reference lacks a digital attachment (Zotero 10.0.5, `import/citavi.js:76-80`). Quotations, summaries, and comments derived from *printed* or physical sources have no `<Annotation>` elements in Citavi exports; they exist exclusively as `<KnowledgeItem>` nodes.
@@ -37,15 +41,24 @@ FlexAnnotate bridges this gap with a dedicated second-pass import architecture:
 
 ---
 
-## The Two Hook Points
+## Menu Entrypoints and Import Dialogs
 
-Zotero offers no formal extension API for translator post-processing. FlexAnnotate integrates into the import sequence by applying two coordinated prototype patches ([src/features/citavi/citaviImport.ts](../../src/features/citavi/citaviImport.ts)):
+Users import Citavi projects using Zotero's standard interface entrypoints:
 
-1. **`Zotero.Translate.Import.prototype.translate` — "Is this a Citavi import?"**  
-   Installed during feature startup by `CitaviImport.patch()`, this wrapper intercepts the completion of `translate()`. After the original translation promise resolves, it checks the translator label against `/^Citavi (?:[56]) XML/i`. On a match, it parks the resolved translation instance in module state as `pending`. This translation object contains all critical context: `_itemSaver._IDMap` (mapping Citavi `ReferenceID` strings to Zotero numeric item IDs), `_io` (the raw XML stream), and `_sandboxZotero` (providing `getXML()` and XPath utilities), typed as `CitaviTranslation` in [citaviLinks.ts](../../src/features/citavi/citaviLinks.ts). Non-Citavi imports log an informational entry and exit immediately without setting `pending`.
+1. **Main Menu: `File` → `Import...`** (or keyboard shortcut `Ctrl+Shift+I` / `Cmd+Shift+I`)  
+   Launches Zotero's modal Import Wizard (`chrome://zotero/content/importWizard.xhtml`). The wizard displays a screen asking *"Where do you want to import from?"*. Selecting *"A file (BibTeX, RIS, Zotero RDF, etc.)"* advances to the system file picker, where the user selects a Citavi export file (`.xml`, `.ctv5`, or `.ctv6`). The wizard then presents import options (such as placing items and collections into a new collection folder) and proceeds to execute the file import via `Zotero_File_Interface.importFile`.
+2. **Main Menu: `Edit` → `Import from Clipboard`**  
+   Reads Citavi XML data directly from the system clipboard and triggers `Zotero_File_Interface.importFromClipboard`.
 
-2. **`Zotero_File_Interface.importFile` / `importFromClipboard` per window — "When does the pass run?"**  
-   `CitaviImport.addToWindow(win)` wraps both methods on the active window's own import interface. Each wrapper zeroes any stale `pending` state before invoking native import logic, and invokes `CitaviImport._runPending()` inside a `finally` block—ensuring execution occurs strictly after Zotero has completed its own item persistence and PDF annotation pass (`fileInterface.js:685-686`).
+### Multi-Window File Interface Architecture
+
+`Zotero_File_Interface` is not a singleton: every window that loads `fileInterface.js` creates its own independent `Zotero_File_Interface` instance ([src/features/citavi/citaviImport.ts](../../src/features/citavi/citaviImport.ts#L200-L204)). The Import Wizard dialog runs in a separate modal window (`importWizard.xhtml`), meaning patches applied solely to the primary Zotero library window never intercept wizard-driven imports.
+
+To sequence imports across all dialogs reliably:
+- `CitaviImport._watchWindows()` registers an `nsIObserver` with Mozilla's `Services.ww` listening to the `domwindowopened` notification.
+- When any new window opens, a one-time `load` listener invokes `CitaviImport.addToWindow(win)`.
+- `addToWindow(win)` checks for `win.Zotero_File_Interface` and wraps both `importFile` and `importFromClipboard` using the safe identity check [`assignChecked`](../architecture/patching.md).
+- Active sequenced windows are tracked in module state using a `Set<Window>` (`sequencedWindows`). Using a `Set` instead of a boolean flag ensures that when the import dialog closes, `removeFromWindow(win)` removes it from the set, returning `sequencedWindows.size` to `0` when no sequenced windows remain.
 
 ```mermaid
 sequenceDiagram
@@ -75,6 +88,34 @@ _The `translate` wrapper parks the Citavi translation context; a window's patche
 
 ---
 
+## Entity Translation: Citavi to Zotero
+
+Citavi and Zotero represent bibliographic data, note structures, and hierarchical relations with different data models. During an import, entities are partitioned between native Zotero translation and FlexAnnotate's second pass:
+
+| Citavi Entity | Citavi XML Source Node | Translated Zotero Entity | Handling Subsystem | Description & Data Mapping |
+| :--- | :--- | :--- | :--- | :--- |
+| **Reference** | `//References/Reference` | Regular `Zotero.Item` | Native Citavi Translator | Citavi bibliographic items mapped to matching Zotero item types. Recorded in `translation._itemSaver._IDMap[CitaviRefID] = ZoteroItemID`. |
+| **Category Tree** | `//Categories/Category` | Nested `Zotero.Collection` | Native Citavi Translator | Nested Citavi categories (`<ParentID>`) become a hierarchy of Zotero collections; references are filed into their respective collections. |
+| **PDF Annotation** | `//Annotations/Annotation` | Native PDF `annotation` | Native Citavi Translator | Citavi annotations containing PDF coordinate `Quads` attached directly to the source item's first attachment (`getAttachments()[0]`). |
+| **Print / Physical Quotation** | `//KnowledgeItems/KnowledgeItem` (unanchored or print source) | [Print Annotation](print-annotations.md) (`highlight`) | FlexAnnotate `importPrintQuotes` | Converted into a Zotero print annotation anchored under a synthetic placeholder PDF attachment with page coordinates and CSL locator tags. |
+| **Translator Child Note** | `//KnowledgeItems/KnowledgeItem` | Child `note` Item | Native Citavi Translator / FlexAnnotate | Native translator creates `<h1>CoreStatement</h1><p>Text</p><i>Fundstelle</i>`. FlexAnnotate conditionally removes it if `citaviKeepNotes` is `false`. |
+| **Knowledge Item Keywords** | `//KnowledgeItemKeywords/OnetoN` | Annotation `tags` | FlexAnnotate `importPrintQuotes` | Semicolon-delimited `OnetoN` entries resolved to keyword names and attached as tags to the print annotation. |
+| **Anthology / Contribution Hierarchy** | `//ReferenceReferences/OnetoN` | Bidirectional `relatedItem` links | FlexAnnotate `linkContributions` | Parent-child and sibling-sibling relations linked between edited collections / commentaries and their constituent chapters. |
+| **Project Outline** | Outline categories & thoughts | [Knowledge Organizer](organizer.md) Outlines | FlexAnnotate Organizer | Citavi paper outline structures mapped into outline notes (`★outline`) and section tags (`§Title`). |
+
+---
+
+## The Two Hook Points and Dual Patch Design
+
+Zotero offers no formal extension API for translator post-processing. FlexAnnotate integrates into the import sequence by applying two coordinated prototype patches ([src/features/citavi/citaviImport.ts](../../src/features/citavi/citaviImport.ts)):
+
+1. **`Zotero.Translate.Import.prototype.translate` — "Is this a Citavi import?"**  
+   Installed during feature startup by `CitaviImport.patch()`, this wrapper intercepts the completion of `translate()`. After the original translation promise resolves, it checks the translator label against `/^Citavi (?:[56]) XML/i`. On a match, it parks the resolved translation instance in module state as `pending`. This translation object contains all critical context: `_itemSaver._IDMap` (mapping Citavi `ReferenceID` strings to Zotero numeric item IDs), `_io` (the raw XML stream), and `_sandboxZotero` (providing `getXML()` and XPath utilities), typed as `CitaviTranslation` in [citaviLinks.ts](../../src/features/citavi/citaviLinks.ts). Non-Citavi imports log an informational entry and exit immediately without setting `pending`.
+2. **`Zotero_File_Interface.importFile` / `importFromClipboard` per window — "When does the pass run?"**  
+   `CitaviImport.addToWindow(win)` wraps both methods on the active window's own import interface. Each wrapper zeroes any stale `pending` state before invoking native import logic, and invokes `CitaviImport._runPending()` inside a `finally` block—ensuring execution occurs strictly after Zotero has completed its own item persistence and PDF annotation pass (`fileInterface.js:685-686`).
+
+---
+
 ## Why Pass Ordering is Load-Bearing
 
 The temporal sequencing between Zotero's primary translator pass and FlexAnnotate's second pass is strictly load-bearing:
@@ -91,7 +132,7 @@ The feature is registered under the identifier `citaviImport` in [src/hooks.ts](
 - `start` invokes `CitaviImport.patch()`.
 - `stop` invokes `CitaviImport.unpatch()`.
 - `addToWindow` and `removeFromWindow` maintain window-level sequencing.
-- The interface is surfaced under `addon.api.citavi` (exposing `feature`, `importPrintQuotes`, and `linkContributions`), which drives both integration tests and manual automation.
+- The interface is surfaced under `addon.api.citavi` (exposing `importer`, `feature`, `importPrintQuotes`, and `linkContributions`), which drives both integration tests and manual automation.
 
 Patch installation enforces the strict [`assignChecked` contract](../architecture/patching.md): the target method is inspected prior to modification, assigned, and read back by identity. If an assignment does not take effect, a warning is logged and the feature remains safely disabled. Furthermore, `patch()` prevents redundant wrapping on repeated `start()` calls, allowing `unpatch()` to peel exactly one wrapper layer.
 
@@ -99,16 +140,14 @@ Module-level state is maintained across four structures in [citaviImport.ts](../
 
 - **`pending`**: Holds the parked `CitaviTranslation` object from the most recent Citavi import. Consumed exactly once by `_runPending()`, which nulls it immediately upon entry.
 - **`sequencedWindows` (`Set<Window>`)**: Tracks active windows that have wrapped `Zotero_File_Interface`. Using a `Set` rather than a boolean flag ensures that closing the last sequenced window resets the state to empty, correctly re-enabling the direct-after-translate fallback path.
-- **`windowPatches` (`WeakMap<Window, {target, name, original}[]>`)**: Maps each window to its replaced methods. Cleaned up automatically upon window garbage collection, and utilized by `removeFromWindow(win)` to restore original methods idempotently.
-- **`translatePatch` (`{ proto, original } | null`)**: Holds the original reference of `Zotero.Translate.Import.prototype.translate`.
-
-Because `Zotero_File_Interface` is instantiated per window (and reloaded by dialogs like `importWizard.xhtml`), `_watchWindows()` registers an `nsIObserver` with `Services.ww` listening to `domwindowopened`, patching newly opened windows upon their `load` event.
+- **`windowPatches` (`WeakMap<Window, {target, name, original, patched}[]>`)**: Maps each window to its replaced methods. Cleaned up automatically upon window garbage collection, and utilized by `removeFromWindow(win)` to restore original methods idempotently.
+- **`translatePatch` (`{ proto, original, patched } | null`)**: Holds the original reference of `Zotero.Translate.Import.prototype.translate`.
 
 ### Execution Isolation
 
-Inside `_runPending()`, sub-passes are decoupled and independently gated by preferences:
-- `importPrintQuotes` executes under `extensions.flexannotate.citaviImport`.
-- `linkContributions` executes under `extensions.flexannotate.citaviLinkContributions`.
+Inside `_runPending()`, sub-passes are decoupled and independently gated by preferences and feature gates ([src/features/gates.ts](../../src/features/gates.ts)):
+- `importPrintQuotes` executes under `isFeatureEnabled("citaviPrintQuotes") && getPref("citaviImport")`.
+- `linkContributions` executes under `isFeatureEnabled("citaviLinks") && getPref("citaviLinkContributions")`.
 
 Each sub-pass runs within its own `try/catch` block. A failure in quote conversion or relation linking logs an error via `Zotero.logError` without aborting the sibling sub-pass or interrupting Zotero's already-persisted items.
 
@@ -176,14 +215,27 @@ When `importPrintQuotes` runs ([src/features/citavi/citaviPrintQuotes.ts](../../
 1. Because Zotero's first pass consumed the incoming XML stream (`import/citavi.js:14`), FlexAnnotate re-initializes it by invoking `translation._io.init("xml/dom")`.
 2. The parsed DOM document is retrieved from `translation._sandboxZotero.getXML()`, allowing XPath queries through `ZU.xpath` and `ZU.xpathText`.
 3. The set of *anchored* knowledge item IDs is compiled from `//EntityLinks/EntityLink/SourceID`.
-4. The helper `hasAnnotatableAttachment(item)` checks if the source item possesses an annotatable attachment (`attachmentReaderType && !isPlaceholder(attachment)`). The exclusion of FlexAnnotate's placeholder PDF is critical: because placeholders are valid single-page PDFs, omitting this check would cause items with existing placeholders to be misidentified as already handled by Zotero.
+4. The helper `hasAnnotatableAttachment(item)` checks if the source item possesses an annotatable attachment (`attachmentReaderType && !isPlaceholder(attachment)`).
 5. Unanchored quotes or quotes belonging to print works (items lacking genuine annotatable attachments) are processed through `readKnowledgeItem` and `buildAnnotationData`.
 
 Every KnowledgeItem evaluated is categorized into explicit counters (`noReference`, `noItem`, `notRegular`, `handledByZotero`, `empty`, `duplicates`) so that a summary log line indicating `created 0` remains transparent and debuggable.
 
+### Placeholder Attachment Creation
+
+In Zotero's architecture, an annotation item (`type: "annotation"`) cannot exist as a direct child of a top-level bibliographic item; its parent must be an attachment item (`annotation.parentID = attachment.id`).
+
+When creating a print annotation for an unanchored quote:
+1. `importPrintQuotes` calls `printAnnotations.create(item, data)` ([src/features/print/printAnnotations.ts](../../src/features/print/printAnnotations.ts#L47-L52)).
+2. `printAnnotations.create()` invokes `placeholder.ensure(item)` ([src/features/print/placeholder.ts](../../src/features/print/placeholder.ts#L47-L70)), which searches for an existing placeholder attachment using `findPlaceholder(item)`.
+3. If no placeholder exists, `placeholder.create(item)` creates a synthetic single-page PDF attachment (pointing to `chrome://flexannotate/content/blank.pdf`), labeled with a localized placeholder name and tagged `#flexannotate-print-placeholder`.
+4. The new annotation item is persisted under this placeholder attachment (`annotation.parentID = attachment.id`), configuring highlight type, color, page label, sort index, bounding rects (`[[0, 0, 0, 0]]`), and the locator tag (`#flexannotate-loc-<locator>`).
+
+**The Placeholder Exclusion Check:**  
+Because synthetic placeholders are valid PDF files recognized by Zotero's PDF reader, a source item that already has a placeholder attachment returns a truthy `attachmentReaderType`. In `hasAnnotatableAttachment(item)`, the condition `!isPlaceholder(attachment)` is essential. Without it, any subsequent import into an item that already owns a placeholder would mistakenly treat its quotes as handled by Zotero and skip them.
+
 ### Quotation Types and Color Mapping
 
-`QUOTATION_TYPES` in [src/features/citavi/logic/citavi.ts](../../src/features/citavi/logic/citavi.ts) maps Citavi numeric `QuotationType` identifiers to Zotero annotation highlight colors and field assignments (aligned with Zotero's native color definitions in `import/citavi.js:112-140`):
+`QUOTATION_TYPES` in [src/features/citavi/logic/citavi.ts](../../src/features/citavi/logic/citavi.ts#L49-L59) maps Citavi numeric `QuotationType` identifiers to Zotero annotation highlight colors and field assignments (aligned with Zotero's native color definitions in `import/citavi.js:112-140`):
 
 | QuotationType | Citavi Semantic Type | Highlight Color | Field & Comment Distribution |
 | :--- | :--- | :--- | :--- |

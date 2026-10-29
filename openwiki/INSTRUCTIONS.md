@@ -20,7 +20,7 @@ the major feature areas without reading everything.
    - `src/prefs/` = separate settings-window bundle
    - `src/utils/` = locale, prefs, menu registration, ztoolkit wrappers
 2. **The feature areas** — print annotations, cite-only mode ("Nur-Nachweis-Zitieren"),
-   Citavi import, and the Organizer (a fork of Lattice). For each: purpose, entry
+   Citavi import, the Organizer and the citation dialog. For each: purpose, entry
    point, and how it interacts with Zotero.
 3. **Build / test / verify workflow** — `npm run build`, `test:unit`, `test:zotero`,
    `test:versions`, `verify`, `lint`; where tests live (`test-unit/` Node vs `test/` real Zotero).

@@ -1,6 +1,6 @@
 # Files
 
-- [Data Model & Storage](data-model.md) - Persistence design, annotation representations across PDF and print sources, outline trees, item relation markers, and stable preference keys in FlexAnnotate.
-- [Feature Lifecycle & Registry](feature-lifecycle.md) - How FlexAnnotate starts and stops — the Feature contract in src/shared/feature.ts, the ordered feature array and dialog injectors in src/hooks.ts, error isolation and idempotency rules, the startup/teardown sequence, the addon.api test surface, and preference-pane registration.
+- [Data Models & Storage Schemas](data-model.md) - Storage architecture, Zotero attachment schemas, outline note JSON payloads, Citavi metadata mapping, and word-processor cited tracking variables.
+- [Feature Lifecycle & Gating System](feature-lifecycle.md) - Feature lifecycle management, window attachment and detachment, dependency gates, and emergency configuration overrides in FlexAnnotate.
 - [Architecture & Module Layout](overview.md) - System-wide architectural overview covering module layers (core, shared, features, prefs, utils), strict layering rules, entrypoints, and esbuild bundle outputs.
-- [Prototype Patching & Safe Modification](patching.md) - How FlexAnnotate safely patches Zotero internals via assignChecked, manages dialog hook injection via CitationDialogWatcher, and enforces isolation safeguards protecting host stability.
+- [Monkey-Patching & DOM Interception](patching.md) - Safe prototype interception, DOM injection patterns, and unpatching mechanisms across Zotero windows.

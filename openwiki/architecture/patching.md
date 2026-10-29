@@ -1,11 +1,11 @@
 ---
 type: mechanism
-title: Prototype Patching & Safe Modification
-description: How FlexAnnotate safely patches Zotero internals via assignChecked, manages dialog hook injection via CitationDialogWatcher, and enforces isolation safeguards protecting host stability.
+title: Monkey-Patching & DOM Interception
+description: Safe prototype interception, DOM injection patterns, and unpatching mechanisms across Zotero windows.
 tags: [patching, zotero-internals, monkey-patching, assignchecked, citation-dialog, lifecycle, isolation]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-17T22:13:14.642Z
+    at: 2026-10-28T23:29:27.424Z
 sources:
   - id: openwiki-source-8037e2358a2c4f9b2c722a11
     resource: repo://AGENTS.md
@@ -25,14 +25,24 @@ sources:
     resource: repo://src/features/citeOnly/integrationPatch.ts
   - id: openwiki-source-c4f2aacecdd98c100ec86f70
     resource: repo://src/features/citeOnly/modeSelector.ts
-  - id: openwiki-source-f4a82bb76f9ba70735439283
-    resource: repo://src/features/organizer/dialog/dialogOutline.ts
-  - id: openwiki-source-c8587857b6f488227993df04
-    resource: repo://src/features/organizer/dialog/dialogPersistent.ts
+  - id: openwiki-source-1ddc6e0718a50226091399be
+    resource: repo://src/features/organizer/citationDialog/dialogOutline.ts
+  - id: openwiki-source-3ed2c27046752e25c7f5a7d4
+    resource: repo://src/features/organizer/citationDialog/dialogOutlineRender.ts
+  - id: openwiki-source-b6483a21ddd062d9bb93e185
+    resource: repo://src/features/organizer/citationDialog/persistentFeature.ts
+  - id: openwiki-source-f533a4d516e19846e83cfb82
+    resource: repo://src/features/organizer/citationDialog/persistentPatches.ts
+  - id: openwiki-source-10e6374a13240c3a9bf9df06
+    resource: repo://src/features/organizer/citationDialog/persistentPinning.ts
+  - id: openwiki-source-2fd1c714cae410a90ce5a52d
+    resource: repo://src/features/organizer/citationDialog/persistentWindow.ts
   - id: openwiki-source-67599eb667e1f64382e23813
     resource: repo://src/features/print/annotationRowPatch.ts
   - id: openwiki-source-0c1da386b0384a677fb31b3d
     resource: repo://src/features/reader/readerMenu.ts
+  - id: openwiki-source-0760a9e9a9fe13dfe92100ba
+    resource: repo://src/features/registry.ts
   - id: openwiki-source-203c7dd08ccb7d6de0448e34
     resource: repo://src/hooks.ts
   - id: openwiki-source-9a53ffd0206b6ef92f484cfb
@@ -49,12 +59,12 @@ sources:
     resource: repo://test/features.test.ts
   - id: openwiki-source-7cd4aec9d7d41c86494d78bd
     resource: repo://test/readerMenu.test.ts
-generated: { by: "openwiki/0.7.2", at: "2026-10-17T22:13:14.642Z" }
+generated: { by: "openwiki/0.7.2", at: "2026-10-28T23:29:27.424Z" }
 ---
 
-Zotero exposes no public extension API for the critical interception points required by FlexAnnotate: citation-only item rewriting in the Word integration session, the post-translation pass for Citavi attachments, window-specific import sequencing, persistent dialog window management, and custom locator rendering in annotation rows. FlexAnnotate must therefore replace or wrap methods on Zotero's live prototypes and host objects.
+Zotero exposes no public extension API for several critical interception points required by FlexAnnotate: citation-only item rewriting in the Word integration session, the post-translation pass for Citavi attachments, window-specific import sequencing, persistent companion dialog management, and custom locator rendering in annotation rows. FlexAnnotate must therefore replace or wrap methods on Zotero's live prototypes and host objects.
 
-Because a monkey-patch that silently fails or half-installs can silently corrupt user documents or leave lingering mutations, every patch in FlexAnnotate adheres to a strict contract:
+Because a monkey-patch that silently fails or half-installs can corrupt user documents or leave lingering mutations, every patch in FlexAnnotate adheres to a strict contract:
 1. **Target pre-checking** via runtime feature detection before wrapping.
 2. **Atomic installation and verification** via [`assignChecked`](../../src/shared/patch.ts), reading back property values to guard against frozen objects and Xray expando swallows.
 3. **Explicit failure policies** (loud exceptions or atomic rollbacks) with diagnostic logging.
@@ -126,7 +136,7 @@ flowchart TD
     T -- "no" --> L1["Log reason and consequence"]
     T -- "yes" --> G{"Already installed?"}
     G -- "yes" --> OK2["Early return (idempotent)"]
-    G -- "no" --> W["Hold native function in closure / record"]
+    G -- "no" --> W["Hold native function in closure or record"]
     W --> AC["assignChecked(target, name, patched)"]
     AC -- "true" --> OK["Record target, name, and native"]
     AC -- "false" --> L2["Log assignment failure"]
@@ -134,7 +144,7 @@ flowchart TD
     L2 --> OFF
     OFF --> POL{"Error policy"}
     POL -- "citeOnlyPatch" --> THR["Throw error (registry logs failure)"]
-    POL -- "persistentDialogPatch" --> RB["Rollback: unpatch both, alive = false"]
+    POL -- "persistentDialogPatch" --> RB["Rollback: unpatch all, alive = false"]
     POL -- "citavi / reader / annotationRow" --> DEG["Degrade gracefully or skip pass"]
     OK --> RUN["Patched behavior active"]
     RUN --> ST["stop() or removeFromWindow()"]
@@ -144,10 +154,10 @@ flowchart TD
 _Lifecycle of a FlexAnnotate patch: pre-checking target presence, applying and reading back via assignChecked, executing failure policies, and restoring original functions on teardown._
 
 ### 1. Target pre-checking
-Before attempting to wrap a method, the caller checks whether the host object exists and whether the member is a function. FlexAnnotate uses runtime feature detection rather than version sniffing. For instance:
-- `citeOnlyPatch` verifies that both `Integration.Session.prototype._insertCitingResult` and `_insertItemsIntoDocument` exist and are functions ([src/features/citeOnly/integrationPatch.ts](../../src/features/citeOnly/integrationPatch.ts)).
+Before attempting to wrap a method, the caller checks whether the host object exists and whether the member is a function. FlexAnnotate uses runtime feature detection rather than version sniffing:
+- `citeOnlyPatch` verifies that both `Integration.Session.prototype._insertCitingResult` and `_insertItemsIntoDocument` exist and are functions ([src/features/citeOnly/integrationPatch.ts](../../src/features/citeOnly/integrationPatch.ts)). If enabled, `citeprocResetFix` also checks `Session.prototype.resetRequest`.
 - `CitaviImport.patch` verifies `Zotero.Translate.Import.prototype.translate` ([src/features/citavi/citaviImport.ts](../../src/features/citavi/citaviImport.ts)).
-- `persistentDialogPatch` executes `persistentSupported()`, verifying that `Zotero.Integration.Interface.prototype.addAnnotation` exists before touching anything; in Zotero 7.x and 8.x where that command is absent, persistence is skipped altogether ([src/features/organizer/dialog/dialogPersistent.ts](../../src/features/organizer/dialog/dialogPersistent.ts)).
+- `persistentDialogPatch` executes `persistentSupported()`, verifying that `Zotero.Integration.Interface.prototype.addAnnotation` exists before touching anything; in Zotero 7.x and 8.x where that command is absent, persistence is skipped altogether ([src/features/organizer/citationDialog/persistentWindow.ts](../../src/features/organizer/citationDialog/persistentWindow.ts)).
 - `patchAnnotationRow` verifies `win.customElements?.get("annotation-row")?.prototype.render` before wrapping ([src/features/print/annotationRowPatch.ts](../../src/features/print/annotationRowPatch.ts)).
 
 ### 2. Closure capture and idempotent application
@@ -159,11 +169,11 @@ When installing, the native function reference is captured in a closure and stor
 ### 3. Divergent failure semantics
 If target pre-checking fails or `assignChecked` returns `false`, callers handle the failure according to the criticality of the feature:
 - **Loud failure (throw):** `citeOnlyPatch.start()` throws an explicit `Error("citeOnlyPatch: _insertCitingResult patch not active")`. The central feature registry (`src/shared/feature.ts`) catches and logs the failure with `ztoolkit.log` and `Zotero.logError`, allowing other features to continue while ensuring the broken patch is not silently ignored.
-- **Atomic rollback:** `persistentDialogPatch.start()` requires both `displayDialog` and `execCommand` to operate correctly. If either assignment fails, it calls `unpatchDisplayDialog()` and `unpatchExecCommand()`, resets its state (`alive = false`), and returns cleanly. A partially patched integration subsystem would swallow citation dialogs; complete rollback leaves Zotero in a working vanilla state.
+- **Atomic rollback:** `persistentDialogPatch.start()` requires `displayDialog`, `execCommand`, and `Interface.prototype` methods (`addEditCitation`, `addAnnotation`) to operate correctly. If any assignment fails, it calls `unpatchDisplayDialog()`, `unpatchExecCommand()`, and `unpatchInterfaceMethods()`, resets its state (`alive = false`), and returns cleanly. A partially patched integration subsystem would swallow citation dialogs; complete rollback leaves Zotero in a working vanilla state.
 - **Graceful degradation:** `patchAnnotationRow` logs `"Failed to patch AnnotationRow.prototype.render"` and returns `false`. Unpatched windows continue displaying vanilla page labels without breaking annotation list rendering.
 
 ### 4. Restoration on stop or window unload
-Teardown symmetry is mandatory. During shutdown or window close, original functions are restored using `assignChecked(target, name, native)`. The native reference is retrieved from stored module or window records, never read dynamically from the target (which would return the wrapper itself). `citeOnlyPatch.unpatch()` clears its `installed` pointer before restoring, ensuring that concurrent invocations cannot dereference a partially torn-down state.
+Teardown symmetry is mandatory. During shutdown or window close, original functions are restored using `assignChecked(target, name, native)`. The native reference is retrieved from stored module or window records, never read dynamically from the target (which would return the wrapper itself). `citeOnlyPatch.unpatch()` clears its `installed` pointer upon restoration, ensuring that concurrent invocations cannot dereference a partially torn-down state.
 
 ## The inventory of patched symbols
 
@@ -171,15 +181,19 @@ FlexAnnotate maintains a strict inventory of all monkey-patched symbols across t
 
 | Patched Symbol | Source File | Purpose | Restore Hook | State Storage |
 | -------------- | ----------- | ------- | ------------ | ------------- |
-| `Zotero.Integration.Session.prototype._insertCitingResult` | [src/features/citeOnly/integrationPatch.ts](../../src/features/citeOnly/integrationPatch.ts) | Intercepts citation insertion in Word/LibreOffice. When `citationOnly` pref is active and items are annotations, rewrites to parent item citations and forwards to `_insertItemsIntoDocument`. All other citations or errors fall through to native. | `unpatch()` in `stop` | Module `installed` record |
+| `Zotero.Integration.Session.prototype._insertCitingResult` | [src/features/citeOnly/integrationPatch.ts](../../src/features/citeOnly/integrationPatch.ts) | Intercepts citation insertion in Word/LibreOffice. When `citationOnly` pref is active and items are annotations, rewrites to parent item citations with locator and forwards to `_insertItemsIntoDocument`. All other citations or errors fall through to native. | `unpatch()` in `stop` | Module `installed` record |
+| `Zotero.Integration.Session.prototype.resetRequest` | [src/features/citeOnly/integrationPatch.ts](../../src/features/citeOnly/integrationPatch.ts) | Preserves `rebuildCiteprocState` flag during session reset to prevent Citeproc crash in `processCitationCluster` when existing citations exist. | `unpatch()` in `stop` | Module `installed` record |
 | `Zotero.Translate.Import.prototype.translate` | [src/features/citavi/citaviImport.ts](../../src/features/citavi/citaviImport.ts) | Detects Citavi XML exports after translation completes and caches the translation instance (`_itemSaver._IDMap`, `_io`) for post-processing. | `unpatch()` in `stop` | Module `translatePatch` record |
 | `Zotero_File_Interface.importFile` & `importFromClipboard` | [src/features/citavi/citaviImport.ts](../../src/features/citavi/citaviImport.ts) | Wraps window-specific file import functions to execute the deferred Citavi pass in `finally`, guaranteeing it runs after Zotero attaches PDF files. | `removeFromWindow(win)` | `windowPatches` `WeakMap<Window, Patch[]>` |
 | `Zotero.Reader.open` | [src/features/reader/readerMenu.ts](../../src/features/reader/readerMenu.ts) | Intercepts reader opening to attach a `MutationObserver` to reader iframes for page-number popup enhancement. | `unpatch()` in `stop` | Module `origOpen` record |
-| `Zotero.Integration.displayDialog` | [src/features/organizer/dialog/dialogPersistent.ts](../../src/features/organizer/dialog/dialogPersistent.ts) | Replaces native modal citation dialog opening with a pinned, persistent modeless window; maintains `Zotero.Integration.currentWindow`. | `unpatchDisplayDialog()` in `stop` | Module `installed` record |
-| `Zotero.Integration.Progress.prototype.show` | [src/features/organizer/dialog/dialogPersistent.ts](../../src/features/organizer/dialog/dialogPersistent.ts) | Suppresses the orphan progress dialog that appears when no integration transaction is active (`!currentDoc`). | `unpatchProgressBar()` in `stop` | Module `installedProgress` record |
-| `Zotero.Integration.execCommand` | [src/features/organizer/dialog/dialogPersistent.ts](../../src/features/organizer/dialog/dialogPersistent.ts) | Captures integration command arguments (`agent`, `docId`, `templateVersion`) so persistent browse windows can replay insertions. | `unpatchExecCommand()` in `stop` | Module `installedExec` record |
-| `AnnotationRow.prototype.render` | [src/features/print/annotationRowPatch.ts](../../src/features/print/annotationRowPatch.ts) | Intercepts `<annotation-row>` rendering to update the title text from Zotero's hardcoded "Page X" to FlexAnnotate's resolved locator ("Randnummer 318", "Opus 42"). | `unpatchAnnotationRow(win)` | `installed` `WeakMap<Window, () => void>` |
-| `win.resizeTo` & `win.moveTo` (dialog instances) | [src/features/organizer/dialog/dialogPersistent.ts](../../src/features/organizer/dialog/dialogPersistent.ts) | Temporarily clamps native dialog resizing and positioning during window initialization while the persistent rect settles. | Released via pin timer (max 1.5s), not `stop` | Wrapped on window instance |
+| `Zotero.Integration.displayDialog` | [src/features/organizer/citationDialog/persistentWindow.ts](../../src/features/organizer/citationDialog/persistentWindow.ts) | Replaces native modal citation dialog opening with a pinned, persistent modeless window; maintains `Zotero.Integration.currentWindow`. | `unpatchDisplayDialog()` in `stop` | Module `installed` record |
+| `Zotero.Integration.Progress.prototype.show` | [src/features/organizer/citationDialog/persistentPatches.ts](../../src/features/organizer/citationDialog/persistentPatches.ts) | Suppresses the orphan progress dialog that appears when no integration transaction is active (`!currentDoc`). | `unpatchProgressBar()` in `stop` | Module `installedProgress` record |
+| `Zotero.Integration.execCommand` | [src/features/organizer/citationDialog/persistentPatches.ts](../../src/features/organizer/citationDialog/persistentPatches.ts) | Captures integration command arguments (`agent`, `docId`, `templateVersion`) so persistent companion windows can repeat commands. | `unpatchExecCommand()` in `stop` | Module `installedExec` record |
+| `Zotero.Integration.Interface.prototype.addEditCitation` & `addAnnotation` | [src/features/organizer/citationDialog/persistentPatches.ts](../../src/features/organizer/citationDialog/persistentPatches.ts) | Intercepts interface commands in companion mode to close Word transactions immediately and open the companion window without inserting empty footnote placeholders into Word. | `unpatchInterfaceMethods()` in `stop` | Module `installedAddEditCitation` / `installedAddAnnotation` |
+| `AnnotationRow.prototype.render` | [src/features/print/annotationRowPatch.ts](../../src/features/print/annotationRowPatch.ts) | Intercepts `<annotation-row>` rendering to update the title text from Zotero's hardcoded "Page X" to FlexAnnotate's resolved locator ("Randnummer 318", "Opus 42"). | `unpatchAnnotationRow(win)` | `installed` `WeakMap<Window, PatchEntry>` |
+| `Helpers.buildBubbleString` | [src/features/citeOnly/modeSelector.ts](../../src/features/citeOnly/modeSelector.ts) | Formats bubble label strings for annotations in the citation dialog. | `removeModeSelector(win)` | Per-window state in `states` `WeakMap` |
+| `ZoteroAutoComplete.prototype.startSearch` | [src/features/organizer/tagSuggest.ts](../../src/features/organizer/tagSuggest.ts) | Injects outline heading matches with custom styling into tag autocompletion queries. | `unpatch()` in `stop` | Module `installed` record |
+| `win.resizeTo` & `win.moveTo` (dialog instances) | [src/features/organizer/citationDialog/persistentPinning.ts](../../src/features/organizer/citationDialog/persistentPinning.ts) | Temporarily clamps native dialog resizing and positioning during window initialization while the persistent rect settles. | Released via pin timer (max 1.5s), not `stop` | Wrapped on window instance |
 
 ### `AnnotationRow.prototype.render` details
 In native Zotero (`elements/annotationRow.js:90-95`, verified in 10.0.5; anchor in [docs/anchors.md](../../docs/anchors.md)), `AnnotationRow.prototype.render()` rigidly builds the row title:
@@ -191,16 +205,16 @@ When an annotation represents a legal margin number (*Randnummer*) or musical wo
 In [src/features/print/annotationRowPatch.ts](../../src/features/print/annotationRowPatch.ts), `patchAnnotationRow(win)` safely intercepts this rendering:
 1. **Custom element registration:** Verifies whether `win.customElements.get("annotation-row")` exists; if not yet registered by XUL, it creates a temporary element to force registration.
 2. **Prototype interception:** Retrieves the prototype and wraps `render()` using `assignChecked(proto, "render", patched)`.
-3. **Execution & update:** The patched `render` executes the native `render.call(this)` first, followed by `updateAnnotationRowTitle(this)`, which reads the annotation's locator via `getLocator(ann)` and rewrites `titleEl.textContent` with `formatAnnotationTitle(label, ann.annotationPageLabel)`.
+3. **Execution & update:** The patched `render` executes the native `render.call(this)` first, followed by `updateAnnotationRowTitle(this)`, which reads the annotation's locator via `getLocator(ann)` and rewrites `titleEl.textContent` with `formatAnnotationTitle(label, ann.annotationPageLabel)`. It also calls `updateGotoButton(this)` to append the jump arrow.
 4. **Existing DOM sweep:** Immediately updates all existing `<annotation-row>` elements already rendered in the window's document.
 5. **Teardown & re-rendering:** On `unpatchAnnotationRow(win)`, native `render` is restored via `assignChecked`, and `render?.()` is invoked on all existing rows to return them to vanilla Zotero formatting.
-6. **Dual registration lifecycle:** To guarantee coverage across the entire application, `annotationRowPatch` is wired in [src/hooks.ts](../../src/hooks.ts) both as a per-window feature (`addToWindow` / `removeFromWindow` for main and reader windows) and as a `DialogInjector` via `CitationDialogWatcher` for Word integration citation dialogs.
+6. **Dual registration lifecycle:** To guarantee coverage across the entire application, `annotationRowPatch` is wired in [src/features/registry.ts](../../src/features/registry.ts) both as a per-window feature (`addToWindow` / `removeFromWindow` for main and reader windows) and as a `DialogInjector` via `CitationDialogWatcher` for Word integration citation dialogs.
 
 ### Non-patch extension mechanisms
 Certain interactions that might appear to be monkey-patches are deliberately implemented without prototype mutation:
 - **Reader context menus:** Implemented via Zotero's official `Zotero.Reader.registerEventListener` / `unregisterEventListener` APIs ([src/features/reader/readerMenu.ts](../../src/features/reader/readerMenu.ts)).
 - **Citation dialog UI:** The citation dialog window (`citationDialog.xhtml`) receives no prototype patches. UI modifications are performed entirely via DOM injection and DOM event listeners managed by `CitationDialogWatcher`.
-- **Persistent dialog layout:** Layout constraints are relaxed using injected CSS `<style>` elements and the root attribute `flexannotate-persistent` ([src/features/organizer/dialog/dialogPersistent.ts](../../src/features/organizer/dialog/dialogPersistent.ts)).
+- **Persistent dialog layout:** Layout constraints are relaxed using injected CSS `<style>` elements and the root attribute `flexannotate-persistent` ([src/features/organizer/citationDialog/persistentWindow.ts](../../src/features/organizer/citationDialog/persistentWindow.ts)).
 
 ## Per-window patches and WeakMap isolation
 
@@ -210,7 +224,7 @@ A critical structural pitfall in Zotero extensions is assuming that subsystem ob
 
 To resolve this, Citavi import sequencing uses per-window patching:
 - `CitaviImport.addToWindow(win)` inspects `win.Zotero_File_Interface` and wraps `importFile` and `importFromClipboard` directly on that window's instance.
-- Patch records are stored in a `WeakMap<Window, { target, name, original }[]>`. When a window closes, its patch records are automatically garbage-collected. `removeFromWindow(win)` looks up the window in the `WeakMap` and restores its specific originals.
+- Patch records are stored in a `WeakMap<Window, { target, name, original, patched }[]>`. When a window closes, its patch records are automatically garbage-collected. `removeFromWindow(win)` looks up the window in the `WeakMap` and restores its specific originals.
 - Late-opening windows are handled via `Services.ww.registerNotification`, observing `domwindowopened` and attaching to the window's `load` event so the import wizard is patched as soon as it opens.
 - The sequencing tracker uses a `Set<Window>` (`sequencedWindows`) rather than a boolean flag. When all patched windows close, the set empties, allowing `_afterTranslate` to safely fall back to immediate execution while logging a diagnostic warning.
 
@@ -236,9 +250,11 @@ sequenceDiagram
 _Two-entrypoint sequencing: translate wraps what is processed; window FileInterface determines when it runs in finally, ensuring parent attachments exist before annotations are created._
 
 This WeakMap/WeakSet pattern is applied across all window-bound and instance-bound state in accordance with repo conventions ([AGENTS.md](../../AGENTS.md) and [docs/architecture.md](../../docs/architecture.md) Pitfall 11):
-- `dialogPersistent.ts`: `browseWindows` (`WeakSet<Window>`), `windowAgents` (`WeakMap<Window, string>`), and `liveRects` (`WeakMap<Window, Rect>`).
+- `persistentWindow.ts`: `browseWindows` (`WeakSet<Window>`), `windowAgents` (`WeakMap<Window, string>`).
+- `persistentPinning.ts`: `liveRects` (`WeakMap<Window, Rect>`).
 - `readerMenu.ts`: `watchedReaders` (`WeakSet<ReaderInstance>`).
-- `annotationRowPatch.ts`: `installed` (`WeakMap<Window, () => void>`).
+- `annotationRowPatch.ts`: `installed` (`WeakMap<Window, PatchEntry>`).
+- `modeSelector.ts`: `states` (`WeakMap<Window, ModeSelectorState>`).
 
 ## The citation dialog watcher pattern
 
@@ -277,29 +293,31 @@ export interface DialogInjector {
 
 Registered injectors execute sequentially in the exact order they were registered. During teardown, their `detach` methods execute in the same order.
 
-### Central registration in `src/hooks.ts`
-All dialog extensions register their injectors during top-level module evaluation in [src/hooks.ts](../../src/hooks.ts):
+### Central registration in `src/features/registry.ts`
+All dialog extensions register their injectors through `dialogInjectorEntries` in [src/features/registry.ts](../../src/features/registry.ts):
 ```ts
-citationDialog.registerDialogInjector({
-  name: "modeSelector",
-  inject: modeSelector.injectModeSelector,
-  detach: modeSelector.removeModeSelector,
-});
-citationDialog.registerDialogInjector(outlineView);
-citationDialog.registerDialogInjector({
-  name: "annotationRowPatch",
-  inject: patchAnnotationRow,
-  detach: unpatchAnnotationRow,
-});
+export const dialogInjectorEntries: DialogInjector[] = [
+  {
+    name: "modeSelector",
+    inject: modeSelector.injectModeSelector,
+    detach: modeSelector.removeModeSelector,
+  },
+  outlineView,
+  {
+    name: "annotationRowPatch",
+    inject: patchAnnotationRow,
+    detach: unpatchAnnotationRow,
+  },
+];
 ```
 
-The watcher itself is managed as a standard `Feature` in the feature registry:
+In [src/hooks.ts](../../src/hooks.ts), `onStartup` loops over `activeDialogInjectors()` (which filters out gated entries) and registers them with `registerDialogInjector`. The watcher itself is managed as a standard `Feature` in the feature registry:
 ```ts
-{
+const citationDialogFeature: Feature = {
   name: "citationDialog",
   start: () => citationDialog.start(),
   stop: () => citationDialog.stop(),
-}
+};
 ```
 
 ### Window discovery and initialization polling
@@ -312,7 +330,7 @@ The watcher itself is managed as a standard `Feature` in the feature registry:
 
 ## Safe hook injection: cite-only and outline dialogs
 
-Three feature injectors register with the citation dialog watcher in [src/hooks.ts](../../src/hooks.ts): `modeSelector` (from cite-only), `outlineView` (from the organizer), and `annotationRowPatch` (from print annotations). All three demonstrate how to safely extend complex native interfaces without destructive prototype mutation.
+Three feature injectors register with the citation dialog watcher in [src/features/registry.ts](../../src/features/registry.ts): `modeSelector` (from cite-only), `outlineView` (from the organizer), and `annotationRowPatch` (from print annotations). All three demonstrate how to safely extend complex native interfaces without destructive prototype mutation.
 
 ### 1. `modeSelector` injection
 In [src/features/citeOnly/modeSelector.ts](../../src/features/citeOnly/modeSelector.ts), `injectModeSelector(win)` adds the "Full citation / Citation only" dropdown to the dialog:
@@ -320,17 +338,17 @@ In [src/features/citeOnly/modeSelector.ts](../../src/features/citeOnly/modeSelec
 - **Graceful degradation:** Checks for `#annotations-sidebar`. In Zotero 8 (which lacks annotation support in the citation dialog), the function returns silently without error.
 - **Targeted insertion:** Injects custom row elements into `#settings-popup .popup` and `#itemDetails .popup .buttons`.
 - **Dynamic synchronization:** Zotero toggles elements with `[data-dialog-type]` based on the active tab. `modeSelector` attaches a `MutationObserver` to `win.document.documentElement` watching `dialog-type` attribute changes, adjusting row visibility accordingly.
-- **Detachment:** `removeModeSelector(win)` disconnects the observer stored in a `WeakMap<Window, MutationObserver>`, removes the injected DOM rows and style elements, and unbinds listeners.
+- **Detachment:** `removeModeSelector(win)` disconnects the observer stored in `states` `WeakMap<Window, ModeSelectorState>`, removes the injected DOM rows and style elements, and unbinds listeners.
 
 ### 2. `outlineView` injection
-In [src/features/organizer/dialog/dialogOutline.ts](../../src/features/organizer/dialog/dialogOutline.ts), `outlineView` provides outline-based annotation browsing:
+In [src/features/organizer/citationDialog/dialogOutline.ts](../../src/features/organizer/citationDialog/dialogOutline.ts) and [src/features/organizer/citationDialog/dialogOutlineRender.ts](../../src/features/organizer/citationDialog/dialogOutlineRender.ts), `outlineView` provides outline-based annotation browsing:
 - **Non-destructive layout swap:** Leaves Zotero's native views untouched. It adds a "Nach Gliederung anordnen" checkbox into the annotations view. When toggled on, it replaces the three dialog columns (`#collections-tree-container`, `#item-tree-container`, `#annotations-sidebar`) with the outline tree, section list, and preview pane.
 - **Preserving Zotero's citation pipeline:** To insert an annotation from the outline, the plugin **does not** invoke private Word integration methods. Instead, it creates a hidden native `<annotation-row>` inside the native `#annotations-list` element, configures its item reference, and programmatically clicks its native `+` button (`citationDialog.js:811-818`). This triggers Zotero's own bubbling click handler and standard citation insertion pipeline, ensuring all native Word integration logic executes unmodified.
-- **Accept tracking:** In [src/features/organizer/dialog/dialogCited.ts](../../src/features/organizer/dialog/dialogCited.ts), `hookAccept` wraps `io.accept` on the dialog's edit interface to record cited annotation keys against the document's session ID (`session.sessionID`).
+- **Accept tracking:** In [src/features/organizer/citationDialog/dialogCited.ts](../../src/features/organizer/citationDialog/dialogCited.ts), `hookAccept` wraps `io.accept` on the dialog's edit interface to record cited annotation keys against the document's session ID (`session.sessionID`).
 - **Clean restoration:** `detach(win)` restores the native layout: removes keydown and search listeners, removes injected containers (`TREE_ID`, `LIST_ID`, `PREVIEW_ID`, `STYLE_ID`), clears items in `annotations-list`, and calls `clearSelection()` on Zotero's `libraryLayout.itemsView.selection` so native views recalculate cleanly.
 
 ### 3. `annotationRowPatch` dialog injection
-In [src/features/print/annotationRowPatch.ts](../../src/features/print/annotationRowPatch.ts), `patchAnnotationRow(win)` ensures that the native `<annotation-row>` elements rendered within `#annotations-list` display FlexAnnotate's custom locator titles rather than hardcoded "Page X" labels. When the dialog unloads, `unpatchAnnotationRow(win)` cleans up the window prototype and cached instances.
+In [src/features/print/annotationRowPatch.ts](../../src/features/print/annotationRowPatch.ts), `patchAnnotationRow(win)` ensures that native `<annotation-row>` elements rendered within `#annotations-list` display FlexAnnotate's custom locator titles rather than hardcoded "Page X" labels. When the dialog unloads, `unpatchAnnotationRow(win)` cleans up the window prototype and cached instances.
 
 ## Environment isolation safeguards: databases and Word processes
 
@@ -349,6 +367,7 @@ Directly invoking Word COM automation or ctypes methods outside Zotero's synchro
 - **No external COM automation:** FlexAnnotate never opens, modifies, or closes live Word documents via direct COM scripts during runtime.
 - **In-memory payload rewriting:** In `citeOnlyPatch`, the patched `_insertCitingResult` only transforms the in-memory `citation` data object passed to `_insertItemsIntoDocument`. It does not interact with the Word process directly. If any validation or transformation error occurs, it catches the exception and immediately defers to native `_insertCitingResult`, ensuring Word never receives an invalid or stalled RPC call.
 - **Session lock integrity:** When `persistentDialogPatch` replaces `displayDialog`, it ensures `Zotero.Integration.currentWindow = win` remains set. In native Zotero, `Zotero.Integration.execCommand` contains a `finally` block (`if (currentWindow && !currentWindow.closed) currentWindow.close()`). By keeping `currentWindow` assigned to the persistent dialog, Zotero cleanly closes the window and releases Word integration session locks even if command execution fails.
+- **Non-intrusive command interception:** `Interface.prototype.addEditCitation` and `addAnnotation` wrappers in [persistentPatches.ts](../../src/features/organizer/citationDialog/persistentPatches.ts) check whether the cursor is in an existing citation. If not, they complete the initial Word transaction cleanly, suppress the default empty footnote insertion, and open the persistent companion window.
 
 ### 3. Automated test isolation
 Testing monkey-patches against live environments presents severe risks of polluting production libraries or killing user applications:
@@ -363,7 +382,7 @@ Teardown symmetry is enforced during plugin shutdown (`onShutdown` in `src/hooks
 1. **Reverse-order feature shutdown:** `stopAll(features)` iterates backwards through the feature array. Features that depend on underlying subsystems are stopped before those subsystems are dismantled.
 2. **Checked unpatching:** Every patched method is restored using `assignChecked`. If restoring a method fails, the failure is logged (`citeOnly` logs `"FlexAnnotate: restore of _insertCitingResult did not take effect."`).
 3. **Watcher detachment:** `citationDialog.stop()` unregisters its `Services.wm` listener and detaches all injectors from any open dialog windows.
-4. **Observer disconnection:** Window and document observers (such as reader `MutationObserver` instances and window notification listeners) are explicitly disconnected.
+4. **Observer disconnection:** Window and document observers (such as reader `MutationObserver` instances, `Services.ww` window notifications, and notifier listeners) are explicitly disconnected.
 5. **Window closure:** Any open organizer windows are closed via `OrganizerFactory.close()`.
 
 ## Pitfalls and failure modes
@@ -387,7 +406,7 @@ The monkey-patching and dialog injection lifecycle is thoroughly validated acros
   - Verifies that `Translate.Import.prototype.translate` is wrapped once, tolerates duplicate `start` calls, and is fully restored on `stop`.
   - Verifies that `Zotero_File_Interface.importFile` is patched per-window in `addToWindow` and restored in `removeFromWindow`.
 - [test/features.test.ts](../../test/features.test.ts):
-  - Verifies `persistentDialogPatch.stop()` restores `displayDialog`, `Progress.prototype.show`, and `execCommand`, and that a subsequent `start()` re-patches them.
+  - Verifies `persistentDialogPatch.stop()` restores `displayDialog`, `Progress.prototype.show`, `addEditCitation`, and `addAnnotation`, and that a subsequent `start()` re-patches them.
   - Verifies that `Zotero.Integration.currentWindow` remains set on the dialog so `execCommand`'s native `finally` block closes it.
 - [test/modeSelector.test.ts](../../test/modeSelector.test.ts):
   - Opens `citationDialog.xhtml` with synthetic `CitationEditInterface`.
@@ -400,10 +419,9 @@ The monkey-patching and dialog injection lifecycle is thoroughly validated acros
 
 ## Related pages
 
-- [Architecture Overview](overview.md) — System boundaries, layered module structure, and global design principles.
 - [Feature Lifecycle & Registry](feature-lifecycle.md) — The `Feature` interface, startup/shutdown ordering, and error isolation mechanics.
 - [Conventions & Repository Rules](../conventions.md) — Coding conventions, evidence requirements, and per-window WeakMap rules.
+- [Zotero Internals & Source Anchors](../integrations/zotero-internals.md) — Comprehensive reference table of internal Zotero anchor points across versions.
 - [Cite-Only Insertion](../features/cite-only.md) — End-to-end operation of citation-only insertion and mode selector integration.
 - [Organizer & Outline Navigation](../features/organizer.md) — Details on the three-column outline arrangement and citation dialog injection.
 - [Print Annotations](../features/print-annotations.md) — Physical document workflow and annotation row locator customization.
-- [Zotero Internals & Source Anchors](../integrations/zotero-internals.md) — Comprehensive reference table of internal Zotero anchor points across versions.

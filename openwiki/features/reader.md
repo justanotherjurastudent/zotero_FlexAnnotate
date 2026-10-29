@@ -1,11 +1,11 @@
 ---
 type: feature
-title: Reader Integrations & Locators
-description: PDF reader context menu integrations, locator parsing and formatting, page number synchronization, and annotation row title formatting.
+title: Reader Enhancements & Locators
+description: PDF reader context menu integrations, locator parsing and formatting, page number synchronization, jump navigation, and annotation row title formatting.
 tags: [reader, context-menu, sidebar-header, locator, page-label-popup, zotero-internals, mutation-observer, patching]
 verified:
   - by: openwiki/0.7.2
-    at: 2026-10-17T22:13:14.642Z
+    at: 2026-10-28T23:29:27.424Z
 sources:
   - id: openwiki-source-9de21399094753516f4782e2
     resource: repo://src/core/labelPopup.ts
@@ -13,8 +13,12 @@ sources:
     resource: repo://src/core/locator.ts
   - id: openwiki-source-965e4bd9bd8c9e95faec15d1
     resource: repo://src/core/printDialog.ts
+  - id: openwiki-source-67599eb667e1f64382e23813
+    resource: repo://src/features/print/annotationRowPatch.ts
   - id: openwiki-source-14294881b17ba133d14ada2d
     resource: repo://src/features/print/dialog.ts
+  - id: openwiki-source-0d1333c3c5dde69ff0b6f9ea
+    resource: repo://src/features/print/logic/printAnnotation.ts
   - id: openwiki-source-ecfe002007c7fceaaf2e66ec
     resource: repo://src/features/print/printAnnotations.ts
   - id: openwiki-source-6855627d8368f1cf0965bcad
@@ -23,6 +27,8 @@ sources:
     resource: repo://src/features/reader/logic/readerLocator.ts
   - id: openwiki-source-0c1da386b0384a677fb31b3d
     resource: repo://src/features/reader/readerMenu.ts
+  - id: openwiki-source-0760a9e9a9fe13dfe92100ba
+    resource: repo://src/features/registry.ts
   - id: openwiki-source-203c7dd08ccb7d6de0448e34
     resource: repo://src/hooks.ts
   - id: openwiki-source-ffff6188bcf257e1b54d144a
@@ -31,16 +37,18 @@ sources:
     resource: repo://test-unit/labelPopup.test.ts
   - id: openwiki-source-806503f9910a55f884d95444
     resource: repo://test-unit/locator.test.ts
+  - id: openwiki-source-e3a1d7f05be41ff98aef5bb9
+    resource: repo://test-unit/printAnnotation.test.ts
   - id: openwiki-source-f673851e98d91a8b2fff9653
     resource: repo://test-unit/readerLocator.test.ts
   - id: openwiki-source-7cd4aec9d7d41c86494d78bd
     resource: repo://test/readerMenu.test.ts
-generated: { by: "openwiki/0.7.2", at: "2026-10-17T22:13:14.642Z" }
+generated: { by: "openwiki/0.7.2", at: "2026-10-28T23:29:27.424Z" }
 ---
 
 Zotero's reader (supporting PDF, EPUB, and web snapshots) is where native annotations live. The reader provides narrow official plugin hooks — `Zotero.Reader.registerEventListener` for a small set of events and `Zotero.Reader.open` to open documents. It lacks native APIs to append custom menu entries to an annotation, relabel the "Page" line of an annotation header, or customize the page-number popup.
 
-FlexAnnotate extends all three surfaces so native annotations can carry structured citation locators (such as margin numbers, paragraphs, sections, or opus designations) in addition to traditional page numbers. The underlying persisted tag scheme aligns with the citation schema detailed in [Data model](../architecture/data-model.md).
+FlexAnnotate extends all three surfaces so native annotations can carry structured citation locators (such as margin numbers, paragraphs, sections, or opus designations) in addition to traditional page numbers. It also adds direct jump navigation from the item pane to passage coordinates within the reader. The underlying persisted tag scheme aligns with the citation schema detailed in [Data model](../architecture/data-model.md).
 
 The reader functionality is split cleanly between pure logic modules (Node-testable, with no DOM or Zotero dependencies) and Zotero-facing integration modules:
 
@@ -51,6 +59,8 @@ The reader functionality is split cleanly between pure logic modules (Node-testa
 | [src/core/labelPopup.ts](../../src/core/labelPopup.ts) | Pure page-label popup decision logic: `planApply`, `selectTargets`, `defaultCheckboxState`, `preferredRadio`, and label gating (`shouldSetPageLabel`). |
 | [src/features/reader/readerMenu.ts](../../src/features/reader/readerMenu.ts) | Zotero reader integration: lifecycle hooks (`patch`/`unpatch`), `createAnnotationContextMenu` and `renderSidebarAnnotationHeader` handlers, `Zotero.Reader.open` wrapping, reader iframe `MutationObserver`, and locator DOM refresh. |
 | [src/features/reader/labelPopup.ts](../../src/features/reader/labelPopup.ts) | Reader iframe DOM enhancement for the page-number popup (`.label-popup`): locator selection dropdown, per-document default checkbox, radio mode gating, and persistence. |
+| [src/features/print/annotationRowPatch.ts](../../src/features/print/annotationRowPatch.ts) | Item pane `<annotation-row>` enhancement: title formatting (`updateAnnotationRowTitle`) and reader passage jump navigation button (`updateGotoButton`, `↗`). |
+| [src/features/print/logic/printAnnotation.ts](../../src/features/print/logic/printAnnotation.ts) | Coordinate passage validation (`hasPassage`) distinguishing real document highlights from placeholder positions. |
 
 ```mermaid
 flowchart TD
@@ -142,7 +152,7 @@ export function formatAnnotationTitle(
 
 ---
 
-## Reader Context Menu Extensions & Locator Tagging Workflow
+## Reader Annotation Context Menus & Editing Mask
 
 FlexAnnotate integrates into the PDF reader's annotation context menu via `Zotero.Reader.registerEventListener`:
 
@@ -160,29 +170,33 @@ sequenceDiagram
     participant RM as readerMenu DOM Updater
 
     U->>CM: Right-click annotation (createAnnotationContextMenu)
-    CM->>CM: Inspect comment state (single vs multi-selection)
-    CM-->>U: Append Edit/Add Comment and Set Locator menu items
-    U->>CM: Select Set Locator
-    CM->>D: openForEdit in locator view via openDialog
-    U->>D: Select locator type or toggle document default, click Save
+    CM-->>U: Append "Annotation bearbeiten…"
+    U->>CM: Select "Annotation bearbeiten…"
+    CM->>D: openForEdit in reader window via openDialog
+    U->>D: Edit locator, page, comment, or color; click Save
     D->>PA: applyLocatorTag and setDefaultLocator
     PA->>PA: Sparse tagging and freeze prior default
     D->>N: Trigger afterSave and SQLite commit
     N->>RM: updateAllReaders and Notifier item event
     RM->>RM: updatePageElements, updateAnnotationCards, updatePopup
 ```
-_The locator tagging workflow: from context menu invocation through defensive item resolution, dialog editing, storage delta application, and multi-surface reader DOM refresh._
+_The consolidated locator tagging workflow: from context menu invocation through defensive item resolution, unified dialog editing mask, storage delta application, and multi-surface reader DOM refresh._
 
-### Context Menu Construction
+### Consolidated Context Menu Action
 
-When a user right-clicks an annotation in the reader, the `createAnnotationContextMenu` event fires. FlexAnnotate inspects the selected annotation IDs (`params.ids`):
-- **Single Annotation Selection**:
-  - The reader's in-memory annotation state (`_state.annotations`) is checked for existing text in `comment`.
-  - If a non-empty comment exists, the menu offers **Edit Comment…** (`reader-comment-edit`); otherwise, it offers **Add Comment…** (`reader-comment-add`).
-  - Clicking this command opens the print annotation dialog in `"comment"` view.
-- **Single or Multi-Selection**:
-  - The menu always appends **Set Locator…** (`reader-locator-set`).
-  - For single annotations, it opens the dialog in `"locator"` view; for multiple annotations, `editView` is forced to `"locator"`, suppressing the individual page field.
+When a user right-clicks one or more annotations in the reader, the `createAnnotationContextMenu` event fires. FlexAnnotate inspects `params?.ids` and appends a single consolidated menu command via the event's `append` callback:
+
+```typescript
+append({
+  label: getString("annotation-edit", "label"),
+  persistent: true,
+  onCommand: () => openDialog(reader, annotationIds),
+});
+```
+
+This single entry — **Annotation bearbeiten…** (using the `.label` attribute from Fluent message `annotation-edit`) — replaces previous separate commands for editing comments and setting locators. Consolidating the action eliminates raw key fallbacks and presents a unified editing mask:
+- **Single Annotation**: Invoking the command on a single annotation opens the editing dialog with no view restrictions (`editView(1)` defaults to `"full"`). The user can edit the locator type, page or place number, color picker, annotation text, comment, and tags.
+- **Multiple Annotations**: For multi-selections (`list.length > 1`), `editView` restricts the form to `"locator"` mode. The dialog displays the locator dropdown, document default checkbox, and page field, while hiding comment and type fields that cannot be cleanly applied across multiple items.
 
 ### Defensive Annotation Resolution (`openDialog`)
 
@@ -195,8 +209,8 @@ Opening the edit dialog requires resolving main-process `Zotero.Item` instances 
 ### End-to-End Locator Tagging Workflow
 
 The tagging workflow coordinates the context menu, dialog persistence, database tagging rules, and reader synchronization:
-1. **Invocation**: The user invokes **Set Locator…** on one or more annotations.
-2. **Dialog Interaction**: The print annotation dialog opens in `"locator"` view ([src/features/print/dialog.ts](../../src/features/print/dialog.ts)). The user chooses a locator type (e.g. `paragraph`, `section`, `margin`), edits citation values, or checks the document default checkbox.
+1. **Invocation**: The user invokes **Annotation bearbeiten…** on one or more annotations.
+2. **Dialog Interaction**: The print annotation dialog opens ([src/features/print/dialog.ts](../../src/features/print/dialog.ts)). The user chooses a locator type (e.g. `paragraph`, `section`, `margin`), edits citation values, or checks the document default checkbox.
 3. **Delta Application & Storage**:
    - If setting a new document default, `setDefaultLocator()` freezes all existing annotations on the attachment that lack an explicit tag to the previous default, then updates the attachment item with `#flexannotate-default-locator-<newDefault>`.
    - For targeted annotations, `applyLocatorTag()` computes required tag deltas: existing `#flexannotate-locator-*` tags are stripped, and `#flexannotate-locator-<type>` is written only when `type` differs from the attachment default (preserving sparse tagging).
@@ -206,6 +220,51 @@ The tagging workflow coordinates the context menu, dialog persistence, database 
    - `Zotero.Notifier` listens for `item` events (`modify`, `add`, `trash`) under ID `"flexannotate-reader"`, dispatching `updateAllReaders()` both synchronously and with a 100 ms debounce to account for SQLite write delays.
    - All active readers execute `updateAllLocators(reader, doc)`, updating `.page[id^="page_"]` elements, `.annotation[data-id]` cards, and open floating popups.
    - When a user selects or scrolls past an annotation in the sidebar, the `renderSidebarAnnotationHeader` event listener (`onSidebarAnnotationHeader`) fires, updating `doc.getElementById("page_" + annId)` with minimal DOM churn.
+
+---
+
+## Reader Jump Navigation: The Goto Arrow (`↗`)
+
+In standard Zotero, double-clicking an annotation in the item pane opens the parent attachment. To facilitate rapid navigation directly to highlighted text passages in open or new reader tabs, FlexAnnotate patches the `<annotation-row>` component via `updateGotoButton(row)` in [src/features/print/annotationRowPatch.ts](../../src/features/print/annotationRowPatch.ts).
+
+### Passage Coordinate Gating (`hasPassage`)
+
+Not all annotations possess real coordinates in a document:
+- Native PDF highlights, EPUB CFI selectors, and web snapshot fragment annotations contain real position data.
+- Print annotations created on real PDFs or placeholder attachments use a dummy JSON coordinate with all-zero bounding boxes (`{"pageIndex": 0, "rects": [[0, 0, 0, 0]]}`).
+
+To ensure jump buttons only appear when navigation is physically possible, `updateGotoButton` validates the row's underlying item:
+```typescript
+if (
+  !ann ||
+  !head ||
+  typeof ann.isAnnotation !== "function" ||
+  !ann.isAnnotation() ||
+  !ann.parentID ||
+  isPlaceholder(ann.parentItem) ||
+  !hasPassage(ann.annotationPosition)
+) {
+  return;
+}
+```
+
+The pure helper `hasPassage(position)` in [src/features/print/logic/printAnnotation.ts](../../src/features/print/logic/printAnnotation.ts) inspects the serialized geometry:
+- It parses the JSON string.
+- If `rects` is present, it returns `true` only if at least one coordinate is non-zero (`rects.some(r => r.some(n => n !== 0))`).
+- If `rects` is absent (such as EPUB or Snapshot fragment selectors), it returns `true`.
+- Any parse exception or unreadable position returns `false`.
+
+### Button Injection and Navigation Dispatch
+
+When an annotation has genuine passage coordinates, `updateGotoButton` constructs an interactive arrow element:
+- **DOM Marker & Styling**: Appends `<span class="flexannotate-goto" role="button" tabindex="0">↗</span>` to the row's `.head` container, styled with `cursor: pointer` and subtle opacity.
+- **Tooltip**: Labeled with the localized tooltip from `getString("annotation-goto")`.
+- **Navigation Call**: Clicking or pressing Enter / Space triggers:
+  ```typescript
+  Zotero.Reader.open(ann.parentID, { annotationID: ann.key });
+  ```
+  `Zotero.Reader.open` automatically reuses an already-open tab for the parent attachment, activates it, and scrolls the document directly to the target highlight.
+- **Event Isolation**: The handler calls `event.stopPropagation()` and `event.preventDefault()`, and binds a separate `dblclick` listener stopping propagation. This guarantees that clicking or activating the arrow navigates directly without triggering unwanted row selection changes or bubbling into Zotero's row double-click handlers.
 
 ---
 
@@ -262,7 +321,7 @@ const wrapper = async function (this: unknown, ...args: unknown[]) {
 };
 ```
 
-1. **Idempotent Installation**: If `assignChecked(Zotero.Reader, "open", wrapper)` fails, `origOpen` rolls back to `null` and logs an error. On `unpatch()`, `assignChecked(Zotero.Reader, "open", origOpen)` restores the original reference rather than re-reading from the target.
+1. **Idempotent Installation & Safe Restoration**: If `assignChecked(Zotero.Reader, "open", wrapper)` fails, `origOpen` rolls back to `null` and logs an error. On `unpatch()`, the code checks whether `Zotero.Reader.open === patchedOpen`. If so, it restores `origOpen` via `assignChecked`. If another plugin wrapped `open` in the meantime, it preserves the foreign patch to avoid breaking third-party extensions.
 2. **Iframe Polling (`pollForIframe`)**: Immediately after `open()` resolves, the reader iframe DOM is not yet populated. The watcher polls every 250 ms (up to 60 attempts):
    - If `internals(reader)._isTabClosed` is set, polling aborts immediately.
    - Once `iframeWindow.document.body` is available, `attachObserver(reader, iframeWindow)` registers the `MutationObserver`.
@@ -384,6 +443,8 @@ The reader subsystem is tested across two levels:
   - Execution planning in `planApply`.
   - Target selection matrix across radio modes (`single`, `selected`, `page`, `from`, `all`) in `selectTargets`.
   - Guard logic in `shouldSetPageLabel`.
+- **[test-unit/printAnnotation.test.ts](../../test-unit/printAnnotation.test.ts)**:
+  - Coordinate detection via `hasPassage` distinguishing zero-rect placeholder geometries from active highlight positions and EPUB/Snapshot fragment selectors.
 
 ### Integration Tests (Zotero XPCOM Environment)
 - **[test/readerMenu.test.ts](../../test/readerMenu.test.ts)**:
@@ -391,6 +452,7 @@ The reader subsystem is tested across two levels:
   - Asserts that `patch()` registers exactly one listener in `Zotero.Reader._registeredListeners` for `createAnnotationContextMenu`.
   - Confirms idempotency (second `patch()` does not register duplicate listeners).
   - Verifies that `unpatch()` completely unregisters the listener.
+  - Verifies that `unpatch()` leaves foreign patches on `Zotero.Reader.open` intact.
 
 ### Untested Boundaries
 Because the test profile cannot reliably launch PDF documents in automated test environments, DOM-dependent reader behaviors are not covered by automated end-to-end integration tests:
@@ -403,7 +465,7 @@ Because the test profile cannot reliably launch PDF documents in automated test 
 
 ## Related Documentation
 
-- [Print Annotations](print-annotations.md) — The dialog interface opened by the reader context menu and the underlying `setDefaultLocator` / `applyLocatorTag` storage functions.
+- [Print Annotations](print-annotations.md) — The dialog interface opened by the reader context menu, row title patching, jump navigation button (`↗`), and underlying `setDefaultLocator` / `applyLocatorTag` storage functions.
 - [Item Organizer](organizer.md) — How locators are displayed and managed in document item lists and organizer views.
 - [Zotero Internals & Extension Points](../integrations/zotero-internals.md) — Architectural overview of XPCOM extension mechanisms, reader events, and reader DOM structures.
 - [Data Model](../architecture/data-model.md) — The full citation locator tag format and attachment inheritance hierarchy.

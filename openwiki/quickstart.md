@@ -3,9 +3,6 @@ type: concept
 title: Quickstart & Task-Routing Guide
 description: Central entrypoint and task navigation guide for FlexAnnotate coding agents, detailing safety rules, core architecture, and workflow routing.
 tags: [quickstart, routing, agents, safety, architecture, conventions]
-verified:
-  - by: openwiki/0.7.2
-    at: 2026-10-17T22:13:14.642Z
 sources:
   - id: openwiki-source-8037e2358a2c4f9b2c722a11
     resource: repo://AGENTS.md

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:cfdd843385dbdc4b5cecca7bf5736779a159c7643fcb519d7ae4ed19c1bb7810",
+  "pageVersion": "sha256:b6a7a8a21a0cbfb94ef62f792d08cc5fed5ecc2e763008a561deb7d492754918",
   "claims": [
     {
       "id": "claim_1dd9c93dbfbd4a9c8a5b49188b18f3b5",
@@ -8,11 +8,11 @@
       "evidence": [
         {
           "resource": "repo://package.json#L6-L12",
-          "version": "repo-lines-v1:sha256:12dbca70949a9ee242844210b11bacc8043a2bd857f73e835aa2e28d03023388:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODJjMTEyMTJkMjM1MjdiYWI1NjQzZjVjMjY5ZGNmMDJkMzA2ZGIzNjUzYmE1OWVkZTFkM2FhNmZkMWZjM2I1MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTQ4NDViNzEzODNkODYyMDJjOWNjOThiNjRlMTg4YzNiZGM4YTc0ZTMzMGM2MmRjZGU4ZjE5NzQ5OTAyYjU0NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTVlODRmODM5NzEzNzU3MTdmZGUxZmE3OGE0ZjlhMjE3NjI3OGQxZTNmOTY0YzNhMzgzYjBlZWZkMDhiNTEwMyJ9"
+          "version": "repo-lines-v1:sha256:12dbca70949a9ee242844210b11bacc8043a2bd857f73e835aa2e28d03023388:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODJjMTEyMTJkMjM1MjdiYWI1NjQzZjVjMjY5ZGNmMDJkMzA2ZGIzNjUzYmE1OWVkZTFkM2FhNmZkMWZjM2I1MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmY4NmQ4N2M5YTZkNzIyZTZjY2JiYTdkOGM2NDFkMjZiNjc4NTk1ZWZmMWM3MjcyNGYwYzI5YzkxZjM2Y2Y1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTVlODRmODM5NzEzNzU3MTdmZGUxZmE3OGE0ZjlhMjE3NjI3OGQxZTNmOTY0YzNhMzgzYjBlZWZkMDhiNTEwMyJ9"
         },
         {
-          "resource": "repo://zotero-plugin.config.ts#L4-L55",
-          "version": "repo-lines-v1:sha256:0e208c05d372183d48ef868bca76135b38a4dd475e5ceaf517468eaa43c6ec05:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyY2VjYjE0NGE0NmY1ZGNmMTJhNjE2OWZjZWVkNzY5NWU4Mjk0YjA5MGRlNzZmMzY2MWNkZDAyNDkzMDAxNDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYTZjY2U3MTY5NWNlYzBmZjk1ZTU4YzAwMGM3ODg3YWVkNzZhZDA1NzE0NzZlZDNmNjY5M2VkOWIwOTAyYmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://zotero-plugin.config.ts#L4-L54",
+          "version": "repo-lines-v1:sha256:36635c88130fe4a81b15d33c74e84e3c726a37b03bd0780566e91b2da9ad4222:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyY2VjYjE0NGE0NmY1ZGNmMTJhNjE2OWZjZWVkNzY5NWU4Mjk0YjA5MGRlNzZmMzY2MWNkZDAyNDkzMDAxNDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYTZjY2U3MTY5NWNlYzBmZjk1ZTU4YzAwMGM3ODg3YWVkNzZhZDA1NzE0NzZlZDNmNjY5M2VkOWIwOTAyYmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdkYzkzNDIyNmJmNWRhYjNhNDdmNzlkMjFlOGUyMjQ2NzVjOGY4YTA4MzAzNmUzZGQ2NjM3YWZiYWFhMGMwNzkifQ"
         }
       ]
     },
@@ -43,8 +43,8 @@
           "version": "repo-lines-v1:sha256:e0399f0c725a929e8c3323eed8bec4cc9b3cb4dc31a5a355924a980fa7452316:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTU0YjMzZDBmMjViZDk0NDdmNDI0NWNmYjgxMWE1NjhhNzhkNGU0YzMxYmExODg4ZTRjZTI2YzMxYzRmMGJmNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWQ5ZTEyNTQ2NDI1NTc2ZDNkZWFlOGM5YjlkYmYxMjhkNWQ2ZGRhZjVkN2ZlODU3OTM0OTI3ZGVmZmEzYjlkZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTJjNDg5N2Y4MDllNDEyODYxNmQ2Y2QxZjVmM2ZhZmNlZjQzODRkZjZhNWNmZWRhOGFmNDk1ZTgzNjZhMTZmOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzhjZWM1ZGRiZDBmY2E5M2NkMGVmYzk2MjRlZTgxZjEyYWYzZmFlYTU2MWVkYmE1OWQ2NjE5NjFhNTZlZjJlYSJ9"
         },
         {
-          "resource": "repo://zotero-plugin.config.ts#L29-L46",
-          "version": "repo-lines-v1:sha256:9f05232ef3f4b730002060a0dfb8378c8b435549fa1bbcbcd24a1b88c65d7c71:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3ZmQ3ZDRjZjhiNmRjMzk4N2EzOTE5MGE2NTJmZmM3OWE2ZmRmYTkzNmE5YTBkMGI4NzNhNDc5MDdkMjg0MGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM2M2Q1MzVjZTM4MDYzZDZiNGM1MWQ4YzM4NmE3ZjliM2U1ODBhMTRhMTBjMDdiMTk4ZGZhZjE5YzkzYTNiZmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI4OTZkMjA3YjRiZDBkNjNhNzhlN2UwYWU5NDNiMDYzNWJjMmIwNjg2YTQyNGMwYjk3MjMwZDNkYzY4YmRmYTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiYWYyYjI3OTc4YzQwYzY2NmYwYzRjNTYxNGQ1MzdlN2UzZGIwZjdhNjMxY2IzNTM5NDFkYzNmNDQ4MDEwYjkifQ"
+          "resource": "repo://zotero-plugin.config.ts#L29-L48",
+          "version": "repo-lines-v1:sha256:9a137268275067a72cbdb1c212fb7bf8fe81b20ac227b560d4e1254fd5ee38b3:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3ZmQ3ZDRjZjhiNmRjMzk4N2EzOTE5MGE2NTJmZmM3OWE2ZmRmYTkzNmE5YTBkMGI4NzNhNDc5MDdkMjg0MGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM2M2Q1MzVjZTM4MDYzZDZiNGM1MWQ4YzM4NmE3ZjliM2U1ODBhMTRhMTBjMDdiMTk4ZGZhZjE5YzkzYTNiZmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI4OTZkMjA3YjRiZDBkNjNhNzhlN2UwYWU5NDNiMDYzNWJjMmIwNjg2YTQyNGMwYjk3MjMwZDNkYzY4YmRmYTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiYWYyYjI3OTc4YzQwYzY2NmYwYzRjNTYxNGQ1MzdlN2UzZGIwZjdhNjMxY2IzNTM5NDFkYzNmNDQ4MDEwYjkifQ"
         }
       ]
     },
@@ -53,20 +53,20 @@
       "statement": "The prefs script must be a separate bundle because Zotero loads pane scripts into a sandbox scope of the preferences window where only Zotero.*, window and document exist — no plugin globals like ztoolkit or addon; it is wired via the scripts entry of Zotero.PreferencePanes.register in src/hooks.ts and restricts itself to Zotero globals plus document, filling the Citavi locator menupopups and hiding unsupported options.",
       "evidence": [
         {
-          "resource": "repo://src/hooks.ts#L170-L178",
-          "version": "repo-lines-v1:sha256:9beb484067cba4a0b3a6422930220062aa283cfcff5f9ff1170304de8609868f:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjY5NTk1MDM0MmIwODZkMzBlMTBjMzRiNDU1NjMyZDZkNjMxZTk0NTllZGQ1NjQyMTFiMmY3YWNmYzY5ZmIxZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2EzZTQ2Zjk0Mjc2YjZmNmY0ZWQxZjAyYWY3OGJlZjZhMmVlMWM0MzlkZDU1ODRiOTczOTQ4MzEzMjE0ZDJiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDgyODc4ZjU2NzA0YTkwY2FjYjYzNWJkMzE2OThkNTIzMDQzMTFmYTM1NDJjNDk3MzBlMDY2YTQ5ZDg4N2U1MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzRhMDZkM2M5ZDJiOTgyMzVmM2Y0YTRjYzM2YjVjZjgwNTllMzVhZTg1MWU2ODY1OGNlZDAwZjY5ZDZmZjA0OSJ9"
+          "resource": "repo://src/hooks.ts#L155-L163",
+          "version": "repo-lines-v1:sha256:9beb484067cba4a0b3a6422930220062aa283cfcff5f9ff1170304de8609868f:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjY5NTk1MDM0MmIwODZkMzBlMTBjMzRiNDU1NjMyZDZkNjMxZTk0NTllZGQ1NjQyMTFiMmY3YWNmYzY5ZmIxZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2EzZTQ2Zjk0Mjc2YjZmNmY0ZWQxZjAyYWY3OGJlZjZhMmVlMWM0MzlkZDU1ODRiOTczOTQ4MzEzMjE0ZDJiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDgyODc4ZjU2NzA0YTkwY2FjYjYzNWJkMzE2OThkNTIzMDQzMTFmYTM1NDJjNDk3MzBlMDY2YTQ5ZDg4N2U1MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDJmMGZiMzUzYjE1ZGVlNTc1Y2ZjZGRlM2U2OWQ0MWE4MWYyYWU1OGZjODEwYjJiNDBhYTJkMzBmM2MyZDJjOSJ9"
         },
         {
-          "resource": "repo://src/prefs/preferences.ts#L1-L19",
-          "version": "repo-lines-v1:sha256:4bf9ca36ff235a64832495ee60e78e07e570b74153fa6b51ee536d9f32d55efb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1ZTc3ODUwZjQ1ZmE2MTUzYzUwNjFiNDBlYTZjMDQ1ODU2YjI1MDMwZDkyMjY5N2FhMDgyZTYyZGU5YmU3ZGUifQ"
+          "resource": "repo://src/prefs/preferences.ts#L1-L23",
+          "version": "repo-lines-v1:sha256:1007d03899d239208fbdd1b74333276937563a6bdc102dc873ad0bd58636ee3f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzZDEwY2NiM2NkMTgwNGJiZDRkODhlNGI3ZTU5ZmJkMDIyZmUxZWQ5NDFjNGQ3NWU5MjRiNzBjOWM4ZDM2ZjYifQ"
         },
         {
-          "resource": "repo://src/prefs/preferences.ts#L79-L89",
-          "version": "repo-lines-v1:sha256:00c2ab55e51e3acad5bb9c4490973842ea9295e082ee400601fcb2e34a93c1db:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0NDcxNDk3Zjk1ZjE0NzMzN2NmNWQwY2ZmNGFlODQzZjE5ZmUzNGJlMGE2ZDFmZmU5Y2ZjNDBmZDQ2OTZmM2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5OTY3ZWMxZWQzODM2ZjhlYjE3YWZmMTcyYjViZmVmN2RlNjA0ODVhNDM5YzZjYTExYzU5MWUxNzU1NzM5YWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMzMTgzMzU0ZWZiOTVkOTVhYTQ0ZDY0YTBhNTJlYjdkMjkxNWM4MjJlY2NhYWJiYjFlOWQwOTJjMGE4MzZlZGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://src/prefs/preferences.ts#L73-L155",
+          "version": "repo-lines-v1:sha256:6377386374959b8dfecd1bbb085b5da7696292f98caa8583223c97c88505d457:eyJzZWxlY3RlZExpbmVDb3VudCI6ODMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwOTRjZGIyNGZhZWJjYjBlNTBiMGMyMzFmNmIxMjBhNWZkNGE4NDEzM2E5ZDA4MjRhNTE2YjkxOGY4MjVjZWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlkNzRmMGViOTI3ZWMyMmVkYTM4MmI2MGVlOGVjMDdiZjk0MmEwYzZjNjAxN2Q1ZWU0YTVhOWJiZTFhNGFkMTkifQ"
         },
         {
-          "resource": "repo://zotero-plugin.config.ts#L39-L45",
-          "version": "repo-lines-v1:sha256:95ec58989a000b1defcfdf1b142cca6615465d3df42564b0774decc1a6999bf7:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDk1YjhjNWJmODYzNzQzNjcxZGVmM2Y2MzBlYjIzMmQ1OWE3YTYzNGEwNzBmYzQzNmVlYzM3YTg2NzRlNmMzMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjk3OGUyNTAzYjhjZjM3YTA2ZjdkNmYwYTNhNmI2ZmUzNTY5MWZiY2FiNTBiODc3NWNhYjZmYWJjNzFjNTkyYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWM5YjJjNzkwNTIxYjlkZjBhOGM3MmI4MmI4NTQwMWVjODllMWMyZWZkNWM0NmVlZTI5MTlmYTQxY2U2MTM4OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzcwNDhhMmJiN2JmMDM5ZDEyMTU2YjNlYzM2OWRlZjU2MWI2NWMwNjQ0ZDIyYWNjYTAzNmM3MGRjNzNlYzk2NSJ9"
+          "resource": "repo://zotero-plugin.config.ts#L40-L47",
+          "version": "repo-lines-v1:sha256:cba1d8ef65c08c16327a7c0ac26b28b71d80d3e5b671e938813492f0abb9ee12:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDk1YjhjNWJmODYzNzQzNjcxZGVmM2Y2MzBlYjIzMmQ1OWE3YTYzNGEwNzBmYzQzNmVlYzM3YTg2NzRlNmMzMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjk3OGUyNTAzYjhjZjM3YTA2ZjdkNmYwYTNhNmI2ZmUzNTY5MWZiY2FiNTBiODc3NWNhYjZmYWJjNzFjNTkyYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGNhYzc1NDk4YjIwOWM0NDRhNDdhY2NmZjczYzQyMDU5YjFiZjEzNjg5MDJiN2RhNDBlZjVjNjU1YTY1NzNiNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzcwNDhhMmJiN2JmMDM5ZDEyMTU2YjNlYzM2OWRlZjU2MWI2NWMwNjQ0ZDIyYWNjYTAzNmM3MGRjNzNlYzk2NSJ9"
         }
       ]
     },
@@ -79,7 +79,7 @@
           "version": "repo-lines-v1:sha256:86883a05566525aa1595246d10932a930726c8aabc45c81bdef5f491f6b24ac0:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWQyZjA3ZjQzOWViMjA3ZGJmNjI2Nzg3MjUxODYyMGI0NzkzOTEwOWFhMmNhMmExZGMwYTQ2ZmU3OTU4MTJkZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTVlZjAxYmMwOGRiYzNiNjNlNGU3NWVhM2QyNmE1Yjk0MTg5MTg3N2UyN2FkODkxMzI5Yzg0MTFkN2Q4ZGM0ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGI0Yzk2NzUwNGM0MmZjODJjYjdkNDM1NGY5N2U0MTNlMGI2ZjY2MDllOTViNDM4N2IwZjdiODA2Y2NiNWFhOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjQ5M2M2OGQ4NDZlYjUwYTJiYmI4OWMxOGEwMWI0MGQxMzA3MDk1MGYwZThlODdhYzlhNDM1MmY2NzNjNmNlMSJ9"
         },
         {
-          "resource": "repo://docs/architecture.md#L168-L168",
+          "resource": "repo://docs/architecture.md#L192-L192",
           "version": "repo-lines-v1:sha256:9913d125716be7ea66c1bc874032615aa9cf27dafe9cee36820ed809f772e595:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTkxM2QxMjU3MTZiZTdlYTY2YzFiYzg3NDAzMjYxNWFhOWNmMjdkYWZlOWNlZTM2ODIwZWQ4MDlmNzcyZTU5NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTkxM2QxMjU3MTZiZTdlYTY2YzFiYzg3NDAzMjYxNWFhOWNmMjdkYWZlOWNlZTM2ODIwZWQ4MDlmNzcyZTU5NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDgxYmJmYjRiYTQwNjc2YTA4Y2FmOGEwYThlMjdmNjY4ZmMwODdlNmVjYzRjYzhhNjI2ZDgyODM4NzFlYzBmZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDk2NWMyMmFlZWY4YzYzYWI1NTJkMTI0N2RmNzI5NGJkNDhhOThkNzFmYWZjNzczZWM0NDM1OGJhNmY3OTllMiJ9"
         }
       ]
@@ -107,7 +107,7 @@
           "version": "repo-lines-v1:sha256:16c92969bbb877e86f1b622a4bc45e7470aa8f450b4ef8a0cf0180312b89de2e:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTZjOTI5NjliYmI4NzdlODZmMWI2MjJhNGJjNDVlNzQ3MGFhOGY0NTBiNGVmOGEwY2YwMTgwMzEyYjg5ZGUyZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTZjOTI5NjliYmI4NzdlODZmMWI2MjJhNGJjNDVlNzQ3MGFhOGY0NTBiNGVmOGEwY2YwMTgwMzEyYjg5ZGUyZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjcyZjU0ZGZlZjQ2MTQyY2JhNGQ3MjBjMzY1NmY1MjY0MDEwZGJmZTg4YjI0ZDcwYjM0OWJkMjg5ZTc4NDA2YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjU5MWYzODE5NGRiNTEzNjIxMDBjNzU3M2ZmMjNjOTRlMmJmM2UxNDMyYmE3ZDM4NGFhNmQyZjUxNGJjOTMzMCJ9"
         },
         {
-          "resource": "repo://docs/architecture.md#L173-L173",
+          "resource": "repo://docs/architecture.md#L197-L197",
           "version": "repo-lines-v1:sha256:6931e89f60f7d89cba7b1602154858e1dcd1fb46af06f48372dfa757b0ef3907:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjkzMWU4OWY2MGY3ZDg5Y2JhN2IxNjAyMTU0ODU4ZTFkY2QxZmI0NmFmMDZmNDgzNzJkZmE3NTdiMGVmMzkwNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjkzMWU4OWY2MGY3ZDg5Y2JhN2IxNjAyMTU0ODU4ZTFkY2QxZmI0NmFmMDZmNDgzNzJkZmE3NTdiMGVmMzkwNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODY2MjFkZWQ0MWNmNjEyMjkyMzA1YzZhMmE4Y2Q3ODdjY2YyZTE0YzhjMjEyZjBiZGFiYzQ5NTU0ZTk0ZDcyNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjg1YzA5NmNjZWNhZTA3NjFjNWUwNWVhNmE1Mjg2YzUzZTNlNDZiOWI0YWYxMGRmYmE1N2M3MTQ1YjMyYzg0NSJ9"
         }
       ]
@@ -131,12 +131,12 @@
       "statement": "addon/prefs.js declares default preferences on the extensions.flexannotate.* branch (visibility flags, citationOnly, persistentCitationDialog, persistentWindowRect, keepEmptyPlaceholders, Citavi import keys including five locator defaults with citaviLocatorMargin defaulting to \"paragraph\"); the pane XHTML binds the same keys declaratively and src/utils/prefs.ts reads them via config.prefsPrefix, and these keys hold user data so they are never renamed.",
       "evidence": [
         {
-          "resource": "repo://addon/content/preferences.xhtml#L10-L100",
-          "version": "repo-lines-v1:sha256:509bbe32bd37e92a2a53364875b4c84bd0cf867f10b9a378120d19ed4baf14b1:eyJzZWxlY3RlZExpbmVDb3VudCI6OTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ODdmM2JlY2FkMDc2OWEwYjg5Y2I5YjMzOGNmMTNjYzI2YjE1N2UxZTE3NjQ0NTIxZWI0NzNhMGU4ZDkyNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2ODcwNTUxZWQ1MDUwYTdkNGE4OTNlZGEzYWRiZjUxYjk5OGZmNWEwYmVhNzIyNWY3OTcxZjI4NTkxMWE3YTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVkMGUzYTY1MDc1YmYxY2QzZjFiZmIwNjQ1NjMyZWRjMzNlMTBiMGViYjI2ODhlNDZjODM1ODJlYmIzN2FkYzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNhZmZhM2I0NzA0ZWE0OWNhOWFkNTI2MjYzMTJhZjYyNDc4ZmEyZjc4MWMwYTUzNWFlMGU5YzQ1NzczMmEyNTkifQ"
+          "resource": "repo://addon/content/preferences.xhtml#L38-L242",
+          "version": "repo-lines-v1:sha256:1415c01a5f499d6ed6c616e39dc92ad22b27950dac2ad609b6daed71f392fe9c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjA1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1NzJlNzlhNDg0MTc1NzM4ZjhjNWZmMDg4ZjI5YmY2M2ZlOTg4NmFlODc5MTJkMmQ3Mjk4MTExMjAxYTJkNTFiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIxNWNiNzY2ZTU5NDE3MGRkZWM1NTg0N2JlMmI4MzNiNTg4OTlmZjM0NjljYTEzYzJmMmJiZWFkZTcyODZlMDg0IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI0MDM1ZDQzMDEyMmU0NzQ4ODIyZDQxMjkzYTU0YzVlMmZjOWYxZjBmMzUxZGJjMDNiNzU5YzFkYTk4ODEwZGVhIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1OWMwN2JlOWIxMjExYWE0MjRlOWNmZjQ3OTJmNGQxYzhiOWViMWU1MTkyZGJjZjJhZjVkNDQ2ZDFmMzQyOTMwIn0"
         },
         {
-          "resource": "repo://addon/prefs.js#L1-L37",
-          "version": "repo-lines-v1:sha256:5fe8307e7f9364ce4be1d650c08ad2b9330cf2fa82c3611445e91e6722ec7d57:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkOWMzOGNmYTRhODU1ZjA4YWFkMjFmNWEzNThkMzg2N2Y5NzE5OWUxNGM3MWRlOTQ2ZmUzYjcxOGIyNDRmMDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2MjAxYWYxNTQ1ZTc3Njk5MjU4ZTIzZTIzOThiYzk3ODUyNmQwNDEyYzcwNTE5MWZjOWY1ODllYzUzZWQ3N2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://addon/prefs.js#L1-L42",
+          "version": "repo-lines-v1:sha256:70e0791fc09908f1fa87c8b85b285f6e164d221668e555005cb973336f5c8ce6:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkOWMzOGNmYTRhODU1ZjA4YWFkMjFmNWEzNThkMzg2N2Y5NzE5OWUxNGM3MWRlOTQ2ZmUzYjcxOGIyNDRmMDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2MjAxYWYxNTQ1ZTc3Njk5MjU4ZTIzZTIzOThiYzk3ODUyNmQwNDEyYzcwNTE5MWZjOWY1ODllYzUzZWQ3N2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
           "resource": "repo://src/utils/prefs.ts#L1-L27",
@@ -146,48 +146,56 @@
     },
     {
       "id": "claim_34862ea16cc7417087582ab6d01ca003",
-      "statement": "addon/content/preferences.xhtml is the pane fragment registered at chrome://flexannotate/content/preferences.xhtml; it declares its own <linkset> with __addonRef__-preferences.ftl for Fluent translation, declarative data-l10n-id/preference bindings, and five empty menupopups that the prefs bundle fills at runtime; content/icons/ supplies icon.svg (manifest 48/96, pane image, ProgressWindow icon) plus organizer and context-menu icons; content/zoteroPane.css is an unreferenced scaffold-template leftover.",
+      "statement": "addon/content/preferences.xhtml is the pane fragment registered at chrome://flexannotate/content/preferences.xhtml; it declares its own <linkset> with __addonRef__-preferences.ftl and __addonRef__-features.ftl for Fluent translation, declarative data-l10n-id/preference bindings, and five empty menupopups that the prefs bundle fills at runtime; content/icons/ supplies icon.svg (manifest 48/96, pane image, ProgressWindow icon) plus organizer and context-menu icons; content/zoteroPane.css is an unreferenced scaffold-template leftover.",
       "evidence": [
         {
           "resource": "repo://addon/content/icons/icon.svg",
           "version": "repo-file-v1:sha256:4cc34528c622c9105e560d68468378a5a5b8386e7c4e15613db97ccbef2b537a"
         },
         {
-          "resource": "repo://addon/content/preferences.xhtml#L1-L8",
-          "version": "repo-lines-v1:sha256:23cd1a930ace85fbcc97db3a8e3be181de530b97f6c1027d86a78401de7a1117:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWQxZjkxYTZmNTg3MDRkNTU2YzY0YTIxMGE2NjljZjhkOGUwYWY0M2NhMWI4ODBmNzEzOWEwNTY2ZTVmZTFjZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFlNTAzYWVhNmI2YTMwNDU0MmFjMWFkYmIxZDNkZDMyYmFhY2UyZmExODRhNmQyYmM2OTQxMDYxYTcyMTBjNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODE4Y2UyZmYyZjJlOTY0YTI5YjRkY2Q5YTIwNzk1YTQ5OGNlYmI0MTRiZWEwYWQwYTRhZTZkZDQ0Mzk1NTVkOCJ9"
+          "resource": "repo://addon/content/preferences.xhtml#L1-L9",
+          "version": "repo-lines-v1:sha256:44d2bbf806a7159228eae94829a0ca4676feb8a16a82c6b1653f1c4f6e653200:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWQxZjkxYTZmNTg3MDRkNTU2YzY0YTIxMGE2NjljZjhkOGUwYWY0M2NhMWI4ODBmNzEzOWEwNTY2ZTVmZTFjZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFlNTAzYWVhNmI2YTMwNDU0MmFjMWFkYmIxZDNkZDMyYmFhY2UyZmExODRhNmQyYmM2OTQxMDYxYTcyMTBjNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzkzZDE1YTczZTlkMzBjYzhmOTFhMGY0Mzk5NWFjZDE0OGM2ZmQzZDI3MzljMDNlNTQ1Y2E3ZDQ0MzVhMzBhYiJ9"
         },
         {
-          "resource": "repo://addon/content/preferences.xhtml#L119-L174",
-          "version": "repo-lines-v1:sha256:d8d494dfed5a13f78cfa747f1e18fba48170c8bd1b57562f9cbf50bcc4aef93e:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2ZGZjZWJhODdmNzEyMmFjMmIyZGMxZjcxMWUyNmE1YTcyMjViZGI1ZTAxMWNhMjZjYTQ2NDNlNTMxODY5NTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwZWM1MzM0Y2MxNjJmYWRhOTRjMzM0MWE4ZDU0MzczNTk2MzhhY2MxNDhmZjYzODVjMTcwNjk5MWM3MGY2NjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ3ZDU5NzJkZWM0NDVhNzVmNTI3M2E4ZGE4MmQ5MmEzYmI3ZDdmYjFjMWI3YWZiOWZkNzZhYWJkYzE1YzU2YzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY0ZGJiMTIyNzljMTBmMzZjMGJiNmYxODllZTRkZGNiOWRlODdlYWE0N2NmMTE2NmYxY2MxOGFkYWNlYmM2MDEifQ"
+          "resource": "repo://addon/content/preferences.xhtml#L176-L235",
+          "version": "repo-lines-v1:sha256:9fe0f76e76efb5cb297aba4b34e953b05f05da0801a7c14f9a64d8fe4cf11aaa:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwYWE4MGQ5YjlhZjUyYjIwMGY2ZTBmNDgyNDFjNDFmNmQ0YWQ2NmVjNjZhMjBkZDFjZDc3MzQ1MGIwNzMyY2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzY2JiZmM3YThjNTI0OGZkMDk3MWYxMTgwZmY5MmJlZjY1Yzg0NjJmNzhkNmRjOTk1NTNkODJiNWU2NTk5YjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU2ZDE1YzZlMDRhMTg5NTk2YmJiZjAxNTY0MGY0ODg5NzY4ZmQ5ZTE0MWU4M2EwMjMyZGE3NGFmOTVjMzc2MDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc1OWFhZGIzOGQ5NTE1YjY0ZmFkMWU0ZjU5NmY3OGU0YzRiYzZjMjA4YzRkNjVlMGQ1N2UzNmUzODE1NzlmODUifQ"
         },
         {
           "resource": "repo://addon/content/zoteroPane.css#L1-L3",
           "version": "repo-lines-v1:sha256:3010b8e5d543db9ee9f893e0407ec18d75f4de7688738967507ee1d63e5daa45:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTc4MmQzYjdhOTNiYzJkNmE4YWNhNDRlOWIzMWExNTM5ZTU0ZTljMjdiNTRiNmQ0MjcxYTM0OWRiM2E2ZjE2NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
         },
         {
-          "resource": "repo://src/utils/ztoolkit.ts#L28-L31",
-          "version": "repo-lines-v1:sha256:3ee8b0c1fa14b4dd7b8c720278ba227de2ca8c848dd2d580057eb437a06f591f:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTA4ZGYwNWZhY2MxZWVmMDk4YWY1MTQ3M2RkYTdmOWQxMjVkZTVhNGNhZGYyZjIwYzViNmIxMWZhM2I1NTY5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTVlZjAxYmMwOGRiYzNiNjNlNGU3NWVhM2QyNmE1Yjk0MTg5MTg3N2UyN2FkODkxMzI5Yzg0MTFkN2Q4ZGM0ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDEzZjlkMjlhODJmNmY5OTZlNTlkZjQyNmI2MGFjNjIxZDRkYzA0NDY2NTI5MzYwNzRhN2JhZWQ2NjI5NDgyOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODU5NDA0Yjk0NDA0NGM4OTRiMjFjNDcyZDU5Mjk1YzA1NmM5MDViM2MwMjZlZThlZTc0Njg3NzY3YjI0MDNkNCJ9"
+          "resource": "repo://src/utils/ztoolkit.ts#L42-L45",
+          "version": "repo-lines-v1:sha256:3ee8b0c1fa14b4dd7b8c720278ba227de2ca8c848dd2d580057eb437a06f591f:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTA4ZGYwNWZhY2MxZWVmMDk4YWY1MTQ3M2RkYTdmOWQxMjVkZTVhNGNhZGYyZjIwYzViNmIxMWZhM2I1NTY5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTVlZjAxYmMwOGRiYzNiNjNlNGU3NWVhM2QyNmE1Yjk0MTg5MTg3N2UyN2FkODkxMzI5Yzg0MTFkN2Q4ZGM0ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDc3OGU5OWUwOTYwYjcxMTJmMmY0NGEwODBhZWNlMDVjYmRmZTU3OGU2ODhlMjlkMmEyMjM3MzdiYzE3Nzg4ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
         }
       ]
     },
     {
       "id": "claim_740c18b2e46348f29c2668cd40ef3c4c",
-      "statement": "User-facing strings ship as Fluent files addon.ftl, mainWindow.ftl and preferences.ftl maintained simultaneously in addon/locale/de and addon/locale/en-US; onMainWindowLoad inserts -mainWindow.ftl and -addon.ftl into every main window, the pane pulls preferences.ftl via its linkset, and the organizer is the exception with texts in src/features/organizer/strings.ts because it builds its DOM in code.",
+      "statement": "User-facing strings ship as Fluent files addon.ftl, features.ftl, mainWindow.ftl, and preferences.ftl maintained simultaneously in addon/locale/de and addon/locale/en-US; onMainWindowLoad inserts -mainWindow.ftl and -addon.ftl into every main window, the preferences pane pulls preferences.ftl and features.ftl via its linkset, and the organizer is the exception with texts in src/features/organizer/strings.ts because it builds its DOM in code.",
       "evidence": [
         {
-          "resource": "repo://addon/content/preferences.xhtml#L6-L8",
-          "version": "repo-lines-v1:sha256:1eb9ad7417f0692895b5b5af7cc1459f7c4ed2fa24265e586339c3df88b5b459:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZThkMjQwNmVlZDYzODYwZDg5NDdkNmUyODdhMjc4OTRmZDE2YWQ0NzU5MWU5NDAzNWZkZGIzYzU2YzkyYzI2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFlNTAzYWVhNmI2YTMwNDU0MmFjMWFkYmIxZDNkZDMyYmFhY2UyZmExODRhNmQyYmM2OTQxMDYxYTcyMTBjNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTJkNDJkYmEwNmJiNDU4NzUxNzY2OWVkMjhkMGZmYjIyNzQ2NjJhZTg0OWUxMDRlMzUyNjM1OWI1ZGEwNTA1NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODE4Y2UyZmYyZjJlOTY0YTI5YjRkY2Q5YTIwNzk1YTQ5OGNlYmI0MTRiZWEwYWQwYTRhZTZkZDQ0Mzk1NTVkOCJ9"
+          "resource": "repo://addon/content/preferences.xhtml#L6-L9",
+          "version": "repo-lines-v1:sha256:efcdb000ce022ba536a26cd13ecd6b81cd4f6bbd02037879f6dc1ff3482c2895:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZThkMjQwNmVlZDYzODYwZDg5NDdkNmUyODdhMjc4OTRmZDE2YWQ0NzU5MWU5NDAzNWZkZGIzYzU2YzkyYzI2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFlNTAzYWVhNmI2YTMwNDU0MmFjMWFkYmIxZDNkZDMyYmFhY2UyZmExODRhNmQyYmM2OTQxMDYxYTcyMTBjNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTJkNDJkYmEwNmJiNDU4NzUxNzY2OWVkMjhkMGZmYjIyNzQ2NjJhZTg0OWUxMDRlMzUyNjM1OWI1ZGEwNTA1NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzkzZDE1YTczZTlkMzBjYzhmOTFhMGY0Mzk5NWFjZDE0OGM2ZmQzZDI3MzljMDNlNTQ1Y2E3ZDQ0MzVhMzBhYiJ9"
         },
         {
           "resource": "repo://addon/locale/de/addon.ftl",
-          "version": "repo-file-v1:sha256:38b8478cc741c182930116072f1de81ad6dbb2bdc2308745fa5e86d525adf690"
+          "version": "repo-file-v1:sha256:7ade98677c632eb82a3ec77900e786ddeacaa5c49f819cd38b4dc0b6e2db473c"
+        },
+        {
+          "resource": "repo://addon/locale/de/features.ftl#L1-L17",
+          "version": "repo-lines-v1:sha256:50f84af572a4c5e9b8e3e96e7c9ee3007cddd2409c61821ed1de7ae7e35f6690:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhNGQ5MWI4ODNiOWMyZDFlMGM5MWQ4OTdhYjBjNzNhMDc4OTE5MThhYjVjN2JjMjU1MDY2Njk2ZjllYjkwNmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE4ZmY1M2NmZjI5YWM1OTg4MWMyZmEzMTk5MGVkMjY4Y2E5NDk4Y2VmYzY2ZGMwNGE5YmM5MTUzNjM2YTJhYWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUwNDQ1MzJiZGZiNGU5NDA5NjAzYTlmZWU4MDhlNjM4NDVjMGQzMjc0N2MyMzg0NWIxOTI5Yzc3MGY3MzQxZGYifQ"
+        },
+        {
+          "resource": "repo://addon/locale/en-US/features.ftl#L1-L17",
+          "version": "repo-lines-v1:sha256:d74b72714c58d60cde7909c6697f569521155f018c11b0427308f95c65ac3282:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4NmUwNjZmNGQ4NWEwMmY1NWY3YWZlZjIzZTY2Y2NiMWYyNDc1NDUzN2E4OGRlZjVlMmNjYzQ3MjJhYmEwYWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIwMmVkZGMyY2U1OTViOTUyMDM4YzE4YWQyZTllMjE0MzUyNjQ3ODNjMzQ2YzI3ZWJkZDk0ZjkxOTI2MzhiM2MifQ"
         },
         {
           "resource": "repo://addon/locale/en-US/preferences.ftl#L1-L10",
-          "version": "repo-lines-v1:sha256:d9a2d0dace38b75b0de213596b905f827b7f95943cac15ca177e5e5bb144faf5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2MTZhMDhmZmZmY2E2ZjBmZmUwMWIxNmMyNWQ5NmQ5NmJhYWMxODcyM2UxOGUwOWVlNzFlYzcyNTQwZWQ1NDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2OTJjNDZkMzA0M2QzNWJkNTIxYTMwNjMwYmFkMjhmOGRmNDZkMjFiZGZiZmFiNTRjMzFmN2FkZWI0YWFjMmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQyN2FlZWFjY2IzNGZlMTkxMTgzMTdkMDU4YzM5NTlhMjFlNGM3YzNjZjgzMTljZmFmNTFkZmU0YzA1MWYyZDEifQ"
+          "version": "repo-lines-v1:sha256:00a4429cb5041fecd93e842d49de77d2f82580e009f9aceeba3057c73d547e74:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2MTZhMDhmZmZmY2E2ZjBmZmUwMWIxNmMyNWQ5NmQ5NmJhYWMxODcyM2UxOGUwOWVlNzFlYzcyNTQwZWQ1NDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlZjczYzk1MGU1ZTZjMjE2OWIzNjk0MjY5NGIyODQyZDFhOGZiNzdlNWVlYjU2NWVlYzE1ZTNmYTFhMmMwMWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYyYTE4NmI3YzcxOWVkNWMzYWNhZTUyMDBjNGIyZDliYzRiZDI0OWM4MjEzN2NmNWU0YWQ2ZWJjMDNmZTg1MzEifQ"
         },
         {
-          "resource": "repo://src/hooks.ts#L189-L200",
+          "resource": "repo://src/hooks.ts#L181-L192",
           "version": "repo-lines-v1:sha256:522ca1dd1b4fcf99bb4e3e3e0acea19502315d7dffc68cee2b0bf26bd2dcd2f6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxODI3YWZjZDRiMGIwOGM3M2VlOTViNGNjMTI5MDc1NzdhMWY0NjFlYjlhZjhjY2RkOWM5MTc0OGQ4YWNlMDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRlYzNlYWZjNDdjODkxZmNiZTU5ZWJhN2I3NmY1ZGFhZjdlMmM2NjkxMDNmNjViNTU5NDRhMmE4OTRiNjhmZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0YzEyODM4OWM1OWJhM2NlZGY2MzM0ZWM4NDNlYzcxMGNkMzM3MmQyMDkwYzM5NzhhZmExYzI5N2U2NGFmOGYifQ"
         }
       ]
@@ -287,8 +295,8 @@
       "statement": "Release constraints: never push, release or tag without an explicit ask; commit only on instruction in Conventional Commits format (feat:, fix:, docs:, refactor:, test:, chore:); documentation ships in the same changeset as the code — README.md and CHANGELOG.md always, docs/anchors.md for new Zotero internals, docs/architecture.md for new pitfalls — with CHANGELOG.md following Keep a Changelog and SemVer and the Lattice changelog kept untouched in docs/lattice-changelog.md.",
       "evidence": [
         {
-          "resource": "repo://AGENTS.md#L61-L70",
-          "version": "repo-lines-v1:sha256:44ccba282035aa956c3516265a63fcde422ce1624092a191ee71ff3913be0e38:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmODYwMDRmYTMwYTE2NWNiMWJlMzQ4ZTcxMGZmNjA2NDVmNDhkYjhmODBjMzg2NjExMzU2ZjQzMWE3ZWQzYTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmNWU3ZDhhYzhiYzAxODk1NzliODkwNmJkZjhhNGFmNTAwMWNmNjM4NDFhZmE4MGEwNDAyMmE5NDU2NDQ5ODAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVkYWVhN2NjMjcwY2ExOWE0OGIzNTE1YWRmNGQ3OTQ1MDRlZWJhNzdjMjA0NzUwNGIyMDMxNGRmZmVhOGM1MzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRkNjcxMmJmNWQyNDg3YmJjMDAyMDZmYzg2YTQ0NDI3NWY3ODEwOTlhZTk0NmNhODFmNDhiZTkwMmY2N2NlNjIifQ"
+          "resource": "repo://AGENTS.md#L61-L71",
+          "version": "repo-lines-v1:sha256:6bfd39fbe944e6473d210a6ecf13f0e441e4bd81142a4ea70b29e0270dfc1edd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmODYwMDRmYTMwYTE2NWNiMWJlMzQ4ZTcxMGZmNjA2NDVmNDhkYjhmODBjMzg2NjExMzU2ZjQzMWE3ZWQzYTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1NDBlNWFiNTY2NTgyZDdiNmVlYzc2NmI5MTY1ZmZhZjc3ZWUyMzk1ZjgxMTExYzE1ZWQyY2FiZDA2YmYwZGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVkYWVhN2NjMjcwY2ExOWE0OGIzNTE1YWRmNGQ3OTQ1MDRlZWJhNzdjMjA0NzUwNGIyMDMxNGRmZmVhOGM1MzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViMWJjNWJjNGEyMzdmNTc4ZTZhZjRhNDE1ZDA2NDdmOTkxMGIwM2IzNjRlMWUyN2MxZjFkYmFhNzQzZDAzYmEifQ"
         },
         {
           "resource": "repo://CHANGELOG.md#L1-L3",
@@ -299,10 +307,36 @@
           "version": "repo-file-v1:sha256:0f1e97cfb0ff2e48cc667d78ee7005761098be572b5c38099b60d2b91a2f80fb"
         }
       ]
+    },
+    {
+      "id": "claim_f2eaa9f2c48343a6a18788a47fa16fa4",
+      "statement": "The preferences window features a dual-tab layout ('Einstellungen' / 'Settings' and 'Funktionen an/aus' / 'Features on/off') in addon/content/preferences.xhtml: the options tab displays static setting groups with gate-dependent visibility, while the features tab dynamically generates group boxes and checkboxes from FEATURE_GROUPS in src/prefs/featureGroups.ts, displaying bold main switches with indented child gates that are automatically disabled with dependency notes when required features are disabled.",
+      "evidence": [
+        {
+          "resource": "repo://addon/content/preferences.xhtml#L11-L36",
+          "version": "repo-lines-v1:sha256:f23f469d31580763174827caa166fb46f9cdc504a5bee8063437bd431f87e895:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjMzU4NWM4ZDQyZGQxMDMzNjhlMTgwOGI1ZDU0NTIxMTFhYmZkMGQ1YzQxMGI5YTI0MmVlZjliNGUzNjBlY2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4NWViMDk2NTViZTdmZTI3NWM2N2M0YmMxNGJhNWEwOTcxZDRkZWYxOGJjMmI4NmVjNWNkMDQwN2M4MWRiZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmZTAzOWJjMmViYTVlMDY3Y2E0M2FhM2Y1ZWQyZWFlMDA1OWFiNjdmZjRlMjY4ZmZhZTUzNjNmODM1ODY4MzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhNjMzN2NiMmYxZmE0ODc5NzRjMjgwMzBiNTMyMzhmYTZiNDE3OWI5MzRkMjdjNWU3NDBiMzk2MTgyNmRiMTUifQ"
+        },
+        {
+          "resource": "repo://addon/content/preferences.xhtml#L244-L252",
+          "version": "repo-lines-v1:sha256:ed47e89a320d5b717fc6daac133a7ac4b2a431115f7ac7caad9ff3671abdd0ff:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTcyZTc5YTQ4NDE3NTczOGY4YzVmZjA4OGYyOWJmNjNmZTk4ODZhZTg3OTEyZDJkNzI5ODExMTIwMWEyZDUxYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTVjYjc2NmU1OTQxNzBkZGVjNTU4NDdiZTJiODMzYjU4ODk5ZmYzNDY5Y2ExM2MyZjJiYmVhZGU3Mjg2ZTA4NCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDAwNmUwODgyOTg4OGE2YzRlOGY5OTI3OWY3NWQ0YjU3ODE1MTQyNDM2YmZjODZjYTJhYjVkMjQ4NjIzNGRlNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://src/prefs/featureGroups.ts#L17-L59",
+          "version": "repo-lines-v1:sha256:cae84e8ff6c70ba2755920934f92c4b4b485490c93e3a7c89a7f53517df0f834:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYwYTQ5MmI5NGNiODU0MzYyOGE5ZmU4OTI1ZGVlMDNmOTQ3NDhiNTA3NzhlZDZjMGU1ZGU2YTQzYTQ1ODI0ZDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBhYzdlYzQ2N2Y2YjQ2MmQ4NmM2OGJhNWZkMDI1NTJjNmY4OWY2ZmEwOTAwNWQ4ZDRhOTExNTI5NWU0MDRmYjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRkNDlmZWQ0YTRmNzlkNzdkNTY5NzEzMmY1MmRkMTJlMGIzYWY0YTNjNjViMTNlZTVmM2E5OWNiNzk1OGU1NmUifQ"
+        },
+        {
+          "resource": "repo://src/prefs/preferences.ts#L157-L215",
+          "version": "repo-lines-v1:sha256:79986951b8e9ece64be04273804744ea502ae0cefad86608f910128ec681bdbf:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkZTU4ZmMwMzYzNDYyYTA4ZTk2ZTgzY2Q1NWJiYTBlOWQzYjk3ZTlhZTBmZTkwNTc3NTA2Mzc1NDkyZWExZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA5NGZjMGMxNzNkMWVjM2ZjNTAxZDdkZmE5Mjg1NTAxYzUyN2NmYjQ3MTI1ODNkYTNjYzM2MTgwNTY2YjRiZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1NTA4NmM2ZWY1MTk3ZWFhMDI4NDFmNDFkMTMwMGZhMDEwOWE5M2RlYjE3YjJkYTIwZDgzZjdiYTg1Mzc1NjgifQ"
+        },
+        {
+          "resource": "repo://src/prefs/preferences.ts#L239-L351",
+          "version": "repo-lines-v1:sha256:305d363b12949e5bfefe70c7d6bccb871b0fc32b17262fb35e753b0ef71325f3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI2ZDY3ZDgxNGIxNjQzODZmZTA3OTViNzYzZGQ1ZjNkMWU2NjBlNmJkMDBiMDJiYmVlYmVhOTJjYzdlNjNjNzE2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJmYjU4MGU5NjRmODNhNDczZjQzZDQ0Mzg0NjI5NDlkNjhiNTYwMGZkYTc4N2YxNjM3NDVkMDBkZTg5Y2JmMzZhIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJhZjQzNTdmNjE5ODg3NDBiMDUwOWZmMjZmZjQ5OWNkNzBmM2NmMjRkZmYwZDdlYTlhZmU2NWY1ZWYyOGJkYmQ5In0"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-16T19:49:13.348Z"
+    "at": "2026-10-28T23:29:27.424Z"
   }
 }

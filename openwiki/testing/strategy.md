@@ -3,9 +3,6 @@ type: strategy
 title: Testing Strategy & Environments
 description: Dual testing architecture separating fast isolated Node.js unit tests for pure logic from Mocha integration tests running inside real Zotero instances via addon.api, backed by complete profile isolation.
 tags: [testing, unit-tests, mocha, integration-tests, zotero-plugin-scaffold, test-isolation, synthetic-data, coverage-gaps]
-verified:
-  - by: openwiki/0.7.2
-    at: 2026-10-17T22:13:14.642Z
 sources:
   - id: openwiki-source-8037e2358a2c4f9b2c722a11
     resource: repo://AGENTS.md
