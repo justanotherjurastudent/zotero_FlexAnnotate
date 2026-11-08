@@ -627,7 +627,6 @@ function addKeys(win: Window, info: Attached) {
     if (!v || !info.enabled) return;
     const target = k.target as HTMLElement | null;
     if (target?.tagName === "BUTTON") return;
-    if (target?.closest?.("#bubble-input, #search-row, .bubble-input")) return;
     if (k.key === "Enter" && v.sel.selected.size) {
       k.preventDefault();
       k.stopPropagation();
@@ -691,6 +690,7 @@ function addSearchSync(win: Window, info: Attached) {
     const query = detail?.query ?? "";
     if (query === v.query) return;
     v.query = query;
+    v.sel = emptySelection();
     state.lastFilterQuery = query;
     renderList(win, v, false);
   };

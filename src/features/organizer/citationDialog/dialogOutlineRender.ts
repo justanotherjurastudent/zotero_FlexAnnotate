@@ -191,19 +191,24 @@ export function renderList(
   const seg = el(
     doc,
     "div",
-    "display:inline-flex;border-radius:4px;border:1px solid var(--fill-quinary, rgba(128,128,128,0.3));overflow:hidden;flex:none;height:24px;box-sizing:border-box;",
+    "display:inline-flex;align-items:stretch;border-radius:4px;border:1px solid var(--fill-quinary, rgba(128,128,128,0.3));overflow:hidden;flex:none;height:24px;box-sizing:border-box;",
   );
   topBar.appendChild(seg);
 
   const currentMode = v.mode ?? "annotations";
+  const btnBase =
+    "display:inline-flex;align-items:center;justify-content:center;height:100%;" +
+    "border:none;margin:0;padding:0 9px;font-size:11px;line-height:1;cursor:pointer;box-sizing:border-box;";
   const btnAnn = el(
     doc,
     "button",
-    `border:none;padding:0 8px;font-size:11px;cursor:pointer;background:${
+    `${btnBase}background:${
       currentMode === "annotations"
         ? "var(--accent-blue, #0070e0)"
         : "transparent"
-    };color:${currentMode === "annotations" ? "#fff" : "inherit"};`,
+    };color:${currentMode === "annotations" ? "#fff" : "inherit"};font-weight:${
+      currentMode === "annotations" ? "600" : "400"
+    };`,
     tr("tabKnowledge"),
   );
   btnAnn.setAttribute("type", "button");
@@ -215,9 +220,11 @@ export function renderList(
   const btnWorks = el(
     doc,
     "button",
-    `border:none;padding:0 8px;font-size:11px;cursor:pointer;background:${
+    `${btnBase}background:${
       currentMode === "works" ? "var(--accent-blue, #0070e0)" : "transparent"
-    };color:${currentMode === "works" ? "#fff" : "inherit"};`,
+    };color:${currentMode === "works" ? "#fff" : "inherit"};font-weight:${
+      currentMode === "works" ? "600" : "400"
+    };`,
     tr("tabTitles"),
   );
   btnWorks.setAttribute("type", "button");
@@ -365,10 +372,11 @@ function rowEl(
     doc,
     "div",
     `display:flex;align-items:center;gap:8px;min-height:28px;padding:2px 10px;` +
-      `cursor:default;border-bottom:1px solid ${LINE};user-select:none;` +
+      `cursor:default;border-bottom:1px solid ${LINE};user-select:none;outline:none;` +
       `background:${on ? SELECTED : "transparent"};`,
   );
   d.dataset.annId = String(r.id);
+  d.tabIndex = -1;
   const cited = citedOn && v.cited.has(r.id);
   const locs =
     cited && jumpOn ? getLocationsForRow(r, locMap, workLocMap) : undefined;
@@ -455,6 +463,7 @@ function rowEl(
   d.addEventListener("click", (e: Event) => {
     const m = e as MouseEvent;
     if (m.detail > 1) return;
+    d.focus();
     v.sel = applyClick(v.sel, order, r.id, {
       ctrl: m.ctrlKey || m.metaKey,
       shift: m.shiftKey,
