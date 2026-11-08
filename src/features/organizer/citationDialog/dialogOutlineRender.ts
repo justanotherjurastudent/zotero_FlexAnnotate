@@ -237,7 +237,8 @@ export function renderList(
 
   const filter = doc.createElement("input");
   filter.type = "text";
-  filter.placeholder = tr("dialogFilter");
+  filter.placeholder =
+    currentMode === "works" ? tr("dialogFilterWorks") : tr("dialogFilter");
   filter.value = v.query;
   filter.style.cssText =
     "flex:1;min-width:0;box-sizing:border-box;height:24px;padding:0 8px;font-size:12px;";
