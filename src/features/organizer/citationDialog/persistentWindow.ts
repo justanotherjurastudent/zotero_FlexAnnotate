@@ -288,7 +288,16 @@ export function openBrowse(rect?: Rect | null, placed = true): void {
  */
 function insertFromBrowse(pend: PendingInsert): void {
   const integ = (Zotero as any).Integration;
-  const cmd = state.lastCommand!;
+  const agent =
+    state.lastCommand?.agent ||
+    state.activeAgent ||
+    ((Zotero as any).isMac ? "MacWord" : "WinWord");
+  const cmd = state.lastCommand ?? {
+    agent,
+    command: "addEditCitation",
+    docId: undefined,
+    templateVersion: 0,
+  };
   state.pendingInsert = pend;
   // leave currentWindow empty, otherwise shouldAbortCommand aborts the companion window (integration.js:358-373)
   integ.currentWindow = false;
@@ -296,7 +305,7 @@ function insertFromBrowse(pend: PendingInsert): void {
   Promise.resolve(
     integ.execCommand(
       cmd.agent,
-      cmd.command || "addAnnotation",
+      "addEditCitation",
       cmd.docId,
       cmd.templateVersion,
     ),
@@ -555,14 +564,6 @@ export function patchDisplayDialog(): boolean {
       "displayDialog entered",
       `${persistent ? "persistent" : "native"} ${cw()}`,
     );
-    if (
-      io &&
-      url.includes(DIALOG_MARK) &&
-      !(io as any).isCitingNotes &&
-      state.lastDialogType !== "citation"
-    ) {
-      (io as any).isAddingAnnotations = true;
-    }
     if (!persistent) {
       // Option off: a companion window closes now
       await closeBrowse();

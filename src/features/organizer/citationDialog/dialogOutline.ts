@@ -322,6 +322,9 @@ function inject(win: Window) {
       ?.closest?.("annotation-row")
       ?.querySelector<HTMLElement>(".zotero-clicky-plus")
       ?.click();
+    win.setTimeout(() => {
+      (doc.getElementById("bubble-input") as any)?.refocusInput?.();
+    }, 50);
   };
   annList?.addEventListener("dblclick", info.onNativeDblClick);
 

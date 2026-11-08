@@ -43,6 +43,33 @@ export function injectBubbleReorder(win: Window): void {
         box-shadow: 3px 0 0 0 #0070e0 !important;
         border-right: 2px solid #0070e0 !important;
       }
+      #search-row {
+        min-height: 44px !important;
+        height: auto !important;
+      }
+      #bubble-input {
+        min-height: 36px !important;
+        height: auto !important;
+      }
+      #bubble-input .bubble-input.body {
+        min-height: 34px !important;
+        height: auto !important;
+        align-items: center !important;
+      }
+      #bubble-input .bubble {
+        height: auto !important;
+        min-height: 32px !important;
+        max-height: none !important;
+        padding: 3px 8px !important;
+        box-sizing: border-box !important;
+        align-items: center !important;
+      }
+      #bubble-input .bubble .text {
+        font-size: 11.5px !important;
+        line-height: 1.25 !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
     `;
     doc.head?.appendChild(style);
   }

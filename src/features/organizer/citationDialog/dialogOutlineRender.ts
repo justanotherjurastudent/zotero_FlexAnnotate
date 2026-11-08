@@ -564,12 +564,29 @@ export async function insert(win: Window, ids: number[]) {
     (doc.documentElement?.getAttribute("dialog-type") ||
       (win as any).DIALOG_STATE?.type) === "citation";
   if (isCitation) {
-    const works = ids
+    let works = ids
       .map((id) => Zotero.Items.get(id) as Zotero.Item | false)
       .filter(
         (item): item is Zotero.Item =>
           !!item && (item as any).isRegularItem?.(),
       );
+    if (!works.length) {
+      works = ids
+        .map((id) => Zotero.Items.get(id) as Zotero.Item | false)
+        .filter(
+          (item): item is Zotero.Item =>
+            !!item && (item as any).isAnnotation?.(),
+        )
+        .map((ann) => {
+          let cur: any = ann;
+          while (cur?.parentItem) cur = cur.parentItem;
+          return cur;
+        })
+        .filter(
+          (item): item is Zotero.Item =>
+            !!item && (item as any).isRegularItem?.(),
+        );
+    }
     if (!works.length) return;
     const add = (win as any).IOManager?.addItemsToCitation;
     if (typeof add !== "function") {
@@ -577,6 +594,9 @@ export async function insert(win: Window, ids: number[]) {
       return;
     }
     await add.call((win as any).IOManager, works);
+    win.setTimeout(() => {
+      (doc.getElementById("bubble-input") as any)?.refocusInput?.();
+    }, 20);
     return;
   }
 
@@ -605,4 +625,7 @@ export async function insert(win: Window, ids: number[]) {
     await new Promise((r) => win.setTimeout(r, 30));
     row.remove();
   }
+  win.setTimeout(() => {
+    (doc.getElementById("bubble-input") as any)?.refocusInput?.();
+  }, 50);
 }

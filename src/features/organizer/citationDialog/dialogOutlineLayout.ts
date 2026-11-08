@@ -28,7 +28,12 @@ const BASE_LAYOUT_CSS =
   "#flexannotate-preview{min-width:0;overflow-x:hidden;overflow-wrap:anywhere;}" +
   ".flexannotate-citation-chip:hover{background:rgba(31,157,85,0.22) !important;}" +
   ".flexannotate-citation-chip:active{background:rgba(31,157,85,0.35) !important;}" +
-  ".flexannotate-citation-chip:focus-visible{outline:2px solid #1f9d55 !important;outline-offset:1px !important;}";
+  ".flexannotate-citation-chip:focus-visible{outline:2px solid #1f9d55 !important;outline-offset:1px !important;}" +
+  "#search-row{min-height:44px !important;height:auto !important;}" +
+  "#bubble-input{min-height:36px !important;height:auto !important;}" +
+  "#bubble-input .bubble-input.body{min-height:34px !important;height:auto !important;align-items:center !important;}" +
+  "#bubble-input .bubble{height:auto !important;min-height:32px !important;max-height:none !important;padding:3px 8px !important;box-sizing:border-box !important;align-items:center !important;}" +
+  "#bubble-input .bubble .text{font-size:11.5px !important;line-height:1.25 !important;max-height:none !important;overflow:visible !important;}";
 
 // Below 750 px, only in the persistent companion window (attribute set by relaxDialogMinWidth):
 // on a 9.0.6 test run two outline tests failed (cause not fully clarified);
