@@ -56,6 +56,8 @@ export type FluentMessageId =
   | 'prefs-feature-annotation-row-menu-description'
   | 'prefs-feature-annotation-row-patch'
   | 'prefs-feature-annotation-row-patch-description'
+  | 'prefs-feature-bubble-reorder'
+  | 'prefs-feature-bubble-reorder-description'
   | 'prefs-feature-citation-dialog'
   | 'prefs-feature-citation-dialog-description'
   | 'prefs-feature-citavi-import'

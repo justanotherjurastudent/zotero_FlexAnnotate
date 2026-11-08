@@ -30,6 +30,8 @@ import {
 } from "./dialogCited";
 import { GREEN } from "./citedToggle";
 import { attachFootnotePopover, makeCitationChip } from "./footnoteChips";
+import { state } from "./persistentState";
+import { shouldScrollToItem } from "../logic/dialogRetention";
 
 export const TREE_ID = "flexannotate-tree";
 export const LIST_ID = "flexannotate-list-pane";
@@ -110,6 +112,7 @@ function renderTree(win: Window, v: View) {
     );
     d.addEventListener("click", () => {
       v.node = id;
+      state.lastOutlineNode = id;
       v.sel = emptySelection();
       renderAll(win, v);
     });
@@ -186,6 +189,7 @@ export function renderList(
     "margin:5px 6px;flex:none;box-sizing:border-box;height:24px;padding:0 8px;font-size:12px;";
   filter.addEventListener("input", () => {
     v.query = filter.value;
+    state.lastFilterQuery = filter.value;
     renderList(win, v, false);
     const again = doc.querySelector(`#${LIST_ID} input`) as HTMLInputElement;
     again?.focus();
@@ -256,6 +260,15 @@ export function renderList(
     }
   }
   list.scrollTop = scroll;
+  if (shouldScrollToItem(keepScroll, state.lastInsertedID)) {
+    const target = list.querySelector<HTMLElement>(
+      `[data-ann-id="${state.lastInsertedID}"]`,
+    );
+    if (target) {
+      target.scrollIntoView({ block: "center", behavior: "auto" });
+      state.lastInsertedID = null;
+    }
+  }
 }
 
 export async function refreshCitedInView(win: Window, v: View): Promise<void> {
@@ -543,6 +556,9 @@ export function renderPreview(
 // ── inserting via Zotero's own handler ───────────────────────────────────────
 
 export async function insert(win: Window, ids: number[]) {
+  if (ids.length) {
+    state.lastInsertedID = ids[ids.length - 1];
+  }
   const doc = win.document;
   const isCitation =
     (doc.documentElement?.getAttribute("dialog-type") ||

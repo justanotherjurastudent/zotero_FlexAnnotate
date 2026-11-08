@@ -48,6 +48,7 @@ export type GateName =
   | "annotationRowPatch"
   | "modeSelector"
   | "outlineView"
+  | "bubbleReorder"
   // Runtime sub-features
   | "citedTracking"
   | "footnoteJump"
@@ -189,6 +190,13 @@ export const gates: readonly FeatureGate[] = [
     enabled: true,
     requires: ["citationDialog", "annotationIndex"],
   },
+  {
+    name: "bubbleReorder",
+    description:
+      "Drag-and-drop and keyboard reordering of citation bubbles in the citation dialog.",
+    enabled: true,
+    requires: ["citationDialog"],
+  },
 
   // ── Runtime sub-features ─────────────────────────────────────────────────
   {
@@ -317,6 +325,7 @@ export const RESTART_GATES: readonly GateName[] = [
   "annotationRowPatch",
   "modeSelector",
   "outlineView",
+  "bubbleReorder",
 ];
 
 /** Is there a gate with this name? (Consistency check for tests/code.) */

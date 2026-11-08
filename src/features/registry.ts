@@ -31,6 +31,10 @@ import {
 } from "./print/annotationRowPatch";
 import * as modeSelector from "./citeOnly/modeSelector";
 import { outlineView } from "./organizer/citationDialog/dialogOutline";
+import {
+  injectBubbleReorder,
+  removeBubbleReorder,
+} from "./organizer/citationDialog/bubbleReorder";
 import { persistentDialogPatch } from "./organizer/citationDialog/dialogPersistent";
 import { citeOnlyPatch } from "./citeOnly/integrationPatch";
 import { readerMenu } from "./reader/readerMenu";
@@ -123,6 +127,11 @@ export const dialogInjectorEntries: DialogInjector[] = [
     detach: modeSelector.removeModeSelector,
   },
   outlineView,
+  {
+    name: "bubbleReorder",
+    inject: injectBubbleReorder,
+    detach: removeBubbleReorder,
+  },
   {
     name: "annotationRowPatch",
     inject: patchAnnotationRow,

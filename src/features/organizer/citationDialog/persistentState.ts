@@ -82,6 +82,12 @@ export interface PersistentRuntime {
   lastCommand: CommandRef | null;
   /** Tab of the dialog at the last insert ("citation" or "annotations"): the companion window opens there. */
   lastDialogType: string | null;
+  /** Last selected outline node in the companion window. */
+  lastOutlineNode: string | null;
+  /** ID of the last inserted citation or annotation item. */
+  lastInsertedID: number | null;
+  /** Last search query entered in the dialog list. */
+  lastFilterQuery: string | null;
   activeAgent: string | null;
   pendingInsert: PendingInsert | null;
 }
@@ -90,6 +96,9 @@ export const state: PersistentRuntime = {
   alive: false,
   lastCommand: null,
   lastDialogType: null,
+  lastOutlineNode: null,
+  lastInsertedID: null,
+  lastFilterQuery: null,
   activeAgent: null,
   pendingInsert: null,
 };

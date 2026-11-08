@@ -155,6 +155,41 @@ describe("citation-only patch", function () {
     assert.equal(item.suffix, ", Fn. 3");
   });
 
+  it("with citationOnly a mixed selection of regular item and annotation rewrites annotation and keeps regular item", async function () {
+    const work1 = await makeWork("Nachweis Werk 1");
+    const work2 = await makeWork("Nachweis Werk 2");
+    const att2 = await makePdfAttachment(work2);
+    const ann2 = await makeAnnotation(att2, "Annotation zu Werk 2", "42", 0);
+
+    Zotero.Prefs.set(PREF, true, true);
+    let result: any[];
+    try {
+      const citation = new (Zotero as any).Integration.Citation(
+        null,
+        {
+          citationItems: [{ id: work1.id }, { id: ann2.id, prefix: "vgl. " }],
+        },
+        0,
+      );
+      result = await proto()._insertCitingResult.call(
+        Object.create(proto()),
+        0,
+        {},
+        citation,
+      );
+    } finally {
+      Zotero.Prefs.set(PREF, false, true);
+    }
+
+    assert.lengthOf(result, 1);
+    const [c1, c2] = result[0].citationItems;
+    assert.equal(c1.id, work1.id);
+    assert.equal(c2.id, work2.id);
+    assert.equal(c2.locator, "42");
+    assert.equal(c2.label, "page");
+    assert.equal(c2.prefix, "vgl. ");
+  });
+
   it("preserves prefix and suffix for multiple annotations in full-citation mode", async function () {
     if (!hasAnnotationDialog()) this.skip(); // needs Zotero >= 9 (native annotation citing in citation dialog)
     const work = await makeWork("Vollnachweis Prefix Testwerk");

@@ -66,6 +66,12 @@ import type { View } from "./dialogOutlineRender";
 import { applyLayout, removeLayout } from "./dialogOutlineLayout";
 import { isFeatureEnabled } from "../../gates";
 import { tr } from "../strings";
+import { state } from "./persistentState";
+import {
+  resolveInitialNode,
+  resolveInitialQuery,
+  shouldIgnoreSearchInput,
+} from "../logic/dialogRetention";
 
 const PREF = "dialogOutlineView";
 const ROW_HEIGHT_STYLE_ID = "flexannotate-dialog-row-height";
@@ -163,6 +169,7 @@ function inject(win: Window) {
     onNativeDblClick: null,
   };
   attached.set(win, info);
+  (win as any).FlexAnnotateOutlineView = outlineView;
 
   // Zotero's annotations view makes the cards of the open documents 98/58 px
   // high, the title view 82/42. Both views get the larger height so the cards
@@ -341,6 +348,7 @@ function detach(win: Window) {
     doc.getElementById(ROW_HEIGHT_STYLE_ID)?.remove();
     doc.getElementById(PICKER_ID)?.remove();
     doc.getElementById(HINT_ID)?.remove();
+    delete (win as any).FlexAnnotateOutlineView;
   } catch (e) {
     ztoolkit.log("flexannotate dialog detach failed:", e);
   }
@@ -525,7 +533,15 @@ async function buildView(win: Window, info: Attached): Promise<View> {
     if (!n || n === "all" || n === "none") return n ?? "all";
     return locate(roots, n) ? n : "all";
   };
-  const selectedNode = validNode(info.view?.node);
+  const selectedNode = validNode(
+    resolveInitialNode(info.view?.node, state.lastOutlineNode),
+  );
+
+  const initialQuery = resolveInitialQuery(
+    info.view?.query,
+    state.lastFilterQuery,
+    bubbleText(win.document),
+  );
 
   const citedOn = isFeatureEnabled("citedTracking");
   if (isCitation) {
@@ -541,7 +557,7 @@ async function buildView(win: Window, info: Attached): Promise<View> {
       showCommentsInRows: false,
       cited: citedWorks ?? new Set<number>(),
       node: selectedNode,
-      query: info.view?.query ?? bubbleText(win.document),
+      query: initialQuery,
       sel: emptySelection(),
     };
   }
@@ -569,7 +585,7 @@ async function buildView(win: Window, info: Attached): Promise<View> {
     showCommentsInRows,
     cited: citedOn ? getActiveCitedIDs(rows, citedWorks) : new Set<number>(),
     node: selectedNode,
-    query: info.view?.query ?? bubbleText(win.document),
+    query: initialQuery,
     sel: emptySelection(),
   };
 }
@@ -655,9 +671,13 @@ function addSearchSync(win: Window, info: Attached) {
   const handler = (e: Event) => {
     const v = info.view;
     if (!v || !info.enabled) return;
-    const query = (e as CustomEvent<{ query?: string }>).detail?.query ?? "";
+    const detail = (e as CustomEvent<{ query?: string; eventType?: string }>)
+      .detail;
+    if (shouldIgnoreSearchInput(detail?.eventType)) return;
+    const query = detail?.query ?? "";
     if (query === v.query) return;
     v.query = query;
+    state.lastFilterQuery = query;
     renderList(win, v, false);
   };
   info.searchHandler = handler;

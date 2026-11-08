@@ -101,6 +101,12 @@ prefs-feature-narrow-dialog-layout =
 prefs-feature-narrow-dialog-layout-description =
     Stacks the kept-open citation window below 750 pixels width (tree, list, details) and moves
     switches into the gear menu.
+prefs-feature-bubble-reorder =
+    .label = Reorder citation bubbles via drag & drop
+prefs-feature-bubble-reorder-description =
+    Allows rearranging and reordering citation bubbles in the citation dialog by dragging with the
+    mouse or using Shift+Arrow keys.
+
 
 prefs-feature-cite-only-patch =
     .label = Citation-only citing

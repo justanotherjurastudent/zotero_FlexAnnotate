@@ -127,6 +127,13 @@ function rememberView(win: Window): void {
   if (type === "citation" || type === "annotations")
     state.lastDialogType = type;
   rememberCollection(win);
+  const infoView = (win as any).FlexAnnotateOutlineView?.viewOf?.(win);
+  if (infoView) {
+    if (typeof infoView.node === "string")
+      state.lastOutlineNode = infoView.node;
+    if (typeof infoView.query === "string")
+      state.lastFilterQuery = infoView.query;
+  }
 }
 
 /** Closes the companion window if open. */
@@ -221,6 +228,30 @@ export function openBrowse(rect?: Rect | null, placed = true): void {
   );
   (Zotero as any).Utilities.Internal.activate(win);
   if (rect) pinRect(win, rect, placed);
+  if (state.lastInsertedID) {
+    const lastId = state.lastInsertedID;
+    win.setTimeout(() => {
+      try {
+        const rows = win.document?.querySelectorAll<any>(
+          "#annotations-list annotation-row",
+        );
+        if (rows) {
+          for (const row of rows) {
+            if (
+              row.annotation?.id === lastId ||
+              row.getAttribute("annotation-id") == String(lastId)
+            ) {
+              row.scrollIntoView({ block: "center", behavior: "auto" });
+              state.lastInsertedID = null;
+              break;
+            }
+          }
+        }
+      } catch {
+        // Window might have been closed or not yet initialized
+      }
+    }, 150);
+  }
   win.addEventListener("unload", () => {
     // about:blank is unloaded before the dialog (integration.js:498), that is not a close
     if (win.location.toString() === "about:blank") return;
@@ -237,6 +268,10 @@ export function openBrowse(rect?: Rect | null, placed = true): void {
     if (!state.lastCommand) {
       logError("browse insert", new Error("no command known"));
       return undefined;
+    }
+    const last = items[items.length - 1];
+    if (last?.id) {
+      state.lastInsertedID = Number(last.id);
     }
     const live = captureLive(win);
     writeStoredSize(live.w, live.h);
@@ -307,6 +342,11 @@ function wrapPersistentAccept(
       if (readPersistentPref() && io.citation?.citationItems?.length) {
         // before anything that closes the window: keep the user's geometry
         acceptState.live = captureLive(win);
+        const last =
+          io.citation.citationItems[io.citation.citationItems.length - 1];
+        if (last?.id) {
+          state.lastInsertedID = Number(last.id);
+        }
         rememberView(win);
         const at = acceptState.live;
         (command || Promise.resolve()).then(() => {
@@ -515,6 +555,14 @@ export function patchDisplayDialog(): boolean {
       "displayDialog entered",
       `${persistent ? "persistent" : "native"} ${cw()}`,
     );
+    if (
+      io &&
+      url.includes(DIALOG_MARK) &&
+      !(io as any).isCitingNotes &&
+      state.lastDialogType !== "citation"
+    ) {
+      (io as any).isAddingAnnotations = true;
+    }
     if (!persistent) {
       // Option off: a companion window closes now
       await closeBrowse();

@@ -4,6 +4,16 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 
 ## Unreleased
 
+### Added
+
+- Zitierdialog: Zitatelemente in der oberen Zitierleiste (`#bubble-input`) lassen sich per Drag & Drop sowie Tastenkombinationen in ihrer Reihenfolge frei verschieben (`bubbleReorder.ts`, `bubbleOrder.ts`). Manuelle Reihenfolgen setzen `io.citation.properties.unsorted = true`, sodass Zotero die Sortierung nicht mehr automatisch überschreibt (Issue #10).
+- Word-Integration: Klick auf ein bestehendes Zitationsfeld öffnet den Zitierdialog direkt im Annotationsmodus (`(io as any).isAddingAnnotations = true`). Das Mischen von normalen Titeln und Annotationen in derselben Fußnote wird voll unterstützt: Annotationen werden zu Nachweisen mit Locator umgeschrieben, während reguläre Titel unverändert bleiben (`citeOnly.ts`, `integrationPatch.ts`, Issue #11).
+
+### Changed
+
+- Zitierdialog: Der eingegebene Suchfilter in der Gliederungsansicht bleibt nach dem Hinzufügen eines Eintrags zur Zitation erhalten und wird nicht mehr durch den automatischen Neufokus der Eingabezeile gelöscht (`dialogRetention.ts`, `dialogOutline.ts`, Issue #9).
+- Zitierdialog (Aufgabenleiste): Nach dem Einfügen im persistenten Modus scrollt die Liste im neu geöffneten Blätterfenster automatisch zum zuletzt eingefügten Eintrag zurück und stellt den ausgewählten Gliederungsknoten wieder her (`dialogRetention.ts`, `persistentWindow.ts`, `dialogOutlineRender.ts`, Issue #8).
+
 ## 3.0.0 (2026-10-28)
 
 **Großes Upgrade für den Zitier-Workflow.** Dokumentweites Zitier-Tracking („grüne Häkchen wie in Citavi“), Fußnoten-Badges mit Direktsprung nach Word/LibreOffice, Doppelklick-Einfügen, Gliederungsansicht für Werke, persistentes Aufgabenleisten-Zitierfenster (Word für Windows, LibreOffice Writer, Word für Mac), granulare Funktionsschalter im Einstellungs-Tab „Funktionen an/aus“, Reader-Sprungpfeil (`↗`) und Gliederungs-Tag-Vorschläge.

@@ -104,18 +104,13 @@ async function rewriteToCitationOnly(
     return null;
   }
 
-  const annotations = citationItems.map(
-    (ci) => Zotero.Cite.getItem(ci.id) as Zotero.Item | undefined,
-  );
-  if (!annotations.every((item) => item && item.isAnnotation())) {
-    // Mixed or regular selection: not our case.
-    return null;
-  }
+  const refs: (AnnotationRef | null)[] = citationItems.map((ci) => {
+    const item = (Zotero as any).Cite?.getItem(ci.id) as
+      Zotero.Item | undefined;
+    return item && (item as any).isAnnotation?.() ? refOf(item) : null;
+  });
 
-  const items = citationOnlyItems(
-    citationItems,
-    annotations.map((item) => refOf(item!)),
-  );
+  const items = citationOnlyItems(citationItems, refs);
   if (!items) {
     return null;
   }

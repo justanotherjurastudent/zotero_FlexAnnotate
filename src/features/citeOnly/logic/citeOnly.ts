@@ -27,9 +27,9 @@ export interface AnnotationRef {
 
 /**
  * Builds the citation list for the citation-only mode. `refs[i]` belongs to `items[i]`;
- * `null` means "no annotation".
+ * `null` means "no annotation" (regular item).
  *
- * @return New list, or null if not all entries are annotations with a
+ * @return New list, or null if no annotations are present or an annotation has no
  *   citable parent item (then continue natively). The input remains unchanged.
  */
 export function citationOnlyItems(
@@ -41,23 +41,28 @@ export function citationOnlyItems(
   }
 
   const result: CitationItemLike[] = [];
+  let hasAnnotation = false;
   for (let i = 0; i < items.length; i++) {
     const ref = refs[i];
-    if (!ref || ref.topLevelId === null) {
-      return null;
+    if (ref) {
+      if (ref.topLevelId === null) {
+        return null;
+      }
+      hasAnnotation = true;
+      const entry: CitationItemLike = {
+        ...items[i],
+        id: ref.topLevelId,
+        uris: undefined,
+        itemData: undefined,
+      };
+      if (ref.pageLabel) {
+        entry.locator = ref.pageLabel;
+        entry.label = ref.locatorType;
+      }
+      result.push(entry);
+    } else {
+      result.push({ ...items[i] });
     }
-
-    const entry: CitationItemLike = {
-      ...items[i],
-      id: ref.topLevelId,
-      uris: undefined,
-      itemData: undefined,
-    };
-    if (ref.pageLabel) {
-      entry.locator = ref.pageLabel;
-      entry.label = ref.locatorType;
-    }
-    result.push(entry);
   }
-  return result;
+  return hasAnnotation ? result : null;
 }

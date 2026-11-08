@@ -47,6 +47,7 @@ export const FEATURE_GROUPS: readonly FeatureGroup[] = [
       "dialogShowPlace",
       "persistentDialogPatch",
       "narrowDialogLayout",
+      "bubbleReorder",
     ],
   },
   { id: "citeonly", gates: ["citeOnlyPatch", "modeSelector"] },

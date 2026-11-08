@@ -59,6 +59,9 @@ export const persistentDialogPatch: Feature = {
     state.pendingInsert = null;
     state.lastCommand = null;
     state.lastDialogType = null;
+    state.lastOutlineNode = null;
+    state.lastInsertedID = null;
+    state.lastFilterQuery = null;
     state.activeAgent = null;
     const win = getPersistentWindow();
     if (win) {

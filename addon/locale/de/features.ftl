@@ -106,6 +106,11 @@ prefs-feature-narrow-dialog-layout =
 prefs-feature-narrow-dialog-layout-description =
     Ordnet das offen gehaltene Zitierfenster unter 750 Pixeln Breite untereinander an (Baum, Liste,
     Details) und verlegt Schalter ins Zahnradmenü.
+prefs-feature-bubble-reorder =
+    .label = Zitatelemente per Drag & Drop sortieren
+prefs-feature-bubble-reorder-description =
+    Erlaubt das Verschieben und Umsortieren von Zitatelementen im Zitierdialog durch Ziehen mit der
+    Maus oder mit Umschalt+Pfeiltasten.
 
 prefs-feature-cite-only-patch =
     .label = Nur-Nachweis-Zitieren
