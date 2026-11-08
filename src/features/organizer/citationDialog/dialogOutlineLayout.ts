@@ -52,7 +52,10 @@ const NARROW_LAYOUT_CSS =
 export const LAYOUT_CSS = BASE_LAYOUT_CSS + NARROW_LAYOUT_CSS;
 
 /** Hide Zotero's native columns and add the containers for ours. */
-export function applyLayout(win: Window): void {
+export function applyLayout(
+  win: Window,
+  mode: "works" | "annotations" = "annotations",
+): void {
   const doc = win.document;
   if (!doc.getElementById(STYLE_ID)) {
     const st = doc.createElement("style");
@@ -75,9 +78,6 @@ export function applyLayout(win: Window): void {
     d.style.cssText = css;
     parent.appendChild(d);
   };
-  const isCitation =
-    (doc.documentElement?.getAttribute("dialog-type") ||
-      (win as any).DIALOG_STATE?.type) === "citation";
   mk(
     "collections-tree-container",
     TREE_ID,
@@ -88,9 +88,20 @@ export function applyLayout(win: Window): void {
     LIST_ID,
     "flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;",
   );
-  if (isCitation) {
+  if (mode === "works") {
     doc.getElementById(PREVIEW_ID)?.remove();
+    const sidebar = doc.getElementById("sidebar") as HTMLElement | null;
+    if (sidebar) sidebar.style.display = "none";
   } else {
+    const sidebar = doc.getElementById("sidebar") as HTMLElement | null;
+    if (sidebar) sidebar.style.display = "";
+    const annSidebar = doc.getElementById(
+      "annotations-sidebar",
+    ) as HTMLElement | null;
+    if (annSidebar) {
+      annSidebar.hidden = false;
+      annSidebar.style.display = "";
+    }
     mk(
       "annotations-sidebar",
       PREVIEW_ID,
@@ -104,6 +115,18 @@ export function removeLayout(win: Window): void {
   const doc = win.document;
   for (const id of [TREE_ID, LIST_ID, PREVIEW_ID, NATIVE_ID, STYLE_ID])
     doc.getElementById(id)?.remove();
+  const isCitation =
+    (doc.documentElement?.getAttribute("dialog-type") ||
+      (win as any).DIALOG_STATE?.type) === "citation";
+  const sidebar = doc.getElementById("sidebar") as HTMLElement | null;
+  if (sidebar) sidebar.style.display = "";
+  const annSidebar = doc.getElementById(
+    "annotations-sidebar",
+  ) as HTMLElement | null;
+  if (annSidebar && isCitation) {
+    annSidebar.hidden = true;
+    annSidebar.style.display = "";
+  }
   try {
     const list = doc.getElementById("annotations-list") as any;
     if (list) {

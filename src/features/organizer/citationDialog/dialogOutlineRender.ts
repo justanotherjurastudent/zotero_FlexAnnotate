@@ -53,6 +53,7 @@ export interface View {
   node: string; // "all", "none", or a heading id
   query: string;
   sel: SelectionState;
+  mode?: "works" | "annotations";
 }
 
 function el(doc: Document, tag: string, css = "", text?: string): HTMLElement {
@@ -180,13 +181,59 @@ export function renderList(
     : 0;
   host.textContent = "";
 
+  const topBar = el(
+    doc,
+    "div",
+    "display:flex;align-items:center;gap:6px;margin:5px 6px;flex:none;",
+  );
+  host.appendChild(topBar);
+
+  const seg = el(
+    doc,
+    "div",
+    "display:inline-flex;border-radius:4px;border:1px solid var(--fill-quinary, rgba(128,128,128,0.3));overflow:hidden;flex:none;height:24px;box-sizing:border-box;",
+  );
+  topBar.appendChild(seg);
+
+  const currentMode = v.mode ?? "annotations";
+  const btnAnn = el(
+    doc,
+    "button",
+    `border:none;padding:0 8px;font-size:11px;cursor:pointer;background:${
+      currentMode === "annotations"
+        ? "var(--accent-blue, #0070e0)"
+        : "transparent"
+    };color:${currentMode === "annotations" ? "#fff" : "inherit"};`,
+    tr("tabKnowledge"),
+  );
+  btnAnn.setAttribute("type", "button");
+  btnAnn.addEventListener("click", () => {
+    if (currentMode === "annotations") return;
+    (win as any).FlexAnnotateOutlineView?.setMode?.(win, "annotations");
+  });
+
+  const btnWorks = el(
+    doc,
+    "button",
+    `border:none;padding:0 8px;font-size:11px;cursor:pointer;background:${
+      currentMode === "works" ? "var(--accent-blue, #0070e0)" : "transparent"
+    };color:${currentMode === "works" ? "#fff" : "inherit"};`,
+    tr("tabTitles"),
+  );
+  btnWorks.setAttribute("type", "button");
+  btnWorks.addEventListener("click", () => {
+    if (currentMode === "works") return;
+    (win as any).FlexAnnotateOutlineView?.setMode?.(win, "works");
+  });
+
+  seg.append(btnAnn, btnWorks);
+
   const filter = doc.createElement("input");
   filter.type = "text";
   filter.placeholder = tr("dialogFilter");
   filter.value = v.query;
-  // Height 24 + margin 2×5 = 34 px, exactly like the collection row on the left
   filter.style.cssText =
-    "margin:5px 6px;flex:none;box-sizing:border-box;height:24px;padding:0 8px;font-size:12px;";
+    "flex:1;min-width:0;box-sizing:border-box;height:24px;padding:0 8px;font-size:12px;";
   filter.addEventListener("input", () => {
     v.query = filter.value;
     state.lastFilterQuery = filter.value;
@@ -195,7 +242,7 @@ export function renderList(
     again?.focus();
     again?.setSelectionRange(again.value.length, again.value.length);
   });
-  host.appendChild(filter);
+  topBar.appendChild(filter);
 
   const list = el(
     doc,
@@ -393,6 +440,14 @@ function rowEl(
   plus.addEventListener("click", (e) => {
     e.stopPropagation();
     const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
+    v.sel = emptySelection();
+    for (const row of doc.querySelectorAll<HTMLElement>(
+      `#${LIST_ID} [data-ann-id]`,
+    )) {
+      row.style.background = "transparent";
+    }
+    renderPreview(win, v, locMap, workLocMap);
+    (doc.activeElement as HTMLElement)?.blur?.();
     void insert(win, ids);
   });
   plus.addEventListener("dblclick", (e) => e.stopPropagation());
@@ -417,6 +472,14 @@ function rowEl(
   d.addEventListener("dblclick", (e) => {
     e.stopPropagation();
     const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
+    v.sel = emptySelection();
+    for (const row of doc.querySelectorAll<HTMLElement>(
+      `#${LIST_ID} [data-ann-id]`,
+    )) {
+      row.style.background = "transparent";
+    }
+    renderPreview(win, v, locMap, workLocMap);
+    (doc.activeElement as HTMLElement)?.blur?.();
     void insert(win, ids);
   });
   return d;
@@ -563,6 +626,15 @@ export async function insert(win: Window, ids: number[]) {
   const isCitation =
     (doc.documentElement?.getAttribute("dialog-type") ||
       (win as any).DIALOG_STATE?.type) === "citation";
+  const refocus = () => {
+    const bi = doc.getElementById("bubble-input") as any;
+    bi?.refocusInput?.();
+    const inp = bi?.querySelector?.(
+      ".input:last-of-type, input:last-of-type",
+    ) as HTMLElement | null;
+    inp?.focus?.();
+  };
+
   if (isCitation) {
     let works = ids
       .map((id) => Zotero.Items.get(id) as Zotero.Item | false)
@@ -571,21 +643,29 @@ export async function insert(win: Window, ids: number[]) {
           !!item && (item as any).isRegularItem?.(),
       );
     if (!works.length) {
-      works = ids
+      const ann = ids
         .map((id) => Zotero.Items.get(id) as Zotero.Item | false)
-        .filter(
+        .find(
           (item): item is Zotero.Item =>
             !!item && (item as any).isAnnotation?.(),
-        )
-        .map((ann) => {
-          let cur: any = ann;
-          while (cur?.parentItem) cur = cur.parentItem;
-          return cur;
-        })
-        .filter(
-          (item): item is Zotero.Item =>
-            !!item && (item as any).isRegularItem?.(),
         );
+      if (ann) {
+        let cur: any = ann;
+        while (cur?.parentItem) cur = cur.parentItem;
+        if (cur && (cur as any).isRegularItem?.()) {
+          works = [cur];
+          const page = (ann as any).annotationPageLabel;
+          if (page) {
+            const input = (
+              doc.getElementById("bubble-input") as any
+            )?.getCurrentInput?.();
+            if (input && !input.value) {
+              const trimmed = String(page).trim();
+              input.value = /^\d/.test(trimmed) ? `: ${trimmed}` : trimmed;
+            }
+          }
+        }
+      }
     }
     if (!works.length) return;
     const add = (win as any).IOManager?.addItemsToCitation;
@@ -594,9 +674,8 @@ export async function insert(win: Window, ids: number[]) {
       return;
     }
     await add.call((win as any).IOManager, works);
-    win.setTimeout(() => {
-      (doc.getElementById("bubble-input") as any)?.refocusInput?.();
-    }, 20);
+    win.setTimeout(refocus, 20);
+    win.setTimeout(refocus, 100);
     return;
   }
 
@@ -625,7 +704,6 @@ export async function insert(win: Window, ids: number[]) {
     await new Promise((r) => win.setTimeout(r, 30));
     row.remove();
   }
-  win.setTimeout(() => {
-    (doc.getElementById("bubble-input") as any)?.refocusInput?.();
-  }, 50);
+  win.setTimeout(refocus, 20);
+  win.setTimeout(refocus, 100);
 }

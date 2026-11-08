@@ -100,6 +100,7 @@ interface Attached {
   lastDialogType?: string;
   /** enable() is still running (await): a mode switch in between must not start it a second time. */
   enabling?: boolean;
+  mode?: "works" | "annotations";
 }
 
 const attached = new Map<Window, Attached>();
@@ -256,6 +257,7 @@ function inject(win: Window) {
         if (!info.enabled) {
           if (!info.enabling) void enable(win, cb);
         } else if (info.lastDialogType !== type) {
+          delete info.mode;
           void rebuildView(win, info);
         }
       } else {
@@ -370,7 +372,7 @@ async function enable(win: Window, cb: HTMLInputElement) {
     const view = await buildView(win, info);
     info.view = view;
     info.enabled = true;
-    applyLayout(win);
+    applyLayout(win, view.mode);
     renderAll(win, view);
     addKeys(win, info);
     addSearchSync(win, info);
@@ -495,7 +497,11 @@ function addPicker(win: Window, info: Attached) {
 async function rebuildView(win: Window, info: Attached) {
   if (!info.enabled) return;
   try {
-    applyLayout(win);
+    const isCitation =
+      (win.document.documentElement?.getAttribute("dialog-type") ||
+        (win as any).DIALOG_STATE?.type) === "citation";
+    const mode = info.mode ?? (isCitation ? "works" : "annotations");
+    applyLayout(win, mode);
     info.view = await buildView(win, info);
     renderAll(win, info.view);
     updateHint(win, info.view);
@@ -546,8 +552,9 @@ async function buildView(win: Window, info: Attached): Promise<View> {
     bubbleText(win.document),
   );
 
+  const mode = info.mode ?? (isCitation ? "works" : "annotations");
   const citedOn = isFeatureEnabled("citedTracking");
-  if (isCitation) {
+  if (mode === "works") {
     const allWorks = await loadWorkRows(libraryID);
     const works = allWorks.filter((w) => inScope(w.workID));
     const sections = buildWorkDialogSections(roots, works);
@@ -562,6 +569,7 @@ async function buildView(win: Window, info: Attached): Promise<View> {
       node: selectedNode,
       query: initialQuery,
       sel: emptySelection(),
+      mode: "works",
     };
   }
 
@@ -590,6 +598,7 @@ async function buildView(win: Window, info: Attached): Promise<View> {
     node: selectedNode,
     query: initialQuery,
     sel: emptySelection(),
+    mode: "annotations",
   };
 }
 
@@ -618,6 +627,7 @@ function addKeys(win: Window, info: Attached) {
     if (!v || !info.enabled) return;
     const target = k.target as HTMLElement | null;
     if (target?.tagName === "BUTTON") return;
+    if (target?.closest?.("#bubble-input, #search-row, .bubble-input")) return;
     if (k.key === "Enter" && v.sel.selected.size) {
       k.preventDefault();
       k.stopPropagation();
@@ -625,6 +635,7 @@ function addKeys(win: Window, info: Attached) {
       v.sel = emptySelection();
       renderList(win, v);
       renderPreview(win, v);
+      (doc.activeElement as HTMLElement)?.blur?.();
       void insert(win, ids);
       return;
     }
@@ -734,11 +745,24 @@ function viewOf(win: Window): View | null {
   return attached.get(win)?.view ?? null;
 }
 
+export function setOutlineMode(
+  win: Window,
+  mode: "works" | "annotations",
+): void {
+  const info = attached.get(win);
+  if (!info) return;
+  if (info.mode === mode) return;
+  info.mode = mode;
+  void rebuildView(win, info);
+}
+
 export const outlineView: DialogInjector & {
   viewOf(win: Window): View | null;
+  setMode(win: Window, mode: "works" | "annotations"): void;
 } = {
   name: "outlineView",
   inject,
   detach,
   viewOf,
+  setMode: setOutlineMode,
 };
