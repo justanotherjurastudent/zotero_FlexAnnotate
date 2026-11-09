@@ -4,15 +4,30 @@ Format nach [Keep a Changelog](https://keepachangelog.com/), Versionierung nach 
 
 ## Unreleased
 
+## 3.1.0 (2026-11-09)
+
+**Umfassende Erweiterungen und Fehlerbehebungen für den Zitierdialog und Mischzitationen.** Unterstützung für Mischzitate (Titel und Annotationen in derselben Fußnote ohne Verwurf beim Umschalten), Zitiervorschau für Annotationen im Nur-Nachweis-Modus, freies Umsortieren von Zitat-Bubbles per Drag & Drop mit Erhalt der Reihenfolge, Mehrfachauswahl und Batch-Einfügen aus der Gliederung, One-Shot-Zustandsspeicherung im Aufgabenleisten-Modus (verhindert State-Leaks bei neuen Dialogen) und kontextbezogene Anzeige des Wissen/Titel-Umschalters.
+
 ### Added
 
-- Zitierdialog: Zitatelemente in der oberen Zitierleiste (`#bubble-input`) lassen sich per Drag & Drop sowie Tastenkombinationen in ihrer Reihenfolge frei verschieben (`bubbleReorder.ts`, `bubbleOrder.ts`). Manuelle Reihenfolgen setzen `io.citation.properties.unsorted = true`, sodass Zotero die Sortierung nicht mehr automatisch überschreibt (Issue #10).
-- Word-Integration: Klick auf ein bestehendes Zitationsfeld öffnet den Zitierdialog direkt im Annotationsmodus (`(io as any).isAddingAnnotations = true`). Das Mischen von normalen Titeln und Annotationen in derselben Fußnote wird voll unterstützt: Annotationen werden zu Nachweisen mit Locator umgeschrieben, während reguläre Titel unverändert bleiben (`citeOnly.ts`, `integrationPatch.ts`, Issue #11).
+- Zitierdialog / Bubble-Reordering: Zitatelemente in der oberen Zitierleiste (`#bubble-input`) lassen sich per Drag & Drop in ihrer Reihenfolge frei verschieben (`bubbleReorder.ts`, `bubbleOrder.ts`). Manuelle Reihenfolgen setzen `io.citation.properties.unsorted = true`, sodass Zoteros automatische Sortierung im Annotationsmodus übersprungen wird (Gate: `bubbleReorder`, Issue #10).
+- Zitierdialog / Mischzitationen: Beim Umschalten zwischen der Titel- und Annotationsansicht im Zitierdialog bleiben die bereits ausgewählten Einträge im Nur-Nachweis-Modus erhalten (`mixedCitation.ts`, Gate: `mixedCitation`, Issue #11).
+- Zitierdialog / Zitiervorschau: Im Annotationsmodus wird im Nur-Nachweis-Modus eine Zitiervorschau angezeigt (Werk plus Seitenzahl), wie sie beim Einfügen entsteht (`annotationPreview.ts`, Gate: `annotationPreview`). Im persistenten Aufgabenleisten-Fenster wird die Zitiervorschau mit dem Zitationsstil der laufenden Word-Sitzung gerendert (`persistentWindow.ts`).
+- Zitierdialog / Mehrfachauswahl: Werden in der Gliederungsansicht mehrere Annotationen ausgewählt, fügt Enter oder der Klick auf „+“ die übergeordneten Werke aller gewählten Annotationen dedupliziert zur Zitation hinzu (`dialogOutlineRender.ts`).
+- Tastatursteuerung: Enter fügt die aktuell in der Gliederung ausgewählte Zeile direkt in die Zitation ein (`dialogOutline.ts`).
 
 ### Changed
 
+- Zitierdialog: Der Schalter zwischen „Wissen“ und „Titel“ in der Gliederungsansicht wird nur noch beim Bearbeiten einer bestehenden Zitation angezeigt (`dialogOutline.ts`, `dialogOutlineRender.ts`).
+- Zitierdialog: Der Filter-Platzhalter lautet im Titel-Modus nun „Titel filtern …“ statt „Annotationen filtern …“ (`dialogOutlineRender.ts`, `strings.ts`).
 - Zitierdialog: Der eingegebene Suchfilter in der Gliederungsansicht bleibt nach dem Hinzufügen eines Eintrags zur Zitation erhalten und wird nicht mehr durch den automatischen Neufokus der Eingabezeile gelöscht (`dialogRetention.ts`, `dialogOutline.ts`, Issue #9).
 - Zitierdialog (Aufgabenleiste): Nach dem Einfügen im persistenten Modus scrollt die Liste im neu geöffneten Blätterfenster automatisch zum zuletzt eingefügten Eintrag zurück und stellt den ausgewählten Gliederungsknoten wieder her (`dialogRetention.ts`, `persistentWindow.ts`, `dialogOutlineRender.ts`, Issue #8).
+
+### Fixed
+
+- Zitierdialog / State-Leaks: Gliederungsknoten, Suchfilter und zuletzt eingefügte ID werden nach dem erneuten Öffnen des Aufgabenleisten-Fensters als One-Shot-Werte zurückgesetzt und leaken nicht mehr in neu geöffnete Zitierdialoge (`dialogOutline.ts`, `dialogOutlineRender.ts`).
+- Zitierdialog: Das Fokussieren einer Zeile in der Gliederung scrollt die Zeile nicht mehr unerwünscht aus dem Sichtfeld (`preventScroll: true` in `dialogOutlineRender.ts`).
+- Zitierdialog: Nach dem Einfügen aus dem persistenten Fenster wird der Befehl immer als `addEditCitation` ausgeführt, was Abstürze beim Bearbeiten von Fußnoten behebt (`persistentWindow.ts`).
 
 ## 3.0.0 (2026-10-28)
 

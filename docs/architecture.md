@@ -1,6 +1,6 @@
 # FlexAnnotate — Architecture
 
-FlexAnnotate is a bootstrapped Zotero plugin written in TypeScript and built with zotero-plugin-scaffold (version 3.0.0, `strict_min_version` 7.0, `strict_max_version` 10.\*). It is developed against Zotero 10.0.5 and run through the automated suite on 7.0.32, 8.0.4, 9.0.6 and 10.0.5/10.0.6 (`npm run test:versions`); see the README for what each version supports. It offers print annotations, citation-only insertion, Citavi import and an organizer (a fork of Lattice). Version 1.2.0, written in vanilla JS, is at the tag `pre-merge`.
+FlexAnnotate is a bootstrapped Zotero plugin written in TypeScript and built with zotero-plugin-scaffold (version 3.1.0, `strict_min_version` 7.0, `strict_max_version` 10.\*). It is developed against Zotero 10.0.5 and run through the automated suite on 7.0.32, 8.0.4, 9.0.6 and 10.0.5/10.0.6 (`npm run test:versions`); see the README for what each version supports. It offers print annotations, citation-only insertion, Citavi import and an organizer (a fork of Lattice). Version 1.2.0, written in vanilla JS, is at the tag `pre-merge`.
 
 References like `xpcom/integration.js:1678` are paths inside `chrome/content/zotero/` of Zotero's `omni.ja`. Unless marked "(10.0.1, not rechecked)" or given with another version, they were checked against 10.0.5. All anchors by version: [anchors.md](anchors.md).
 

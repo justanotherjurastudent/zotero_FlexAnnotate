@@ -1,7 +1,7 @@
 {
   "name": "zotero-flexannotate",
   "type": "module",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "FlexAnnotate: an annotation overhaul for Zotero. Edit locators and comments, organize annotations in an outline, cite with document tracking and direct jump, annotate printed books, import Citavi quotes.",
   "config": {
     "addonName": "FlexAnnotate",
