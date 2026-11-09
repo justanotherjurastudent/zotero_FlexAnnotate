@@ -658,6 +658,7 @@ export async function insert(win: Window, ids: number[]) {
       }
       works = [...parents.values()];
       // a page belongs to a work only when exactly one annotation was chosen
+      // (Zotero's input suffix supports only a single locator across the batch)
       const page =
         anns.length === 1 ? (anns[0] as any).annotationPageLabel : "";
       if (page) {
