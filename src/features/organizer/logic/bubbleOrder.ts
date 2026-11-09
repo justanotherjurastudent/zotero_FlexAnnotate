@@ -1,31 +1,7 @@
 /**
- * Pure logic for bubble reordering and preserving manual citation order.
+ * Pure logic for preserving a manual citation order (Zotero moves the bubbles itself).
  * No Zotero globals, node-testable.
  */
-
-/**
- * Moves an element from `fromIndex` to `toIndex` in an array, returning a new array.
- * If indices are invalid or identical, returns the original array copy.
- */
-export function reorderArray<T>(
-  items: readonly T[],
-  fromIndex: number,
-  toIndex: number,
-): T[] {
-  if (
-    fromIndex < 0 ||
-    fromIndex >= items.length ||
-    toIndex < 0 ||
-    toIndex >= items.length ||
-    fromIndex === toIndex
-  ) {
-    return [...items];
-  }
-  const result = [...items];
-  const [removed] = result.splice(fromIndex, 1);
-  result.splice(toIndex, 0, removed);
-  return result;
-}
 
 /**
  * Determines whether automatic sorting should be skipped because the user

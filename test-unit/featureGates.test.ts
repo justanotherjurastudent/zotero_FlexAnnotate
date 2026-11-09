@@ -43,6 +43,8 @@ const dialogInjectorNames: GateName[] = [
   "modeSelector",
   "outlineView",
   "bubbleReorder",
+  "annotationPreview",
+  "mixedCitation",
   "annotationRowPatch",
 ];
 

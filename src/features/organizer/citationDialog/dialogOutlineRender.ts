@@ -54,6 +54,8 @@ export interface View {
   query: string;
   sel: SelectionState;
   mode?: "works" | "annotations";
+  /** Editing an existing citation: show the Wissen/Titel switch. */
+  editing?: boolean;
 }
 
 function el(doc: Document, tag: string, css = "", text?: string): HTMLElement {
@@ -113,7 +115,6 @@ function renderTree(win: Window, v: View) {
     );
     d.addEventListener("click", () => {
       v.node = id;
-      state.lastOutlineNode = id;
       v.sel = emptySelection();
       renderAll(win, v);
     });
@@ -193,7 +194,7 @@ export function renderList(
     "div",
     "display:inline-flex;align-items:stretch;border-radius:4px;border:1px solid var(--fill-quinary, rgba(128,128,128,0.3));overflow:hidden;flex:none;height:24px;box-sizing:border-box;",
   );
-  topBar.appendChild(seg);
+  if (v.editing) topBar.appendChild(seg);
 
   const currentMode = v.mode ?? "annotations";
   const btnBase =
@@ -244,7 +245,6 @@ export function renderList(
     "flex:1;min-width:0;box-sizing:border-box;height:24px;padding:0 8px;font-size:12px;";
   filter.addEventListener("input", () => {
     v.query = filter.value;
-    state.lastFilterQuery = filter.value;
     renderList(win, v, false);
     const again = doc.querySelector(`#${LIST_ID} input`) as HTMLInputElement;
     again?.focus();
@@ -319,10 +319,8 @@ export function renderList(
     const target = list.querySelector<HTMLElement>(
       `[data-ann-id="${state.lastInsertedID}"]`,
     );
-    if (target) {
-      target.scrollIntoView({ block: "center", behavior: "auto" });
-      state.lastInsertedID = null;
-    }
+    target?.scrollIntoView({ block: "center", behavior: "auto" });
+    state.lastInsertedID = null; // one-shot: only the first render after a reopen
   }
 }
 
@@ -437,6 +435,19 @@ function rowEl(
     `flex:none;font-size:11px;color:${MUTED};`,
     placeText,
   );
+  // insert the selection (or just this row), then clear it so the next Enter starts fresh
+  const insertSelection = () => {
+    const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
+    v.sel = emptySelection();
+    for (const row of doc.querySelectorAll<HTMLElement>(
+      `#${LIST_ID} [data-ann-id]`,
+    )) {
+      row.style.background = "transparent";
+    }
+    renderPreview(win, v, locMap, workLocMap);
+    (doc.activeElement as HTMLElement)?.blur?.();
+    void insert(win, ids);
+  };
   const plus = el(
     doc,
     "span",
@@ -448,23 +459,14 @@ function rowEl(
   plus.title = tr("dialogInsert");
   plus.addEventListener("click", (e) => {
     e.stopPropagation();
-    const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
-    v.sel = emptySelection();
-    for (const row of doc.querySelectorAll<HTMLElement>(
-      `#${LIST_ID} [data-ann-id]`,
-    )) {
-      row.style.background = "transparent";
-    }
-    renderPreview(win, v, locMap, workLocMap);
-    (doc.activeElement as HTMLElement)?.blur?.();
-    void insert(win, ids);
+    insertSelection();
   });
   plus.addEventListener("dblclick", (e) => e.stopPropagation());
   d.append(check, dot, text, place, plus);
   d.addEventListener("click", (e: Event) => {
     const m = e as MouseEvent;
     if (m.detail > 1) return;
-    d.focus();
+    d.focus({ preventScroll: true }); // plain focus() would scroll the clicked row into view
     v.sel = applyClick(v.sel, order, r.id, {
       ctrl: m.ctrlKey || m.metaKey,
       shift: m.shiftKey,
@@ -481,16 +483,7 @@ function rowEl(
   });
   d.addEventListener("dblclick", (e) => {
     e.stopPropagation();
-    const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
-    v.sel = emptySelection();
-    for (const row of doc.querySelectorAll<HTMLElement>(
-      `#${LIST_ID} [data-ann-id]`,
-    )) {
-      row.style.background = "transparent";
-    }
-    renderPreview(win, v, locMap, workLocMap);
-    (doc.activeElement as HTMLElement)?.blur?.();
-    void insert(win, ids);
+    insertSelection();
   });
   return d;
 }
@@ -629,9 +622,6 @@ export function renderPreview(
 // ── inserting via Zotero's own handler ───────────────────────────────────────
 
 export async function insert(win: Window, ids: number[]) {
-  if (ids.length) {
-    state.lastInsertedID = ids[ids.length - 1];
-  }
   const doc = win.document;
   const isCitation =
     (doc.documentElement?.getAttribute("dialog-type") ||
@@ -653,27 +643,30 @@ export async function insert(win: Window, ids: number[]) {
           !!item && (item as any).isRegularItem?.(),
       );
     if (!works.length) {
-      const ann = ids
+      // annotations selected: cite the work behind each one, every work once
+      const anns = ids
         .map((id) => Zotero.Items.get(id) as Zotero.Item | false)
-        .find(
+        .filter(
           (item): item is Zotero.Item =>
             !!item && (item as any).isAnnotation?.(),
         );
-      if (ann) {
+      const parents = new Map<number, Zotero.Item>();
+      for (const ann of anns) {
         let cur: any = ann;
         while (cur?.parentItem) cur = cur.parentItem;
-        if (cur && (cur as any).isRegularItem?.()) {
-          works = [cur];
-          const page = (ann as any).annotationPageLabel;
-          if (page) {
-            const input = (
-              doc.getElementById("bubble-input") as any
-            )?.getCurrentInput?.();
-            if (input && !input.value) {
-              const trimmed = String(page).trim();
-              input.value = /^\d/.test(trimmed) ? `: ${trimmed}` : trimmed;
-            }
-          }
+        if (cur && (cur as any).isRegularItem?.()) parents.set(cur.id, cur);
+      }
+      works = [...parents.values()];
+      // a page belongs to a work only when exactly one annotation was chosen
+      const page =
+        anns.length === 1 ? (anns[0] as any).annotationPageLabel : "";
+      if (page) {
+        const input = (
+          doc.getElementById("bubble-input") as any
+        )?.getCurrentInput?.();
+        if (input && !input.value) {
+          const trimmed = String(page).trim();
+          input.value = /^\d/.test(trimmed) ? `: ${trimmed}` : trimmed;
         }
       }
     }

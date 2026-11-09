@@ -875,6 +875,28 @@ describe("FlexAnnotate features", function () {
         () => doc.querySelectorAll("#bubble-input .bubble").length === 2,
       );
 
+      // manual reorder: Zotero's own move-item handler swaps the bubbles; our sort patch
+      // keeps the annotations-mode sort() from undoing it, for this citation only
+      const cdm = (w as any).CitationDataManager;
+      const idsOf = () => cdm.items.map((i: any) => i.item.id);
+      const before = idsOf();
+      doc.dispatchEvent(
+        new (w as any).CustomEvent("move-item", {
+          detail: {
+            dialogReferenceID: cdm.items[0].dialogReferenceID,
+            index: 1,
+          },
+        }),
+      );
+      assert.deepEqual(idsOf(), [before[1], before[0]], "bubble moved");
+      assert.isTrue((w as any).io.citation.properties.unsorted);
+      await cdm.sort();
+      assert.deepEqual(
+        idsOf(),
+        [before[1], before[0]],
+        "sort() kept the order",
+      );
+
       // accepting records the annotation as cited for this document
       await (w as any).accept();
       await waitFor(() => {
@@ -1523,7 +1545,8 @@ describe("FlexAnnotate features", function () {
         );
         assert.deepEqual(
           commands,
-          ["WinWord:addAnnotation"],
+          // always addEditCitation since 19f1fb2: re-running addAnnotation crashed when editing a footnote
+          ["WinWord:addEditCitation"],
           "the command ran again",
         );
         assert.deepEqual(
@@ -2006,6 +2029,290 @@ describe("FlexAnnotate features", function () {
         api().persistentDialog.writePref(origPersist);
         Zotero.Prefs.set(`${prefs}.dialogOutlineView`, origOutline, true);
         win?.close();
+      }
+    });
+
+    it("offers the Wissen/Titel switch only when editing a citation; Enter adds the works of all chosen annotations", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const workB = await makeWork("Schalter Werk B");
+      const annB = await makeAnnotation(
+        await makePdfAttachment(workB),
+        "Schalterzitat B",
+        "40",
+        0,
+      );
+      const workC = await makeWork("Schalter Werk C");
+      const open = async (existing: Zotero.Item[]) => {
+        await closeDialogs();
+        const io = makeIo();
+        io.isAddingAnnotations = false; // the citation dialog, not the annotations dialog
+        io.citation.citationItems = existing.map((i) => ({ id: i.id }));
+        (Services.ww as any).openWindow(
+          null,
+          DIALOG_URL,
+          "",
+          "chrome,centerscreen,resizable=true",
+          io,
+        );
+        const w = await waitFor(() => findWindowByUrl(DIALOG_URL));
+        win = w;
+        const toggle = (await waitFor(() =>
+          w.document.getElementById("flexannotate-toggle"),
+        )) as HTMLInputElement;
+        if (!toggle.checked) toggle.click();
+        return w;
+      };
+      const switchButton = (w: Window, re: RegExp) =>
+        [
+          ...w.document.querySelectorAll<HTMLElement>(
+            "#flexannotate-list-pane button",
+          ),
+        ].find((b) => re.test(b.textContent || ""));
+      try {
+        // new citation: only the title list, no switch
+        let w = await open([]);
+        await waitFor(() =>
+          w.document.querySelector(
+            `#flexannotate-list-pane [data-ann-id="${workID}"]`,
+          ),
+        );
+        assert.isUndefined(
+          switchButton(w, /^(Wissen|Knowledge)$/),
+          "no switch",
+        );
+
+        // existing citation: the switch is there; choose two annotations of different works
+        w = await open([workC]);
+        const knowledge = await waitFor(() =>
+          switchButton(w, /^(Wissen|Knowledge)$/),
+        );
+        click(knowledge!);
+        const doc = w.document;
+        const row = (id: number) =>
+          waitFor(() =>
+            doc.querySelector<HTMLElement>(
+              `#flexannotate-list-pane [data-ann-id="${id}"]`,
+            ),
+          );
+        click(await row(anns[0].id));
+        (await row(annB.id)).dispatchEvent(
+          new (w as any).MouseEvent("click", {
+            bubbles: true,
+            ctrlKey: true,
+            detail: 1,
+          }),
+        );
+        key(doc, "Enter");
+        // the work of C plus the two works behind the annotations
+        await waitFor(
+          () => doc.querySelectorAll("#bubble-input .bubble").length === 3,
+        );
+      } finally {
+        win?.close();
+        await Zotero.Items.erase([workB.id, workC.id]);
+      }
+    });
+
+    it("the citation preview follows works added in the outline list while editing a citation", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const PREVIEW_PREF = "integration.citationPreviewShown";
+      const previewBefore = Zotero.Prefs.get(PREVIEW_PREF);
+      const workC = await makeWork("Vorschau Werk C");
+      try {
+        Zotero.Prefs.set(PREVIEW_PREF, true);
+        await closeDialogs();
+        const io = makeIo();
+        io.isAddingAnnotations = false;
+        io.citation.citationItems = [{ id: workC.id }];
+        // a preview that lists the cited item ids, so the test sees what it was asked for
+        io.previewFn = async (c: any) =>
+          `IDS ${c.citationItems.map((i: any) => i.id).join(",")}`;
+        (Services.ww as any).openWindow(
+          null,
+          DIALOG_URL,
+          "",
+          "chrome,centerscreen,resizable=true",
+          io,
+        );
+        const w = await waitFor(() => findWindowByUrl(DIALOG_URL));
+        win = w;
+        const doc = w.document;
+        const toggle = (await waitFor(() =>
+          doc.getElementById("flexannotate-toggle"),
+        )) as HTMLInputElement;
+        if (!toggle.checked) toggle.click();
+        const preview = () =>
+          doc.getElementById("citation-preview-content")?.textContent || "";
+        await waitFor(() => preview().includes(`${workC.id}`) || null);
+        click(
+          await waitFor(() =>
+            doc.querySelector(
+              `#flexannotate-list-pane [data-ann-id="${workID}"] .flexannotate-plus`,
+            ),
+          ),
+        );
+        await waitFor(
+          () => doc.querySelectorAll("#bubble-input .bubble").length === 2,
+        );
+        await waitFor(() => preview().includes(`${workID}`) || null);
+      } finally {
+        Zotero.Prefs.set(PREVIEW_PREF, previewBefore as boolean);
+        win?.close();
+        await Zotero.Items.erase([workC.id]);
+      }
+    });
+
+    it("previews the citation-only result in the annotations dialog", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const PREVIEW_PREF = "integration.citationPreviewShown";
+      const previewBefore = Zotero.Prefs.get(PREVIEW_PREF);
+      const onBefore = Zotero.Prefs.get(`${prefs}.citationOnly`, true);
+      try {
+        Zotero.Prefs.set(PREVIEW_PREF, true);
+        Zotero.Prefs.set(`${prefs}.citationOnly`, true, true);
+        await closeDialogs();
+        const io = makeIo();
+        // lists the cited ids: the annotation must arrive as its parent work
+        io.previewFn = async (c: any) =>
+          `IDS ${c.citationItems.map((i: any) => i.id).join(",")}`;
+        (Services.ww as any).openWindow(
+          null,
+          DIALOG_URL,
+          "",
+          "chrome,centerscreen,resizable=true",
+          io,
+        );
+        const w = await waitFor(() => findWindowByUrl(DIALOG_URL));
+        win = w;
+        const doc = w.document;
+        const toggle = (await waitFor(() =>
+          doc.getElementById("flexannotate-toggle"),
+        )) as HTMLInputElement;
+        if (!toggle.checked) toggle.click();
+        assert.isTrue(doc.getElementById("citation-preview")!.hidden, "empty");
+        click(
+          await waitFor(() =>
+            doc.querySelector(
+              `#flexannotate-list-pane [data-ann-id="${anns[0].id}"] .flexannotate-plus`,
+            ),
+          ),
+        );
+        await waitFor(
+          () =>
+            doc
+              .getElementById("citation-preview-content")
+              ?.textContent?.includes(`IDS ${workID}`) || null,
+        );
+        assert.isFalse(doc.getElementById("citation-preview")!.hidden);
+        assert.isFalse(doc.getElementById("display-preview-button")!.hidden);
+      } finally {
+        Zotero.Prefs.set(PREVIEW_PREF, previewBefore as boolean);
+        Zotero.Prefs.set(`${prefs}.citationOnly`, onBefore as boolean, true);
+        win?.close();
+      }
+    });
+
+    it("keeps the chosen entries when switching between titles and annotations (citation-only)", async function () {
+      (Zotero as any).Integration.currentSession = {
+        sessionID: "T1",
+        citationsByItemID: {},
+      };
+      const PREVIEW_PREF = "integration.citationPreviewShown";
+      const previewBefore = Zotero.Prefs.get(PREVIEW_PREF);
+      const onBefore = Zotero.Prefs.get(`${prefs}.citationOnly`, true);
+      const workB = await makeWork("Mischung Werk B");
+      const annB = await makeAnnotation(
+        await makePdfAttachment(workB),
+        "Mischzitat B",
+        "7",
+        0,
+      );
+      try {
+        Zotero.Prefs.set(PREVIEW_PREF, true);
+        Zotero.Prefs.set(`${prefs}.citationOnly`, true, true);
+        await closeDialogs();
+        const io = makeIo();
+        io.isAddingAnnotations = false; // a new citation starts on the titles
+        io.previewFn = async (c: any) =>
+          `IDS ${c.citationItems.map((i: any) => i.id).join(",")}`;
+        (Services.ww as any).openWindow(
+          null,
+          DIALOG_URL,
+          "",
+          "chrome,centerscreen,resizable=true",
+          io,
+        );
+        const w = await waitFor(() => findWindowByUrl(DIALOG_URL));
+        win = w;
+        const doc = w.document;
+        const toggle = (await waitFor(() =>
+          doc.getElementById("flexannotate-toggle"),
+        )) as HTMLInputElement;
+        if (!toggle.checked) toggle.click();
+        const bubbles = () => doc.querySelectorAll("#bubble-input .bubble");
+        const plus = (id: number) =>
+          waitFor(() =>
+            doc.querySelector(
+              `#flexannotate-list-pane [data-ann-id="${id}"] .flexannotate-plus`,
+            ),
+          );
+        const switchTo = (type: string) =>
+          waitFor(() => {
+            if ((w as any).DIALOG_STATE.type !== type)
+              (w as any).setDialogType(type);
+            return (w as any).DIALOG_STATE.type === type || null;
+          });
+
+        click(await plus(workID)); // a title
+        await waitFor(() => bubbles().length === 1 || null);
+        await switchTo("annotations");
+        await waitFor(() => bubbles().length === 1 || null); // still there
+        // Zotero rebuilds the layout asynchronously (resizes the window) after the switch
+        await waitFor(
+          () => doc.getElementById("library-layout")?.hidden === false || null,
+          8000,
+          "library-layout",
+        );
+        await Zotero.Promise.delay(800);
+        click(await plus(annB.id)); // an annotation of another work
+        await waitFor(
+          () => bubbles().length === 2 || null,
+          8000,
+          "after-annotation-add",
+        );
+        await switchTo("citation");
+        await waitFor(
+          () => bubbles().length === 2 || null,
+          8000,
+          "after-switch-back",
+        );
+        // the preview shows the annotation as its work, next to the title
+        await waitFor(() => {
+          const text =
+            doc.getElementById("citation-preview-content")?.textContent || "";
+          return (
+            (text.includes(`${workID}`) && text.includes(`${workB.id}`)) || null
+          );
+        });
+
+        // without citation-only mode Zotero's own reset applies
+        Zotero.Prefs.set(`${prefs}.citationOnly`, false, true);
+        await switchTo("annotations");
+        await waitFor(() => bubbles().length === 0 || null);
+      } finally {
+        Zotero.Prefs.set(PREVIEW_PREF, previewBefore as boolean);
+        Zotero.Prefs.set(`${prefs}.citationOnly`, onBefore as boolean, true);
+        win?.close();
+        await Zotero.Items.erase([workB.id]);
       }
     });
 
@@ -3056,6 +3363,40 @@ describe("FlexAnnotate features", function () {
         io.citation.sortedItems[0][1].dialogReferenceID,
         "ref1",
       );
+    });
+
+    it("makeBrowseIo previews with the style of the running session", async function () {
+      const integration = Zotero.Integration as any;
+      const before = integration.currentSession;
+      try {
+        integration.currentSession = {
+          citationsByItemID: {},
+          style: {
+            previewCitationCluster: (
+              c: any,
+              pre: any[],
+              post: any[],
+              f: string,
+            ) => {
+              c.citationID = "changed-by-style";
+              return `Vorschau ${c.citationItems.length} ${f} ${pre.length}${post.length}`;
+            },
+          },
+        };
+        const io = api().persistentDialog.makeBrowseIo("addEditCitation");
+        io.citation.citationItems = [{ id: 1 }, { id: 2 }];
+        assert.equal(await io.preview("html"), "Vorschau 2 html 00");
+        assert.equal(
+          io.citation.citationID,
+          "flexannotate-browse",
+          "id restored",
+        );
+        // without a session style the preview stays empty, as before
+        integration.currentSession = { citationsByItemID: {} };
+        assert.equal(await io.preview("html"), "");
+      } finally {
+        integration.currentSession = before;
+      }
     });
 
     it("a browse window opens after an addEditCitation command and loads completely", async function () {

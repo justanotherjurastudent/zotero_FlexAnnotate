@@ -35,6 +35,14 @@ import {
   injectBubbleReorder,
   removeBubbleReorder,
 } from "./organizer/citationDialog/bubbleReorder";
+import {
+  injectAnnotationPreview,
+  removeAnnotationPreview,
+} from "./citeOnly/annotationPreview";
+import {
+  injectMixedCitation,
+  removeMixedCitation,
+} from "./citeOnly/mixedCitation";
 import { persistentDialogPatch } from "./organizer/citationDialog/dialogPersistent";
 import { citeOnlyPatch } from "./citeOnly/integrationPatch";
 import { readerMenu } from "./reader/readerMenu";
@@ -131,6 +139,16 @@ export const dialogInjectorEntries: DialogInjector[] = [
     name: "bubbleReorder",
     inject: injectBubbleReorder,
     detach: removeBubbleReorder,
+  },
+  {
+    name: "annotationPreview",
+    inject: injectAnnotationPreview,
+    detach: removeAnnotationPreview,
+  },
+  {
+    name: "mixedCitation",
+    inject: injectMixedCitation,
+    detach: removeMixedCitation,
   },
   {
     name: "annotationRowPatch",

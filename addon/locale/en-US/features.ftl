@@ -119,6 +119,19 @@ prefs-feature-mode-selector-description =
     Adds the choice “Full annotation” or “Citation only” to the citation dialog, in the settings menu
     and in the popup of an entry. Needs the citation dialog and citation-only citing.
 
+prefs-feature-annotation-preview =
+    .label = Preview in the annotations dialog
+prefs-feature-annotation-preview-description =
+    Shows the citation preview in the citation dialog while adding annotations, as it will be
+    inserted by citation-only citing (work plus page). Needs the citation dialog and citation-only
+    citing.
+
+prefs-feature-mixed-citation =
+    .label = Titles and annotations in one footnote
+prefs-feature-mixed-citation-description =
+    Keeps the entries already chosen when switching between the titles and annotations view in the
+    citation dialog, instead of discarding them. Needs the citation dialog and citation-only citing.
+
 prefs-feature-print-menus =
     .label = Menu entries for print annotations
 prefs-feature-print-menus-description =

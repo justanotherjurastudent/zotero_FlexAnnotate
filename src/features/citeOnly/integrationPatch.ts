@@ -89,6 +89,21 @@ function refOf(annotation: Zotero.Item): AnnotationRef {
 }
 
 /**
+ * The citation items as the citation-only mode will insert them (annotations replaced by
+ * their parent work plus page); null when no annotation is in the list. Pure read, changes nothing.
+ */
+export function citationOnlyRewrite(
+  citationItems: CitationItemLike[],
+): CitationItemLike[] | null {
+  const refs: (AnnotationRef | null)[] = citationItems.map((ci) => {
+    const item = (Zotero as any).Cite?.getItem(ci.id) as
+      Zotero.Item | undefined;
+    return item && (item as any).isAnnotation?.() ? refOf(item) : null;
+  });
+  return citationOnlyItems(citationItems, refs);
+}
+
+/**
  * Builds an ordinary citation on the parent titles from an annotation citation.
  * The citation is changed in place and the same object is returned: a clone would
  * lose the prototype of Zotero.Integration.Citation, which the session later needs for
@@ -104,13 +119,7 @@ async function rewriteToCitationOnly(
     return null;
   }
 
-  const refs: (AnnotationRef | null)[] = citationItems.map((ci) => {
-    const item = (Zotero as any).Cite?.getItem(ci.id) as
-      Zotero.Item | undefined;
-    return item && (item as any).isAnnotation?.() ? refOf(item) : null;
-  });
-
-  const items = citationOnlyItems(citationItems, refs);
+  const items = citationOnlyRewrite(citationItems);
   if (!items) {
     return null;
   }

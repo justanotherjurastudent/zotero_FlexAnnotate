@@ -43,33 +43,6 @@ export function injectBubbleReorder(win: Window): void {
         box-shadow: 3px 0 0 0 #0070e0 !important;
         border-right: 2px solid #0070e0 !important;
       }
-      #search-row {
-        min-height: 44px !important;
-        height: auto !important;
-      }
-      #bubble-input {
-        min-height: 36px !important;
-        height: auto !important;
-      }
-      #bubble-input .bubble-input.body {
-        min-height: 34px !important;
-        height: auto !important;
-        align-items: center !important;
-      }
-      #bubble-input .bubble {
-        height: auto !important;
-        min-height: 32px !important;
-        max-height: none !important;
-        padding: 3px 8px !important;
-        box-sizing: border-box !important;
-        align-items: center !important;
-      }
-      #bubble-input .bubble .text {
-        font-size: 11.5px !important;
-        line-height: 1.25 !important;
-        max-height: none !important;
-        overflow: visible !important;
-      }
     `;
     doc.head?.appendChild(style);
   }
@@ -111,23 +84,18 @@ export function injectBubbleReorder(win: Window): void {
   };
   bubbleInput.addEventListener("dragstart", onDragStart, true);
 
-  // 5. Track move-item to mark the citation as unsorted and uncheck keepSorted
+  // 5. Zotero's own move-item handler (citationDialog.js 1813) already unchecks keepSorted;
+  // we only set `unsorted`, so the annotations-mode sort() (step 6) skips this citation.
   const onMoveItem = () => {
     const io = (win as any).io;
     if (io?.citation) {
       io.citation.properties = io.citation.properties || {};
       io.citation.properties.unsorted = true;
     }
-    const keepSorted = doc.getElementById(
-      "keepSorted",
-    ) as HTMLInputElement | null;
-    if (keepSorted) {
-      keepSorted.checked = false;
-    }
   };
   doc.addEventListener("move-item", onMoveItem);
 
-  // 6. Patch CitationDataManager.sort so manual reordering is preserved
+  // 6. Native sort() always re-sorts annotations (citationDialog.js 2294): skip it after a manual move
   const cdm = (win as any).CitationDataManager;
   let origSort: ((...args: any[]) => Promise<any>) | undefined;
   if (cdm && typeof cdm.sort === "function") {
@@ -137,9 +105,6 @@ export function injectBubbleReorder(win: Window): void {
       const keepSorted = doc.getElementById(
         "keepSorted",
       ) as HTMLInputElement | null;
-      if (keepSorted?.checked && io?.citation?.properties) {
-        io.citation.properties.unsorted = false;
-      }
       if (
         shouldSkipSort(io?.citation?.properties?.unsorted, keepSorted?.checked)
       ) {

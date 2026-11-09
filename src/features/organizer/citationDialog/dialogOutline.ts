@@ -101,6 +101,8 @@ interface Attached {
   /** enable() is still running (await): a mode switch in between must not start it a second time. */
   enabling?: boolean;
   mode?: "works" | "annotations";
+  /** An existing citation is edited (it had items when the dialog opened): only then the Wissen/Titel switch is offered. */
+  editing: boolean;
 }
 
 const attached = new Map<Window, Attached>();
@@ -168,6 +170,8 @@ function inject(win: Window) {
     onPopup: null,
     annList: null,
     onNativeDblClick: null,
+    // same test as Zotero's own dialog-type switch (citationDialog.js 290)
+    editing: ((win as any).io?.citation?.citationItems?.length ?? 0) > 0,
   };
   attached.set(win, info);
   (win as any).FlexAnnotateOutlineView = outlineView;
@@ -551,6 +555,9 @@ async function buildView(win: Window, info: Attached): Promise<View> {
     state.lastFilterQuery,
     bubbleText(win.document),
   );
+  // one-shot: only the companion window reopened after an insert inherits the last view
+  state.lastOutlineNode = null;
+  state.lastFilterQuery = null;
 
   const mode = info.mode ?? (isCitation ? "works" : "annotations");
   const citedOn = isFeatureEnabled("citedTracking");
@@ -570,6 +577,7 @@ async function buildView(win: Window, info: Attached): Promise<View> {
       query: initialQuery,
       sel: emptySelection(),
       mode: "works",
+      editing: info.editing,
     };
   }
 
@@ -599,6 +607,7 @@ async function buildView(win: Window, info: Attached): Promise<View> {
     query: initialQuery,
     sel: emptySelection(),
     mode: "annotations",
+    editing: info.editing,
   };
 }
 
@@ -691,7 +700,6 @@ function addSearchSync(win: Window, info: Attached) {
     if (query === v.query) return;
     v.query = query;
     v.sel = emptySelection();
-    state.lastFilterQuery = query;
     renderList(win, v, false);
   };
   info.searchHandler = handler;

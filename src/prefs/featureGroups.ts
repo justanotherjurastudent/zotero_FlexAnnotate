@@ -50,7 +50,15 @@ export const FEATURE_GROUPS: readonly FeatureGroup[] = [
       "bubbleReorder",
     ],
   },
-  { id: "citeonly", gates: ["citeOnlyPatch", "modeSelector"] },
+  {
+    id: "citeonly",
+    gates: [
+      "citeOnlyPatch",
+      "modeSelector",
+      "annotationPreview",
+      "mixedCitation",
+    ],
+  },
   { id: "print", gates: ["printMenus", "annotationRowMenu"] },
   { id: "rows", gates: ["annotationRowPatch"] },
   { id: "reader", gates: ["readerMenu", "readerLabelPopup"] },
