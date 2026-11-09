@@ -102,9 +102,18 @@ export function makeBrowseIo(
     Promise.resolve(-1),
     // the session's citations (green checks); {} would give an empty set instead of the fallback (dialogCited.ts)
     Promise.resolve(integ.currentSession?.citationsByItemID ?? {}),
-    async () => {
+    // Preview with the style of the running Word session. No document here, so no
+    // neighbouring citations (ibid. etc.), like Zotero's own delayed citations (integration.js:2389).
+    async (c: any, format?: string) => {
       syncSortedItems();
-      return "";
+      const style = integ.currentSession?.style;
+      if (!style?.previewCitationCluster) return "";
+      const id = c.citationID;
+      try {
+        return style.previewCitationCluster(c, [], [], format || "html");
+      } finally {
+        c.citationID = id; // previewCitationCluster sets it (integration.js:1587)
+      }
     },
   );
   io.isCitingNotes = false;
@@ -127,6 +136,13 @@ function rememberView(win: Window): void {
   if (type === "citation" || type === "annotations")
     state.lastDialogType = type;
   rememberCollection(win);
+  const infoView = (win as any).FlexAnnotateOutlineView?.viewOf?.(win);
+  if (infoView) {
+    if (typeof infoView.node === "string")
+      state.lastOutlineNode = infoView.node;
+    if (typeof infoView.query === "string")
+      state.lastFilterQuery = infoView.query;
+  }
 }
 
 /** Closes the companion window if open. */
@@ -238,6 +254,10 @@ export function openBrowse(rect?: Rect | null, placed = true): void {
       logError("browse insert", new Error("no command known"));
       return undefined;
     }
+    const last = items[items.length - 1];
+    if (last?.id) {
+      state.lastInsertedID = Number(last.id);
+    }
     const live = captureLive(win);
     writeStoredSize(live.w, live.h);
     rememberView(win);
@@ -247,13 +267,14 @@ export function openBrowse(rect?: Rect | null, placed = true): void {
 }
 
 /**
- * Insert from the companion window: re-runs the last command (addAnnotation / addEditCitation).
+ * Insert from the companion window: re-runs the last command's document, always as addEditCitation
+ * (it opens the annotations tab itself and allows mixing works with annotations).
  * The selection sits in pendingInsert; displayDialog passes it to the command. Afterwards the
  * companion window reopens at the same position.
  */
 function insertFromBrowse(pend: PendingInsert): void {
   const integ = (Zotero as any).Integration;
-  const cmd = state.lastCommand!;
+  const cmd = state.lastCommand!; // io.accept returns early without it
   state.pendingInsert = pend;
   // leave currentWindow empty, otherwise shouldAbortCommand aborts the companion window (integration.js:358-373)
   integ.currentWindow = false;
@@ -261,7 +282,7 @@ function insertFromBrowse(pend: PendingInsert): void {
   Promise.resolve(
     integ.execCommand(
       cmd.agent,
-      cmd.command || "addAnnotation",
+      "addEditCitation",
       cmd.docId,
       cmd.templateVersion,
     ),
@@ -307,6 +328,11 @@ function wrapPersistentAccept(
       if (readPersistentPref() && io.citation?.citationItems?.length) {
         // before anything that closes the window: keep the user's geometry
         acceptState.live = captureLive(win);
+        const last =
+          io.citation.citationItems[io.citation.citationItems.length - 1];
+        if (last?.id) {
+          state.lastInsertedID = Number(last.id);
+        }
         rememberView(win);
         const at = acceptState.live;
         (command || Promise.resolve()).then(() => {

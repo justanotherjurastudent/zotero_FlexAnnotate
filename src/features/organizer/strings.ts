@@ -85,6 +85,7 @@ const de = {
   dialogEmpty:
     "FlexAnnotate: Noch keine Annotationen einer Gliederung zugeordnet.",
   dialogFilter: "Annotationen filtern …",
+  dialogFilterWorks: "Titel filtern …",
   dialogInsert: "In die Zitation einfügen",
   dialogShowPlace: "Zitatstelle anzeigen",
   dialogCited: "Bereits zitiert",
@@ -207,6 +208,7 @@ const en: Record<Key, string> = {
     "Switching off applies at once, switching on from the next request. If it is off, the window closes after inserting as usual.",
   dialogEmpty: "FlexAnnotate: No annotations assigned to an outline yet.",
   dialogFilter: "Filter annotations …",
+  dialogFilterWorks: "Filter titles …",
   dialogInsert: "Insert into the citation",
   dialogShowPlace: "Show citation place",
   dialogCited: "Already cited",

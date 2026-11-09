@@ -28,7 +28,12 @@ const BASE_LAYOUT_CSS =
   "#flexannotate-preview{min-width:0;overflow-x:hidden;overflow-wrap:anywhere;}" +
   ".flexannotate-citation-chip:hover{background:rgba(31,157,85,0.22) !important;}" +
   ".flexannotate-citation-chip:active{background:rgba(31,157,85,0.35) !important;}" +
-  ".flexannotate-citation-chip:focus-visible{outline:2px solid #1f9d55 !important;outline-offset:1px !important;}";
+  ".flexannotate-citation-chip:focus-visible{outline:2px solid #1f9d55 !important;outline-offset:1px !important;}" +
+  "#search-row{min-height:44px !important;height:auto !important;}" +
+  "#bubble-input{min-height:36px !important;height:auto !important;}" +
+  "#bubble-input .bubble-input.body{min-height:34px !important;height:auto !important;align-items:center !important;}" +
+  "#bubble-input .bubble{height:auto !important;min-height:32px !important;max-height:none !important;padding:3px 8px !important;box-sizing:border-box !important;align-items:center !important;}" +
+  "#bubble-input .bubble .text{font-size:11.5px !important;line-height:1.25 !important;max-height:none !important;overflow:visible !important;}";
 
 // Below 750 px, only in the persistent companion window (attribute set by relaxDialogMinWidth):
 // on a 9.0.6 test run two outline tests failed (cause not fully clarified);
@@ -47,7 +52,10 @@ const NARROW_LAYOUT_CSS =
 export const LAYOUT_CSS = BASE_LAYOUT_CSS + NARROW_LAYOUT_CSS;
 
 /** Hide Zotero's native columns and add the containers for ours. */
-export function applyLayout(win: Window): void {
+export function applyLayout(
+  win: Window,
+  mode: "works" | "annotations" = "annotations",
+): void {
   const doc = win.document;
   if (!doc.getElementById(STYLE_ID)) {
     const st = doc.createElement("style");
@@ -70,9 +78,6 @@ export function applyLayout(win: Window): void {
     d.style.cssText = css;
     parent.appendChild(d);
   };
-  const isCitation =
-    (doc.documentElement?.getAttribute("dialog-type") ||
-      (win as any).DIALOG_STATE?.type) === "citation";
   mk(
     "collections-tree-container",
     TREE_ID,
@@ -83,9 +88,20 @@ export function applyLayout(win: Window): void {
     LIST_ID,
     "flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;",
   );
-  if (isCitation) {
+  if (mode === "works") {
     doc.getElementById(PREVIEW_ID)?.remove();
+    const sidebar = doc.getElementById("sidebar") as HTMLElement | null;
+    if (sidebar) sidebar.style.display = "none";
   } else {
+    const sidebar = doc.getElementById("sidebar") as HTMLElement | null;
+    if (sidebar) sidebar.style.display = "";
+    const annSidebar = doc.getElementById(
+      "annotations-sidebar",
+    ) as HTMLElement | null;
+    if (annSidebar) {
+      annSidebar.hidden = false;
+      annSidebar.style.display = "";
+    }
     mk(
       "annotations-sidebar",
       PREVIEW_ID,
@@ -99,6 +115,18 @@ export function removeLayout(win: Window): void {
   const doc = win.document;
   for (const id of [TREE_ID, LIST_ID, PREVIEW_ID, NATIVE_ID, STYLE_ID])
     doc.getElementById(id)?.remove();
+  const isCitation =
+    (doc.documentElement?.getAttribute("dialog-type") ||
+      (win as any).DIALOG_STATE?.type) === "citation";
+  const sidebar = doc.getElementById("sidebar") as HTMLElement | null;
+  if (sidebar) sidebar.style.display = "";
+  const annSidebar = doc.getElementById(
+    "annotations-sidebar",
+  ) as HTMLElement | null;
+  if (annSidebar && isCitation) {
+    annSidebar.hidden = true;
+    annSidebar.style.display = "";
+  }
   try {
     const list = doc.getElementById("annotations-list") as any;
     if (list) {

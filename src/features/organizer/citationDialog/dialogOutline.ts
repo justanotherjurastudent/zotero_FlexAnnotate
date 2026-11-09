@@ -66,6 +66,12 @@ import type { View } from "./dialogOutlineRender";
 import { applyLayout, removeLayout } from "./dialogOutlineLayout";
 import { isFeatureEnabled } from "../../gates";
 import { tr } from "../strings";
+import { state } from "./persistentState";
+import {
+  resolveInitialNode,
+  resolveInitialQuery,
+  shouldIgnoreSearchInput,
+} from "../logic/dialogRetention";
 
 const PREF = "dialogOutlineView";
 const ROW_HEIGHT_STYLE_ID = "flexannotate-dialog-row-height";
@@ -94,6 +100,9 @@ interface Attached {
   lastDialogType?: string;
   /** enable() is still running (await): a mode switch in between must not start it a second time. */
   enabling?: boolean;
+  mode?: "works" | "annotations";
+  /** An existing citation is edited (it had items when the dialog opened): only then the Wissen/Titel switch is offered. */
+  editing: boolean;
 }
 
 const attached = new Map<Window, Attached>();
@@ -161,8 +170,11 @@ function inject(win: Window) {
     onPopup: null,
     annList: null,
     onNativeDblClick: null,
+    // same test as Zotero's own dialog-type switch (citationDialog.js 290)
+    editing: ((win as any).io?.citation?.citationItems?.length ?? 0) > 0,
   };
   attached.set(win, info);
+  (win as any).FlexAnnotateOutlineView = outlineView;
 
   // Zotero's annotations view makes the cards of the open documents 98/58 px
   // high, the title view 82/42. Both views get the larger height so the cards
@@ -249,6 +261,7 @@ function inject(win: Window) {
         if (!info.enabled) {
           if (!info.enabling) void enable(win, cb);
         } else if (info.lastDialogType !== type) {
+          delete info.mode;
           void rebuildView(win, info);
         }
       } else {
@@ -315,6 +328,9 @@ function inject(win: Window) {
       ?.closest?.("annotation-row")
       ?.querySelector<HTMLElement>(".zotero-clicky-plus")
       ?.click();
+    win.setTimeout(() => {
+      (doc.getElementById("bubble-input") as any)?.refocusInput?.();
+    }, 50);
   };
   annList?.addEventListener("dblclick", info.onNativeDblClick);
 
@@ -341,6 +357,7 @@ function detach(win: Window) {
     doc.getElementById(ROW_HEIGHT_STYLE_ID)?.remove();
     doc.getElementById(PICKER_ID)?.remove();
     doc.getElementById(HINT_ID)?.remove();
+    delete (win as any).FlexAnnotateOutlineView;
   } catch (e) {
     ztoolkit.log("flexannotate dialog detach failed:", e);
   }
@@ -359,7 +376,7 @@ async function enable(win: Window, cb: HTMLInputElement) {
     const view = await buildView(win, info);
     info.view = view;
     info.enabled = true;
-    applyLayout(win);
+    applyLayout(win, view.mode);
     renderAll(win, view);
     addKeys(win, info);
     addSearchSync(win, info);
@@ -484,7 +501,11 @@ function addPicker(win: Window, info: Attached) {
 async function rebuildView(win: Window, info: Attached) {
   if (!info.enabled) return;
   try {
-    applyLayout(win);
+    const isCitation =
+      (win.document.documentElement?.getAttribute("dialog-type") ||
+        (win as any).DIALOG_STATE?.type) === "citation";
+    const mode = info.mode ?? (isCitation ? "works" : "annotations");
+    applyLayout(win, mode);
     info.view = await buildView(win, info);
     renderAll(win, info.view);
     updateHint(win, info.view);
@@ -525,10 +546,22 @@ async function buildView(win: Window, info: Attached): Promise<View> {
     if (!n || n === "all" || n === "none") return n ?? "all";
     return locate(roots, n) ? n : "all";
   };
-  const selectedNode = validNode(info.view?.node);
+  const selectedNode = validNode(
+    resolveInitialNode(info.view?.node, state.lastOutlineNode),
+  );
 
+  const initialQuery = resolveInitialQuery(
+    info.view?.query,
+    state.lastFilterQuery,
+    bubbleText(win.document),
+  );
+  // one-shot: only the companion window reopened after an insert inherits the last view
+  state.lastOutlineNode = null;
+  state.lastFilterQuery = null;
+
+  const mode = info.mode ?? (isCitation ? "works" : "annotations");
   const citedOn = isFeatureEnabled("citedTracking");
-  if (isCitation) {
+  if (mode === "works") {
     const allWorks = await loadWorkRows(libraryID);
     const works = allWorks.filter((w) => inScope(w.workID));
     const sections = buildWorkDialogSections(roots, works);
@@ -541,8 +574,10 @@ async function buildView(win: Window, info: Attached): Promise<View> {
       showCommentsInRows: false,
       cited: citedWorks ?? new Set<number>(),
       node: selectedNode,
-      query: info.view?.query ?? bubbleText(win.document),
+      query: initialQuery,
       sel: emptySelection(),
+      mode: "works",
+      editing: info.editing,
     };
   }
 
@@ -569,8 +604,10 @@ async function buildView(win: Window, info: Attached): Promise<View> {
     showCommentsInRows,
     cited: citedOn ? getActiveCitedIDs(rows, citedWorks) : new Set<number>(),
     node: selectedNode,
-    query: info.view?.query ?? bubbleText(win.document),
+    query: initialQuery,
     sel: emptySelection(),
+    mode: "annotations",
+    editing: info.editing,
   };
 }
 
@@ -606,6 +643,7 @@ function addKeys(win: Window, info: Attached) {
       v.sel = emptySelection();
       renderList(win, v);
       renderPreview(win, v);
+      (doc.activeElement as HTMLElement)?.blur?.();
       void insert(win, ids);
       return;
     }
@@ -655,9 +693,13 @@ function addSearchSync(win: Window, info: Attached) {
   const handler = (e: Event) => {
     const v = info.view;
     if (!v || !info.enabled) return;
-    const query = (e as CustomEvent<{ query?: string }>).detail?.query ?? "";
+    const detail = (e as CustomEvent<{ query?: string; eventType?: string }>)
+      .detail;
+    if (shouldIgnoreSearchInput(detail?.eventType)) return;
+    const query = detail?.query ?? "";
     if (query === v.query) return;
     v.query = query;
+    v.sel = emptySelection();
     renderList(win, v, false);
   };
   info.searchHandler = handler;
@@ -711,11 +753,24 @@ function viewOf(win: Window): View | null {
   return attached.get(win)?.view ?? null;
 }
 
+export function setOutlineMode(
+  win: Window,
+  mode: "works" | "annotations",
+): void {
+  const info = attached.get(win);
+  if (!info) return;
+  if (info.mode === mode) return;
+  info.mode = mode;
+  void rebuildView(win, info);
+}
+
 export const outlineView: DialogInjector & {
   viewOf(win: Window): View | null;
+  setMode(win: Window, mode: "works" | "annotations"): void;
 } = {
   name: "outlineView",
   inject,
   detach,
   viewOf,
+  setMode: setOutlineMode,
 };

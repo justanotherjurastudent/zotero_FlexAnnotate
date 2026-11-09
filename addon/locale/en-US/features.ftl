@@ -101,6 +101,12 @@ prefs-feature-narrow-dialog-layout =
 prefs-feature-narrow-dialog-layout-description =
     Stacks the kept-open citation window below 750 pixels width (tree, list, details) and moves
     switches into the gear menu.
+prefs-feature-bubble-reorder =
+    .label = Reorder citation bubbles via drag & drop
+prefs-feature-bubble-reorder-description =
+    Allows rearranging and reordering citation bubbles in the citation dialog by dragging with the
+    mouse or using Shift+Arrow keys.
+
 
 prefs-feature-cite-only-patch =
     .label = Citation-only citing
@@ -112,6 +118,19 @@ prefs-feature-mode-selector =
 prefs-feature-mode-selector-description =
     Adds the choice “Full annotation” or “Citation only” to the citation dialog, in the settings menu
     and in the popup of an entry. Needs the citation dialog and citation-only citing.
+
+prefs-feature-annotation-preview =
+    .label = Preview in the annotations dialog
+prefs-feature-annotation-preview-description =
+    Shows the citation preview in the citation dialog while adding annotations, as it will be
+    inserted by citation-only citing (work plus page). Needs the citation dialog and citation-only
+    citing.
+
+prefs-feature-mixed-citation =
+    .label = Titles and annotations in one footnote
+prefs-feature-mixed-citation-description =
+    Keeps the entries already chosen when switching between the titles and annotations view in the
+    citation dialog, instead of discarding them. Needs the citation dialog and citation-only citing.
 
 prefs-feature-print-menus =
     .label = Menu entries for print annotations

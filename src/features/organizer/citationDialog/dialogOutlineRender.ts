@@ -30,6 +30,8 @@ import {
 } from "./dialogCited";
 import { GREEN } from "./citedToggle";
 import { attachFootnotePopover, makeCitationChip } from "./footnoteChips";
+import { state } from "./persistentState";
+import { shouldScrollToItem } from "../logic/dialogRetention";
 
 export const TREE_ID = "flexannotate-tree";
 export const LIST_ID = "flexannotate-list-pane";
@@ -51,6 +53,9 @@ export interface View {
   node: string; // "all", "none", or a heading id
   query: string;
   sel: SelectionState;
+  mode?: "works" | "annotations";
+  /** Editing an existing citation: show the Wissen/Titel switch. */
+  editing?: boolean;
 }
 
 function el(doc: Document, tag: string, css = "", text?: string): HTMLElement {
@@ -177,13 +182,67 @@ export function renderList(
     : 0;
   host.textContent = "";
 
+  const topBar = el(
+    doc,
+    "div",
+    "display:flex;align-items:center;gap:6px;margin:5px 6px;flex:none;",
+  );
+  host.appendChild(topBar);
+
+  const seg = el(
+    doc,
+    "div",
+    "display:inline-flex;align-items:stretch;border-radius:4px;border:1px solid var(--fill-quinary, rgba(128,128,128,0.3));overflow:hidden;flex:none;height:24px;box-sizing:border-box;",
+  );
+  if (v.editing) topBar.appendChild(seg);
+
+  const currentMode = v.mode ?? "annotations";
+  const btnBase =
+    "display:inline-flex;align-items:center;justify-content:center;height:100%;" +
+    "border:none;margin:0;padding:0 9px;font-size:11px;line-height:1;cursor:pointer;box-sizing:border-box;";
+  const btnAnn = el(
+    doc,
+    "button",
+    `${btnBase}background:${
+      currentMode === "annotations"
+        ? "var(--accent-blue, #0070e0)"
+        : "transparent"
+    };color:${currentMode === "annotations" ? "#fff" : "inherit"};font-weight:${
+      currentMode === "annotations" ? "600" : "400"
+    };`,
+    tr("tabKnowledge"),
+  );
+  btnAnn.setAttribute("type", "button");
+  btnAnn.addEventListener("click", () => {
+    if (currentMode === "annotations") return;
+    (win as any).FlexAnnotateOutlineView?.setMode?.(win, "annotations");
+  });
+
+  const btnWorks = el(
+    doc,
+    "button",
+    `${btnBase}background:${
+      currentMode === "works" ? "var(--accent-blue, #0070e0)" : "transparent"
+    };color:${currentMode === "works" ? "#fff" : "inherit"};font-weight:${
+      currentMode === "works" ? "600" : "400"
+    };`,
+    tr("tabTitles"),
+  );
+  btnWorks.setAttribute("type", "button");
+  btnWorks.addEventListener("click", () => {
+    if (currentMode === "works") return;
+    (win as any).FlexAnnotateOutlineView?.setMode?.(win, "works");
+  });
+
+  seg.append(btnAnn, btnWorks);
+
   const filter = doc.createElement("input");
   filter.type = "text";
-  filter.placeholder = tr("dialogFilter");
+  filter.placeholder =
+    currentMode === "works" ? tr("dialogFilterWorks") : tr("dialogFilter");
   filter.value = v.query;
-  // Height 24 + margin 2×5 = 34 px, exactly like the collection row on the left
   filter.style.cssText =
-    "margin:5px 6px;flex:none;box-sizing:border-box;height:24px;padding:0 8px;font-size:12px;";
+    "flex:1;min-width:0;box-sizing:border-box;height:24px;padding:0 8px;font-size:12px;";
   filter.addEventListener("input", () => {
     v.query = filter.value;
     renderList(win, v, false);
@@ -191,7 +250,7 @@ export function renderList(
     again?.focus();
     again?.setSelectionRange(again.value.length, again.value.length);
   });
-  host.appendChild(filter);
+  topBar.appendChild(filter);
 
   const list = el(
     doc,
@@ -256,6 +315,13 @@ export function renderList(
     }
   }
   list.scrollTop = scroll;
+  if (shouldScrollToItem(keepScroll, state.lastInsertedID)) {
+    const target = list.querySelector<HTMLElement>(
+      `[data-ann-id="${state.lastInsertedID}"]`,
+    );
+    target?.scrollIntoView({ block: "center", behavior: "auto" });
+    state.lastInsertedID = null; // one-shot: only the first render after a reopen
+  }
 }
 
 export async function refreshCitedInView(win: Window, v: View): Promise<void> {
@@ -305,10 +371,11 @@ function rowEl(
     doc,
     "div",
     `display:flex;align-items:center;gap:8px;min-height:28px;padding:2px 10px;` +
-      `cursor:default;border-bottom:1px solid ${LINE};user-select:none;` +
+      `cursor:default;border-bottom:1px solid ${LINE};user-select:none;outline:none;` +
       `background:${on ? SELECTED : "transparent"};`,
   );
   d.dataset.annId = String(r.id);
+  d.tabIndex = -1;
   const cited = citedOn && v.cited.has(r.id);
   const locs =
     cited && jumpOn ? getLocationsForRow(r, locMap, workLocMap) : undefined;
@@ -368,6 +435,19 @@ function rowEl(
     `flex:none;font-size:11px;color:${MUTED};`,
     placeText,
   );
+  // insert the selection (or just this row), then clear it so the next Enter starts fresh
+  const insertSelection = () => {
+    const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
+    v.sel = emptySelection();
+    for (const row of doc.querySelectorAll<HTMLElement>(
+      `#${LIST_ID} [data-ann-id]`,
+    )) {
+      row.style.background = "transparent";
+    }
+    renderPreview(win, v, locMap, workLocMap);
+    (doc.activeElement as HTMLElement)?.blur?.();
+    void insert(win, ids);
+  };
   const plus = el(
     doc,
     "span",
@@ -379,14 +459,14 @@ function rowEl(
   plus.title = tr("dialogInsert");
   plus.addEventListener("click", (e) => {
     e.stopPropagation();
-    const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
-    void insert(win, ids);
+    insertSelection();
   });
   plus.addEventListener("dblclick", (e) => e.stopPropagation());
   d.append(check, dot, text, place, plus);
   d.addEventListener("click", (e: Event) => {
     const m = e as MouseEvent;
     if (m.detail > 1) return;
+    d.focus({ preventScroll: true }); // plain focus() would scroll the clicked row into view
     v.sel = applyClick(v.sel, order, r.id, {
       ctrl: m.ctrlKey || m.metaKey,
       shift: m.shiftKey,
@@ -403,8 +483,7 @@ function rowEl(
   });
   d.addEventListener("dblclick", (e) => {
     e.stopPropagation();
-    const ids = v.sel.selected.has(r.id) ? [...v.sel.selected] : [r.id];
-    void insert(win, ids);
+    insertSelection();
   });
   return d;
 }
@@ -547,13 +626,51 @@ export async function insert(win: Window, ids: number[]) {
   const isCitation =
     (doc.documentElement?.getAttribute("dialog-type") ||
       (win as any).DIALOG_STATE?.type) === "citation";
+  const refocus = () => {
+    const bi = doc.getElementById("bubble-input") as any;
+    bi?.refocusInput?.();
+    const inp = bi?.querySelector?.(
+      ".input:last-of-type, input:last-of-type",
+    ) as HTMLElement | null;
+    inp?.focus?.();
+  };
+
   if (isCitation) {
-    const works = ids
+    let works = ids
       .map((id) => Zotero.Items.get(id) as Zotero.Item | false)
       .filter(
         (item): item is Zotero.Item =>
           !!item && (item as any).isRegularItem?.(),
       );
+    if (!works.length) {
+      // annotations selected: cite the work behind each one, every work once
+      const anns = ids
+        .map((id) => Zotero.Items.get(id) as Zotero.Item | false)
+        .filter(
+          (item): item is Zotero.Item =>
+            !!item && (item as any).isAnnotation?.(),
+        );
+      const parents = new Map<number, Zotero.Item>();
+      for (const ann of anns) {
+        let cur: any = ann;
+        while (cur?.parentItem) cur = cur.parentItem;
+        if (cur && (cur as any).isRegularItem?.()) parents.set(cur.id, cur);
+      }
+      works = [...parents.values()];
+      // a page belongs to a work only when exactly one annotation was chosen
+      // (Zotero's input suffix supports only a single locator across the batch)
+      const page =
+        anns.length === 1 ? (anns[0] as any).annotationPageLabel : "";
+      if (page) {
+        const input = (
+          doc.getElementById("bubble-input") as any
+        )?.getCurrentInput?.();
+        if (input && !input.value) {
+          const trimmed = String(page).trim();
+          input.value = /^\d/.test(trimmed) ? `: ${trimmed}` : trimmed;
+        }
+      }
+    }
     if (!works.length) return;
     const add = (win as any).IOManager?.addItemsToCitation;
     if (typeof add !== "function") {
@@ -561,6 +678,8 @@ export async function insert(win: Window, ids: number[]) {
       return;
     }
     await add.call((win as any).IOManager, works);
+    win.setTimeout(refocus, 20);
+    win.setTimeout(refocus, 100);
     return;
   }
 
@@ -589,4 +708,6 @@ export async function insert(win: Window, ids: number[]) {
     await new Promise((r) => win.setTimeout(r, 30));
     row.remove();
   }
+  win.setTimeout(refocus, 20);
+  win.setTimeout(refocus, 100);
 }

@@ -48,6 +48,9 @@ export type GateName =
   | "annotationRowPatch"
   | "modeSelector"
   | "outlineView"
+  | "bubbleReorder"
+  | "annotationPreview"
+  | "mixedCitation"
   // Runtime sub-features
   | "citedTracking"
   | "footnoteJump"
@@ -189,6 +192,27 @@ export const gates: readonly FeatureGate[] = [
     enabled: true,
     requires: ["citationDialog", "annotationIndex"],
   },
+  {
+    name: "annotationPreview",
+    description:
+      "Citation preview in the annotations dialog while citation-only mode is on.",
+    enabled: true,
+    requires: ["citationDialog", "citeOnlyPatch"],
+  },
+  {
+    name: "mixedCitation",
+    description:
+      "Keep the chosen entries when switching between titles and annotations in the citation dialog (citation-only mode).",
+    enabled: true,
+    requires: ["citationDialog", "citeOnlyPatch"],
+  },
+  {
+    name: "bubbleReorder",
+    description:
+      "Drag-and-drop and keyboard reordering of citation bubbles in the citation dialog.",
+    enabled: true,
+    requires: ["citationDialog"],
+  },
 
   // ── Runtime sub-features ─────────────────────────────────────────────────
   {
@@ -317,6 +341,9 @@ export const RESTART_GATES: readonly GateName[] = [
   "annotationRowPatch",
   "modeSelector",
   "outlineView",
+  "bubbleReorder",
+  "annotationPreview",
+  "mixedCitation",
 ];
 
 /** Is there a gate with this name? (Consistency check for tests/code.) */

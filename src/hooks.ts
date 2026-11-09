@@ -3,6 +3,10 @@ import { createZToolkit } from "./utils/ztoolkit";
 import { OrganizerFactory } from "./features/organizer/panel/organizer";
 import { registerDialogInjector } from "./shared/citationDialog";
 import { outlineView } from "./features/organizer/citationDialog/dialogOutline";
+import {
+  injectBubbleReorder,
+  removeBubbleReorder,
+} from "./features/organizer/citationDialog/bubbleReorder";
 import { rememberCollection } from "./features/organizer/citationDialog/dialogCited";
 import * as modeSelector from "./features/citeOnly/modeSelector";
 import {
@@ -129,6 +133,10 @@ async function onStartup() {
       rememberCollection,
     },
     modeSelector,
+    bubbleReorder: {
+      inject: injectBubbleReorder,
+      remove: removeBubbleReorder,
+    },
     registry,
     gates,
     featureLifecycle: { startAll, stopAll, addToWindow, removeFromWindow },

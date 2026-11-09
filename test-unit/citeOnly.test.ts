@@ -23,9 +23,27 @@ describe("citationOnlyItems", () => {
     assert.equal(citationOnlyItems([{ id: 1 }], []), null);
   });
 
-  it("returns null for a mixed selection (non-annotation entry)", () => {
+  it("rewrites annotations and preserves regular items in a mixed selection", () => {
     const items = [{ id: 1 }, { id: 2 }];
-    assert.equal(citationOnlyItems(items, [ref(), null]), null);
+    const result = citationOnlyItems(items, [
+      ref({ topLevelId: 100, pageLabel: "22", locatorType: "page" }),
+      null,
+    ]);
+    assert.deepEqual(result, [
+      {
+        id: 100,
+        locator: "22",
+        label: "page",
+        uris: undefined,
+        itemData: undefined,
+      },
+      { id: 2 },
+    ]);
+  });
+
+  it("returns null when no entries are annotations", () => {
+    const items = [{ id: 1 }, { id: 2 }];
+    assert.equal(citationOnlyItems(items, [null, null]), null);
   });
 
   it("returns null when an annotation has no citable top-level item", () => {
